@@ -26,6 +26,6 @@
   "dependencies": {
     "lodash-es": "^4.17.21",
     "ranui": "0.1.10-alpha.19",
-    "ranuts": "0.1.0-alpha.17"
+    "ranuts": "0.1.0-alpha.20"
   }
 }

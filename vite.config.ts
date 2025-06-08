@@ -11,15 +11,11 @@ export default defineConfig({
   publicDir: 'public',
   resolve: {
     alias: {
-      '@/components': resolve(__dirname, '/components'),
-      '@/router': resolve(__dirname, '/router'),
       '@/lib': resolve(__dirname, '/lib'),
       '@/store': resolve(__dirname, '/store'),
       '@/assets': resolve(__dirname, '/assets'),
       '@/types': resolve(__dirname, '/types'),
       '@/styles': resolve(__dirname, '/styles'),
-      '@/pages': resolve(__dirname, '/pages'),
-      '@/locales': resolve(__dirname, '/locales'),
     },
     extensions: ['.mjs', '.js', '.ts', '.jsx', '.tsx', '.json'],
   },

@@ -1,10 +1,22 @@
+import { getDocmentObj } from "@/store"
 import { g_sEmpty_bin } from "./empty_bin"
+
+declare global {
+    interface Window {
+        Module: EmscriptenModule
+        editor?: {
+            sendCommand: ({ command, data }: { command: string, data: { err_code?: number, urls?: Record<string, string>, path?: string, imgName?: string, buf?: ArrayBuffer, success?: boolean, error?: string } }) => void
+            destroyEditor: () => void
+        }
+    }
+  
+}
 
 // types/x2t.d.ts - 类型定义文件
 interface EmscriptenFileSystem {
     mkdir(path: string): void
     readdir(path: string): string[]
-    readFile(path: string, options?: { encoding: 'binary' }): Uint8Array
+    readFile(path: string, options?: { encoding: 'binary' }): BlobPart
     writeFile(path: string, data: Uint8Array | string): void
 }
 
@@ -17,35 +29,16 @@ interface EmscriptenModule {
 interface ConversionResult {
     fileName: string
     type: DocumentType
-    bin: Uint8Array
+    bin: BlobPart
     media: Record<string, string>
 }
 
 interface BinConversionResult {
     fileName: string
-    data: Uint8Array
+    data: BlobPart
 }
 
 type DocumentType = 'word' | 'cell' | 'slide'
-type SupportedExtension =
-    | 'docx'
-    | 'doc'
-    | 'odt'
-    | 'rtf'
-    | 'txt'
-    | 'xlsx'
-    | 'xls'
-    | 'ods'
-    | 'csv'
-    | 'pptx'
-    | 'ppt'
-    | 'odp'
-
-declare global {
-    interface Window {
-        Module: EmscriptenModule
-    }
-}
 
 /**
  * X2T 工具类 - 负责文档转换功能
@@ -261,7 +254,7 @@ class X2TConverter {
                     try {
                         const fileData = this.x2tModule!.FS.readFile(`/working/media/${file}`, {
                             encoding: 'binary',
-                        })
+                        }) as BlobPart
 
                         const blob = new Blob([fileData])
                         const mediaUrl = URL.createObjectURL(blob)
@@ -380,7 +373,7 @@ class X2TConverter {
     /**
      * 下载文件
      */
-    private downloadFile(data: Uint8Array, fileName: string): void {
+    private downloadFile(data: BlobPart, fileName: string): void {
         const blob = new Blob([data])
         const url = URL.createObjectURL(blob)
         const link = document.createElement('a')
@@ -462,7 +455,7 @@ class X2TConverter {
      * 使用现代文件系统 API 保存文件
      */
     private async saveWithFileSystemAPI(
-        data: Uint8Array,
+        data: BlobPart,
         fileName: string,
         mimeType?: string,
     ): Promise<void> {
@@ -602,8 +595,12 @@ export const c_oAscFileType2 = Object.fromEntries(
 
 interface SaveEvent {
     data: {
-        data: string
-        option: any
+        data: {
+            data: ArrayBuffer
+        }
+        option: {
+            outputformat: number
+        }
     }
 }
 
@@ -612,19 +609,17 @@ async function handleSaveDocument(event: SaveEvent) {
 
     if (event.data && event.data.data) {
         const { data, option } = event.data
-        console.log(data, 'data')
+        const { fileName } = getDocmentObj() || {}
         // 创建下载
         await convertBinToDocumentAndDownload(
-            data.data,
-            props.file.fileName,
+            new Uint8Array(data.data),
+            fileName,
             c_oAscFileType2[option.outputformat],
         )
-        // const blob = dataURItoBlob(data);
-        // saveAs(blob, props.file.fileName);
     }
 
     // 告知编辑器保存完成
-    window.editor.sendCommand({
+    window.editor?.sendCommand({
         command: 'asc_onSaveCallback',
         data: { err_code: 0 },
     })
@@ -708,14 +703,14 @@ function handleWriteFile(event: any) {
         //  const base64Url = `data:${mimeType};base64,${btoa(String.fromCharCode(...imageData))}`;
         // 将图片 URL 添加到媒体映射中，使用原始文件名作为 key
         media[`media/${fileName}`] = objectUrl
-        window.editor.sendCommand({
+        window.editor?.sendCommand({
             command: 'asc_setImageUrls',
             data: {
                 urls: media,
             },
         })
 
-        window.editor.sendCommand({
+        window.editor?.sendCommand({
             command: 'asc_writeFileCallback',
             data: {
                 // 图片 base64
@@ -748,16 +743,16 @@ function handleWriteFile(event: any) {
 }
 
 // 公共编辑器创建方法
-function createEditorInstance(config: {
+function  createEditorInstance(config: {
     fileName: string
     fileType: string
-    binData: ArrayBuffer
+    binData: ArrayBuffer | string
     media?: any
 }) {
     // 清理旧编辑器实例
     if (window.editor) {
         window.editor.destroyEditor()
-        window.editor = null
+        window.editor = undefined
     }
 
     const { fileName, fileType, binData, media } = config
@@ -774,7 +769,7 @@ function createEditorInstance(config: {
             },
         },
         editorConfig: {
-            lang: 'en',
+            lang: navigator.language,
             customization: {
                 help: false,
                 about: false,
@@ -794,14 +789,14 @@ function createEditorInstance(config: {
             onAppReady: () => {
                 // 设置媒体资源
                 if (media) {
-                    window.editor.sendCommand({
+                    window.editor?.sendCommand({
                         command: 'asc_setImageUrls',
                         data: { urls: media },
                     })
                 }
 
                 // 加载文档内容
-                window.editor.sendCommand({
+                window.editor?.sendCommand({
                     command: 'asc_openDocument',
                     data: { buf: binData },
                 })
@@ -826,7 +821,7 @@ export async function handleDocumentOperation(options: { isNew: boolean; fileNam
 
         // 获取文档内容
         let documentData: {
-            bin: ArrayBuffer
+            bin: ArrayBuffer | string
             media?: any
         }
 

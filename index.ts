@@ -4,13 +4,22 @@ import { initX2T, handleDocumentOperation } from './lib/x2t'
 import { getDocmentObj, setDocmentObj } from "./store";
 import './styles/base.css';
 
+declare global {
+    interface Window {
+        onCreateNew: (ext: string) => Promise<void>
+        DocsAPI: {
+            DocEditor: new (elementId: string, config: any) => any;
+        };
+    }
+}
+
 const { file } = getAllQueryString();
 
 const { removeLoading } = showLoading()
 
 const getFileName = (res: Response) => {
     // 获取文件名
-    let fileName = Math.random().toString(36).substring(2, 15)
+    let fileName: string = Math.random().toString(36).substring(2, 15)
     // 2. 如果没有 filename 参数，尝试从 URL 末尾解析
     if (!fileName) {
         const match = decodeURIComponent(file).match(/\/([^\/?#]+)$/)
@@ -32,13 +41,20 @@ const getFileName = (res: Response) => {
     return fileName
 }
 
-const onCreateNew = (ext: string) => {
+const onCreateNew = async (ext: string) => {
     setDocmentObj({
         fileName: 'New_Document' + ext,
         file: undefined,
     })
-    // removeLoading()
+    await initX2T()
+    const { fileName, file: fileBlob } = getDocmentObj()
+    await handleDocumentOperation({ file: fileBlob, fileName, isNew: !fileBlob })
+    removeLoading()
 }
+// example: window.onCreateNew('.docx')
+// example: window.onCreateNew('.xlsx')
+// example: window.onCreateNew('.pptx')
+window.onCreateNew = onCreateNew
 
 const onOpenDocument = async () => {
     return new Promise((resolve, reject) => {
@@ -46,16 +62,20 @@ const onOpenDocument = async () => {
         const input = document.createElement('input')
         input.type = 'file'
         input.accept = '.docx,.xlsx,.pptx,.doc,.xls,.ppt'
+        input.style.setProperty('visibility', 'hidden')
         document.body.appendChild(input)
-        input.onchange = (event) => {
+        input.onchange = async (event) => {
             const file = (event.target as HTMLInputElement).files?.[0]
             if (file) {
-                // removeLoading()
                 setDocmentObj({
                     fileName: file.name,
                     file: file,
                     url: URL.createObjectURL(file),
                 })
+                await initX2T()
+                const { fileName, file: fileBlob } = getDocmentObj()
+                await handleDocumentOperation({ file: fileBlob, fileName, isNew: !fileBlob })
+                removeLoading()
                 resolve(true)
                 document.body.removeChild(input)
             }
@@ -70,26 +90,3 @@ if (!file) {
         url: file,
     })
 }
-
-try {
-    // const docmentObj = getDocmentObj()
-    // const res = await fetch(docmentObj.url)
-    // const fileName = getFileName(res)
-    // if (!res.ok) throw new Error('文件请求失败')
-    // const blob = await res.blob()
-
-    // const fileBlob = new File([blob], fileName, { type: blob.type })
-    // setDocmentObj({
-    //     fileName,
-    //     file: fileBlob,
-    // })
-    await initX2T()
-    const { fileName, file: fileBlob } = getDocmentObj()
-    await handleDocumentOperation({ file: fileBlob, fileName, isNew: !fileBlob })
-    removeLoading()
-
-} catch (error) {
-    console.log('error', error);
-}
-
-console.log("----", file);
