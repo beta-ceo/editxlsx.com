@@ -1,0 +1,23 @@
+@import 'tailwindcss';
+
+html,
+body {
+  height: 100%;
+}
+
+a {
+  color: unset;
+}
+
+input {
+  outline: unset;
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  width: 0px;
+  display: none;
+}
+
+h2 {
+  font-size: 1.5rem;
+}
