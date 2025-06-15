@@ -25,7 +25,7 @@ declare global {
   }
 }
 
-const fileChunks: RenderOfficeData[] = [];
+let fileChunks: RenderOfficeData[] = [];
 
 const events: Record<string, MessageHandler<any, unknown>> = {
   RENDER_OFFICE: async (data: RenderOfficeData) => {
@@ -36,6 +36,7 @@ const events: Record<string, MessageHandler<any, unknown>> = {
     }
     fileChunks.push(data);
     if (fileChunks.length >= data.totalChunks) {
+      const { removeLoading } = showLoading();
       const file = await MessageCodec.decodeFileChunked(fileChunks);
       setDocmentObj({
         fileName: file.name,
@@ -45,9 +46,12 @@ const events: Record<string, MessageHandler<any, unknown>> = {
       await initX2T();
       const { fileName, file: fileBlob } = getDocmentObj();
       await handleDocumentOperation({ file: fileBlob, fileName, isNew: !fileBlob });
+      fileChunks = []
+      removeLoading()
     }
   },
   CLOSE_EDITOR: () => {
+    fileChunks = []
     if (window.editor && typeof window.editor.destroyEditor === 'function') {
       window.editor.destroyEditor();
     }
