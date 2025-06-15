@@ -1,5 +1,7 @@
 # OnlyOffice Web Local
 
+[English](readme.md) | [中文](readme.zh.md)
+
 A local web-based document editor based on OnlyOffice, allowing you to edit documents directly in your browser without server-side processing.
 
 ## Features
