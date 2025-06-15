@@ -109,40 +109,92 @@ const createControlPanel = () => {
   const container = document.createElement('div');
   container.style.cssText = `
     width: 100%;
-    background: white;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    background: linear-gradient(to right, #ffffff, #f8f9fa);
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+    border-bottom: 1px solid #eaeaea;
   `;
 
   const controlPanel = document.createElement('div');
   controlPanel.id = 'control-panel';
   controlPanel.style.cssText = `
     display: flex;
-    gap: 10px;
-    padding: 10px;
+    flex-wrap: wrap;
+    gap: 16px;
+    padding: 20px;
     z-index: 1000;
+    max-width: 1200px;
+    margin: 0 auto;
+    align-items: center;
+  `;
+
+  // 创建标题区域
+  const titleSection = document.createElement('div');
+  titleSection.style.cssText = `
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-right: auto;
+  `;
+
+  const logo = document.createElement('div');
+  logo.style.cssText = `
+    width: 32px;
+    height: 32px;
+    background: linear-gradient(135deg, #1890ff, #096dd9);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-weight: bold;
+    font-size: 16px;
+  `;
+  logo.textContent = 'W';
+  titleSection.appendChild(logo);
+
+  const title = document.createElement('div');
+  title.style.cssText = `
+    font-size: 18px;
+    font-weight: 600;
+    color: #1f1f1f;
+  `;
+  title.textContent = 'Web Office';
+  titleSection.appendChild(title);
+
+  controlPanel.appendChild(titleSection);
+
+  // 创建按钮组
+  const buttonGroup = document.createElement('div');
+  buttonGroup.style.cssText = `
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    align-items: center;
   `;
 
   // Create upload button
   const uploadButton = document.createElement('r-button');
   uploadButton.textContent = 'Upload Document';
   uploadButton.addEventListener('click', onOpenDocument);
-  controlPanel.appendChild(uploadButton);
+  buttonGroup.appendChild(uploadButton);
 
   // Create new document buttons
   const createDocxButton = document.createElement('r-button');
   createDocxButton.textContent = 'New Word';
   createDocxButton.addEventListener('click', () => onCreateNew('.docx'));
-  controlPanel.appendChild(createDocxButton);
+  buttonGroup.appendChild(createDocxButton);
 
   const createXlsxButton = document.createElement('r-button');
   createXlsxButton.textContent = 'New Excel';
   createXlsxButton.addEventListener('click', () => onCreateNew('.xlsx'));
-  controlPanel.appendChild(createXlsxButton);
+  buttonGroup.appendChild(createXlsxButton);
 
   const createPptxButton = document.createElement('r-button');
   createPptxButton.textContent = 'New PowerPoint';
   createPptxButton.addEventListener('click', () => onCreateNew('.pptx'));
-  controlPanel.appendChild(createPptxButton);
+  buttonGroup.appendChild(createPptxButton);
+
+  controlPanel.appendChild(buttonGroup);
 
   // 将控制面板添加到容器中
   container.appendChild(controlPanel);
