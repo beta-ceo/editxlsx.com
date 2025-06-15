@@ -10,8 +10,6 @@ A local web-based document editor based on OnlyOffice, allowing you to edit docu
 - No server-side processing required
 - Privacy-focused: all processing happens in your browser
 
-## Getting Started
-
 ## Deployment
 
 The project is automatically deployed to GitHub Pages when changes are pushed to the main branch.
