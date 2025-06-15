@@ -13,7 +13,7 @@
     "lint": "eslint --cache ."
   },
   "engines": {
-    "node": ">=23.0.0"
+    "node": ">=22.0.0"
   },
   "keywords": [],
   "author": "",
