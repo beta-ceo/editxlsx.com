@@ -120,8 +120,9 @@ const onOpenDocument = async () => {
     };
   });
 };
+
 if (!file) {
-  await onOpenDocument();
+  onOpenDocument();
 } else {
   setDocmentObj({
     fileName: Math.random().toString(36).substring(2, 15),
