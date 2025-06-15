@@ -12,13 +12,13 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest]
-        node_version: [22, 24]
+        node_version: [20]
         include:
           # Active LTS + other OS
           - os: macos-latest
-            node_version: 22
+            node_version: 20
           - os: windows-latest
-            node_version: 22
+            node_version: 20
       fail-fast: false
     name: "Build&Test: node-${{ matrix.node_version }}, ${{ matrix.os }}"
     steps:
@@ -41,9 +41,6 @@ jobs:
         shell: bash
         run: |
           echo "STORE_PATH=$(pnpm store path)" >> $GITHUB_OUTPUT
-
-      - name: prepare
-        run: pnpm pre
 
       - name: Install deps
         run: pnpm install

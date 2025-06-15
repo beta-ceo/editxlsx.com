@@ -55,7 +55,7 @@ const { file } = getAllQueryString();
 
 const { removeLoading } = showLoading();
 
-export const getFileName = (res: Response): string => {
+export const getFileName = (res: { headers: { get: (name: string) => string | null } }): string => {
   // 获取文件名
   let fileName: string = Math.random().toString(36).substring(2, 15);
   // 2. 如果没有 filename 参数，尝试从 URL 末尾解析

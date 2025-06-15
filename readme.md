@@ -14,11 +14,6 @@ A local web-based document editor based on OnlyOffice, allowing you to edit docu
 
 
 
-### Prerequisites
-
-- Node.js (v16 or higher)
-- pnpm (v7 or higher)
-
 ## Deployment
 
 The project is automatically deployed to GitHub Pages when changes are pushed to the main branch.
