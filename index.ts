@@ -2,6 +2,7 @@ import { MessageCodec, Platform, getAllQueryString } from 'ranuts/utils';
 import type { MessageHandler } from 'ranuts/utils';
 import { handleDocumentOperation, initX2T } from './lib/x2t';
 import { getDocmentObj, setDocmentObj } from './store';
+import { showLoading } from './lib/loading';
 import 'ranui/button';
 import './styles/base.css';
 
@@ -81,9 +82,9 @@ document.body.appendChild(fileInput);
 
 const onOpenDocument = async () => {
   return new Promise((resolve) => {
+    const { removeLoading } = showLoading();
     // 触发文件选择器的点击事件
     fileInput.click();
-
     fileInput.onchange = async (event) => {
       const file = (event.target as HTMLInputElement).files?.[0];
       if (file) {
@@ -96,6 +97,7 @@ const onOpenDocument = async () => {
         const { fileName, file: fileBlob } = getDocmentObj();
         await handleDocumentOperation({ file: fileBlob, fileName, isNew: !fileBlob });
         resolve(true);
+        removeLoading();
         // 清空文件选择，这样同一个文件可以重复选择
         fileInput.value = '';
       }
