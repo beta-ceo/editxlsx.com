@@ -34,7 +34,6 @@ const events: Record<string, MessageHandler<any, unknown>> = {
     if (controlPanel) {
       controlPanel.style.display = 'none';
     }
-    console.log('data----->', data);
     fileChunks.push(data);
     if (fileChunks.length >= data.totalChunks) {
       const file = await MessageCodec.decodeFileChunked(fileChunks);
