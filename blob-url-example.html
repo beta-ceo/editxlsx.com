@@ -1,46 +1,46 @@
-<!DOCTYPE html>
+<!doctype html>
 <html>
-<head>
+  <head>
     <title>Blob URL Example</title>
-</head>
-<body>
-    <input type="file" id="fileInput">
+  </head>
+  <body>
+    <input type="file" id="fileInput" />
     <div>
-        <h3>Preview in iframe:</h3>
-        <iframe id="previewFrame" width="500" height="300"></iframe>
+      <h3>Preview in iframe:</h3>
+      <iframe id="previewFrame" width="500" height="300"></iframe>
     </div>
     <div>
-        <h3>Fetch attempt result:</h3>
-        <pre id="fetchResult"></pre>
+      <h3>Fetch attempt result:</h3>
+      <pre id="fetchResult"></pre>
     </div>
 
     <script>
-        const fileInput = document.getElementById('fileInput');
-        const previewFrame = document.getElementById('previewFrame');
-        const fetchResult = document.getElementById('fetchResult');
+      const fileInput = document.getElementById('fileInput');
+      const previewFrame = document.getElementById('previewFrame');
+      const fetchResult = document.getElementById('fetchResult');
 
-        fileInput.addEventListener('change', async (e) => {
-            const file = e.target.files[0];
-            if (!file) return;
+      fileInput.addEventListener('change', async (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
 
-            // 创建 blob URL
-            const blobUrl = URL.createObjectURL(file);
-            
-            // 在 iframe 中预览
-            previewFrame.src = blobUrl;
+        // 创建 blob URL
+        const blobUrl = URL.createObjectURL(file);
 
-            // 尝试使用 fetch 获取
-            try {
-                const response = await fetch(blobUrl);
-                const data = await response.text();
-                fetchResult.textContent = 'Fetch successful: ' + data;
-            } catch (error) {
-                fetchResult.textContent = 'Fetch failed: ' + error.message;
-            }
+        // 在 iframe 中预览
+        previewFrame.src = blobUrl;
 
-            // 清理 blob URL
-            // URL.revokeObjectURL(blobUrl);
-        });
+        // 尝试使用 fetch 获取
+        try {
+          const response = await fetch(blobUrl);
+          const data = await response.text();
+          fetchResult.textContent = 'Fetch successful: ' + data;
+        } catch (error) {
+          fetchResult.textContent = 'Fetch failed: ' + error.message;
+        }
+
+        // 清理 blob URL
+        // URL.revokeObjectURL(blobUrl);
+      });
     </script>
-</body>
-</html> 
+  </body>
+</html>
