@@ -60,6 +60,7 @@ Platform.init(events);
 const { file } = getAllQueryString();
 
 const onCreateNew = async (ext: string) => {
+  const { removeLoading } = showLoading();
   setDocmentObj({
     fileName: 'New_Document' + ext,
     file: undefined,
@@ -67,6 +68,7 @@ const onCreateNew = async (ext: string) => {
   await initX2T();
   const { fileName, file: fileBlob } = getDocmentObj();
   await handleDocumentOperation({ file: fileBlob, fileName, isNew: !fileBlob });
+  removeLoading();
 };
 // example: window.onCreateNew('.docx')
 // example: window.onCreateNew('.xlsx')
@@ -82,11 +84,11 @@ document.body.appendChild(fileInput);
 
 const onOpenDocument = async () => {
   return new Promise((resolve) => {
-    const { removeLoading } = showLoading();
     // 触发文件选择器的点击事件
     fileInput.click();
     fileInput.onchange = async (event) => {
       const file = (event.target as HTMLInputElement).files?.[0];
+      const { removeLoading } = showLoading();
       if (file) {
         setDocmentObj({
           fileName: file.name,
