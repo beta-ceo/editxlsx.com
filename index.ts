@@ -1,6 +1,6 @@
 import { MessageCodec, Platform, getAllQueryString } from 'ranuts/utils';
 import type { MessageHandler } from 'ranuts/utils';
-import { handleDocumentOperation, initX2T } from './lib/x2t';
+import { handleDocumentOperation, initX2T, loadEditorApi, loadScript } from './lib/x2t';
 import { getDocmentObj, setDocmentObj } from './store';
 import { showLoading } from './lib/loading';
 import 'ranui/button';
@@ -46,12 +46,12 @@ const events: Record<string, MessageHandler<any, unknown>> = {
       await initX2T();
       const { fileName, file: fileBlob } = getDocmentObj();
       await handleDocumentOperation({ file: fileBlob, fileName, isNew: !fileBlob });
-      fileChunks = []
-      removeLoading()
+      fileChunks = [];
+      removeLoading();
     }
   },
   CLOSE_EDITOR: () => {
-    fileChunks = []
+    fileChunks = [];
     if (window.editor && typeof window.editor.destroyEditor === 'function') {
       window.editor.destroyEditor();
     }
@@ -68,6 +68,8 @@ const onCreateNew = async (ext: string) => {
     fileName: 'New_Document' + ext,
     file: undefined,
   });
+  await loadScript();
+  await loadEditorApi();
   await initX2T();
   const { fileName, file: fileBlob } = getDocmentObj();
   await handleDocumentOperation({ file: fileBlob, fileName, isNew: !fileBlob });
@@ -181,7 +183,7 @@ const createControlPanel = () => {
 
   // Create upload button
   const uploadButton = document.createElement('r-button');
-  uploadButton.textContent = 'Upload Document';
+  uploadButton.textContent = 'Upload Document to view';
   uploadButton.addEventListener('click', onOpenDocument);
   buttonGroup.appendChild(uploadButton);
 

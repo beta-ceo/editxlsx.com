@@ -1,4 +1,5 @@
 import { getExtensions } from 'ranuts/utils';
+import 'ranui/message';
 import { g_sEmpty_bin } from './empty_bin';
 import { getDocmentObj } from '@/store';
 
@@ -358,9 +359,12 @@ class X2TConverter {
       // 读取生成的文档
       const result = this.x2tModule!.FS.readFile(`/working/${outputFileName}`);
 
+      // 确保 result 是 Uint8Array 类型
+      const resultArray = result instanceof Uint8Array ? result : new Uint8Array(result as ArrayBuffer);
+
       // 下载文件
       // TODO: 完善打印功能
-      this.saveWithFileSystemAPI(result, outputFileName);
+      this.saveWithFileSystemAPI(resultArray, outputFileName);
 
       return {
         fileName: outputFileName,
@@ -374,8 +378,8 @@ class X2TConverter {
   /**
    * 下载文件
    */
-  private downloadFile(data: BlobPart, fileName: string): void {
-    const blob = new Blob([data]);
+  private downloadFile(data: Uint8Array, fileName: string): void {
+    const blob = new Blob([data as BlobPart]);
     const url = window.URL.createObjectURL(blob);
     const link = document.createElement('a');
 
@@ -392,6 +396,7 @@ class X2TConverter {
       window.URL.revokeObjectURL(url);
     }, 100);
   }
+
   /**
    * 根据文件扩展名获取 MIME 类型
    */
@@ -455,7 +460,7 @@ class X2TConverter {
   /**
    * 使用现代文件系统 API 保存文件
    */
-  private async saveWithFileSystemAPI(data: BlobPart, fileName: string, mimeType?: string): Promise<void> {
+  private async saveWithFileSystemAPI(data: Uint8Array, fileName: string, mimeType?: string): Promise<void> {
     if (!(window as any).showSaveFilePicker) {
       this.downloadFile(data, fileName);
       return;
@@ -482,7 +487,7 @@ class X2TConverter {
       const writable = await fileHandle.createWritable();
       await writable.write(data);
       await writable.close();
-
+      window?.message?.success?.(`文件保存成功：${fileName}`);
       console.log('File saved successfully:', fileName);
     } catch (error) {
       if ((error as Error).name === 'AbortError') {
@@ -504,9 +509,30 @@ class X2TConverter {
   }
 }
 
+export function loadEditorApi(): Promise<void> {
+  return new Promise((resolve, reject) => {
+    // 检查是否已加载
+    if (window.DocsAPI) {
+      resolve();
+      return;
+    }
+
+    // 加载编辑器 API
+    const script = document.createElement('script');
+    script.src = './web-apps/apps/api/documents/api.js';
+    script.onload = () => resolve();
+    script.onerror = (error) => {
+      console.error('Failed to load OnlyOffice API:', error);
+      alert('无法加载编辑器组件。请确保已正确安装 OnlyOffice API。');
+      reject(error);
+    };
+    document.head.appendChild(script);
+  });
+}
+
 // 单例实例
 const x2tConverter = new X2TConverter();
-
+export const loadScript = (): Promise<void> => x2tConverter.loadScript();
 export const initX2T = (): Promise<EmscriptenModule> => x2tConverter.initialize();
 export const convertDocument = (file: File): Promise<ConversionResult> => x2tConverter.convertDocument(file);
 export const convertBinToDocumentAndDownload = (
@@ -593,7 +619,7 @@ export const c_oAscFileType2 = Object.fromEntries(
 interface SaveEvent {
   data: {
     data: {
-      data: ArrayBuffer;
+      data: Uint8Array;
     };
     option: {
       outputformat: number;
@@ -608,7 +634,7 @@ async function handleSaveDocument(event: SaveEvent) {
     const { data, option } = event.data;
     const { fileName } = getDocmentObj() || {};
     // 创建下载
-    await convertBinToDocumentAndDownload(new Uint8Array(data.data), fileName, c_oAscFileType2[option.outputformat]);
+    await convertBinToDocumentAndDownload(data.data, fileName, c_oAscFileType2[option.outputformat]);
   }
 
   // 告知编辑器保存完成

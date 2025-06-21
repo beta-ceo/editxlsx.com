@@ -28,4 +28,4 @@
 
 ## 许可证
 
-详情请参阅 [LICENSE](LICENSE) 文件。 
+详情请参阅 [LICENSE](LICENSE) 文件。

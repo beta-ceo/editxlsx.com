@@ -12,8 +12,8 @@ importers:
         specifier: 0.1.10-alpha.19
         version: 0.1.10-alpha.19
       ranuts:
-        specifier: 0.1.0-alpha-21
-        version: 0.1.0-alpha-21
+        specifier: 0.1.0-alpha-22
+        version: 0.1.0-alpha-22
     devDependencies:
       '@eslint/js':
         specifier: ^9.29.0
@@ -1426,8 +1426,8 @@ packages:
     resolution: {integrity: sha512-Egr3pqgzIB/UXvHFClUoY7GR0El4ExiGzNZHKmzLsH1ouR5/8PPWz1QjHJTVcTUToxOGY1kChPFjtSwRf0AlCQ==}
     engines: {node: ^16.20.2 || >=18.0.0}
 
-  ranuts@0.1.0-alpha-21:
-    resolution: {integrity: sha512-Zd1f3X+78jXMXvpb8WQDWS/H36PSuNoulZQJ3p2wiE03ptyIqr3gPwamxn9gGmFmEUCE7+QPYVhzWc9JjaqKKA==}
+  ranuts@0.1.0-alpha-22:
+    resolution: {integrity: sha512-+tIYOTmkaydCzb8sUn5inu+UkKjthV7hm8DLdC1WGZeMNgHfTMe5NWRVAsTBfH0TAu6qr0GNw4WXujGvEMU0kg==}
     engines: {node: '>=23.10.0'}
 
   readable-stream@2.3.8:
@@ -2939,12 +2939,12 @@ snapshots:
       exceljs: 4.4.0
       jszip: 3.10.1
       lodash: 4.17.21
-      ranuts: 0.1.0-alpha-21
+      ranuts: 0.1.0-alpha-22
       tinycolor2: 1.6.0
     transitivePeerDependencies:
       - encoding
 
-  ranuts@0.1.0-alpha-21:
+  ranuts@0.1.0-alpha-22:
     dependencies:
       earcut: 3.0.1
       jschardet: 3.1.4
