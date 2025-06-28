@@ -6,6 +6,10 @@ Website: https://ranuts.github.io/document/
 
 A local web-based document editor based on OnlyOffice, allowing you to edit documents directly in your browser without server-side processing.
 
+It also provides foundational services for document preview components in the [ranui](https://github.com/chaxus/ran) WebComponent library.
+
+Documentation for the preview component: [https://chaxus.github.io/ran/src/ranui/preview/](https://chaxus.github.io/ran/src/ranui/preview/)
+
 ## Features
 
 - Edit documents locally in your browser

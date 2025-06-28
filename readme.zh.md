@@ -1,10 +1,14 @@
-# OnlyOffice Web
+# `OnlyOffice Web`
 
 网站：https://ranuts.github.io/document/
 
 [English](readme.md) | [中文](readme.zh.md)
 
-基于 OnlyOffice 的本地网页文档编辑器，允许您直接在浏览器中编辑文档，无需服务器端处理。
+基于 `OnlyOffice` 的本地网页文档编辑器，允许您直接在浏览器中编辑文档，无需服务器端处理。
+
+同时为 `WebComponent` 组件库 [ranui](https://github.com/chaxus/ran) 提供文档预览组件的基础服务支持。
+
+预览组件的使用文档：[https://chaxus.github.io/ran/src/ranui/preview/](https://chaxus.github.io/ran/src/ranui/preview/)
 
 ## 功能特点
 
