@@ -1,4 +1,4 @@
-# OnlyOffice Web Local
+# OnlyOffice Web
 
 网站：https://ranuts.github.io/document/
 
