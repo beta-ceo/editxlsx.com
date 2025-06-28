@@ -51,11 +51,11 @@ git clone https://github.com/ranuts/document.git
 # Navigate to the project directory
 cd document
 
-# Start a local development server
-# Use your preferred static file server, for example:
-python -m http.server 8000
-# or
-npx serve .
+# Install dependencies
+npm install
+
+# Start local development server
+npm run dev
 ```
 
 ## 📚 References
@@ -72,4 +72,4 @@ Issues and Pull Requests are welcome to help improve this project!
 
 ## 📄 License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+see the [LICENSE](LICENSE) file for details.

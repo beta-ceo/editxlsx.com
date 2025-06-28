@@ -51,11 +51,10 @@ git clone https://github.com/ranuts/document.git
 # 进入项目目录
 cd document
 
+# 安装依赖
+npm install
 # 启动本地开发服务器
-# 使用您喜欢的静态文件服务器，例如：
-python -m http.server 8000
-# 或
-npx serve .
+npm run dev
 ```
 
 ## 📚 参考资料
@@ -72,4 +71,4 @@ npx serve .
 
 ## 📄 许可证
 
-本项目采用 MIT 许可证 - 详情请参阅 [LICENSE](LICENSE) 文件。
+详情请参阅 [LICENSE](LICENSE) 文件。
