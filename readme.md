@@ -1,35 +1,75 @@
 # OnlyOffice Web
 
-Website: https://ranuts.github.io/document/
+🌐 **Live Demo**: https://ranuts.github.io/document/
 
 [English](readme.md) | [中文](readme.zh.md)
 
-A local web-based document editor based on OnlyOffice, allowing you to edit documents directly in your browser without server-side processing.
+A local web-based document editor based on OnlyOffice, allowing you to edit documents directly in your browser without server-side processing, ensuring your privacy and security.
 
-It also provides foundational services for document preview components in the [ranui](https://github.com/chaxus/ran) WebComponent library.
+## ✨ Key Features
 
-Documentation for the preview component: [https://chaxus.github.io/ran/src/ranui/preview/](https://chaxus.github.io/ran/src/ranui/preview/)
+- 🔒 **Privacy-First**: All document processing happens locally in your browser, with no uploads to any server
+- 📝 **Multi-Format Support**: Supports DOCX, XLSX, PPTX, PDF, and many other document formats
+- ⚡ **Real-Time Editing**: Provides smooth real-time document editing experience
+- 🚀 **No Server Required**: Pure frontend implementation with no server-side processing needed
+- 🎯 **Ready to Use**: Start editing documents immediately by opening the webpage
 
-## Features
+## 🛠️ Technical Architecture
 
-- Edit documents locally in your browser
-- Support for multiple document formats (DOCX, XLSX, PPTX, etc.)
-- Real-time document preview
-- No server-side processing required
-- Privacy-focused: all processing happens in your browser
+This project is built on the following core technologies:
 
-## Deployment
+- **OnlyOffice SDK**: Provides powerful document editing capabilities
+- **WebAssembly**: Implements document format conversion through x2t-wasm
+- **Pure Frontend Architecture**: All functionality runs in the browser
 
-The project is automatically deployed to GitHub Pages when changes are pushed to the main branch.
+## 📖 Usage
 
-## Reference
+### Basic Usage
 
-- [onlyoffice-x2t-wasm](https://github.com/cryptpad/onlyoffice-x2t-wasm): WebAssembly-based document converter
-- [se-office](https://github.com/Qihoo360/se-office): Secure document editor
-- [web-apps](https://github.com/ONLYOFFICE/web-apps): OnlyOffice web applications
-- [sdkjs](https://github.com/ONLYOFFICE/sdkjs): OnlyOffice JavaScript SDK
-- [onlyoffice-web-local](https://github.com/sweetwisdom/onlyoffice-web-local): Local web-based OnlyOffice implementation
+1. Visit the [Online Editor](https://ranuts.github.io/document/)
+2. Upload your document files
+3. Edit directly in your browser
+4. Download the edited documents
 
-## License
+### As a Component Library
+
+This project also provides foundational services for document preview components in the [ranui](https://github.com/chaxus/ran) WebComponent library.
+
+📚 **Preview Component Documentation**: [https://chaxus.github.io/ran/src/ranui/preview/](https://chaxus.github.io/ran/src/ranui/preview/)
+
+## 🚀 Deployment
+
+- **Auto Deployment**: The project is automatically deployed to GitHub Pages when changes are pushed to the main branch
+- **Manual Deployment**: You can also deploy the project to any static website hosting service
+
+## 🔧 Local Development
+
+```bash
+# Clone the repository
+git clone https://github.com/ranuts/document.git
+
+# Navigate to the project directory
+cd document
+
+# Start a local development server
+# Use your preferred static file server, for example:
+python -m http.server 8000
+# or
+npx serve .
+```
+
+## 📚 References
+
+- [onlyoffice-x2t-wasm](https://github.com/cryptpad/onlyoffice-x2t-wasm) - WebAssembly-based document converter
+- [se-office](https://github.com/Qihoo360/se-office) - Secure document editor
+- [web-apps](https://github.com/ONLYOFFICE/web-apps) - OnlyOffice web applications
+- [sdkjs](https://github.com/ONLYOFFICE/sdkjs) - OnlyOffice JavaScript SDK
+- [onlyoffice-web-local](https://github.com/sweetwisdom/onlyoffice-web-local) - Local web-based OnlyOffice implementation
+
+## 🤝 Contributing
+
+Issues and Pull Requests are welcome to help improve this project!
+
+## 📄 License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
