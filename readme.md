@@ -9,7 +9,7 @@ A local web-based document editor based on OnlyOffice, allowing you to edit docu
 ## ✨ Key Features
 
 - 🔒 **Privacy-First**: All document processing happens locally in your browser, with no uploads to any server
-- 📝 **Multi-Format Support**: Supports DOCX, XLSX, PPTX, PDF, and many other document formats
+- 📝 **Multi-Format Support**: Supports DOCX, XLSX, PPTX, and many other document formats
 - ⚡ **Real-Time Editing**: Provides smooth real-time document editing experience
 - 🚀 **No Server Required**: Pure frontend implementation with no server-side processing needed
 - 🎯 **Ready to Use**: Start editing documents immediately by opening the webpage
