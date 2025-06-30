@@ -33,7 +33,7 @@
 
 ### 作为组件库使用
 
-本项目同时为 [ranui](https://github.com/chaxus/ran) WebComponent 组件库提供文档预览组件的基础服务支持。
+本项目同时为 [@ranui/preview](https://www.npmjs.com/package/@ranui/preview) WebComponent 组件库提供文档预览组件的基础服务支持。
 
 📚 **预览组件文档**: [https://chaxus.github.io/ran/src/ranui/preview/](https://chaxus.github.io/ran/src/ranui/preview/)
 

@@ -33,7 +33,7 @@ This project is built on the following core technologies:
 
 ### As a Component Library
 
-This project also provides foundational services for document preview components in the [ranui](https://github.com/chaxus/ran) WebComponent library.
+This project also provides foundational services for document preview components in the [@ranui/preview](https://www.npmjs.com/package/@ranui/preview) WebComponent library.
 
 📚 **Preview Component Documentation**: [https://chaxus.github.io/ran/src/ranui/preview/](https://chaxus.github.io/ran/src/ranui/preview/)
 
