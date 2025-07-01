@@ -8,20 +8,6 @@ const __dirname = path.dirname(__filename);
 
 export default defineConfig({
   base: '/document',
-  plugins: [
-    {
-      name: 'gzip-headers',
-      configureServer(server) {
-        server.middlewares.use((req, res, next) => {
-          if (req.url && req.url.includes('.gz')) {
-            res.setHeader('Content-Encoding', 'gzip');
-            res.setHeader('Content-Type', 'application/wasm');
-          }
-          next();
-        });
-      },
-    },
-  ],
   publicDir: 'public',
   resolve: {
     alias: {
