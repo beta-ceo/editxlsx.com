@@ -82,7 +82,7 @@ class X2TConverter {
 
   private readonly WORKING_DIRS = ['/working', '/working/media', '/working/fonts', '/working/themes'];
   private readonly SCRIPT_PATH = '/document/wasm/x2t/x2t.js';
-  private readonly INIT_TIMEOUT = 30000;
+  private readonly INIT_TIMEOUT = 300000;
 
   /**
    * 加载 X2T 脚本文件
