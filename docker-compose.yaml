@@ -1,8 +1,6 @@
 services:
   document:
-    build:
-      context: .
-      dockerfile: Dockerfile
-    container_name: document_service
+    image: ghcr.io/ranui/document:latest
+    container_name: document
     ports:
-      - 8081:8080
+      - 8080:8080

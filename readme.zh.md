@@ -42,6 +42,23 @@
 - **自动部署**: 当代码推送到主分支时，项目会自动部署到 GitHub Pages
 - **手动部署**: 您也可以将项目部署到任何静态网站托管服务
 
+### docker run
+
+``` bash
+docker run -d --name document -p 8080:8080 ghcr.io/ranui/document:latest
+```
+
+### docker compose
+
+```yaml
+services:
+  document:
+    image: ghcr.io/ranui/document:latest
+    container_name: document
+    ports:
+      - 8080:8080
+```
+
 ## 🔧 本地开发
 
 ```bash
