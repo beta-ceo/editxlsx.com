@@ -1,0 +1,13 @@
+dist
+.github
+node_modules
+
+*.log
+
+readme.md
+README.md
+readme.zh.md
+
+
+docker-compose.yaml
+Dockerfile

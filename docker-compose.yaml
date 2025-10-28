@@ -1,0 +1,9 @@
+services:
+  document:
+    build:
+      context: .
+      dockerfile: Dockerfile
+
+    container_name: document_service
+    ports:
+      - "8081:80"
