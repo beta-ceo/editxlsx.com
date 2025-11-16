@@ -126,6 +126,7 @@ You can find the index for any font by checking the `__fonts_infos` array in `Al
 - [se-office](https://github.com/Qihoo360/se-office) - Secure document editor
 - [web-apps](https://github.com/ONLYOFFICE/web-apps) - OnlyOffice web applications
 - [sdkjs](https://github.com/ONLYOFFICE/sdkjs) - OnlyOffice JavaScript SDK
+- [onlyoffice-web-local](https://github.com/sweetwisdom/onlyoffice-web-local) - Local web-based OnlyOffice implementation
 
 ## 🤝 Contributing
 

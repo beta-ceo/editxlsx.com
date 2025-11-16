@@ -126,6 +126,7 @@ npm run dev
 - [se-office](https://github.com/Qihoo360/se-office) - 安全文档编辑器
 - [web-apps](https://github.com/ONLYOFFICE/web-apps) - OnlyOffice 网页应用
 - [sdkjs](https://github.com/ONLYOFFICE/sdkjs) - OnlyOffice JavaScript SDK
+- [onlyoffice-web-local](https://github.com/sweetwisdom/onlyoffice-web-local) - 本地网页版 OnlyOffice 实现
 
 ## 🤝 贡献
 
