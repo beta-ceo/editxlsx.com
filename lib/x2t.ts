@@ -943,6 +943,38 @@ export function getDocumentType(fileType: string): string | null {
 }
 // Global media mapping object
 const media: Record<string, string> = {};
+
+// Editor operation queue to prevent concurrent operations
+let editorOperationQueue: Promise<void> = Promise.resolve();
+
+/**
+ * Queue editor operations to prevent concurrent editor creation/destruction
+ */
+async function queueEditorOperation<T>(operation: () => Promise<T>): Promise<T> {
+  // Wait for previous operations to complete
+  await editorOperationQueue;
+  
+  // Create a new promise for this operation
+  let resolveOperation: () => void;
+  let rejectOperation: (error: any) => void;
+  const operationPromise = new Promise<void>((resolve, reject) => {
+    resolveOperation = resolve;
+    rejectOperation = reject;
+  });
+  
+  // Update the queue
+  editorOperationQueue = operationPromise;
+  
+  try {
+    const result = await operation();
+    resolveOperation!();
+    return result;
+  } catch (error) {
+    rejectOperation!(error);
+    throw error;
+  }
+}
+
 /**
  * Handle file write request (mainly for handling pasted images)
  * @param event - OnlyOffice editor file write event
@@ -1029,18 +1061,40 @@ function createEditorInstance(config: {
   binData: ArrayBuffer | string;
   media?: any;
 }) {
-  // Clean up old editor instance
-  if (window.editor) {
-    window.editor.destroyEditor();
-    window.editor = undefined;
-  }
+  return queueEditorOperation(async () => {
+    // Clean up old editor instance properly
+    if (window.editor) {
+      try {
+        console.log('Destroying previous editor instance...');
+        window.editor.destroyEditor();
+        // Wait a bit for destroy to complete
+        await new Promise((resolve) => setTimeout(resolve, 150));
+      } catch (error) {
+        console.warn('Error destroying previous editor:', error);
+      }
+      window.editor = undefined;
+    }
 
-  const { fileName, fileType, binData, media } = config;
+    // Clean up iframe container to ensure clean state
+    const iframeContainer = document.getElementById('iframe');
+    if (iframeContainer) {
+      // Remove all child elements
+      while (iframeContainer.firstChild) {
+        iframeContainer.removeChild(iframeContainer.firstChild);
+      }
+    }
 
-  const editorLang = getOnlyOfficeLang();
-  console.log('Setting OnlyOffice editor language to:', editorLang);
+    // Additional delay to ensure cleanup completes before creating new editor
+    // This is especially important when switching between different document types
+    await new Promise((resolve) => setTimeout(resolve, 150));
 
-  window.editor = new window.DocsAPI.DocEditor('iframe', {
+    const { fileName, fileType, binData, media } = config;
+
+    const editorLang = getOnlyOfficeLang();
+    console.log('Creating new editor instance for:', fileName, 'type:', fileType);
+
+    try {
+      window.editor = new window.DocsAPI.DocEditor('iframe', {
     document: {
       title: fileName,
       url: fileName, // Use file name as identifier
@@ -1096,6 +1150,11 @@ function createEditorInstance(config: {
       writeFile: handleWriteFile,
     },
   });
+    } catch (error) {
+      console.error('Error creating editor instance:', error);
+      throw error;
+    }
+  });
 }
 
 // Merged file operation method
@@ -1129,8 +1188,8 @@ export async function handleDocumentOperation(options: {
       documentData = await convertDocument(file);
     }
 
-    // Create editor instance
-    createEditorInstance({
+    // Create editor instance (now returns a Promise, uses queue internally)
+    await createEditorInstance({
       fileName,
       fileType,
       binData: documentData.bin,
