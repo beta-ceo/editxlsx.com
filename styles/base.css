@@ -84,3 +84,159 @@ r-button[type='text']::part(ran-btn-content) {
     transform: translateY(10px);
   }
 }
+
+/* FAB Container */
+.fab-container {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  z-index: 1000;
+  display: none;
+}
+
+/* FAB Button */
+.fab-button {
+  min-width: 52px;
+  height: 40px;
+  padding: 0 16px;
+  border-radius: 6px;
+  background: rgba(0, 0, 0, 0.05);
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s ease;
+  color: #333;
+  font-size: 14px;
+  font-weight: 500;
+  user-select: none;
+  white-space: nowrap;
+}
+
+/* FAB Menu */
+.fab-menu {
+  position: absolute;
+  bottom: 50px;
+  right: 0;
+  background: white;
+  border-radius: 6px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  padding: 4px;
+  display: none;
+  flex-direction: column;
+  gap: 1px;
+  min-width: 130px;
+  opacity: 0;
+  transform: translateY(10px) scale(0.95);
+  transition: opacity 0.2s ease, transform 0.2s ease;
+  pointer-events: none;
+  z-index: 1001;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+.fab-menu-item {
+  width: 100%;
+  border-radius: 4px;
+  transition: background 0.2s ease;
+}
+
+.fab-menu-button {
+  cursor: pointer;
+  white-space: nowrap;
+  width: 100%;
+  text-align: left;
+  padding: 6px 10px;
+  border-radius: 4px;
+  font-size: 12px;
+}
+
+/* Menu Guide */
+.menu-guide {
+  position: fixed;
+  bottom: 90px;
+  right: 20px;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.2);
+  padding: 20px 40px 20px 24px;
+  z-index: 1002;
+  max-width: 300px;
+  animation: guideFadeIn 0.3s ease;
+  pointer-events: auto;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+.menu-guide-arrow {
+  position: absolute;
+  bottom: -10px;
+  right: 40px;
+  width: 0;
+  height: 0;
+  border-left: 10px solid transparent;
+  border-right: 10px solid transparent;
+  border-top: 10px solid white;
+}
+
+.menu-guide-text {
+  font-size: 16px;
+  color: #333;
+  line-height: 1.6;
+  margin: 0;
+  font-weight: 500;
+  padding-right: 0;
+}
+
+.menu-guide-close {
+  position: absolute;
+  top: 8px;
+  right: 12px;
+  background: none;
+  border: none;
+  font-size: 24px;
+  color: #999;
+  cursor: pointer;
+  padding: 0;
+  width: 24px;
+  height: 24px;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: color 0.2s ease;
+}
+
+/* Control Panel */
+.control-panel-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  transition: opacity 0.3s ease;
+  pointer-events: none;
+  padding: 20px;
+  box-sizing: border-box;
+}
+
+.control-panel-button-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  align-items: center;
+  justify-content: center;
+  pointer-events: auto;
+  max-width: 100%;
+  width: 100%;
+}
+
+.control-panel-button {
+  cursor: pointer;
+  white-space: nowrap;
+  flex-shrink: 0;
+  transform: scale(1);
+}
