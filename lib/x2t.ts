@@ -542,11 +542,7 @@ class X2TConverter {
         const xlsxFileName = `${sanitizedBase}.xlsx`;
         this.x2tModule!.FS.writeFile(`/working/${binFileName}`, bin);
 
-        const params = this.createConversionParams(
-          `/working/${binFileName}`,
-          `/working/${xlsxFileName}`,
-          '',
-        );
+        const params = this.createConversionParams(`/working/${binFileName}`, `/working/${xlsxFileName}`, '');
 
         this.x2tModule!.FS.writeFile('/working/params.xml', params);
         this.executeConversion('/working/params.xml');
@@ -880,10 +876,10 @@ async function handleSaveDocument(event: SaveEvent) {
   if (event.data && event.data.data) {
     const { data, option } = event.data;
     const { fileName } = getDocmentObj() || {};
-    
+
     // Determine target format from editor's output format
     let targetFormat = c_oAscFileType2[option.outputformat];
-    
+
     // Only force CSV format if the original file is CSV
     // This check ensures XLSX and other file types are not affected
     // CSV files are converted to XLSX internally, so editor may return XLSX format
@@ -895,7 +891,7 @@ async function handleSaveDocument(event: SaveEvent) {
       // This ensures XLSX files are saved as XLSX, not CSV
       console.log(`Saving as ${targetFormat} format (original file: ${fileName})`);
     }
-    
+
     // Create download
     await convertBinToDocumentAndDownload(data.data, fileName, targetFormat);
   }
@@ -956,9 +952,7 @@ async function queueEditorOperation<T>(operation: () => Promise<T>): Promise<T> 
   try {
     await Promise.race([
       editorOperationQueue,
-      new Promise((_, reject) => 
-        setTimeout(() => reject(new Error('Editor operation queue timeout')), 30000)
-      )
+      new Promise((_, reject) => setTimeout(() => reject(new Error('Editor operation queue timeout')), 30000)),
     ]);
   } catch (error) {
     // If timeout, log warning but continue (previous operation may have failed)
@@ -969,7 +963,7 @@ async function queueEditorOperation<T>(operation: () => Promise<T>): Promise<T> 
       throw error;
     }
   }
-  
+
   // Create a new promise for this operation
   let resolveOperation: () => void;
   let rejectOperation: (error: any) => void;
@@ -977,10 +971,10 @@ async function queueEditorOperation<T>(operation: () => Promise<T>): Promise<T> 
     resolveOperation = resolve;
     rejectOperation = reject;
   });
-  
+
   // Update the queue
   editorOperationQueue = operationPromise;
-  
+
   try {
     const result = await operation();
     resolveOperation!();
@@ -1079,22 +1073,22 @@ function createEditorInstance(config: {
 }) {
   return queueEditorOperation(async () => {
     const { fileName, fileType, binData, media } = config;
-    
+
     // Check if there's an existing editor that needs cleanup
     const hasExistingEditor = !!window.editor;
-    
+
     // Clean up old editor instance properly
     if (window.editor) {
       try {
         console.log('Destroying previous editor instance...');
         window.editor.destroyEditor();
-        
+
         // When switching between document types, especially from/to PPT,
         // we need more time for cleanup. PPT editors are particularly resource-intensive.
         // Use longer delay when switching editors or when dealing with presentations
         const isPresentation = fileType === 'pptx' || fileType === 'ppt';
-        const destroyDelay = (hasExistingEditor && isPresentation) ? 400 : hasExistingEditor ? 250 : 150;
-        
+        const destroyDelay = hasExistingEditor && isPresentation ? 400 : hasExistingEditor ? 250 : 150;
+
         // Wait a bit for destroy to complete
         await new Promise((resolve) => setTimeout(resolve, destroyDelay));
       } catch (error) {
@@ -1116,7 +1110,7 @@ function createEditorInstance(config: {
     // This is especially important when switching between different document types
     // When switching editors, especially involving PPT, we need more time
     const isPresentation = fileType === 'pptx' || fileType === 'ppt';
-    const cleanupDelay = (hasExistingEditor && isPresentation) ? 400 : hasExistingEditor ? 250 : 150;
+    const cleanupDelay = hasExistingEditor && isPresentation ? 400 : hasExistingEditor ? 250 : 150;
     await new Promise((resolve) => setTimeout(resolve, cleanupDelay));
 
     const editorLang = getOnlyOfficeLang();
@@ -1124,61 +1118,61 @@ function createEditorInstance(config: {
 
     try {
       window.editor = new window.DocsAPI.DocEditor('iframe', {
-    document: {
-      title: fileName,
-      url: fileName, // Use file name as identifier
-      fileType: fileType,
-      permissions: {
-        edit: true,
-        chat: false,
-        protect: false,
-      },
-    },
-    editorConfig: {
-      lang: editorLang,
-      customization: {
-        help: false,
-        about: false,
-        hideRightMenu: true,
-        features: {
-          spellcheck: {
-            change: false,
+        document: {
+          title: fileName,
+          url: fileName, // Use file name as identifier
+          fileType: fileType,
+          permissions: {
+            edit: true,
+            chat: false,
+            protect: false,
           },
         },
-        anonymous: {
-          request: false,
-          label: 'Guest',
+        editorConfig: {
+          lang: editorLang,
+          customization: {
+            help: false,
+            about: false,
+            hideRightMenu: true,
+            features: {
+              spellcheck: {
+                change: false,
+              },
+            },
+            anonymous: {
+              request: false,
+              label: 'Guest',
+            },
+          },
         },
-      },
-    },
-    events: {
-      onAppReady: () => {
-        // Set media resources
-        if (media) {
-          window.editor?.sendCommand({
-            command: 'asc_setImageUrls',
-            data: { urls: media },
-          });
-        }
+        events: {
+          onAppReady: () => {
+            // Set media resources
+            if (media) {
+              window.editor?.sendCommand({
+                command: 'asc_setImageUrls',
+                data: { urls: media },
+              });
+            }
 
-        // Load document content
-        window.editor?.sendCommand({
-          command: 'asc_openDocument',
-          // @ts-expect-error binData type is handled by the editor
-          data: { buf: binData },
-        });
-      },
-      onDocumentReady: () => {
-        console.log(`${t('documentLoaded')}${fileName}`);
-        // Note: For CSV files, the save dialog may show XLSX format,
-        // but the actual save will be forced to CSV format in handleSaveDocument
-      },
-      onSave: handleSaveDocument,
-      // writeFile
-      // TODO: writeFile - handle when pasting images from external sources
-      writeFile: handleWriteFile,
-    },
-  });
+            // Load document content
+            window.editor?.sendCommand({
+              command: 'asc_openDocument',
+              // @ts-expect-error binData type is handled by the editor
+              data: { buf: binData },
+            });
+          },
+          onDocumentReady: () => {
+            console.log(`${t('documentLoaded')}${fileName}`);
+            // Note: For CSV files, the save dialog may show XLSX format,
+            // but the actual save will be forced to CSV format in handleSaveDocument
+          },
+          onSave: handleSaveDocument,
+          // writeFile
+          // TODO: writeFile - handle when pasting images from external sources
+          writeFile: handleWriteFile,
+        },
+      });
     } catch (error) {
       console.error('Error creating editor instance:', error);
       throw error;

@@ -35,7 +35,7 @@ const events: Record<string, MessageHandler<any, unknown>> = {
     // Hide the control panel when rendering office
     hideControlPanel();
     fileChunks.push(data);
-      if (fileChunks.length >= data.totalChunks) {
+    if (fileChunks.length >= data.totalChunks) {
       const { removeLoading } = showLoading();
       try {
         const file = await MessageCodec.decodeFileChunked(fileChunks);
@@ -70,7 +70,7 @@ const events: Record<string, MessageHandler<any, unknown>> = {
 
 Platform.init(events);
 
-const { file } = getAllQueryString();
+const { file, src } = getAllQueryString();
 
 const onCreateNew = async (ext: string) => {
   // Note: Loading is now shown in the menu button click handler
@@ -704,12 +704,96 @@ createControlPanel();
 window.hideControlPanel = hideControlPanel;
 window.showControlPanel = showControlPanel;
 
-if (!file) {
+// Function to open document from URL
+const openDocumentFromUrl = async (url: string, fileName?: string) => {
+  const { removeLoading } = showLoading();
+  try {
+    hideControlPanel();
+
+    // Fetch the file from URL
+    console.log('Fetching document from URL:', url);
+    // eslint-disable-next-line n/no-unsupported-features/node-builtins
+    const response = await fetch(url);
+
+    if (!response.ok) {
+      throw new Error(`Failed to fetch document: ${response.status} ${response.statusText}`);
+    }
+
+    // Get file name from URL or Content-Disposition header, or use provided name
+    let finalFileName = fileName;
+    if (!finalFileName) {
+      // Try to get filename from Content-Disposition header
+      const contentDisposition = response.headers.get('Content-Disposition');
+      if (contentDisposition) {
+        const filenameMatch = contentDisposition.match(/filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/);
+        if (filenameMatch && filenameMatch[1]) {
+          finalFileName = filenameMatch[1].replace(/['"]/g, '');
+        }
+      }
+
+      // If still no filename, extract from URL
+      if (!finalFileName) {
+        try {
+          const urlObj = new URL(url);
+          const pathname = urlObj.pathname;
+          finalFileName = pathname.split('/').pop() || 'document';
+          // Remove query parameters if any
+          finalFileName = finalFileName.split('?')[0];
+        } catch {
+          finalFileName = 'document';
+        }
+      }
+    }
+
+    // Get file blob
+    const blob = await response.blob();
+    const file = new File([blob], finalFileName, { type: blob.type });
+
+    // Set document object
+    setDocmentObj({
+      fileName: finalFileName,
+      file: file,
+      url: window.URL.createObjectURL(file),
+    });
+
+    // Initialize and open document
+    await initX2T();
+    const { fileName: docFileName, file: fileBlob } = getDocmentObj();
+    await handleDocumentOperation({ file: fileBlob, fileName: docFileName, isNew: !fileBlob });
+
+    // Show menu guide after document is loaded
+    setTimeout(() => {
+      showMenuGuide();
+    }, 1000);
+  } catch (error) {
+    console.error('Error opening document from URL:', error);
+    alert(`Failed to open document: ${error instanceof Error ? error.message : 'Unknown error'}`);
+    showControlPanel();
+  } finally {
+    removeLoading();
+  }
+};
+
+// Check for file or src parameter in URL
+// Both parameters support opening document from URL
+// Priority: file > src (for backward compatibility)
+// Examples:
+//   ?file=https://example.com/doc.docx
+//   ?src=https://example.com/doc.docx
+//   ?file=doc1.docx&src=doc2.xlsx (will use file: doc1.docx)
+const documentUrl = file || src;
+if (documentUrl) {
+  // Decode URL if it's encoded
+  try {
+    const decodedUrl = decodeURIComponent(documentUrl);
+    // Open document from URL
+    openDocumentFromUrl(decodedUrl);
+  } catch (error) {
+    // If decoding fails, try using original URL
+    console.warn('Failed to decode URL, using original:', error);
+    openDocumentFromUrl(documentUrl);
+  }
+} else {
   // Don't automatically open document dialog, let user choose
   // onOpenDocument();
-} else {
-  setDocmentObj({
-    fileName: Math.random().toString(36).substring(2, 15),
-    url: file,
-  });
 }
