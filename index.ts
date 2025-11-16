@@ -35,23 +35,29 @@ const events: Record<string, MessageHandler<any, unknown>> = {
     // Hide the control panel when rendering office
     hideControlPanel();
     fileChunks.push(data);
-    if (fileChunks.length >= data.totalChunks) {
+      if (fileChunks.length >= data.totalChunks) {
       const { removeLoading } = showLoading();
-      const file = await MessageCodec.decodeFileChunked(fileChunks);
-      setDocmentObj({
-        fileName: file.name,
-        file: file,
-        url: window.URL.createObjectURL(file),
-      });
-      await initX2T();
-      const { fileName, file: fileBlob } = getDocmentObj();
-      await handleDocumentOperation({ file: fileBlob, fileName, isNew: !fileBlob });
-      fileChunks = [];
-      removeLoading();
-      // Show menu guide after document is loaded
-      setTimeout(() => {
-        showMenuGuide();
-      }, 1000);
+      try {
+        const file = await MessageCodec.decodeFileChunked(fileChunks);
+        setDocmentObj({
+          fileName: file.name,
+          file: file,
+          url: window.URL.createObjectURL(file),
+        });
+        await initX2T();
+        const { fileName, file: fileBlob } = getDocmentObj();
+        await handleDocumentOperation({ file: fileBlob, fileName, isNew: !fileBlob });
+        // Show menu guide after document is loaded
+        setTimeout(() => {
+          showMenuGuide();
+        }, 1000);
+      } catch (error) {
+        console.error('Error rendering office document:', error);
+      } finally {
+        fileChunks = [];
+        // Always remove loading, even if there's an error
+        removeLoading();
+      }
     }
   },
   CLOSE_EDITOR: () => {
@@ -67,26 +73,33 @@ Platform.init(events);
 const { file } = getAllQueryString();
 
 const onCreateNew = async (ext: string) => {
-  const { removeLoading } = showLoading();
-  // Hide control panel if it's visible (e.g., when called from window.onCreateNew)
-  const container = document.querySelector('#control-panel-container') as HTMLElement;
-  if (container && container.style.display !== 'none') {
-    hideControlPanel();
+  // Note: Loading is now shown in the menu button click handler
+  // This function should not show loading again to avoid double loading indicators
+  try {
+    // Hide control panel if it's visible
+    const container = document.querySelector('#control-panel-container') as HTMLElement;
+    if (container && container.style.display !== 'none') {
+      hideControlPanel();
+    }
+    setDocmentObj({
+      fileName: 'New_Document' + ext,
+      file: undefined,
+    });
+    await loadScript();
+    await loadEditorApi();
+    await initX2T();
+    const { fileName, file: fileBlob } = getDocmentObj();
+    await handleDocumentOperation({ file: fileBlob, fileName, isNew: !fileBlob });
+    // Show menu guide after document is loaded
+    setTimeout(() => {
+      showMenuGuide();
+    }, 1000);
+  } catch (error) {
+    console.error('Error creating new document:', error);
+    // Ensure control panel is shown on error
+    showControlPanel();
+    throw error; // Re-throw to let the menu button handler catch it
   }
-  setDocmentObj({
-    fileName: 'New_Document' + ext,
-    file: undefined,
-  });
-  await loadScript();
-  await loadEditorApi();
-  await initX2T();
-  const { fileName, file: fileBlob } = getDocmentObj();
-  await handleDocumentOperation({ file: fileBlob, fileName, isNew: !fileBlob });
-  removeLoading();
-  // Show menu guide after document is loaded
-  setTimeout(() => {
-    showMenuGuide();
-  }, 1000);
 };
 // example: window.onCreateNew('.docx')
 // example: window.onCreateNew('.xlsx')
@@ -136,23 +149,32 @@ const onOpenDocument = async () => {
       if (file && !resolved) {
         resolved = true;
         const { removeLoading } = showLoading();
-        hideControlPanel();
-        setDocmentObj({
-          fileName: file.name,
-          file: file,
-          url: window.URL.createObjectURL(file),
-        });
-        await initX2T();
-        const { fileName, file: fileBlob } = getDocmentObj();
-        await handleDocumentOperation({ file: fileBlob, fileName, isNew: !fileBlob });
-        removeLoading();
-        // Clear file selection so the same file can be selected again
-        fileInput.value = '';
-        // Show menu guide after document is loaded
-        setTimeout(() => {
-          showMenuGuide();
-        }, 1000);
-        resolve(true);
+        try {
+          hideControlPanel();
+          setDocmentObj({
+            fileName: file.name,
+            file: file,
+            url: window.URL.createObjectURL(file),
+          });
+          await initX2T();
+          const { fileName, file: fileBlob } = getDocmentObj();
+          await handleDocumentOperation({ file: fileBlob, fileName, isNew: !fileBlob });
+          // Clear file selection so the same file can be selected again
+          fileInput.value = '';
+          // Show menu guide after document is loaded
+          setTimeout(() => {
+            showMenuGuide();
+          }, 1000);
+          resolve(true);
+        } catch (error) {
+          console.error('Error opening document:', error);
+          // Ensure control panel is shown on error
+          showControlPanel();
+          resolve(false);
+        } finally {
+          // Always remove loading, even if there's an error
+          removeLoading();
+        }
       } else if (!resolved) {
         // onchange fired but no file selected (user cancelled or cleared selection)
         resolved = true;
@@ -299,9 +321,20 @@ const createFixedActionButton = () => {
 
     button.addEventListener('click', async () => {
       hideMenu();
-      // Small delay to ensure menu hide animation completes before showing loading
-      await new Promise((resolve) => setTimeout(resolve, 100));
-      await onClick();
+      // Show loading immediately before any async operations
+      const { removeLoading } = showLoading();
+      try {
+        // Small delay to ensure menu hide animation completes
+        await new Promise((resolve) => setTimeout(resolve, 100));
+        await onClick();
+      } catch (error) {
+        console.error('Error in menu button action:', error);
+        // Show control panel on error
+        showControlPanel();
+      } finally {
+        // Always remove loading
+        removeLoading();
+      }
     });
 
     menuItem.appendChild(button);
@@ -618,21 +651,45 @@ const createControlPanel = () => {
   });
   buttonGroup.appendChild(uploadButton);
 
-  const newWordButton = createTextButton('new-word-button', t('newWord'), () => {
+  const newWordButton = createTextButton('new-word-button', t('newWord'), async () => {
     hideControlPanel();
-    onCreateNew('.docx');
+    const { removeLoading } = showLoading();
+    try {
+      await onCreateNew('.docx');
+    } catch (error) {
+      console.error('Error creating new Word document:', error);
+      showControlPanel();
+    } finally {
+      removeLoading();
+    }
   });
   buttonGroup.appendChild(newWordButton);
 
-  const newExcelButton = createTextButton('new-excel-button', t('newExcel'), () => {
+  const newExcelButton = createTextButton('new-excel-button', t('newExcel'), async () => {
     hideControlPanel();
-    onCreateNew('.xlsx');
+    const { removeLoading } = showLoading();
+    try {
+      await onCreateNew('.xlsx');
+    } catch (error) {
+      console.error('Error creating new Excel document:', error);
+      showControlPanel();
+    } finally {
+      removeLoading();
+    }
   });
   buttonGroup.appendChild(newExcelButton);
 
-  const newPptxButton = createTextButton('new-pptx-button', t('newPowerPoint'), () => {
+  const newPptxButton = createTextButton('new-pptx-button', t('newPowerPoint'), async () => {
     hideControlPanel();
-    onCreateNew('.pptx');
+    const { removeLoading } = showLoading();
+    try {
+      await onCreateNew('.pptx');
+    } catch (error) {
+      console.error('Error creating new PowerPoint document:', error);
+      showControlPanel();
+    } finally {
+      removeLoading();
+    }
   });
   buttonGroup.appendChild(newPptxButton);
 

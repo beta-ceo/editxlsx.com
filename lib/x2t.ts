@@ -952,7 +952,23 @@ let editorOperationQueue: Promise<void> = Promise.resolve();
  */
 async function queueEditorOperation<T>(operation: () => Promise<T>): Promise<T> {
   // Wait for previous operations to complete
-  await editorOperationQueue;
+  // Add a timeout to prevent infinite waiting
+  try {
+    await Promise.race([
+      editorOperationQueue,
+      new Promise((_, reject) => 
+        setTimeout(() => reject(new Error('Editor operation queue timeout')), 30000)
+      )
+    ]);
+  } catch (error) {
+    // If timeout, log warning but continue (previous operation may have failed)
+    if (error instanceof Error && error.message === 'Editor operation queue timeout') {
+      console.warn('Editor operation queue timeout, proceeding anyway');
+    } else {
+      // Re-throw other errors
+      throw error;
+    }
+  }
   
   // Create a new promise for this operation
   let resolveOperation: () => void;
@@ -1062,13 +1078,25 @@ function createEditorInstance(config: {
   media?: any;
 }) {
   return queueEditorOperation(async () => {
+    const { fileName, fileType, binData, media } = config;
+    
+    // Check if there's an existing editor that needs cleanup
+    const hasExistingEditor = !!window.editor;
+    
     // Clean up old editor instance properly
     if (window.editor) {
       try {
         console.log('Destroying previous editor instance...');
         window.editor.destroyEditor();
+        
+        // When switching between document types, especially from/to PPT,
+        // we need more time for cleanup. PPT editors are particularly resource-intensive.
+        // Use longer delay when switching editors or when dealing with presentations
+        const isPresentation = fileType === 'pptx' || fileType === 'ppt';
+        const destroyDelay = (hasExistingEditor && isPresentation) ? 400 : hasExistingEditor ? 250 : 150;
+        
         // Wait a bit for destroy to complete
-        await new Promise((resolve) => setTimeout(resolve, 150));
+        await new Promise((resolve) => setTimeout(resolve, destroyDelay));
       } catch (error) {
         console.warn('Error destroying previous editor:', error);
       }
@@ -1086,9 +1114,10 @@ function createEditorInstance(config: {
 
     // Additional delay to ensure cleanup completes before creating new editor
     // This is especially important when switching between different document types
-    await new Promise((resolve) => setTimeout(resolve, 150));
-
-    const { fileName, fileType, binData, media } = config;
+    // When switching editors, especially involving PPT, we need more time
+    const isPresentation = fileType === 'pptx' || fileType === 'ppt';
+    const cleanupDelay = (hasExistingEditor && isPresentation) ? 400 : hasExistingEditor ? 250 : 150;
+    await new Promise((resolve) => setTimeout(resolve, cleanupDelay));
 
     const editorLang = getOnlyOfficeLang();
     console.log('Creating new editor instance for:', fileName, 'type:', fileType);
