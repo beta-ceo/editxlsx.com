@@ -6,6 +6,15 @@
 
 A local web-based document editor based on OnlyOffice, allowing you to edit documents directly in your browser without server-side processing, ensuring your privacy and security.
 
+## 🌍 Multi-Language Support
+
+This project supports multiple languages! You can access the editor in different languages:
+
+- 🇺🇸 **English**: [https://ranuts.github.io/document/?locale=en](https://ranuts.github.io/document/?locale=en)
+- 🇨🇳 **中文**: [https://ranuts.github.io/document/?locale=zh](https://ranuts.github.io/document/?locale=zh)
+
+Want to add support for more languages? We'd love your help! Feel free to submit a Pull Request. 😊
+
 ## ✨ Key Features
 
 - 🔒 **Privacy-First**: All document processing happens locally in your browser, with no uploads to any server

@@ -6,6 +6,15 @@
 
 基于 OnlyOffice 的本地网页文档编辑器，让您直接在浏览器中编辑文档，无需服务器端处理，保护您的隐私安全。
 
+## 🌍 多语言支持
+
+本项目支持多种语言！您可以使用不同语言访问编辑器：
+
+- 🇺🇸 **English**: [https://ranuts.github.io/document/?locale=en](https://ranuts.github.io/document/?locale=en)
+- 🇨🇳 **中文**: [https://ranuts.github.io/document/?locale=zh](https://ranuts.github.io/document/?locale=zh)
+
+想要添加更多语言支持？非常欢迎您的帮助！欢迎提交 Pull Request。😊
+
 ## ✨ 主要特性
 
 - 🔒 **隐私优先**: 所有文档处理都在浏览器本地进行，不上传到任何服务器
