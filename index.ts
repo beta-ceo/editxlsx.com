@@ -98,12 +98,31 @@ document.body.appendChild(fileInput);
 
 const onOpenDocument = async () => {
   return new Promise((resolve) => {
+    let resolved = false;
+
+    // Set up a timeout to detect if user cancelled (no change event)
+    // This handles the case where user cancels without triggering onchange
+    const cancelTimeout = setTimeout(() => {
+      if (!resolved) {
+        resolved = true;
+        fileInput.value = '';
+        resolve(false);
+      }
+    }, 1000);
+
     // Trigger file picker click event
     fileInput.click();
+
     fileInput.onchange = async (event) => {
+      clearTimeout(cancelTimeout);
+
       const file = (event.target as HTMLInputElement).files?.[0];
-      const { removeLoading } = showLoading();
-      if (file) {
+      // Clear file selection so the same file can be selected again
+      fileInput.value = '';
+
+      if (file && !resolved) {
+        resolved = true;
+        const { removeLoading } = showLoading();
         hideControlPanel();
         setDocmentObj({
           fileName: file.name,
@@ -113,14 +132,16 @@ const onOpenDocument = async () => {
         await initX2T();
         const { fileName, file: fileBlob } = getDocmentObj();
         await handleDocumentOperation({ file: fileBlob, fileName, isNew: !fileBlob });
-        resolve(true);
         removeLoading();
-        // Clear file selection so the same file can be selected again
-        fileInput.value = '';
         // Show menu guide after document is loaded
         setTimeout(() => {
           showMenuGuide();
         }, 1000);
+        resolve(true);
+      } else if (!resolved) {
+        // onchange fired but no file selected (user cancelled or cleared selection)
+        resolved = true;
+        resolve(false);
       }
     };
   });
@@ -261,8 +282,13 @@ const createFixedActionButton = () => {
   };
 
   menuPanel.appendChild(
-    createMenuButton(t('uploadDocument'), () => {
-      onOpenDocument();
+    createMenuButton(t('uploadDocument'), async () => {
+      const result = await onOpenDocument();
+      // If user cancelled file selection, show control panel again
+      // (FAB menu will be hidden by hideMenu() call in createMenuButton)
+      if (!result) {
+        showControlPanel();
+      }
     }),
   );
   menuPanel.appendChild(
@@ -555,9 +581,13 @@ const createControlPanel = () => {
   };
 
   // Create four buttons
-  const uploadButton = createTextButton('upload-button', t('uploadDocument'), () => {
-    onOpenDocument();
-    hideControlPanel();
+  const uploadButton = createTextButton('upload-button', t('uploadDocument'), async () => {
+    const result = await onOpenDocument();
+    // Only hide control panel if file was successfully selected
+    // If user cancelled, control panel remains visible
+    if (result) {
+      hideControlPanel();
+    }
   });
   buttonGroup.appendChild(uploadButton);
 
