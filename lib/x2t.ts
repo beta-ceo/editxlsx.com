@@ -429,8 +429,9 @@ class X2TConverter {
           const result = this.x2tModule!.FS.readFile(outputPath);
           const media = this.readMediaFiles();
 
+          // Return original CSV fileName, not the XLSX one
           return {
-            fileName: sanitizedName,
+            fileName: this.sanitizeFileName(fileName), // Keep original CSV filename
             type: documentType,
             bin: result,
             media,
@@ -535,6 +536,53 @@ class X2TConverter {
     const outputFileName = `${sanitizedBase}.${targetExt.toLowerCase()}`;
 
     try {
+      // Handle CSV files specially - need to convert bin -> XLSX -> CSV
+      if (targetExt.toUpperCase() === 'CSV') {
+        // First convert bin to XLSX
+        const xlsxFileName = `${sanitizedBase}.xlsx`;
+        this.x2tModule!.FS.writeFile(`/working/${binFileName}`, bin);
+
+        const params = this.createConversionParams(
+          `/working/${binFileName}`,
+          `/working/${xlsxFileName}`,
+          '',
+        );
+
+        this.x2tModule!.FS.writeFile('/working/params.xml', params);
+        this.executeConversion('/working/params.xml');
+
+        // Read XLSX file
+        const xlsxResult = this.x2tModule!.FS.readFile(`/working/${xlsxFileName}`);
+        const xlsxArray = xlsxResult instanceof Uint8Array ? xlsxResult : new Uint8Array(xlsxResult as ArrayBuffer);
+
+        // Convert XLSX to CSV using SheetJS
+        const XLSX = await this.loadXlsxLibrary();
+        const workbook = XLSX.read(xlsxArray, { type: 'array' });
+
+        // Get the first sheet
+        const firstSheetName = workbook.SheetNames[0];
+        const worksheet = workbook.Sheets[firstSheetName];
+
+        // Convert to CSV
+        const csvText = XLSX.utils.sheet_to_csv(worksheet);
+
+        // Convert CSV text to Uint8Array (UTF-8 with BOM for better compatibility)
+        const csvBOM = new Uint8Array([0xef, 0xbb, 0xbf]);
+        const csvTextBytes = new TextEncoder().encode(csvText);
+        const csvArray = new Uint8Array(csvBOM.length + csvTextBytes.length);
+        csvArray.set(csvBOM, 0);
+        csvArray.set(csvTextBytes, csvBOM.length);
+
+        // Save CSV file
+        this.saveWithFileSystemAPI(csvArray, outputFileName);
+
+        return {
+          fileName: outputFileName,
+          data: csvArray,
+        };
+      }
+
+      // For all other file types, use standard conversion
       // Write bin file
       this.x2tModule!.FS.writeFile(`/working/${binFileName}`, bin);
 
@@ -832,8 +880,24 @@ async function handleSaveDocument(event: SaveEvent) {
   if (event.data && event.data.data) {
     const { data, option } = event.data;
     const { fileName } = getDocmentObj() || {};
+    
+    // Determine target format from editor's output format
+    let targetFormat = c_oAscFileType2[option.outputformat];
+    
+    // Only force CSV format if the original file is CSV
+    // This check ensures XLSX and other file types are not affected
+    // CSV files are converted to XLSX internally, so editor may return XLSX format
+    if (fileName && fileName.toLowerCase().endsWith('.csv')) {
+      targetFormat = 'CSV';
+      console.log('Original file is CSV, forcing save as CSV format');
+    } else {
+      // For non-CSV files (XLSX, DOCX, PPTX, etc.), use the format returned by editor
+      // This ensures XLSX files are saved as XLSX, not CSV
+      console.log(`Saving as ${targetFormat} format (original file: ${fileName})`);
+    }
+    
     // Create download
-    await convertBinToDocumentAndDownload(data.data, fileName, c_oAscFileType2[option.outputformat]);
+    await convertBinToDocumentAndDownload(data.data, fileName, targetFormat);
   }
 
   // Notify editor that save is complete
@@ -1023,6 +1087,8 @@ function createEditorInstance(config: {
       },
       onDocumentReady: () => {
         console.log(`${t('documentLoaded')}${fileName}`);
+        // Note: For CSV files, the save dialog may show XLSX format,
+        // but the actual save will be forced to CSV format in handleSaveDocument
       },
       onSave: handleSaveDocument,
       // writeFile
