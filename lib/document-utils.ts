@@ -1,4 +1,4 @@
-import { getExtensions } from 'ranuts/utils';
+import { getMime } from 'ranuts/utils';
 import type { DocumentType } from './document-types';
 
 /**
@@ -38,25 +38,14 @@ export function getDocumentType(fileType: string): string | null {
 }
 
 /**
- * Get MIME type from file extension
+ * Get MIME type from file extension (using ranuts getMime utility)
  * @param extension - File extension
  * @returns string - MIME type
  */
 export function getMimeTypeFromExtension(extension: string): string {
-  const mimeMap: Record<string, string> = {
-    png: 'image/png',
-    jpg: 'image/jpeg',
-    jpeg: 'image/jpeg',
-    gif: 'image/gif',
-    bmp: 'image/bmp',
-    webp: 'image/webp',
-    svg: 'image/svg+xml',
-    ico: 'image/x-icon',
-    tiff: 'image/tiff',
-    tif: 'image/tiff',
-  };
-
-  return mimeMap[extension?.toLowerCase()] || 'image/png';
+  // Use ranuts getMime for common image types, fallback to image/png
+  const mime = getMime(extension?.toLowerCase() || '');
+  return mime || 'image/png';
 }
 
 /**
@@ -76,4 +65,3 @@ export const DOCUMENT_TYPE_MAP: Record<string, DocumentType> = {
   ppt: 'slide',
   odp: 'slide',
 };
-

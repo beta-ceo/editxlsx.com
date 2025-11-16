@@ -1,7 +1,7 @@
-import { getExtensions } from 'ranuts/utils';
+import { createObjectURL, getExtensions, scriptOnLoad } from 'ranuts/utils';
 import 'ranui/message';
 import { t } from './i18n';
-import type { EmscriptenModule, ConversionResult, BinConversionResult, DocumentType } from './document-types';
+import type { BinConversionResult, ConversionResult, DocumentType, EmscriptenModule } from './document-types';
 import { BASE_PATH, DOCUMENT_TYPE_MAP } from './document-utils';
 
 export class X2TConverter {
@@ -18,28 +18,21 @@ export class X2TConverter {
   private readonly INIT_TIMEOUT = 300000;
 
   /**
-   * Load X2T script file
+   * Load X2T script file (using ranuts scriptOnLoad utility)
    */
   async loadScript(): Promise<void> {
     if (this.hasScriptLoaded) return;
 
-    return new Promise((resolve, reject) => {
-      const script = document.createElement('script');
-      script.src = this.SCRIPT_PATH;
-      script.onload = () => {
-        this.hasScriptLoaded = true;
-        console.log('X2T WASM script loaded successfully');
-        resolve();
-      };
-
-      script.onerror = (error) => {
-        const errorMsg = 'Failed to load X2T WASM script';
-        console.error(errorMsg, error);
-        reject(new Error(errorMsg));
-      };
-
-      document.head.appendChild(script);
-    });
+    try {
+      // scriptOnLoad accepts an array of URLs
+      await scriptOnLoad([this.SCRIPT_PATH]);
+      this.hasScriptLoaded = true;
+      console.log('X2T WASM script loaded successfully');
+    } catch (error) {
+      const errorMsg = 'Failed to load X2T WASM script';
+      console.error(errorMsg, error);
+      throw new Error(errorMsg);
+    }
   }
 
   /**
@@ -192,7 +185,7 @@ export class X2TConverter {
   /**
    * Read media files
    */
-  private readMediaFiles(): Record<string, string> {
+  private async readMediaFiles(): Promise<Record<string, string>> {
     if (!this.x2tModule) return {};
 
     const media: Record<string, string> = {};
@@ -200,21 +193,30 @@ export class X2TConverter {
     try {
       const files = this.x2tModule.FS.readdir('/working/media/');
 
-      files
+      // Use Promise.all to handle async createObjectURL
+      const mediaPromises = files
         .filter((file) => file !== '.' && file !== '..')
-        .forEach((file) => {
+        .map(async (file) => {
           try {
             const fileData = this.x2tModule!.FS.readFile(`/working/media/${file}`, {
               encoding: 'binary',
             }) as BlobPart;
 
             const blob = new Blob([fileData]);
-            const mediaUrl = window.URL.createObjectURL(blob);
-            media[`media/${file}`] = mediaUrl;
+            const mediaUrl = await createObjectURL(blob);
+            return { key: `media/${file}`, url: mediaUrl };
           } catch (error) {
             console.warn(`Failed to read media file ${file}:`, error);
+            return null;
           }
         });
+
+      const results = await Promise.all(mediaPromises);
+      results.forEach((result) => {
+        if (result) {
+          media[result.key] = result.url;
+        }
+      });
     } catch (error) {
       console.warn('Failed to read media directory:', error);
     }
@@ -338,7 +340,7 @@ export class X2TConverter {
 
           // Read conversion result
           const result = this.x2tModule!.FS.readFile(outputPath);
-          const media = this.readMediaFiles();
+          const media = await this.readMediaFiles();
 
           // Return original CSV fileName, not the XLSX one
           return {
@@ -373,7 +375,7 @@ export class X2TConverter {
 
       // Read conversion result
       const result = this.x2tModule!.FS.readFile(outputPath);
-      const media = this.readMediaFiles();
+      const media = await this.readMediaFiles();
 
       return {
         fileName: sanitizedName,
@@ -422,7 +424,7 @@ export class X2TConverter {
 
     // If we get here, conversion succeeded (unlikely for CSV)
     const result = this.x2tModule!.FS.readFile(outputPath);
-    const media = this.readMediaFiles();
+    const media = await this.readMediaFiles();
 
     return {
       fileName: sanitizedName,
@@ -481,7 +483,7 @@ export class X2TConverter {
         csvArray.set(csvTextBytes, csvBOM.length);
 
         // Save CSV file
-        this.saveWithFileSystemAPI(csvArray, outputFileName);
+        await this.saveWithFileSystemAPI(csvArray, outputFileName);
 
         return {
           fileName: outputFileName,
@@ -518,7 +520,7 @@ export class X2TConverter {
 
       // Download file
       // TODO: Improve print functionality
-      this.saveWithFileSystemAPI(resultArray, outputFileName);
+      await this.saveWithFileSystemAPI(resultArray, outputFileName);
 
       return {
         fileName: outputFileName,
@@ -532,9 +534,9 @@ export class X2TConverter {
   /**
    * Download file
    */
-  private downloadFile(data: Uint8Array, fileName: string): void {
+  private async downloadFile(data: Uint8Array, fileName: string): Promise<void> {
     const blob = new Blob([data as BlobPart]);
-    const url = window.URL.createObjectURL(blob);
+    const url = await createObjectURL(blob);
     const link = document.createElement('a');
 
     link.href = url;
@@ -616,7 +618,7 @@ export class X2TConverter {
    */
   private async saveWithFileSystemAPI(data: Uint8Array, fileName: string, mimeType?: string): Promise<void> {
     if (!(window as any).showSaveFilePicker) {
-      this.downloadFile(data, fileName);
+      await this.downloadFile(data, fileName);
       return;
     }
     try {

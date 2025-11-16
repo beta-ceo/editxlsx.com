@@ -1,14 +1,19 @@
 import 'ranui/message';
-import { getOnlyOfficeLang, t } from './i18n';
+import { createObjectURL } from 'ranuts/utils';
 import { getDocmentObj } from '../store';
+import { getOnlyOfficeLang, t } from './i18n';
 import { c_oAscFileType2 } from './file-types';
 import type { SaveEvent } from './document-types';
 import { getMimeTypeFromExtension } from './document-utils';
 
 // Import converter function to avoid circular dependency
-let convertBinToDocumentAndDownloadFn: ((bin: Uint8Array, fileName: string, targetExt?: string) => Promise<any>) | null = null;
+let convertBinToDocumentAndDownloadFn:
+  | ((bin: Uint8Array, fileName: string, targetExt?: string) => Promise<any>)
+  | null = null;
 
-export function setConverterCallback(callback: (bin: Uint8Array, fileName: string, targetExt?: string) => Promise<any>): void {
+export function setConverterCallback(
+  callback: (bin: Uint8Array, fileName: string, targetExt?: string) => Promise<any>,
+): void {
   convertBinToDocumentAndDownloadFn = callback;
 }
 
@@ -64,7 +69,7 @@ async function queueEditorOperation<T>(operation: () => Promise<T>): Promise<T> 
  * Handle file write request (mainly for handling pasted images)
  * @param event - OnlyOffice editor file write event
  */
-function handleWriteFile(event: any) {
+async function handleWriteFile(event: any) {
   try {
     console.log('Write file event:', event);
 
@@ -97,7 +102,7 @@ function handleWriteFile(event: any) {
     const blob = new Blob([imageData as unknown as BlobPart], { type: mimeType });
 
     // Create object URL
-    const objectUrl = window.URL.createObjectURL(blob);
+    const objectUrl = await createObjectURL(blob);
     // Add image URL to media mapping using original file name as key
     media[`media/${fileName}`] = objectUrl;
     window.editor?.sendCommand({
@@ -182,7 +187,7 @@ export function createEditorInstance(config: {
   fileType: string;
   binData: ArrayBuffer | string;
   media?: any;
-}) {
+}): Promise<void> {
   return queueEditorOperation(async () => {
     const { fileName, fileType, binData, media: mediaUrls } = config;
 
@@ -312,4 +317,3 @@ export function loadEditorApi(): Promise<void> {
     document.head.appendChild(script);
   });
 }
-

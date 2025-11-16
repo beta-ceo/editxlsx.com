@@ -1,3 +1,5 @@
+import { getCookie, getQuery, localStorageGetItem, localStorageSetItem } from 'ranuts/utils';
+
 /**
  * Internationalization configuration
  */
@@ -84,27 +86,17 @@ class I18n {
   private currentLanguage: Language = LanguageCode.EN;
 
   /**
-   * Get cookie value by name
+   * Get cookie value by name (using ranuts utility)
    */
   private getCookie(name: string): string | null {
-    if (typeof document === 'undefined') return null;
-    const nameEQ = name + '=';
-    const ca = document.cookie.split(';');
-    for (let i = 0; i < ca.length; i++) {
-      let c = ca[i];
-      while (c.charAt(0) === ' ') c = c.substring(1, c.length);
-      if (c.indexOf(nameEQ) === 0) return c.substring(nameEQ.length, c.length);
-    }
-    return null;
+    return getCookie(name);
   }
 
   /**
-   * Get URL parameter by name
+   * Get URL parameter by name (using ranuts utility)
    */
   private getUrlParameter(name: string): string | null {
-    if (typeof window === 'undefined') return null;
-    const urlParams = new URLSearchParams(window.location.search);
-    return urlParams.get(name);
+    return getQuery()?.[name] || null;
   }
 
   /**
@@ -135,8 +127,7 @@ class I18n {
 
     // 3. If not found in cookies, try localStorage
     if (!detectedLang) {
-      // eslint-disable-next-line n/no-unsupported-features/node-builtins
-      const savedLang = localStorage.getItem('document-lang') as Language;
+      const savedLang = localStorageGetItem('document-lang') as Language;
       if (savedLang && (savedLang === LanguageCode.ZH || savedLang === LanguageCode.EN)) {
         detectedLang = savedLang;
       }
@@ -170,8 +161,7 @@ class I18n {
   setLanguage(lang: Language): void {
     if (lang === LanguageCode.ZH || lang === LanguageCode.EN) {
       this.currentLanguage = lang;
-      // eslint-disable-next-line n/no-unsupported-features/node-builtins
-      localStorage.setItem('document-lang', lang);
+      localStorageSetItem('document-lang', lang);
       // Trigger language change event
       // eslint-disable-next-line n/no-unsupported-features/node-builtins
       window.dispatchEvent(new CustomEvent('languagechange', { detail: { language: lang } }));

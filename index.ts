@@ -1,7 +1,13 @@
 import { getAllQueryString } from 'ranuts/utils';
 import { initEvents, setEventUICallbacks } from './lib/events';
 import { onCreateNew, openDocumentFromUrl, setUICallbacks } from './lib/document';
-import { createControlPanel, createFixedActionButton, hideControlPanel, showControlPanel, showMenuGuide } from './lib/ui';
+import {
+  createControlPanel,
+  createFixedActionButton,
+  hideControlPanel,
+  showControlPanel,
+  showMenuGuide,
+} from './lib/ui';
 import 'ranui/button';
 import './styles/base.css';
 

@@ -1,3 +1,4 @@
+import { localStorageGetItem, localStorageSetItem } from 'ranuts/utils';
 import { t } from './i18n';
 import { showLoading } from './loading';
 import { onCreateNew, onOpenDocument } from './document';
@@ -46,18 +47,11 @@ export const createFixedActionButton = (): HTMLElement => {
   fabContainer.id = 'fab-container';
   fabContainer.className = 'fab-container';
 
-  // Main FAB button - simple style
+  // Main FAB button
   const fabButton = document.createElement('button');
   fabButton.id = 'fab-button';
   fabButton.textContent = t('menu');
   fabButton.className = 'fab-button';
-
-  fabButton.addEventListener('mouseenter', () => {
-    fabButton.style.background = 'rgba(0, 0, 0, 0.08)';
-  });
-  fabButton.addEventListener('mouseleave', () => {
-    fabButton.style.background = 'rgba(0, 0, 0, 0.05)';
-  });
 
   // Menu panel - compact style
   const menuPanel = document.createElement('div');
@@ -69,10 +63,8 @@ export const createFixedActionButton = (): HTMLElement => {
     const menuItem = document.createElement('div');
     menuItem.className = 'fab-menu-item';
 
-    const button = document.createElement('r-button');
+    const button = document.createElement('button');
     button.textContent = text;
-    button.setAttribute('variant', 'text');
-    button.setAttribute('type', 'text');
     button.className = 'fab-menu-button';
 
     // Handle hover on the wrapper
@@ -199,8 +191,7 @@ const MENU_GUIDE_DISMISSED_KEY = 'menu-guide-dismissed';
 
 export const showMenuGuide = (): void => {
   // Check if guide was dismissed in localStorage
-  // eslint-disable-next-line
-  if (localStorage.getItem(MENU_GUIDE_DISMISSED_KEY) === 'true') {
+  if (localStorageGetItem(MENU_GUIDE_DISMISSED_KEY) === 'true') {
     return;
   }
 
@@ -242,8 +233,7 @@ export const showMenuGuide = (): void => {
 
   const hideGuide = (saveToStorage = false) => {
     if (saveToStorage) {
-      // eslint-disable-next-line
-      localStorage.setItem(MENU_GUIDE_DISMISSED_KEY, 'true');
+      localStorageSetItem(MENU_GUIDE_DISMISSED_KEY, 'true');
     }
     if (guide.parentNode) {
       guide.style.animation = 'guideFadeOut 0.3s ease';
@@ -375,4 +365,3 @@ export const createControlPanel = (): void => {
   container.appendChild(buttonGroup);
   document.body.appendChild(container);
 };
-

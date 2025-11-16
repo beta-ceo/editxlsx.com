@@ -24,42 +24,51 @@ h2 {
 
 /* Style for r-button webcomponent using ::part */
 r-button[type='text']::part(ran-btn) {
-  font-size: 18px !important;
+  font-size: 18px;
   font-weight: 500;
   padding: 10px 20px;
 }
 
 r-button[type='text']::part(ran-btn-content) {
-  font-size: 18px !important;
+  font-size: 18px;
   font-weight: 500;
 }
 
 @media (max-width: 480px) {
   r-button[type='text']::part(ran-btn) {
-    font-size: 16px !important;
+    font-size: 16px;
     padding: 8px 16px;
   }
 
   r-button[type='text']::part(ran-btn-content) {
-    font-size: 16px !important;
+    font-size: 16px;
   }
 }
 
-/* Style for FAB menu buttons using ::part */
-.fab-menu-button::part(ran-btn),
-.fab-menu-button::part(ran-btn-content) {
-  font-size: 12px !important;
-  padding: 6px 10px !important;
-  background: transparent !important;
+/* Style for FAB menu buttons */
+.fab-menu-button {
+  font-size: 16px;
+  padding: 10px 14px;
+  background: transparent;
+  border: none;
+  box-shadow: none;
+  outline: none;
+  cursor: pointer;
+  color: #333;
+  width: 100%;
+  text-align: left;
+  transition: color 0.2s ease;
+  line-height: 1.5;
+  white-space: nowrap;
 }
 
 /* Menu item hover - entire row background */
 .fab-menu-item:hover {
-  background-color: #f5f5f5 !important;
+  background-color: #f5f5f5;
 }
 
-.fab-menu-item:hover .fab-menu-button::part(ran-btn-content) {
-  color: #667eea !important;
+.fab-menu-item:hover .fab-menu-button {
+  color: #667eea;
 }
 
 /* Menu guide animations */
@@ -122,14 +131,16 @@ r-button[type='text']::part(ran-btn-content) {
   background: white;
   border-radius: 6px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-  padding: 4px;
+  padding: 8px;
   display: none;
   flex-direction: column;
-  gap: 1px;
-  min-width: 130px;
+  gap: 2px;
+  min-width: 220px;
   opacity: 0;
   transform: translateY(10px) scale(0.95);
-  transition: opacity 0.2s ease, transform 0.2s ease;
+  transition:
+    opacity 0.2s ease,
+    transform 0.2s ease;
   pointer-events: none;
   z-index: 1001;
   border: 1px solid rgba(0, 0, 0, 0.08);
@@ -139,16 +150,6 @@ r-button[type='text']::part(ran-btn-content) {
   width: 100%;
   border-radius: 4px;
   transition: background 0.2s ease;
-}
-
-.fab-menu-button {
-  cursor: pointer;
-  white-space: nowrap;
-  width: 100%;
-  text-align: left;
-  padding: 6px 10px;
-  border-radius: 4px;
-  font-size: 12px;
 }
 
 /* Menu Guide */

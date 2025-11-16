@@ -1,5 +1,6 @@
-import { handleDocumentOperation, initX2T, loadEditorApi, loadScript } from './converter';
+import { createObjectURL } from 'ranuts/utils';
 import { getDocmentObj, setDocmentObj } from '../store';
+import { handleDocumentOperation, initX2T, loadEditorApi, loadScript } from './converter';
 import { showLoading } from './loading';
 
 // Import UI functions with type-only to avoid circular dependency
@@ -104,7 +105,7 @@ export const onOpenDocument = async (): Promise<boolean> => {
           setDocmentObj({
             fileName: file.name,
             file: file,
-            url: window.URL.createObjectURL(file),
+            url: await createObjectURL(file),
           });
           await initX2T();
           const { fileName, file: fileBlob } = getDocmentObj();
@@ -195,7 +196,7 @@ export const openDocumentFromUrl = async (url: string, fileName?: string): Promi
     setDocmentObj({
       fileName: finalFileName,
       file: file,
-      url: window.URL.createObjectURL(file),
+      url: await createObjectURL(file),
     });
 
     // Initialize and open document
@@ -219,4 +220,3 @@ export const openDocumentFromUrl = async (url: string, fileName?: string): Promi
     removeLoading();
   }
 };
-

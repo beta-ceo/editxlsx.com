@@ -1,17 +1,14 @@
-import { MessageCodec, Platform } from 'ranuts/utils';
+import { MessageCodec, Platform, createObjectURL } from 'ranuts/utils';
 import type { MessageHandler } from 'ranuts/utils';
-import { handleDocumentOperation, initX2T } from './converter';
 import { getDocmentObj, setDocmentObj } from '../store';
+import { handleDocumentOperation, initX2T } from './converter';
 import { showLoading } from './loading';
 
 // UI callbacks to avoid circular dependency
 let hideControlPanelFn: (() => void) | null = null;
 let showMenuGuideFn: (() => void) | null = null;
 
-export function setEventUICallbacks(callbacks: {
-  hideControlPanel: () => void;
-  showMenuGuide: () => void;
-}): void {
+export function setEventUICallbacks(callbacks: { hideControlPanel: () => void; showMenuGuide: () => void }): void {
   hideControlPanelFn = callbacks.hideControlPanel;
   showMenuGuideFn = callbacks.showMenuGuide;
 }
@@ -42,7 +39,7 @@ export const events: Record<string, MessageHandler<any, unknown>> = {
         setDocmentObj({
           fileName: file.name,
           file: file,
-          url: window.URL.createObjectURL(file),
+          url: await createObjectURL(file),
         });
         await initX2T();
         const { fileName, file: fileBlob } = getDocmentObj();
@@ -73,4 +70,3 @@ export const events: Record<string, MessageHandler<any, unknown>> = {
 export function initEvents(): void {
   Platform.init(events);
 }
-

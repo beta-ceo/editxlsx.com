@@ -4,10 +4,16 @@ import { t } from './i18n';
 import { X2TConverter } from './document-converter';
 import { createEditorInstance, loadEditorApi, setConverterCallback } from './onlyoffice-editor';
 import { getDocumentType } from './document-utils';
-import type { ConversionResult, BinConversionResult, EmscriptenModule } from './document-types';
+import type { BinConversionResult, ConversionResult, EmscriptenModule } from './document-types';
 
 // Export types
-export type { ConversionResult, BinConversionResult, EmscriptenModule, DocumentType, SaveEvent } from './document-types';
+export type {
+  ConversionResult,
+  BinConversionResult,
+  EmscriptenModule,
+  DocumentType,
+  SaveEvent,
+} from './document-types';
 
 // Export constants
 export { oAscFileType, c_oAscFileType2 } from './file-types';
@@ -78,4 +84,3 @@ export async function handleDocumentOperation(options: {
     throw error;
   }
 }
-

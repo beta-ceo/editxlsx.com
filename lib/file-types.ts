@@ -72,4 +72,3 @@ export const oAscFileType = {
 export const c_oAscFileType2 = Object.fromEntries(
   Object.entries(oAscFileType).map(([key, value]) => [value, key]),
 ) as Record<number, keyof typeof oAscFileType>;
-
