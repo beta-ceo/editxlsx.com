@@ -20257,9 +20257,29 @@ label {
   }
 }
 
+@media only screen and (-webkit-min-device-pixel-ratio: 2),
+  only screen and (min-resolution: 2dppx),
+  only screen and (min-resolution: 192dpi) {
+  .menu__icon,
+  .toolbar__icon {
+    background-image: url(../img/iconssmall@1.5x.png);
+    background-size: 40px auto;
+  }
+}
+
 @media only screen and (-webkit-min-device-pixel-ratio: 1.5) and (-webkit-max-device-pixel-ratio: 1.7),
   only screen and (min-resolution: 1.5dppx) and (max-resolution: 1.7dppx),
   only screen and (min-resolution: 144dpi) and (max-resolution: 167dpi) {
+  .toolbar__icon.toolbar__icon-big,
+  .x-huge .toolbar__icon {
+    background-image: url(../img/iconsbig@1.5x.png);
+    background-size: 56px auto;
+  }
+}
+
+@media only screen and (-webkit-min-device-pixel-ratio: 2),
+  only screen and (min-resolution: 2dppx),
+  only screen and (min-resolution: 192dpi) {
   .toolbar__icon.toolbar__icon-big,
   .x-huge .toolbar__icon {
     background-image: url(../img/iconsbig@1.5x.png);
@@ -20275,6 +20295,16 @@ label {
 @media only screen and (-webkit-min-device-pixel-ratio: 1.5) and (-webkit-max-device-pixel-ratio: 1.9),
   only screen and (min-resolution: 1.5dppx) and (max-resolution: 1.9dppx),
   only screen and (min-resolution: 144dpi) and (max-resolution: 191dpi) {
+  .options__icon.options__icon-huge {
+    background-image: url(../img/iconshuge@1.5x.png);
+    background-size: 80px auto;
+    background-size: var(--huge-icon-background-image-width) auto;
+  }
+}
+
+@media only screen and (-webkit-min-device-pixel-ratio: 2),
+  only screen and (min-resolution: 2dppx),
+  only screen and (min-resolution: 192dpi) {
   .options__icon.options__icon-huge {
     background-image: url(../img/iconshuge@1.5x.png);
     background-size: 80px auto;
