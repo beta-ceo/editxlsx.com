@@ -10,9 +10,10 @@ export const showLoading = (): { removeLoading: () => void } => {
   `;
 
   const mask = document.createElement('div');
-  mask.setAttribute('class', 'w-full h-full fixed top-0 left-0 bg-black/30 flex items-center justify-center z-[5]');
+  mask.setAttribute('class', 'w-full h-full fixed top-0 left-0 bg-black/30 flex items-center justify-center');
   mask.style.cssText = `
     backdrop-filter: blur(2px);
+    z-index: 10000;
   `;
   mask.appendChild(loading);
   document.body.appendChild(mask);

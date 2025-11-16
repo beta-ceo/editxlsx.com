@@ -264,7 +264,7 @@ const createFixedActionButton = () => {
     border: 1px solid rgba(0, 0, 0, 0.08);
   `;
 
-  const createMenuButton = (text: string, onClick: () => void) => {
+  const createMenuButton = (text: string, onClick: () => void | Promise<void>) => {
     // Create wrapper for the entire menu item
     const menuItem = document.createElement('div');
     menuItem.className = 'fab-menu-item';
@@ -297,9 +297,11 @@ const createFixedActionButton = () => {
       menuItem.style.background = 'transparent';
     });
 
-    button.addEventListener('click', () => {
-      onClick();
+    button.addEventListener('click', async () => {
       hideMenu();
+      // Small delay to ensure menu hide animation completes before showing loading
+      await new Promise((resolve) => setTimeout(resolve, 100));
+      await onClick();
     });
 
     menuItem.appendChild(button);
@@ -317,18 +319,18 @@ const createFixedActionButton = () => {
     }),
   );
   menuPanel.appendChild(
-    createMenuButton(t('newWord'), () => {
-      onCreateNew('.docx');
+    createMenuButton(t('newWord'), async () => {
+      await onCreateNew('.docx');
     }),
   );
   menuPanel.appendChild(
-    createMenuButton(t('newExcel'), () => {
-      onCreateNew('.xlsx');
+    createMenuButton(t('newExcel'), async () => {
+      await onCreateNew('.xlsx');
     }),
   );
   menuPanel.appendChild(
-    createMenuButton(t('newPowerPoint'), () => {
-      onCreateNew('.pptx');
+    createMenuButton(t('newPowerPoint'), async () => {
+      await onCreateNew('.pptx');
     }),
   );
 
