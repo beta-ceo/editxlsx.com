@@ -129,7 +129,7 @@ const onOpenDocument = async () => {
       }
 
       const file = (event.target as HTMLInputElement).files?.[0];
-      
+
       // Clear the handler to prevent multiple triggers
       fileInput.onchange = null;
 

@@ -348,7 +348,7 @@ class X2TConverter {
 
       // Remove UTF-8 BOM if present
       let csvText: string;
-      if (csvData.length >= 3 && csvData[0] === 0xEF && csvData[1] === 0xBB && csvData[2] === 0xBF) {
+      if (csvData.length >= 3 && csvData[0] === 0xef && csvData[1] === 0xbb && csvData[2] === 0xbf) {
         csvText = new TextDecoder('utf-8').decode(csvData.slice(3));
       } else {
         // Try UTF-8 first, fallback to other encodings if needed
@@ -373,7 +373,7 @@ class X2TConverter {
     } catch (error) {
       throw new Error(
         `Failed to convert CSV to XLSX: ${error instanceof Error ? error.message : 'Unknown error'}. ` +
-        'Please convert your CSV file to XLSX format manually and try again.'
+          'Please convert your CSV file to XLSX format manually and try again.',
       );
     }
   }
@@ -400,16 +400,16 @@ class X2TConverter {
         }
         console.log('CSV file detected. Converting to XLSX format...');
         console.log('CSV file size:', data.length, 'bytes');
-        
+
         // Convert CSV to XLSX first
         try {
           const xlsxFile = await this.convertCsvToXlsx(data, fileName);
           console.log('CSV converted to XLSX, now converting with x2t...');
-          
+
           // Now convert the XLSX file using x2t
           const xlsxArrayBuffer = await xlsxFile.arrayBuffer();
           const xlsxData = new Uint8Array(xlsxArrayBuffer);
-          
+
           // Use the XLSX file for conversion
           const sanitizedName = this.sanitizeFileName(xlsxFile.name);
           const inputPath = `/working/${sanitizedName}`;
@@ -439,7 +439,7 @@ class X2TConverter {
           // If conversion fails, provide helpful error message
           throw new Error(
             `Failed to convert CSV file: ${conversionError?.message || 'Unknown error'}. ` +
-            'Please ensure your CSV file is properly formatted and try again.'
+              'Please ensure your CSV file is properly formatted and try again.',
           );
         }
       }
@@ -485,9 +485,9 @@ class X2TConverter {
   ): Promise<ConversionResult> {
     // Handle UTF-8 BOM
     let fileData = data;
-    const hasBOM = data.length >= 3 && data[0] === 0xEF && data[1] === 0xBB && data[2] === 0xBF;
+    const hasBOM = data.length >= 3 && data[0] === 0xef && data[1] === 0xbb && data[2] === 0xbf;
     if (!hasBOM) {
-      const bom = new Uint8Array([0xEF, 0xBB, 0xBF]);
+      const bom = new Uint8Array([0xef, 0xbb, 0xbf]);
       fileData = new Uint8Array(bom.length + data.length);
       fileData.set(bom, 0);
       fileData.set(data, bom.length);

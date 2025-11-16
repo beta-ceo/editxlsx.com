@@ -10,8 +10,8 @@
 
 本项目支持多种语言！您可以使用不同语言访问编辑器：
 
-- 🇺🇸 **English**: [https://ranuts.github.io/document/?locale=en](https://ranuts.github.io/document/?locale=en)
-- 🇨🇳 **中文**: [https://ranuts.github.io/document/?locale=zh](https://ranuts.github.io/document/?locale=zh)
+- **English**: [https://ranuts.github.io/document/?locale=en](https://ranuts.github.io/document/?locale=en)
+- **中文**: [https://ranuts.github.io/document/?locale=zh](https://ranuts.github.io/document/?locale=zh)
 
 想要添加更多语言支持？非常欢迎您的帮助！欢迎提交 Pull Request。😊
 
