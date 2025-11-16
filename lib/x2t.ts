@@ -312,7 +312,7 @@ class X2TConverter {
   }
 
   /**
-   * Load xlsx library dynamically from CDN
+   * Load xlsx library from local file
    */
   private async loadXlsxLibrary(): Promise<any> {
     // Check if xlsx is already loaded
@@ -322,7 +322,7 @@ class X2TConverter {
 
     return new Promise((resolve, reject) => {
       const script = document.createElement('script');
-      script.src = 'https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js';
+      script.src = `${BASE_PATH}libs/sheetjs/xlsx.full.min.js`;
       script.onload = () => {
         if (typeof window !== 'undefined' && (window as any).XLSX) {
           resolve((window as any).XLSX);
@@ -331,7 +331,7 @@ class X2TConverter {
         }
       };
       script.onerror = () => {
-        reject(new Error('Failed to load xlsx library from CDN'));
+        reject(new Error('Failed to load xlsx library from local file'));
       };
       document.head.appendChild(script);
     });
