@@ -14,15 +14,7 @@ A local web-based document editor based on OnlyOffice, allowing you to edit docu
 - 🚀 **No Server Required**: Pure frontend implementation with no server-side processing needed
 - 🎯 **Ready to Use**: Start editing documents immediately by opening the webpage
 - 🌐 **Open from URL**: Load documents directly from remote URLs via URL parameters
-- 🌍 **Multi-Language**: Supports multiple languages with easy language switching
-
-## 🛠️ Technical Architecture
-
-This project is built on the following core technologies:
-
-- **OnlyOffice SDK**: Provides powerful document editing capabilities
-- **WebAssembly**: Implements document format conversion through x2t-wasm
-- **Pure Frontend Architecture**: All functionality runs in the browser
+- 🌍 **Multi-Language**: Supports multiple languages (English, Chinese) with easy switching
 
 ## 📖 Usage
 
@@ -35,83 +27,48 @@ This project is built on the following core technologies:
 
 ### URL Parameters
 
-The editor supports the following URL parameters for enhanced functionality:
+| Parameter | Description | Values/Type | Priority |
+|-----------|-------------|-------------|----------|
+| `locale` | Set interface language | `en`, `zh` | - |
+| `src` | Open document from URL (recommended) | URL string | Low |
+| `file` | Open document from URL (backward compatible) | URL string | High |
 
-#### `locale` - Language Selection
+**Examples:**
 
-Set the interface language for the editor.
+```bash
+# Set language
+?locale=zh
 
-- **Values**: `en` (English), `zh` (Chinese)
-- **Default**: Browser language or `en`
-- **Examples**:
-  - `?locale=en` - English interface
-  - `?locale=zh` - Chinese interface
+# Open document from URL
+?src=https://example.com/document.docx
 
-#### `src` - Open Document from URL (Recommended)
+# Combine parameters
+?locale=zh&src=https://example.com/doc.docx
+```
 
-Load and open a document directly from a remote URL.
-
-- **Type**: String (URL)
-- **Priority**: Used if `file` parameter is not provided
-- **Examples**:
-  - `?src=https://example.com/document.docx`
-  - `?src=https://example.com/spreadsheet.xlsx`
-  - `?src=https://example.com/presentation.pptx`
-
-#### `file` - Open Document from URL (Backward Compatible)
-
-Same functionality as `src`, kept for backward compatibility.
-
-- **Type**: String (URL)
-- **Priority**: Higher than `src` (if both are provided, `file` takes precedence)
-- **Examples**:
-  - `?file=https://example.com/document.docx`
-  - `?file=https://example.com/spreadsheet.xlsx`
-
-#### Combined Parameters
-
-You can combine multiple parameters:
-
-- `?locale=zh&src=https://example.com/doc.docx` - Chinese interface with document from URL
-- `?locale=en&file=https://example.com/doc.xlsx` - English interface with document from URL
-
-**Note**: When both `file` and `src` are provided, `file` takes priority.
+**Note**: When both `file` and `src` are provided, `file` takes priority. Remote URLs must support CORS.
 
 ### As a Component Library
 
-This project also provides foundational services for document preview components in the [@ranui/preview](https://www.npmjs.com/package/@ranui/preview) WebComponent library.
+This project provides foundational services for document preview components in the [@ranui/preview](https://www.npmjs.com/package/@ranui/preview) WebComponent library.
 
 📚 **Preview Component Documentation**: [https://chaxus.github.io/ran/src/ranui/preview/](https://chaxus.github.io/ran/src/ranui/preview/)
 
-## 🌍 Multi-Language Support
+## 🛠️ Technical Architecture
 
-This project supports multiple languages! You can access the editor in different languages:
-
-- **English**: [https://ranuts.github.io/document/?locale=en](https://ranuts.github.io/document/?locale=en)
-- **中文**: [https://ranuts.github.io/document/?locale=zh](https://ranuts.github.io/document/?locale=zh)
-
-Want to add support for more languages? We'd love your help! Feel free to submit a Pull Request. 😊
+- **OnlyOffice SDK**: Provides powerful document editing capabilities
+- **WebAssembly**: Implements document format conversion through x2t-wasm
+- **Pure Frontend Architecture**: All functionality runs in the browser
 
 ## 🚀 Deployment
 
-- **Auto Deployment**: The project is automatically deployed to GitHub Pages when changes are pushed to the main branch
-- **Manual Deployment**: You can also deploy the project to any static website hosting service
-
-### Important Notes
-
-- **CORS Requirements**: When using `src` or `file` parameters to load documents from remote URLs, the remote server must support CORS (Cross-Origin Resource Sharing). Otherwise, the browser will block the request.
-- **File Size**: Large files may take longer to load. Please be patient during the download process.
-- **Supported Formats**: DOCX, XLSX, PPTX, CSV, DOC, XLS, PPT, ODT, ODS, ODP, RTF, TXT, and more.
-
-### docker run
+### Docker
 
 ```bash
+# docker run
 docker run -d --name document -p 8080:8080 ghcr.io/ranui/document:latest
-```
 
-### docker compose
-
-```yaml
+# docker compose
 services:
   document:
     image: ghcr.io/ranui/document:latest
@@ -120,19 +77,18 @@ services:
       - 8080:8080
 ```
 
+### Important Notes
+
+- **CORS**: Remote servers must support CORS when using `src` or `file` parameters
+- **File Size**: Large files may take longer to load
+- **Supported Formats**: DOCX, XLSX, PPTX, CSV, DOC, XLS, PPT, ODT, ODS, ODP, RTF, TXT, and more
+
 ## 🔧 Local Development
 
 ```bash
-# Clone the repository
 git clone https://github.com/ranuts/document.git
-
-# Navigate to the project directory
 cd document
-
-# Install dependencies
 npm install
-
-# Start local development server
 npm run dev
 ```
 
@@ -142,7 +98,6 @@ npm run dev
 - [se-office](https://github.com/Qihoo360/se-office) - Secure document editor
 - [web-apps](https://github.com/ONLYOFFICE/web-apps) - OnlyOffice web applications
 - [sdkjs](https://github.com/ONLYOFFICE/sdkjs) - OnlyOffice JavaScript SDK
-- [onlyoffice-web-local](https://github.com/sweetwisdom/onlyoffice-web-local) - Local web-based OnlyOffice implementation
 
 ## 🤝 Contributing
 
@@ -150,4 +105,4 @@ Issues and Pull Requests are welcome to help improve this project!
 
 ## 📄 License
 
-see the [LICENSE](LICENSE) file for details.
+See the [LICENSE](LICENSE) file for details.
