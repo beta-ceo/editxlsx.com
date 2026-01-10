@@ -66,12 +66,12 @@ This project provides foundational services for document preview components in t
 
 ```bash
 # docker run
-docker run -d --name document -p 8080:80 ghcr.io/ranui/document:latest
+docker run -d --name document -p 8080:80 ghcr.io/ranuts/document:latest
 
 # docker compose
 services:
   document:
-    image: ghcr.io/ranui/document:latest
+    image: ghcr.io/ranuts/document:latest
     container_name: document
     ports:
       - 8080:80
@@ -83,7 +83,7 @@ services:
 name: document
 services:
   document:
-    image: ghcr.io/ranui/document:latest
+    image: ghcr.io/ranuts/document:latest
     container_name: document
     ports:
       - 8080:80
