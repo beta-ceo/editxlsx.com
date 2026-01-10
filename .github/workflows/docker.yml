@@ -57,3 +57,29 @@ jobs:
           platforms: linux/amd64,linux/arm64
           cache-from: type=gha
           cache-to: type=gha,mode=max
+
+      - name: Make package public
+        run: |
+          PACKAGE_NAME=$(echo "${{ github.repository }}" | tr '[:upper:]' '[:lower:]')
+          PACKAGE_NAME_ENCODED="${PACKAGE_NAME//\//%2F}"
+
+          # Try user endpoint first (for personal repos)
+          RESPONSE=$(curl -s -w "\n%{http_code}" -X PUT \
+            -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
+            -H "Accept: application/vnd.github+json" \
+            "https://api.github.com/user/packages/container/${PACKAGE_NAME_ENCODED}/visibility" \
+            -d '{"visibility":"public"}')
+
+          HTTP_CODE=$(echo "$RESPONSE" | tail -n1)
+
+          # If user endpoint fails, try org endpoint
+          if [ "$HTTP_CODE" != "204" ] && [ "$HTTP_CODE" != "200" ]; then
+            OWNER=$(echo "${{ github.repository_owner }}" | tr '[:upper:]' '[:lower:]')
+            curl -s -w "\n%{http_code}" -X PUT \
+              -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
+              -H "Accept: application/vnd.github+json" \
+              "https://api.github.com/orgs/${OWNER}/packages/container/${PACKAGE_NAME_ENCODED}/visibility" \
+              -d '{"visibility":"public"}' || echo "Note: Package visibility may need to be set manually at https://github.com/${{ github.repository }}/pkgs/container/document/settings"
+          else
+            echo "✅ Package set to public"
+          fi
