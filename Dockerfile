@@ -2,8 +2,9 @@ ARG  NODE_VERSION=22
 FROM node:${NODE_VERSION} AS builder
 WORKDIR /app
 
-# Install pnpm (Node.js image includes npm, so this is reliable)
-RUN npm install -g pnpm && \
+# Enable Corepack and install pnpm (Corepack reads packageManager from package.json)
+RUN corepack enable && \
+    corepack prepare pnpm@10.28.0 --activate && \
     pnpm --version
 
 # Copy package files
