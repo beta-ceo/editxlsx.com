@@ -1,9 +1,8 @@
 {
   "name": "document",
   "version": "1.0.0",
-  "description": "",
+  "description": "A local web-based document editor based on OnlyOffice, allowing you to edit documents directly in your browser without server-side processing, ensuring your privacy and security.",
   "type": "module",
-  "main": "index.js",
   "scripts": {
     "dev": "vite --host --force",
     "build": "vite build",
@@ -17,9 +16,32 @@
   "engines": {
     "node": ">=20.19.0"
   },
-  "keywords": [],
-  "author": "",
+  "keywords": [
+    "onlyoffice",
+    "document-editor",
+    "privacy",
+    "web-based",
+    "docx",
+    "xlsx",
+    "pptx",
+    "csv",
+    "wasm",
+    "webassembly",
+    "local-editor",
+    "browser-editor",
+    "document-converter",
+    "office-suite"
+  ],
+  "author": "ranuts",
   "license": "AGPL-3.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ranuts/document.git"
+  },
+  "homepage": "https://ranuts.github.io/document/",
+  "bugs": {
+    "url": "https://github.com/ranuts/document/issues"
+  },
   "devDependencies": {
     "@tailwindcss/postcss": "^4.1.18",
     "@types/node": "^25.0.5",
