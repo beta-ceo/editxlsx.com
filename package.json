@@ -12,7 +12,7 @@
     "format": "prettier --write .",
     "lint:ts": "oxlint && tsc --noEmit",
     "lint:docker": "docker compose -f docker-compose.yaml config --quiet",
-    "lint": "npm run lint:ts && npm run lint:docker"
+    "lint": "pnpm run lint:ts && pnpm run lint:docker"
   },
   "engines": {
     "node": ">=20.19.0"

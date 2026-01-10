@@ -1,10 +1,22 @@
 ARG  NODE_VERSION=22
 FROM node:${NODE_VERSION} AS builder
 WORKDIR /app
-COPY package*.json ./ /app/
-RUN npm install
+
+# Install pnpm (Node.js image includes npm, so this is reliable)
+RUN npm install -g pnpm && \
+    pnpm --version
+
+# Copy package files
+COPY package.json pnpm-lock.yaml ./
+
+# Install dependencies
+RUN pnpm install --frozen-lockfile
+
+# Copy source code
 COPY . .
-RUN npm run build
+
+# Build
+RUN pnpm run build
 
 #FROM nginxinc/nginx-unprivileged:stable-alpine
 #COPY --from=builder /app/dist /usr/share/nginx/html
