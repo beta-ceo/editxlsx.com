@@ -1,9 +1,12 @@
 name: document
 services:
   document:
-    build:
-      context: .
-      dockerfile: Dockerfile
+    # Use pre-built image from GitHub Container Registry
+    image: ghcr.io/ranui/document:latest
+    # To build locally instead, comment out the image line above and uncomment the build section below:
+    # build:
+    #   context: .
+    #   dockerfile: Dockerfile
     container_name: document
     ports:
       - 8080:80

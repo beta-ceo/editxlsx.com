@@ -80,7 +80,7 @@ services:
 #### Advanced Configuration
 
 ```yaml
-nanme: document
+name: document
 services:
   document:
     image: ghcr.io/ranui/document:latest
