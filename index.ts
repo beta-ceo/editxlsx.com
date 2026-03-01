@@ -9,6 +9,7 @@ import {
   showMenuGuide,
 } from './lib/ui';
 import 'ranui/button';
+import '@khmyznikov/pwa-install';
 import './styles/base.css';
 
 declare global {

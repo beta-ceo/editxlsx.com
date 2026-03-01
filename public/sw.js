@@ -1,6 +1,20 @@
-const CACHE_VERSION = 'SW_VERSION_PLACEHOLDER' === 'SW_VERSION_PLACEHOLDER' ? 'dev-' + Date.now() : 'SW_VERSION_PLACEHOLDER';
+const CACHE_VERSION = 'SW_VERSION_PLACEHOLDER'.includes('PLACEHOLDER') ? 'dev-' + Date.now() : 'SW_VERSION_PLACEHOLDER';
 const CACHE_NAME = `document-editor-${CACHE_VERSION}`;
 const ASSETS_TO_CACHE = ['./', './index.html', './img/64.png'];
+
+// Cache limits and clean-up configuration
+const MAX_CACHE_ITEMS = 100;
+
+// Helper: Trim cache to a certain size
+const limitCacheSize = (name, maxItems) => {
+  caches.open(name).then((cache) => {
+    cache.keys().then((keys) => {
+      if (keys.length > maxItems) {
+        cache.delete(keys[0]).then(limitCacheSize(name, maxItems));
+      }
+    });
+  });
+};
 
 // Install event: Pre-cache core UI assets
 self.addEventListener('install', (event) => {
@@ -50,7 +64,7 @@ self.addEventListener('fetch', (event) => {
 
   if (isHtml) {
     // Strategy: Network-First for HTML/Navigation
-    // Ensuring the user always gets the latest version if online, 
+    // Ensuring the user always gets the latest version if online,
     // but can still access the app when offline.
     event.respondWith(
       fetch(event.request)
@@ -59,6 +73,7 @@ self.addEventListener('fetch', (event) => {
             const responseToCache = networkResponse.clone();
             caches.open(CACHE_NAME).then((cache) => {
               cache.put(event.request, responseToCache);
+              limitCacheSize(CACHE_NAME, MAX_CACHE_ITEMS);
             });
           }
           return networkResponse;
@@ -78,6 +93,7 @@ self.addEventListener('fetch', (event) => {
               const responseToCache = networkResponse.clone();
               caches.open(CACHE_NAME).then((cache) => {
                 cache.put(event.request, responseToCache);
+                limitCacheSize(CACHE_NAME, MAX_CACHE_ITEMS);
               });
             }
             return networkResponse;
@@ -86,11 +102,7 @@ self.addEventListener('fetch', (event) => {
             return cachedResponse;
           });
 
-        // Use event.waitUntil to ensure the fetch/cache update continues in background
-        if (!cachedResponse) {
-          return fetchPromise;
-        }
-        return cachedResponse;
+        return cachedResponse || fetchPromise;
       }),
     );
   }
