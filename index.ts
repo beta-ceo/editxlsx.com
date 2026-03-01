@@ -97,9 +97,9 @@ const initPwaInstall = () => {
   // This is the most elegant and "Single Source of Truth" way
   const manifest = document.querySelector<HTMLLinkElement>('link[rel="manifest"]');
   const icon = document.querySelector<HTMLLinkElement>('link[rel="icon"]');
-
-  if (manifest?.href) pwaInstall.setAttribute('manifestpath', manifest.href);
-  if (icon?.href) pwaInstall.setAttribute('iconpath', icon.href);
+  console.log(manifest?.href, icon?.href);
+  if (manifest?.href) pwaInstall.setAttribute('manifest-url', manifest.href);
+  if (icon?.href) pwaInstall.setAttribute('icon-url', icon.href);
 
   document.body.appendChild(pwaInstall);
 };
