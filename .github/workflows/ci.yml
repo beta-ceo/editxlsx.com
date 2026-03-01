@@ -8,15 +8,12 @@ on:
 
 jobs:
   lint:
-    name: Lint and Validate (${{ matrix.os }})
-    runs-on: ${{ matrix.os }}
-    strategy:
-      matrix:
-        os: [ubuntu-latest, windows-latest, macos-latest]
+    name: Lint and Validate
+    runs-on: ubuntu-latest
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v6
+        uses: actions/checkout@v4
 
       - uses: pnpm/action-setup@v4
         name: Install pnpm
@@ -25,24 +22,10 @@ jobs:
           run_install: false
 
       - name: Setup Node.js
-        uses: actions/setup-node@v6
+        uses: actions/setup-node@v4
         with:
           node-version: "22"
           cache: "pnpm"
-
-      - name: Get pnpm store directory
-        id: pnpm-cache
-        shell: bash
-        run: |
-          echo "STORE_PATH=$(pnpm store path)" >> $GITHUB_OUTPUT
-
-      - uses: actions/cache@v5
-        name: Setup pnpm cache
-        with:
-          path: ${{ steps.pnpm-cache.outputs.STORE_PATH }}
-          key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
-          restore-keys: |
-            ${{ runner.os }}-pnpm-store-
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
@@ -51,11 +34,9 @@ jobs:
         run: pnpm run lint:ts
 
       - name: Validate Docker Compose file
-        if: matrix.os == 'ubuntu-latest'
         run: docker compose -f docker-compose.yaml config --quiet
 
       - name: Lint Dockerfile with Hadolint
-        if: matrix.os == 'ubuntu-latest'
         uses: hadolint/hadolint-action@v3.3.0
         with:
           dockerfile: Dockerfile
