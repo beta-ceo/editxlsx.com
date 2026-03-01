@@ -28,7 +28,7 @@ self.addEventListener('activate', (event) => {
   self.clients.claim();
 });
 
-// Fetch event: Stale-While-Revalidate strategy
+// Fetch event: Strategy-based resource handling
 self.addEventListener('fetch', (event) => {
   const url = new URL(event.request.url);
 
@@ -42,13 +42,20 @@ self.addEventListener('fetch', (event) => {
   // These are typically documents being edited, which should always be fresh.
   if (url.searchParams.has('file') || url.searchParams.has('src')) return;
 
-  // 4. Stale-While-Revalidate Strategy
-  event.respondWith(
-    caches.match(event.request).then((cachedResponse) => {
-      const fetchPromise = fetch(event.request)
+  // 4. Determine Strategy
+  const isHtml = event.request.mode === 'navigate' ||
+    url.pathname.endsWith('.html') ||
+    url.pathname === '/' ||
+    url.pathname.endsWith('/');
+
+  if (isHtml) {
+    // Strategy: Network-First for HTML/Navigation
+    // Ensuring the user always gets the latest version if online, 
+    // but can still access the app when offline.
+    event.respondWith(
+      fetch(event.request)
         .then((networkResponse) => {
-          // Only cache valid 200 responses
-          if (networkResponse && networkResponse.status === 200 && networkResponse.type === 'basic') {
+          if (networkResponse && networkResponse.status === 200) {
             const responseToCache = networkResponse.clone();
             caches.open(CACHE_NAME).then((cache) => {
               cache.put(event.request, responseToCache);
@@ -57,15 +64,34 @@ self.addEventListener('fetch', (event) => {
           return networkResponse;
         })
         .catch(() => {
-          // If network fails, return the cached version if we have it
-          return cachedResponse;
-        });
+          return caches.match(event.request);
+        })
+    );
+  } else {
+    // Strategy: Stale-While-Revalidate for other static assets (JS, CSS, Images)
+    event.respondWith(
+      caches.match(event.request).then((cachedResponse) => {
+        const fetchPromise = fetch(event.request)
+          .then((networkResponse) => {
+            // Only cache valid 200 responses
+            if (networkResponse && networkResponse.status === 200 && networkResponse.type === 'basic') {
+              const responseToCache = networkResponse.clone();
+              caches.open(CACHE_NAME).then((cache) => {
+                cache.put(event.request, responseToCache);
+              });
+            }
+            return networkResponse;
+          })
+          .catch(() => {
+            return cachedResponse;
+          });
 
-      // Use event.waitUntil to ensure the fetch/cache update continues in background
-      if (!cachedResponse) {
-        return fetchPromise;
-      }
-      return cachedResponse;
-    }),
-  );
+        // Use event.waitUntil to ensure the fetch/cache update continues in background
+        if (!cachedResponse) {
+          return fetchPromise;
+        }
+        return cachedResponse;
+      }),
+    );
+  }
 });
