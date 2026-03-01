@@ -79,6 +79,8 @@ if ('serviceWorker' in navigator) {
       .register('./sw.js')
       .then((registration) => {
         console.log('SW registered: ', registration);
+        // Check for updates on every page load
+        registration.update();
       })
       .catch((registrationError) => {
         console.log('SW registration failed: ', registrationError);

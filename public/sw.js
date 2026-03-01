@@ -10,7 +10,7 @@ const limitCacheSize = (name, maxItems) => {
   caches.open(name).then((cache) => {
     cache.keys().then((keys) => {
       if (keys.length > maxItems) {
-        cache.delete(keys[0]).then(limitCacheSize(name, maxItems));
+        cache.delete(keys[0]).then(() => limitCacheSize(name, maxItems));
       }
     });
   });
@@ -69,16 +69,20 @@ self.addEventListener('fetch', (event) => {
     event.respondWith(
       fetch(event.request)
         .then((networkResponse) => {
+          // If network is ok, cache and return
           if (networkResponse && networkResponse.status === 200) {
             const responseToCache = networkResponse.clone();
             caches.open(CACHE_NAME).then((cache) => {
               cache.put(event.request, responseToCache);
               limitCacheSize(CACHE_NAME, MAX_CACHE_ITEMS);
             });
+            return networkResponse;
           }
-          return networkResponse;
+          // If status is not 200, try cache
+          return caches.match(event.request).then((cached) => cached || networkResponse);
         })
         .catch(() => {
+          // If fetch fails (offline), try cache
           return caches.match(event.request);
         })
     );
