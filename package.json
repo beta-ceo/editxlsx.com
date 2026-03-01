@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "vite --host --force",
     "build": "sh ./bin/build.sh",
+    "build:single": "node bin/bundle_single_html.js",
     "preview": "vite preview",
     "tsc": "tsc --noEmit",
     "format": "prettier --write .",

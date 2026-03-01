@@ -1,6 +1,6 @@
 const CACHE_VERSION = 'SW_VERSION_PLACEHOLDER'.includes('PLACEHOLDER') ? 'dev-' + Date.now() : 'SW_VERSION_PLACEHOLDER';
 const CACHE_NAME = `document-editor-${CACHE_VERSION}`;
-const ASSETS_TO_CACHE = ['./', './index.html', './img/64.png'];
+const ASSETS_TO_CACHE = ['./', './index.html', './manifest.json', './img/64.png'];
 
 // Cache limits and clean-up configuration
 const MAX_CACHE_ITEMS = 100;
