@@ -1,8 +1,23 @@
 # OnlyOffice Web
 
-🌐 **Live Demo**: https://ranuts.github.io/document/
+<p align="center">
+  <a href="https://github.com/ranuts/document/actions/workflows/ci.yml">
+    <img src="https://github.com/ranuts/document/actions/workflows/ci.yml/badge.svg" alt="CI Status">
+  </a>
+  <a href="https://github.com/ranuts/document/blob/main/LICENSE">
+    <img src="https://img.shields.io/github/license/ranuts/document" alt="License">
+  </a>
+  <a href="https://github.com/ranuts/document/releases">
+    <img src="https://img.shields.io/github/v/release/ranuts/document" alt="Version">
+  </a>
+  <a href="https://ranuts.github.io/document/">
+    <img src="https://img.shields.io/badge/Live-Demo-brightgreen" alt="Live Demo">
+  </a>
+</p>
 
-[English](readme.md) | [中文](readme.zh.md)
+<p align="center">
+  <b>English</b> | <a href="readme.zh.md">中文</a>
+</p>
 
 A local web-based document editor based on OnlyOffice, allowing you to edit documents directly in your browser without server-side processing, ensuring your privacy and security.
 

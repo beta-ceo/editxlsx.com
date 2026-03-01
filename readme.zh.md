@@ -1,8 +1,23 @@
 # OnlyOffice Web
 
-🌐 **在线体验**: https://ranuts.github.io/document/
+<p align="center">
+  <a href="https://github.com/ranuts/document/actions/workflows/ci.yml">
+    <img src="https://github.com/ranuts/document/actions/workflows/ci.yml/badge.svg" alt="CI Status">
+  </a>
+  <a href="https://github.com/ranuts/document/blob/main/LICENSE">
+    <img src="https://img.shields.io/github/license/ranuts/document" alt="授权许可">
+  </a>
+  <a href="https://github.com/ranuts/document/releases">
+    <img src="https://img.shields.io/github/v/release/ranuts/document" alt="版本">
+  </a>
+  <a href="https://ranuts.github.io/document/">
+    <img src="https://img.shields.io/badge/在线-体验-brightgreen" alt="在线体验">
+  </a>
+</p>
 
-[English](readme.md) | [中文](readme.zh.md)
+<p align="center">
+  <a href="readme.md">English</a> | <b>中文</b>
+</p>
 
 基于 OnlyOffice 的本地网页文档编辑器，让您直接在浏览器中编辑文档，无需服务器端处理，保护您的隐私安全。
 
@@ -24,6 +39,16 @@
 2. 上传您的文档文件或从 URL 打开文档
 3. 直接在浏览器中编辑
 4. 下载编辑后的文档
+
+### 离线使用 (PWA)
+
+本应用通过 PWA（渐进式 Web 应用）技术支持离线使用。
+
+1. 使用支持的浏览器（Chrome、Edge 等）通过 **HTTPS**（或 localhost）访问编辑器。
+2. 点击地址栏中的**安装**图标进行安装。
+3. 安装后，可以从应用程序菜单启动编辑器，且在断网状态下也能正常工作。
+
+**注意**：由于浏览器安全限制，Service Worker（离线支持所需）在直接从文件系统打开 `index.html`（`file://` 协议）时无法工作。您必须使用本地服务器或已安装的 PWA。
 
 ### URL 参数
 
