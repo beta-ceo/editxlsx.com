@@ -87,3 +87,22 @@ if ('serviceWorker' in navigator) {
       });
   });
 }
+
+// Initialize PWA install component
+const initPwaInstall = () => {
+  const pwaInstall = document.createElement('pwa-install');
+  pwaInstall.id = 'pwa-install';
+
+  // Calculate absolute paths to avoid subfolder resolution issues
+  const baseUrl = window.location.href.split('?')[0].split('#')[0];
+  const baseDir = baseUrl.substring(0, baseUrl.lastIndexOf('/') + 1);
+
+  // Set paths relative to the current directory
+  pwaInstall.setAttribute('manifestpath', `${baseDir}manifest.json`);
+  pwaInstall.setAttribute('iconpath', `${baseDir}img/pwa-512.png`);
+
+  document.body.appendChild(pwaInstall);
+};
+
+// Start PWA initialization after short delay to ensure everything is settled
+setTimeout(initPwaInstall, 1000);
