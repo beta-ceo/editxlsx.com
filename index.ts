@@ -93,13 +93,21 @@ const initPwaInstall = () => {
   const pwaInstall = document.createElement('pwa-install');
   pwaInstall.id = 'pwa-install';
 
+  // Optimization: Only use attributes that enhance the specific project experience
+  // Use local storage to avoid showing the prompt too often
+  pwaInstall.setAttribute('use-local-storage', '');
+
+  // Professional branding
+  pwaInstall.setAttribute('name', 'Document Editor');
+  pwaInstall.setAttribute('description', 'A privacy-focused, local web-based document editor.');
+  pwaInstall.setAttribute('install-description', 'Install the App for a better offline experience and quick access.');
+
   // Use the browser's native resolution from the existing link tags
-  // This is the most elegant and "Single Source of Truth" way
   const manifest = document.querySelector<HTMLLinkElement>('link[rel="manifest"]');
   const icon = document.querySelector<HTMLLinkElement>('link[rel="icon"]');
-  console.log(manifest?.href, icon?.href);
+
   if (manifest?.href) pwaInstall.setAttribute('manifest-url', manifest.href);
-  if (icon?.href) pwaInstall.setAttribute('icon-url', icon.href);
+  if (icon?.href) pwaInstall.setAttribute('icon', icon.href);
 
   document.body.appendChild(pwaInstall);
 };
