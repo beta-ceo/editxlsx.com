@@ -1,4 +1,4 @@
-const CACHE_VERSION = 'SW_VERSION_PLACEHOLDER';
+const CACHE_VERSION = 'SW_VERSION_PLACEHOLDER' === 'SW_VERSION_PLACEHOLDER' ? 'dev-' + Date.now() : 'SW_VERSION_PLACEHOLDER';
 const CACHE_NAME = `document-editor-${CACHE_VERSION}`;
 const ASSETS_TO_CACHE = ['./', './index.html', './img/64.png'];
 
@@ -30,15 +30,25 @@ self.addEventListener('activate', (event) => {
 
 // Fetch event: Stale-While-Revalidate strategy
 self.addEventListener('fetch', (event) => {
-  // Only handle GET requests
+  const url = new URL(event.request.url);
+
+  // 1. Only handle GET requests
   if (event.request.method !== 'GET') return;
 
+  // 2. Only handle same-origin requests to avoid caching external APIs/documents
+  if (url.origin !== self.location.origin) return;
+
+  // 3. Skip caching for requests with dynamic parameters (like ?file= or ?src=)
+  // These are typically documents being edited, which should always be fresh.
+  if (url.searchParams.has('file') || url.searchParams.has('src')) return;
+
+  // 4. Stale-While-Revalidate Strategy
   event.respondWith(
     caches.match(event.request).then((cachedResponse) => {
       const fetchPromise = fetch(event.request)
         .then((networkResponse) => {
-          // Cache the new response
-          if (networkResponse && networkResponse.status === 200) {
+          // Only cache valid 200 responses
+          if (networkResponse && networkResponse.status === 200 && networkResponse.type === 'basic') {
             const responseToCache = networkResponse.clone();
             caches.open(CACHE_NAME).then((cache) => {
               cache.put(event.request, responseToCache);
@@ -47,12 +57,15 @@ self.addEventListener('fetch', (event) => {
           return networkResponse;
         })
         .catch(() => {
-          // If network fails and no cache, just let it fail
+          // If network fails, return the cached version if we have it
           return cachedResponse;
         });
 
-      // Return cached response immediately if available, otherwise wait for network
-      return cachedResponse || fetchPromise;
+      // Use event.waitUntil to ensure the fetch/cache update continues in background
+      if (!cachedResponse) {
+        return fetchPromise;
+      }
+      return cachedResponse;
     }),
   );
 });
