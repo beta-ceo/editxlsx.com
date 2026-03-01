@@ -25,6 +25,16 @@ A local web-based document editor based on OnlyOffice, allowing you to edit docu
 3. Edit directly in your browser
 4. Download the edited documents
 
+### Offline Usage (PWA)
+
+This application supports offline usage via PWA (Progressive Web App) technology.
+
+1. Visit the editor using a supported browser (Chrome, Edge, etc.) over **HTTPS** (or localhost).
+2. Click the **Install** icon in the address bar to install the app.
+3. Once installed, the editor can be launched from your application menu and will work without an internet connection.
+
+**Note**: Due to browser security restrictions, Service Workers (required for offline support) do not work when opening `index.html` directly from the filesystem (`file://` protocol). You must use a local server or the installed PWA.
+
 ### URL Parameters
 
 | Parameter | Description                                  | Values/Type | Priority |

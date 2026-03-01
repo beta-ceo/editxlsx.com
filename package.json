@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite --host --force",
-    "build": "vite build",
+    "build": "./bin/build.sh",
     "preview": "vite preview",
     "tsc": "tsc --noEmit",
     "format": "prettier --write .",
