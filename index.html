@@ -18,7 +18,18 @@
   <div id="app" class="w-full h-full">
     <div id="iframe"></div>
   </div>
-  <pwa-install id="pwa-install" manifestpath="manifest.json" iconpath="img/pwa-512.png"></pwa-install>
+  <pwa-install id="pwa-install"></pwa-install>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const install = document.getElementById('pwa-install');
+      if (install) {
+        const manifest = document.querySelector('link[rel="manifest"]');
+        if (manifest) install.setAttribute('manifestpath', manifest.href);
+        const icon = document.querySelector('link[rel="icon"]');
+        if (icon) install.setAttribute('iconpath', icon.href);
+      }
+    });
+  </script>
 </body>
 <script type="module" src="./index.ts"></script>
 
