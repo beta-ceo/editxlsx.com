@@ -93,13 +93,13 @@ const initPwaInstall = () => {
   const pwaInstall = document.createElement('pwa-install');
   pwaInstall.id = 'pwa-install';
 
-  // Calculate absolute paths to avoid subfolder resolution issues
-  const baseUrl = window.location.href.split('?')[0].split('#')[0];
-  const baseDir = baseUrl.substring(0, baseUrl.lastIndexOf('/') + 1);
+  // Use the browser's native resolution from the existing link tags
+  // This is the most elegant and "Single Source of Truth" way
+  const manifest = document.querySelector<HTMLLinkElement>('link[rel="manifest"]');
+  const icon = document.querySelector<HTMLLinkElement>('link[rel="icon"]');
 
-  // Set paths relative to the current directory
-  pwaInstall.setAttribute('manifestpath', `${baseDir}manifest.json`);
-  pwaInstall.setAttribute('iconpath', `${baseDir}img/pwa-512.png`);
+  if (manifest?.href) pwaInstall.setAttribute('manifestpath', manifest.href);
+  if (icon?.href) pwaInstall.setAttribute('iconpath', icon.href);
 
   document.body.appendChild(pwaInstall);
 };
