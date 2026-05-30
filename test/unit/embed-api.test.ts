@@ -201,4 +201,75 @@ describe('embed-api', () => {
       expectMessagePosted(postMessageSpy, 'document:opened', 'open-1');
     });
   });
+
+  describe('makeFileFromPayload branches', () => {
+    // makeFileFromPayload is internal; we exercise it via document:open-buffer messages.
+    // mockHandleDocumentOperation lets us inspect the File that was constructed.
+
+    async function openWithPayload(payload: Record<string, unknown>, id: string) {
+      window.history.pushState({}, '', '/?embed=1');
+      const { initEmbedApi } = await import('../../lib/embed-api');
+      initEmbedApi();
+      await dispatchMessage({ type: 'document:open-buffer', id, payload });
+    }
+
+    it('passes a File payload through unchanged', async () => {
+      const file = new File([new Uint8Array([1, 2, 3])], 'original.xlsx', {
+        type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+      });
+
+      await openWithPayload({ file }, 'file-1');
+
+      const [callArg] = mockHandleDocumentOperation.mock.calls.at(-1)!;
+      expect(callArg.fileName).toBe('original.xlsx');
+      expectMessagePosted(postMessageSpy, 'document:opened', 'file-1');
+    });
+
+    it('wraps a Blob payload into a File', async () => {
+      const blob = new Blob([new Uint8Array([10, 20])], { type: 'text/csv' });
+
+      await openWithPayload({ blob, fileName: 'data.csv' }, 'blob-1');
+
+      const [callArg] = mockHandleDocumentOperation.mock.calls.at(-1)!;
+      expect(callArg.fileName).toBe('data.csv');
+      expectMessagePosted(postMessageSpy, 'document:opened', 'blob-1');
+    });
+
+    it('wraps an ArrayBuffer payload into a File', async () => {
+      const buffer = new Uint8Array([7, 8, 9]).buffer;
+
+      await openWithPayload({ buffer, fileName: 'report.docx' }, 'arraybuffer-1');
+
+      const [callArg] = mockHandleDocumentOperation.mock.calls.at(-1)!;
+      expect(callArg.fileName).toBe('report.docx');
+      expectMessagePosted(postMessageSpy, 'document:opened', 'arraybuffer-1');
+    });
+
+    it('wraps a Uint8Array payload (via "bytes" key) into a File', async () => {
+      const bytes = new Uint8Array([0xff, 0xfe]);
+
+      await openWithPayload({ bytes, fileName: 'slide.pptx' }, 'uint8-1');
+
+      const [callArg] = mockHandleDocumentOperation.mock.calls.at(-1)!;
+      expect(callArg.fileName).toBe('slide.pptx');
+      expectMessagePosted(postMessageSpy, 'document:opened', 'uint8-1');
+    });
+
+    it('uses default filename "document.xlsx" when no name is supplied', async () => {
+      const buffer = new Uint8Array([1]).buffer;
+
+      await openWithPayload({ buffer }, 'default-name-1');
+
+      const [callArg] = mockHandleDocumentOperation.mock.calls.at(-1)!;
+      expect(callArg.fileName).toBe('document.xlsx');
+    });
+
+    it('posts document:error for an empty payload (no file/blob/buffer/url)', async () => {
+      await openWithPayload({}, 'invalid-1');
+
+      expectMessagePosted(postMessageSpy, 'document:error', 'invalid-1', {
+        message: expect.stringContaining('document:open requires'),
+      });
+    });
+  });
 });

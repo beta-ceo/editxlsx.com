@@ -39,7 +39,7 @@ type EmbeddedSaveRequest = {
 
 let embeddedSaveRequest: EmbeddedSaveRequest | null = null;
 
-function getSavedFileMimeType(fileName: string): string {
+export function getSavedFileMimeType(fileName: string): string {
   const extension = fileName.split('.').pop()?.toLowerCase() || '';
   const mimeMap: Record<string, string> = {
     docx: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
@@ -54,12 +54,12 @@ function getSavedFileMimeType(fileName: string): string {
   return mimeMap[extension] || 'application/octet-stream';
 }
 
-function getNormalizedFile(file: File): File {
+export function getNormalizedFile(file: File): File {
   const mimeType = !file.type || file.type === 'application/octet-stream' ? getSavedFileMimeType(file.name) : file.type;
   return new File([file], file.name, { type: mimeType });
 }
 
-function toUint8Array(data: BlobPart): Uint8Array {
+export function toUint8Array(data: BlobPart): Uint8Array {
   if (data instanceof Uint8Array) {
     return data;
   }

@@ -15,10 +15,13 @@ vi.mock('../../lib/file-types', () => ({ c_oAscFileType2: { 65: 'XLSX', 43: 'DOC
 vi.mock('../../lib/document-utils', () => ({ getMimeTypeFromExtension: vi.fn().mockReturnValue('image/png') }));
 
 import {
+  getNormalizedFile,
   getReadonlyMode,
+  getSavedFileMimeType,
   requestSaveDocument,
   setConverterCallbacks,
   setReadonlyMode,
+  toUint8Array,
 } from '../../lib/onlyoffice-editor';
 
 function makeEditor(extra: Record<string, unknown> = {}) {
@@ -144,6 +147,82 @@ describe('onlyoffice-editor', () => {
           convertAndDownload: vi.fn(),
         }),
       ).not.toThrow();
+    });
+  });
+
+  describe('getSavedFileMimeType', () => {
+    it.each([
+      ['report.docx', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'],
+      ['report.doc', 'application/msword'],
+      ['data.xlsx', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'],
+      ['data.xls', 'application/vnd.ms-excel'],
+      ['data.csv', 'text/csv'],
+      ['deck.pptx', 'application/vnd.openxmlformats-officedocument.presentationml.presentation'],
+      ['deck.ppt', 'application/vnd.ms-powerpoint'],
+      ['document.pdf', 'application/pdf'],
+      ['archive.zip', 'application/octet-stream'],
+      ['no-extension', 'application/octet-stream'],
+    ])('%s → %s', (fileName, expected) => {
+      expect(getSavedFileMimeType(fileName)).toBe(expected);
+    });
+
+    it('is case-insensitive for the extension', () => {
+      expect(getSavedFileMimeType('REPORT.DOCX')).toBe(
+        'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+      );
+    });
+  });
+
+  describe('getNormalizedFile', () => {
+    it('preserves an already-typed file unchanged', () => {
+      const file = new File(['data'], 'report.docx', {
+        type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+      });
+      const result = getNormalizedFile(file);
+      expect(result.type).toBe('application/vnd.openxmlformats-officedocument.wordprocessingml.document');
+      expect(result.name).toBe('report.docx');
+    });
+
+    it('infers MIME type when file has no type', () => {
+      const file = new File(['data'], 'data.xlsx', { type: '' });
+      const result = getNormalizedFile(file);
+      expect(result.type).toBe('application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+    });
+
+    it('infers MIME type when file has generic octet-stream type', () => {
+      const file = new File(['data'], 'deck.pptx', { type: 'application/octet-stream' });
+      const result = getNormalizedFile(file);
+      expect(result.type).toBe('application/vnd.openxmlformats-officedocument.presentationml.presentation');
+    });
+
+    it('preserves the original file name', () => {
+      const file = new File(['data'], 'my-document.csv', { type: '' });
+      expect(getNormalizedFile(file).name).toBe('my-document.csv');
+    });
+  });
+
+  describe('toUint8Array', () => {
+    it('returns the same Uint8Array instance when given a Uint8Array', () => {
+      const arr = new Uint8Array([1, 2, 3]);
+      expect(toUint8Array(arr)).toBe(arr);
+    });
+
+    it('wraps an ArrayBuffer in a Uint8Array', () => {
+      const buf = new Uint8Array([4, 5, 6]).buffer;
+      const result = toUint8Array(buf);
+      expect(result).toBeInstanceOf(Uint8Array);
+      expect(Array.from(result)).toEqual([4, 5, 6]);
+    });
+
+    it('handles a typed-array view (e.g. Int16Array) correctly', () => {
+      const int16 = new Int16Array([256, 512]);
+      const result = toUint8Array(int16);
+      expect(result).toBeInstanceOf(Uint8Array);
+      expect(result.byteLength).toBe(4); // 2 × 2 bytes
+    });
+
+    it('throws for unsupported types', () => {
+      expect(() => toUint8Array('string data' as unknown as BlobPart)).toThrow('Unsupported saved data type');
     });
   });
 });
