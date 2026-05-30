@@ -22,5 +22,5 @@ RUN pnpm run build
 #FROM nginxinc/nginx-unprivileged:stable-alpine
 #COPY --from=builder /app/dist /usr/share/nginx/html
 
-FROM joseluisq/static-web-server:latest
+FROM joseluisq/static-web-server:2.42.0
 COPY --from=builder /app/dist /public
