@@ -33,7 +33,7 @@ function expectMessagePosted(
   id: string,
   payloadMatch?: Record<string, unknown>,
 ) {
-  const found = spy.mock.calls.find((call) => {
+  const found = spy.mock.calls.find((call: unknown[]) => {
     const msg = call[0] as { type?: string; id?: string };
     return msg?.type === type && msg?.id === id;
   });
@@ -45,7 +45,7 @@ function expectMessagePosted(
 }
 
 function expectMessageNotPosted(spy: ReturnType<typeof vi.spyOn>, id: string) {
-  const found = spy.mock.calls.find((call) => {
+  const found = spy.mock.calls.find((call: unknown[]) => {
     const msg = call[0] as { id?: string };
     return msg?.id === id;
   });
