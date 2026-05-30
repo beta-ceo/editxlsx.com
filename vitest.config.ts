@@ -30,7 +30,7 @@ export default defineConfig({
         functions: 35,
         statements: 35,
       },
-      include: ['lib/document-utils.ts', 'lib/i18n.ts'],
+      include: ['lib/document-utils.ts', 'lib/i18n.ts', 'lib/embed-api.ts', 'lib/onlyoffice-editor.ts'],
     },
   },
 });
