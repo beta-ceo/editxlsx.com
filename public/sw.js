@@ -56,6 +56,11 @@ self.addEventListener('fetch', (event) => {
   // These are typically documents being edited, which should always be fresh.
   if (url.searchParams.has('file') || url.searchParams.has('src')) return;
 
+  // 4. Skip font files — let the browser cache them natively to avoid SW
+  // interception latency triggering Chrome's font-loading intervention, which
+  // causes a crash in OnlyOffice v7.5's fallback font code path.
+  if (/\.(ttf|woff2?|otf|eot)(\?.*)?$/.test(url.pathname)) return;
+
   // 4. Determine Strategy
   const isHtml =
     event.request.mode === 'navigate' ||
