@@ -513,9 +513,6 @@ export class X2TConverter {
       // Read generated document
       const result = this.x2tModule!.FS.readFile(`/working/${outputFileName}`);
 
-      // Ensure result is Uint8Array type
-      const resultArray = result instanceof Uint8Array ? result : new Uint8Array(result as ArrayBuffer);
-
       return {
         fileName: outputFileName,
         data: result,
