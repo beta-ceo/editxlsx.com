@@ -46,9 +46,7 @@ test.describe('postMessage API', () => {
     // Give a tick for async postMessage dispatch
     await page.waitForTimeout(200);
 
-    const messages = await page.evaluate(
-      () => (window as any).__capturedMessages as Array<{ type?: string }>,
-    );
+    const messages = await page.evaluate(() => (window as any).__capturedMessages as Array<{ type?: string }>);
     expect(messages.some((m) => m.type === 'document:ready')).toBe(true);
   });
 
@@ -81,8 +79,7 @@ test.describe('postMessage API', () => {
         new Promise<boolean>((resolve) => {
           window.addEventListener('message', (e: MessageEvent) => {
             const msg = e.data as { type?: string; id?: string; payload?: { readonly?: boolean } };
-            if (msg?.type === 'document:state' && msg?.id === 'e2e-before')
-              resolve(msg.payload?.readonly ?? false);
+            if (msg?.type === 'document:state' && msg?.id === 'e2e-before') resolve(msg.payload?.readonly ?? false);
           });
           window.postMessage({ type: 'document:get-state', id: 'e2e-before' }, '*');
         }),

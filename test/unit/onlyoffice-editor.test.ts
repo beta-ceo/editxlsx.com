@@ -60,9 +60,7 @@ describe('onlyoffice-editor', () => {
 
       setReadonlyMode(true);
 
-      expect(editor.sendCommand).toHaveBeenCalledWith(
-        expect.objectContaining({ command: 'processRightsChange' }),
-      );
+      expect(editor.sendCommand).toHaveBeenCalledWith(expect.objectContaining({ command: 'processRightsChange' }));
     });
 
     it('does not throw when no editor is present', () => {

@@ -98,20 +98,13 @@ http://127.0.0.1:8082/embed-demo.html
 ### 1. 嵌入编辑器
 
 ```html
-<iframe
-  id="documentEditor"
-  src="http://127.0.0.1:8082/?embed=1"
-  style="width: 100%; height: 720px; border: 0"
-></iframe>
+<iframe id="documentEditor" src="http://127.0.0.1:8082/?embed=1" style="width: 100%; height: 720px; border: 0"></iframe>
 ```
 
 如果需要限制只接收指定父页面来源，可以增加 `embedOrigin`：
 
 ```html
-<iframe
-  id="documentEditor"
-  src="http://127.0.0.1:8082/?embed=1&embedOrigin=https://your-system.example.com"
-></iframe>
+<iframe id="documentEditor" src="http://127.0.0.1:8082/?embed=1&embedOrigin=https://your-system.example.com"></iframe>
 ```
 
 ### 2. 发送命令
@@ -281,20 +274,20 @@ window.addEventListener('message', async (event) => {
 
 ### 6. 支持的消息
 
-| 方向 | 类型 | 说明 |
-| ---- | ---- | ---- |
-| 父页面 → iframe | `document:open-url` | 通过 URL 打开文档 |
-| 父页面 → iframe | `document:open-file` | 通过 `File` / `Blob` 打开文档 |
-| 父页面 → iframe | `document:open-buffer` | 通过 `ArrayBuffer` / `Uint8Array` 打开文档 |
-| 父页面 → iframe | `document:set-readonly` | 设置只读或可编辑 |
-| 父页面 → iframe | `document:save` | 保存并返回 `File` |
-| 父页面 → iframe | `document:get-state` | 获取当前状态 |
-| iframe → 父页面 | `document:ready` | iframe 初始化完成 |
-| iframe → 父页面 | `document:opened` | 文档打开完成 |
-| iframe → 父页面 | `document:readonly-changed` | 只读状态已切换 |
-| iframe → 父页面 | `document:saved` | 保存完成，返回文件 |
-| iframe → 父页面 | `document:state` | 返回当前状态 |
-| iframe → 父页面 | `document:error` | 操作失败 |
+| 方向            | 类型                        | 说明                                       |
+| --------------- | --------------------------- | ------------------------------------------ |
+| 父页面 → iframe | `document:open-url`         | 通过 URL 打开文档                          |
+| 父页面 → iframe | `document:open-file`        | 通过 `File` / `Blob` 打开文档              |
+| 父页面 → iframe | `document:open-buffer`      | 通过 `ArrayBuffer` / `Uint8Array` 打开文档 |
+| 父页面 → iframe | `document:set-readonly`     | 设置只读或可编辑                           |
+| 父页面 → iframe | `document:save`             | 保存并返回 `File`                          |
+| 父页面 → iframe | `document:get-state`        | 获取当前状态                               |
+| iframe → 父页面 | `document:ready`            | iframe 初始化完成                          |
+| iframe → 父页面 | `document:opened`           | 文档打开完成                               |
+| iframe → 父页面 | `document:readonly-changed` | 只读状态已切换                             |
+| iframe → 父页面 | `document:saved`            | 保存完成，返回文件                         |
+| iframe → 父页面 | `document:state`            | 返回当前状态                               |
+| iframe → 父页面 | `document:error`            | 操作失败                                   |
 
 ## 🛠️ Technical Architecture
 

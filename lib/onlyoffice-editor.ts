@@ -7,8 +7,9 @@ import type { BinConversionResult, SaveEvent } from './document-types';
 import { getMimeTypeFromExtension } from './document-utils';
 
 // Import converter function to avoid circular dependency
-let convertBinToDocumentFn: ((bin: Uint8Array, fileName: string, targetExt?: string) => Promise<BinConversionResult>) | null =
-  null;
+let convertBinToDocumentFn:
+  | ((bin: Uint8Array, fileName: string, targetExt?: string) => Promise<BinConversionResult>)
+  | null = null;
 let convertBinToDocumentAndDownloadFn:
   | ((bin: Uint8Array, fileName: string, targetExt?: string) => Promise<BinConversionResult>)
   | null = null;

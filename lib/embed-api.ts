@@ -174,7 +174,11 @@ async function handleMessage(event: MessageEvent): Promise<void> {
       }
 
       case 'document:get-state':
-        postToParent('document:state', { readonly: getReadonlyMode(), hasDocument: Boolean(window.editor) }, message.id);
+        postToParent(
+          'document:state',
+          { readonly: getReadonlyMode(), hasDocument: Boolean(window.editor) },
+          message.id,
+        );
         break;
 
       default:

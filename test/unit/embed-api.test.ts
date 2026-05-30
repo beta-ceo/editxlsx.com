@@ -138,10 +138,7 @@ describe('embed-api', () => {
       const { initEmbedApi } = await import('../../lib/embed-api');
       initEmbedApi();
 
-      await dispatchMessage(
-        { type: 'document:get-state', id: 'origin-allow-1' },
-        'https://allowed.example.com',
-      );
+      await dispatchMessage({ type: 'document:get-state', id: 'origin-allow-1' }, 'https://allowed.example.com');
 
       expectMessagePosted(postMessageSpy, 'document:state', 'origin-allow-1');
     });

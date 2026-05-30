@@ -358,7 +358,8 @@
     if (!/^c:\\windows\\fonts\\/i.test(fontPath)) return fontPath;
 
     const fileName = fontPath.split('\\').pop().toLowerCase();
-    const cjkFontPattern = /^(deng|dengb|dengl|fz|javanese|malgun|mingliu|msgothic|msyh|msyhbd|msyhl|sim|st|yu|yugoth|yumin)/i;
+    const cjkFontPattern =
+      /^(deng|dengb|dengl|fz|javanese|malgun|mingliu|msgothic|msyh|msyhbd|msyhl|sim|st|yu|yugoth|yumin)/i;
     const fallbackFile = cjkFontPattern.test(fileName) ? 'NotoSansTC-VF.ttf' : 'LiberationSans-Bold.ttf';
     return window.__document_font_base_path + 'fonts/' + fallbackFile;
   }),

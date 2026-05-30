@@ -20,17 +20,18 @@
 
 **完全在浏览器内推理，零网络请求，无需 API Key。**
 
-| 推荐模型 | 量化大小 | Tool calling | 推理速度（典型 GPU） |
-|---|---|---|---|
-| `Phi-3.5-mini-instruct` | ~1.8 GB | ✅ 原生支持 | ~71 tokens/s |
-| `Llama-3.2-3B-Instruct` | ~1.8 GB | ✅ 原生支持 | ~60 tokens/s |
-| `Llama-3.2-1B-Instruct` | ~0.6 GB | ⚠️ 质量较低 | ~120 tokens/s |
+| 推荐模型                | 量化大小 | Tool calling | 推理速度（典型 GPU） |
+| ----------------------- | -------- | ------------ | -------------------- |
+| `Phi-3.5-mini-instruct` | ~1.8 GB  | ✅ 原生支持  | ~71 tokens/s         |
+| `Llama-3.2-3B-Instruct` | ~1.8 GB  | ✅ 原生支持  | ~60 tokens/s         |
+| `Llama-3.2-1B-Instruct` | ~0.6 GB  | ⚠️ 质量较低  | ~120 tokens/s        |
 
 - **首次使用**：需下载模型（1.8 GB），之后缓存在浏览器 Cache API / IndexedDB 中，下次秒开
 - **硬件要求**：WebGPU 支持（Chrome 113+、Edge、Firefox 119+、Safari 18+）；独立 GPU 体验最佳，集成 GPU 速度约慢 2–5 倍
 - **隐私**：推理完全本地，无任何数据离开设备
 
 **实现方式：**
+
 ```typescript
 import { CreateMLCEngine } from '@mlc-ai/web-llm';
 
@@ -40,7 +41,7 @@ const engine = await CreateMLCEngine('Phi-3.5-mini-instruct', {
 
 const response = await engine.chat.completions.create({
   messages: [{ role: 'user', content: userPrompt }],
-  tools: agentTools,      // 与 OpenAI tool-use 格式兼容
+  tools: agentTools, // 与 OpenAI tool-use 格式兼容
   tool_choice: 'auto',
 });
 ```
@@ -78,13 +79,15 @@ const response = await engine.chat.completions.create({
   "name": "agent-probe",
   "guid": "asc.{00000000-0000-0000-0000-000000000001}",
   "version": "1.0.0",
-  "variations": [{
-    "description": "API probe",
-    "url": "index.html",
-    "initDataType": "none",
-    "isViewer": false,
-    "editorsSupport": ["word", "cell", "slide"]
-  }]
+  "variations": [
+    {
+      "description": "API probe",
+      "url": "index.html",
+      "initDataType": "none",
+      "isViewer": false,
+      "editorsSupport": ["word", "cell", "slide"]
+    }
+  ]
 }
 ```
 
@@ -136,14 +139,14 @@ export type AgentTool = {
 
 - [ ] 实现以下工具，每个工具通过 `window.Asc.plugin.callCommand` 调用编辑器 API：
 
-| 工具名 | 功能 | OnlyOffice API |
-|---|---|---|
-| `insert_text` | 在光标处插入文本/HTML | `Api.CreateParagraph()` + `PasteHtml()` |
-| `get_selection` | 获取当前选区文本 | `Api.GetDocument().GetCurrentSelection()` |
-| `get_document_text` | 获取全文纯文本（截断到 8000 字） | `doc.GetAllParagraphs()` 遍历 |
-| `add_comment` | 在选区添加评论 | `AddComment(text, author)` |
-| `set_review_mode` | 开启/关闭修订模式 | `Api.StartTrackRevisions()` / `StopTrackRevisions()` |
-| `replace_selection` | 替换选中文本（修订模式下自动记录） | `selection.SetText()` |
+| 工具名              | 功能                               | OnlyOffice API                                       |
+| ------------------- | ---------------------------------- | ---------------------------------------------------- |
+| `insert_text`       | 在光标处插入文本/HTML              | `Api.CreateParagraph()` + `PasteHtml()`              |
+| `get_selection`     | 获取当前选区文本                   | `Api.GetDocument().GetCurrentSelection()`            |
+| `get_document_text` | 获取全文纯文本（截断到 8000 字）   | `doc.GetAllParagraphs()` 遍历                        |
+| `add_comment`       | 在选区添加评论                     | `AddComment(text, author)`                           |
+| `set_review_mode`   | 开启/关闭修订模式                  | `Api.StartTrackRevisions()` / `StopTrackRevisions()` |
+| `replace_selection` | 替换选中文本（修订模式下自动记录） | `selection.SetText()`                                |
 
 - [ ] 每个工具加入 `readOnlyHint` 标注（`get_*` 工具为只读，其余为写操作）
 - [ ] 为每个工具编写单元测试（mock `window.Asc.plugin.callCommand`）
@@ -316,16 +319,16 @@ export const [getAgentProvider, setAgentProvider] = createSignal<Provider>('anth
 
 ## 风险与依赖
 
-| 风险 | 概率 | 应对 |
-|---|---|---|
-| 离线版 Plugin API 不完整 | 中 | 阶段零提前验证；备选方案：OnlyOffice Docs Server |
-| WebGPU 在集成 GPU / 低端设备上过慢 | 中 | 自动降级到云端模式；提示用户预期速度（~20 tokens/s） |
-| 模型首次下载体验差（1.8 GB） | 高 | 显示详细进度条 + 预估剩余时间；下载后永久缓存；提供"跳过，使用云端"选项 |
-| Safari 激进存储清理导致模型被驱逐 | 中 | 检测缓存是否有效，失效时提示重新下载；Safari 用户优先推荐云端模式 |
-| WebLLM tool calling 质量不稳定（当前 WIP） | 中 | Phi-3.5-mini / Llama-3.2-3B 均经过验证；兜底方案：解析纯文本输出提取工具调用 |
-| pi agent 浏览器包依赖 Node.js 专属 API | 中 | 仅使用 Direct Mode 部分；若不可用，手动实现轻量 tool-use 循环（约 100 行） |
-| LLM API 跨域限制（CORS） | 低 | Anthropic / OpenAI 均支持浏览器直调；Ollama 本地需用户配置 CORS |
-| 大文档超出 LLM context 窗口 | 中 | `get_document_text` 工具截断到 8000 字；建议用户选区操作 |
+| 风险                                       | 概率 | 应对                                                                         |
+| ------------------------------------------ | ---- | ---------------------------------------------------------------------------- |
+| 离线版 Plugin API 不完整                   | 中   | 阶段零提前验证；备选方案：OnlyOffice Docs Server                             |
+| WebGPU 在集成 GPU / 低端设备上过慢         | 中   | 自动降级到云端模式；提示用户预期速度（~20 tokens/s）                         |
+| 模型首次下载体验差（1.8 GB）               | 高   | 显示详细进度条 + 预估剩余时间；下载后永久缓存；提供"跳过，使用云端"选项      |
+| Safari 激进存储清理导致模型被驱逐          | 中   | 检测缓存是否有效，失效时提示重新下载；Safari 用户优先推荐云端模式            |
+| WebLLM tool calling 质量不稳定（当前 WIP） | 中   | Phi-3.5-mini / Llama-3.2-3B 均经过验证；兜底方案：解析纯文本输出提取工具调用 |
+| pi agent 浏览器包依赖 Node.js 专属 API     | 中   | 仅使用 Direct Mode 部分；若不可用，手动实现轻量 tool-use 循环（约 100 行）   |
+| LLM API 跨域限制（CORS）                   | 低   | Anthropic / OpenAI 均支持浏览器直调；Ollama 本地需用户配置 CORS              |
+| 大文档超出 LLM context 窗口                | 中   | `get_document_text` 工具截断到 8000 字；建议用户选区操作                     |
 
 ---
 
