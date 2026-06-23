@@ -112,12 +112,21 @@ class I18n {
   }
 
   constructor() {
-    // Priority: URL locale -> cookie -> localStorage -> navigator.language -> 'en'
+    // Priority: pathname prefix -> URL locale -> cookie -> localStorage -> navigator.language -> 'en'
     let detectedLang: Language | null = null;
 
+    // 0. Highest priority: sub-directory path prefix (e.g. /zh-cn/...)
+    // Use includes() instead of startsWith() to support sub-path deployments
+    // like GitHub Pages where pathname is /document/zh-cn/... not /zh-cn/...
+    if (typeof window !== 'undefined' && window.location.pathname.includes('/zh-cn/')) {
+      detectedLang = LanguageCode.ZH;
+    }
+
     // 1. Try to get from URL parameter 'locale' (highest priority)
-    const urlLocale = this.getUrlParameter('locale');
-    detectedLang = this.normalizeLanguage(urlLocale);
+    if (!detectedLang) {
+      const urlLocale = this.getUrlParameter('locale');
+      detectedLang = this.normalizeLanguage(urlLocale);
+    }
 
     // 2. If not found in URL, try cookies (locale field)
     if (!detectedLang) {

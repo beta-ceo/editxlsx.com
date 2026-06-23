@@ -3,12 +3,28 @@ import 'ranui/message';
 import { t } from './i18n';
 import type { BinConversionResult, ConversionResult, DocumentType, EmscriptenModule } from './document-types';
 import { BASE_PATH, DOCUMENT_TYPE_MAP } from './document-utils';
+import { extractDocxMediaUrls } from './docx-zip';
+
+const MIME_MAP: Record<string, string> = {
+  gif: 'image/gif',
+  png: 'image/png',
+  jpg: 'image/jpeg',
+  jpeg: 'image/jpeg',
+  svg: 'image/svg+xml',
+  webp: 'image/webp',
+  bmp: 'image/bmp',
+  tiff: 'image/tiff',
+  tif: 'image/tiff',
+  emf: 'image/x-emf',
+  wmf: 'image/x-wmf',
+};
 
 export class X2TConverter {
   private x2tModule: EmscriptenModule | null = null;
   private isReady = false;
   private initPromise: Promise<EmscriptenModule> | null = null;
   private hasScriptLoaded = false;
+  private fontsLoaded = false;
 
   // Supported file type mapping
   private readonly DOCUMENT_TYPE_MAP: Record<string, DocumentType> = DOCUMENT_TYPE_MAP;
@@ -89,6 +105,28 @@ export class X2TConverter {
   }
 
   /**
+   * Load core fonts into WASM FS for PDF rendering. Called once per session.
+   * Without fonts, x2t generates a PDF with invisible (empty) text.
+   */
+  private async loadFontsForPdf(): Promise<void> {
+    if (this.fontsLoaded || !this.x2tModule) return;
+    const fontNames = ['DejaVuSans.ttf', 'DejaVuSans-Bold.ttf', 'LiberationSans-Regular.ttf'];
+    await Promise.all(
+      fontNames.map(async (name) => {
+        try {
+          const res = await fetch(`${BASE_PATH}fonts/${name}`);
+          if (!res.ok) return;
+          const buf = new Uint8Array(await res.arrayBuffer());
+          this.x2tModule!.FS.writeFile(`/working/fonts/${name}`, buf);
+        } catch {
+          // Non-fatal — PDF may still render with remaining fonts
+        }
+      }),
+    );
+    this.fontsLoaded = true;
+  }
+
+  /**
    * Create working directories
    */
   private createWorkingDirectories(x2t: EmscriptenModule): void {
@@ -165,7 +203,13 @@ export class X2TConverter {
         console.error('Conversion failed. Parameters XML:', e);
         // Ignore if we can't read the params file
       }
-      throw new Error(`Conversion failed with code: ${result}`);
+      const hints: Record<number, string> = {
+        88: 'The file may be in an unsupported format (.doc binary format), password-protected, or corrupted. Try converting to .docx first.',
+        55: 'DRM-protected or encrypted file cannot be opened.',
+        1: 'Invalid or corrupted file.',
+      };
+      const hint = hints[result] ? ` (${hints[result]})` : '';
+      throw new Error(`Conversion failed with code: ${result}${hint}`);
     }
   }
 
@@ -203,7 +247,9 @@ export class X2TConverter {
               encoding: 'binary',
             }) as BlobPart;
 
-            const blob = new Blob([fileData]);
+            const ext = file.split('.').pop()?.toLowerCase() ?? '';
+            const mime = MIME_MAP[ext] ?? 'application/octet-stream';
+            const blob = new Blob([fileData], { type: mime });
             const mediaUrl = await createObjectURL(blob);
             return { key: `media/${file}`, url: mediaUrl };
           } catch (error) {
@@ -364,6 +410,18 @@ export class X2TConverter {
       const inputPath = `/working/${sanitizedName}`;
       const outputPath = `${inputPath}.bin`;
 
+      // Pre-extract media from PPTX ZIP before x2t conversion.
+      // x2t may convert GIF→PNG in its output; the original ZIP preserves GIF animation.
+      // We merge after conversion, with original ZIP entries winning for same-basename files.
+      let originalPptxMedia: Record<string, string> = {};
+      if (fileExt.toLowerCase() === 'pptx') {
+        try {
+          originalPptxMedia = await extractDocxMediaUrls(data);
+        } catch {
+          // non-fatal; fall back to x2t output only
+        }
+      }
+
       // Write file to virtual file system
       this.x2tModule!.FS.writeFile(inputPath, data);
 
@@ -376,7 +434,29 @@ export class X2TConverter {
 
       // Read conversion result
       const result = this.x2tModule!.FS.readFile(outputPath);
-      const media = await this.readMediaFiles();
+      const x2tMedia = await this.readMediaFiles();
+
+      // Merge media: for each x2t output file, if the same basename exists in the
+      // original PPTX ZIP as a GIF, serve the original GIF (preserves animation).
+      const media: Record<string, string> = { ...x2tMedia };
+      if (Object.keys(originalPptxMedia).length > 0) {
+        const gifByBasename: Record<string, string> = {};
+        for (const [key, url] of Object.entries(originalPptxMedia)) {
+          const ext = key.split('.').pop()?.toLowerCase();
+          if (ext === 'gif') {
+            gifByBasename[key.replace(/\.[^.]+$/, '')] = url;
+          }
+        }
+        for (const key of Object.keys(media)) {
+          const basename = key.replace(/\.[^.]+$/, '');
+          if (gifByBasename[basename]) {
+            media[key] = gifByBasename[basename]!;
+          }
+        }
+        for (const [key, url] of Object.entries(originalPptxMedia)) {
+          if (!(key in media)) media[key] = url;
+        }
+      }
 
       return {
         fileName: sanitizedName,
@@ -496,6 +576,7 @@ export class X2TConverter {
       // Create conversion parameters
       let additionalParams = '';
       if (targetExt === 'PDF') {
+        await this.loadFontsForPdf();
         additionalParams = '<m_sFontDir>/working/fonts/</m_sFontDir>';
       }
 
