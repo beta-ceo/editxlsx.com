@@ -23,6 +23,15 @@ export const getBasePath = (): string => {
 export const BASE_PATH = getBasePath();
 
 /**
+ * Parse the `readonly` URL query value into a boolean for pure preview mode.
+ * Truthy forms: `?readonly=true`, `?readonly=1`, and bare `?readonly` (empty
+ * string). Anything else (including absent / `false`) means editable.
+ */
+export const parseReadonly = (value: string | undefined): boolean => {
+  return value === 'true' || value === '1' || value === '';
+};
+
+/**
  * Get document type from file extension
  */
 export function getDocumentType(fileType: string): string | null {

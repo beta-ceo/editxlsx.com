@@ -2,6 +2,7 @@ import { getAllQueryString } from 'ranuts/utils';
 import { initEmbedApi } from './lib/embed-api';
 import { initEvents, setEventUICallbacks } from './lib/events';
 import { onCreateNew, openDocumentFromUrl, setUICallbacks } from './lib/document';
+import { parseReadonly } from './lib/document-utils';
 import {
   createControlPanel,
   createFixedActionButton,
@@ -63,7 +64,7 @@ const { file, src, readonly } = getAllQueryString();
 const documentUrl = file || src;
 // Pure preview mode: ?readonly=true (also accepts ?readonly=1 or bare ?readonly).
 // Opens the document with editing/download disabled (#25, #85, #87).
-const isReadonly = readonly === 'true' || readonly === '1' || readonly === '';
+const isReadonly = parseReadonly(readonly);
 if (documentUrl) {
   // Decode URL if it's encoded
   try {

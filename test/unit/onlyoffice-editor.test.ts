@@ -15,6 +15,7 @@ vi.mock('../../lib/file-types', () => ({ c_oAscFileType2: { 65: 'XLSX', 43: 'DOC
 vi.mock('../../lib/document-utils', () => ({ getMimeTypeFromExtension: vi.fn().mockReturnValue('image/png') }));
 
 import {
+  createEditorInstance,
   getNormalizedFile,
   getReadonlyMode,
   getSavedFileMimeType,
@@ -134,6 +135,37 @@ describe('onlyoffice-editor', () => {
       const promise = requestSaveDocument();
       vi.advanceTimersByTime(60_001);
       await expect(promise).rejects.toThrow('timed out');
+    });
+  });
+
+  describe('createEditorInstance editor config', () => {
+    afterEach(() => {
+      vi.useRealTimers();
+      delete (window as any).DocsAPI;
+      delete (window as any).editor;
+    });
+
+    it('always passes a non-empty Guest user to avoid the getInitials crash (#25)', async () => {
+      vi.useFakeTimers();
+      const DocEditor = vi.fn();
+      (window as any).DocsAPI = { DocEditor };
+
+      const promise = createEditorInstance({
+        fileName: 'preview.docx',
+        fileType: 'docx',
+        binData: new ArrayBuffer(8),
+        readonly: true,
+      });
+      // Skip the internal cleanup delay (150ms when no prior editor exists).
+      await vi.advanceTimersByTimeAsync(200);
+      await promise;
+
+      expect(DocEditor).toHaveBeenCalledTimes(1);
+      const config = DocEditor.mock.calls[0][1] as any;
+      expect(config.editorConfig.user).toEqual({ id: 'guest', name: 'Guest' });
+      // readonly:true must disable edit + download permissions.
+      expect(config.document.permissions.edit).toBe(false);
+      expect(config.document.permissions.download).toBe(false);
     });
   });
 

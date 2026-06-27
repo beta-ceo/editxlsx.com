@@ -1,5 +1,11 @@
 import { describe, expect, it } from 'vitest';
-import { DOCUMENT_TYPE_MAP, getBasePath, getDocumentType, getMimeTypeFromExtension } from '../../lib/document-utils';
+import {
+  DOCUMENT_TYPE_MAP,
+  getBasePath,
+  getDocumentType,
+  getMimeTypeFromExtension,
+  parseReadonly,
+} from '../../lib/document-utils';
 
 describe('document utils', () => {
   it('classifies common document extensions', () => {
@@ -16,6 +22,18 @@ describe('document utils', () => {
   it('uses image/png fallback for unknown MIME extensions', () => {
     expect(getMimeTypeFromExtension('unknown')).toBe('image/png');
     expect(getMimeTypeFromExtension('')).toBe('image/png');
+  });
+
+  it('parses the readonly query value for preview mode', () => {
+    // Truthy forms
+    expect(parseReadonly('true')).toBe(true);
+    expect(parseReadonly('1')).toBe(true);
+    expect(parseReadonly('')).toBe(true); // bare ?readonly
+    // Falsy forms
+    expect(parseReadonly('false')).toBe(false);
+    expect(parseReadonly('0')).toBe(false);
+    expect(parseReadonly(undefined)).toBe(false);
+    expect(parseReadonly('yes')).toBe(false);
   });
 
   it('detects GitHub Pages base path', () => {
