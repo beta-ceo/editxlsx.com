@@ -15,6 +15,28 @@
  * of the deployment base path (e.g. /document/ on GitHub Pages vs / locally).
  */
 (function () {
+  // Polyfill requestIdleCallback / cancelIdleCallback for Safari (#84).
+  // The v7 SDK calls requestIdleCallback() bare (unprefixed) in several places
+  // (word/cell/slide sdk-all-min.js). Older Safari has no such global, throwing
+  // "ReferenceError: Can't find variable: requestIdleCallback" during init.
+  // This runs in the iframe window before the SDK scripts load.
+  if (typeof window.requestIdleCallback !== 'function') {
+    window.requestIdleCallback = function (cb) {
+      var start = Date.now();
+      return window.setTimeout(function () {
+        cb({
+          didTimeout: false,
+          timeRemaining: function () {
+            return Math.max(0, 50 - (Date.now() - start));
+          },
+        });
+      }, 1);
+    };
+    window.cancelIdleCallback = function (id) {
+      window.clearTimeout(id);
+    };
+  }
+
   // Derive deployment root from this script's URL.
   // Script lives at <root>/onlyoffice-v7-iframe-patch.js, so strip the filename.
   var _base =

@@ -59,18 +59,21 @@ createControlPanel();
 //   ?file=https://example.com/doc.docx
 //   ?src=https://example.com/doc.docx
 //   ?file=doc1.docx&src=doc2.xlsx (will use file: doc1.docx)
-const { file, src } = getAllQueryString();
+const { file, src, readonly } = getAllQueryString();
 const documentUrl = file || src;
+// Pure preview mode: ?readonly=true (also accepts ?readonly=1 or bare ?readonly).
+// Opens the document with editing/download disabled (#25, #85, #87).
+const isReadonly = readonly === 'true' || readonly === '1' || readonly === '';
 if (documentUrl) {
   // Decode URL if it's encoded
   try {
     const decodedUrl = decodeURIComponent(documentUrl);
     // Open document from URL
-    openDocumentFromUrl(decodedUrl);
+    openDocumentFromUrl(decodedUrl, undefined, { readonly: isReadonly });
   } catch (error) {
     // If decoding fails, try using original URL
     console.warn('Failed to decode URL, using original:', error);
-    openDocumentFromUrl(documentUrl);
+    openDocumentFromUrl(documentUrl, undefined, { readonly: isReadonly });
   }
 }
 

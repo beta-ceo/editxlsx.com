@@ -389,6 +389,13 @@ export function createEditorInstance(config: {
         },
         editorConfig: {
           lang: editorLang,
+          // Always provide a non-empty user name. The SDK's getInitials() throws
+          // on a blank name, which crashed preview/readonly mode for anonymous
+          // users (#25). A default Guest user avoids that path.
+          user: {
+            id: 'guest',
+            name: 'Guest',
+          },
           customization: {
             help: false,
             about: false,
