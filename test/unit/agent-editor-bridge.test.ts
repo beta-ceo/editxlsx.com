@@ -45,6 +45,12 @@ describe('agent editor-bridge', () => {
       expect(getEditorApi()).toBe(api);
     });
 
+    it('resolves the api from Asc.editor when window.editor is undefined (Excel)', () => {
+      const api = { pluginMethod_PasteHtml: () => {} };
+      mountIframe({ editor: undefined, Asc: { editor: api } }, { name: 'frameEditor' });
+      expect(getEditorApi()).toBe(api);
+    });
+
     it('prefers the named frameEditor iframe over other iframes', () => {
       const other = { pluginMethod_PasteHtml: () => {}, _which: 'other' };
       const editorApi = { pluginMethod_PasteHtml: () => {}, _which: 'editor' };
@@ -99,6 +105,13 @@ describe('agent editor-bridge', () => {
       const api = { pluginMethod_PasteHtml: () => {} };
       const Asc = { asc_CCommentDataWord: function () {} };
       mountIframe({ editor: api, Asc }, { name: 'frameEditor' });
+      expect(getEditorContext()).toEqual({ api, Asc });
+    });
+
+    it('resolves api from Asc.editor when window.editor is undefined (Excel)', () => {
+      const api = { pluginMethod_PasteHtml: () => {} };
+      const Asc = { editor: api, asc_CCommentDataWord: function () {} };
+      mountIframe({ editor: undefined, Asc }, { name: 'frameEditor' });
       expect(getEditorContext()).toEqual({ api, Asc });
     });
   });

@@ -69,10 +69,21 @@ export interface EditorContext {
   Asc: EditorAsc;
 }
 
-/** The fields we read off the editor iframe's window (not a full Window type). */
+/**
+ * The fields we read off the editor iframe's window (not a full Window type).
+ * The api instance is `window.editor` in Word/Slide, but only `Asc.editor` in
+ * the spreadsheet editor (where `window.editor` is undefined) — so we resolve
+ * from either. `Asc` also carries the namespace used to build SDK objects.
+ */
 interface EditorWindow {
   editor?: unknown;
-  Asc?: EditorAsc;
+  Asc?: EditorAsc & { editor?: unknown };
+}
+
+/** Resolve the api instance from an editor window (Word/Slide vs spreadsheet). */
+function resolveApi(win: EditorWindow): EditorApi | null {
+  const api = win.editor ?? win.Asc?.editor;
+  return api && typeof api === 'object' ? (api as unknown as EditorApi) : null;
 }
 
 /** Thrown when an agent tool runs before the editor iframe is ready. */
@@ -99,7 +110,7 @@ function findEditorWindow(): EditorWindow | null {
   for (const iframe of iframes) {
     try {
       const win = (iframe as HTMLIFrameElement).contentWindow as unknown as EditorWindow | null;
-      if (win && win.editor && typeof win.editor === 'object') return win;
+      if (win && resolveApi(win)) return win;
     } catch {
       // Cross-origin access would throw; in a same-origin deploy this never
       // fires, but skipping keeps the scan from crashing on an odd iframe.
@@ -118,7 +129,7 @@ function findEditorWindow(): EditorWindow | null {
 /** Return the editor's asc_docs_api instance, or null if not mounted. */
 export function getEditorApi(): EditorApi | null {
   const win = findEditorWindow();
-  return win ? (win.editor as unknown as EditorApi) : null;
+  return win ? resolveApi(win) : null;
 }
 
 /** Return the editor API, throwing {@link EditorNotReadyError} if unavailable. */
@@ -135,8 +146,9 @@ export function requireEditorApi(): EditorApi {
  */
 export function getEditorContext(): EditorContext | null {
   const win = findEditorWindow();
-  if (!win || !win.editor || !win.Asc) return null;
-  return { api: win.editor as unknown as EditorApi, Asc: win.Asc };
+  if (!win || !win.Asc) return null;
+  const api = resolveApi(win);
+  return api ? { api, Asc: win.Asc } : null;
 }
 
 /** Return the editor context, throwing {@link EditorNotReadyError} if unavailable. */

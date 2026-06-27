@@ -29,6 +29,18 @@ export function createAgentPanel(): HTMLElement {
   const panel = document.createElement('div');
   panel.className = 'agent-panel';
 
+  // Floating launcher — shown when the panel is closed, reopens it on click.
+  const launcher = document.createElement('button');
+  launcher.className = 'agent-launcher agent-launcher-hidden';
+  launcher.type = 'button';
+  launcher.textContent = 'AI';
+  launcher.title = '打开 AI 助手';
+  const setOpen = (open: boolean): void => {
+    panel.classList.toggle('agent-panel-hidden', !open);
+    launcher.classList.toggle('agent-launcher-hidden', open);
+  };
+  launcher.addEventListener('click', () => setOpen(true));
+
   // ── Header ──────────────────────────────────────────────────────────────
   const header = document.createElement('div');
   header.className = 'agent-panel-header';
@@ -39,7 +51,7 @@ export function createAgentPanel(): HTMLElement {
   closeBtn.className = 'agent-panel-close';
   closeBtn.type = 'button';
   closeBtn.textContent = '×';
-  closeBtn.addEventListener('click', () => panel.classList.add('agent-panel-hidden'));
+  closeBtn.addEventListener('click', () => setOpen(false));
   header.append(title, closeBtn);
 
   // ── Settings ────────────────────────────────────────────────────────────
@@ -92,11 +104,16 @@ export function createAgentPanel(): HTMLElement {
   const reviewCheck = document.createElement('input');
   reviewCheck.type = 'checkbox';
   reviewLabel.append(reviewCheck, document.createTextNode(' 修订模式'));
+  const quoteBtn = document.createElement('button');
+  quoteBtn.className = 'agent-panel-quote';
+  quoteBtn.type = 'button';
+  quoteBtn.textContent = '引用选区';
+  quoteBtn.title = '把当前在文档/表格/幻灯片中选中的文字引用到输入框';
   const clearBtn = document.createElement('button');
   clearBtn.className = 'agent-panel-clear';
   clearBtn.type = 'button';
   clearBtn.textContent = '清空对话';
-  toolbar.append(reviewLabel, clearBtn);
+  toolbar.append(reviewLabel, quoteBtn, clearBtn);
 
   // ── Conversation ────────────────────────────────────────────────────────
   const conversation = document.createElement('div');
@@ -266,6 +283,20 @@ export function createAgentPanel(): HTMLElement {
     conversation.replaceChildren();
   });
 
+  // Quote the current selection (Word text / Excel cells / PPT shape text) into
+  // the input so the user can ask about it. Works across editor types because
+  // pluginMethod_GetSelectedText is part of the shared plugin command API.
+  quoteBtn.addEventListener('click', () => {
+    const selected = getEditorApi()?.pluginMethod_GetSelectedText() ?? '';
+    if (!selected.trim()) {
+      appendTurn({ role: 'error', text: '没有检测到选中的内容，请先在文档中选择文字。' });
+      return;
+    }
+    const quoted = `请参考我选中的内容：\n"""\n${selected.replace(/\r\n/g, '\n')}\n"""\n\n`;
+    textarea.value = quoted + textarea.value;
+    textarea.focus();
+  });
+
   // Review-mode toggle reads/sets track-changes directly on the editor.
   const api = getEditorApi();
   reviewCheck.disabled = !api;
@@ -275,6 +306,6 @@ export function createAgentPanel(): HTMLElement {
   });
 
   panel.append(header, settings, toolbar, conversation, inputRow);
-  document.body.appendChild(panel);
+  document.body.append(panel, launcher);
   return panel;
 }
