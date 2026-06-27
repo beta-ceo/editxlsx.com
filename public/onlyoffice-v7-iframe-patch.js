@@ -17,9 +17,8 @@
 (function () {
   // Derive deployment root from this script's URL.
   // Script lives at <root>/onlyoffice-v7-iframe-patch.js, so strip the filename.
-  var _base = (document.currentScript && document.currentScript.src)
-    ? document.currentScript.src.replace(/[^/]+$/, '')
-    : '/';
+  var _base =
+    document.currentScript && document.currentScript.src ? document.currentScript.src.replace(/[^/]+$/, '') : '/';
 
   // Fetch font map early — resolves well before SDK requests any fonts.
   var fontMap = {};
