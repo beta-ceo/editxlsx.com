@@ -37,16 +37,22 @@ export interface EditorApi {
   pluginMethod_GetSelectionType(): string;
   /** Replace the current selection with the given lines (one array entry per line). */
   pluginMethod_ReplaceTextSmart(lines: string[]): void;
-  /** Select the entire document body. */
+  /** Type plain text at the cursor / into the active spreadsheet cell. */
+  pluginMethod_PasteText?(text: string): void;
+  /** Select the entire document body (Word/Slide). */
   asc_EditSelectAll(): void;
-  /** Clear the current selection. */
-  asc_RemoveSelection(): void;
+  /** Clear the current selection (Word/Slide; absent in the spreadsheet editor). */
+  asc_RemoveSelection?(): void;
   /** Add a comment built from {@link CommentData} to the current selection. */
   asc_addComment(data: CommentData): void;
   /** Toggle track-changes (revision) mode. */
   asc_SetTrackRevisions(value: boolean): void;
   /** Whether track-changes mode is currently on. */
   asc_IsTrackRevisions(): boolean;
+  /** Spreadsheet only: move the selection to a cell by address (e.g. "B2"). */
+  asc_findCell?(address: string): void;
+  /** Spreadsheet only: info about the active cell (text, formatting, …). */
+  asc_getCellInfo?(): { asc_getText(): string } | null;
   [method: string]: unknown;
 }
 

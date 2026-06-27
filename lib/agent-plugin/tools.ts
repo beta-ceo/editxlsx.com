@@ -2,9 +2,9 @@
  * Agent tool definitions. Each tool wraps a verified editor capability
  * (see editor-bridge.ts) behind a typed `execute` + JSON Schema.
  *
- * Phase 1 tools, all over editor methods verified live against the v7.5 SDK:
+ * All over editor methods verified live against the v7.5 SDK (Word/Excel/PPT):
  * insert_text, get_selection, replace_selection, set_review_mode,
- * get_document_text, add_comment.
+ * get_document_text, add_comment, plus spreadsheet-only set_cell / get_cell.
  */
 import { requireEditorApi, requireEditorContext } from './editor-bridge';
 import type { AgentTool } from './types';
@@ -150,7 +150,8 @@ export const getDocumentTextTool: AgentTool<GetDocumentTextParams, { text: strin
     // all → read → clear. GetSelectedText returns CRLF; normalise to \n.
     api.asc_EditSelectAll();
     const full = api.pluginMethod_GetSelectedText().replace(/\r\n/g, '\n');
-    api.asc_RemoveSelection();
+    // asc_RemoveSelection exists in Word/Slide but not the spreadsheet editor.
+    api.asc_RemoveSelection?.();
     const truncated = full.length > maxChars;
     return { text: truncated ? full.slice(0, maxChars) : full, truncated };
   },
@@ -192,6 +193,74 @@ export const addCommentTool: AgentTool<AddCommentParams, { added: true }> = {
   },
 };
 
+export interface SetCellParams {
+  /** Cell address, e.g. "A1" or "B2". */
+  cell: string;
+  /** Value to write. */
+  value: string;
+}
+
+export const setCellTool: AgentTool<SetCellParams, { cell: string; value: string }> = {
+  name: 'set_cell',
+  description:
+    'Spreadsheet (Excel) only. Write a value to a cell by address (e.g. "B2"). ' +
+    'Moves the selection to that cell and sets its value. Use this instead of ' +
+    'insert_text when you need to target a specific cell.',
+  inputSchema: {
+    type: 'object',
+    properties: {
+      cell: { type: 'string', description: 'Cell address, e.g. "A1".' },
+      value: { type: 'string', description: 'The value to write.' },
+    },
+    required: ['cell', 'value'],
+    additionalProperties: false,
+  },
+  readOnlyHint: false,
+  execute: async ({ cell, value }) => {
+    if (typeof cell !== 'string' || typeof value !== 'string') {
+      throw new TypeError('set_cell requires string "cell" and "value" parameters');
+    }
+    const api = requireEditorApi();
+    if (typeof api.asc_findCell !== 'function' || typeof api.pluginMethod_PasteText !== 'function') {
+      throw new Error('set_cell is only available in the spreadsheet (Excel) editor');
+    }
+    api.asc_findCell(cell);
+    api.pluginMethod_PasteText(value);
+    return { cell, value };
+  },
+};
+
+export interface GetCellParams {
+  /** Cell address, e.g. "A1". */
+  cell: string;
+}
+
+export const getCellTool: AgentTool<GetCellParams, { cell: string; text: string }> = {
+  name: 'get_cell',
+  description: 'Spreadsheet (Excel) only. Read the text of a cell by address (e.g. "B2").',
+  inputSchema: {
+    type: 'object',
+    properties: {
+      cell: { type: 'string', description: 'Cell address, e.g. "A1".' },
+    },
+    required: ['cell'],
+    additionalProperties: false,
+  },
+  readOnlyHint: true,
+  execute: async ({ cell }) => {
+    if (typeof cell !== 'string') {
+      throw new TypeError('get_cell requires a string "cell" parameter');
+    }
+    const api = requireEditorApi();
+    if (typeof api.asc_findCell !== 'function' || typeof api.asc_getCellInfo !== 'function') {
+      throw new Error('get_cell is only available in the spreadsheet (Excel) editor');
+    }
+    api.asc_findCell(cell);
+    const info = api.asc_getCellInfo();
+    return { cell, text: info?.asc_getText() ?? '' };
+  },
+};
+
 /** All registered agent tools, keyed by name for lookup by the runtime. */
 export const agentTools: Record<string, AgentTool> = {
   [insertTextTool.name]: insertTextTool as unknown as AgentTool,
@@ -200,4 +269,6 @@ export const agentTools: Record<string, AgentTool> = {
   [setReviewModeTool.name]: setReviewModeTool as unknown as AgentTool,
   [getDocumentTextTool.name]: getDocumentTextTool as unknown as AgentTool,
   [addCommentTool.name]: addCommentTool as unknown as AgentTool,
+  [setCellTool.name]: setCellTool as unknown as AgentTool,
+  [getCellTool.name]: getCellTool as unknown as AgentTool,
 };
