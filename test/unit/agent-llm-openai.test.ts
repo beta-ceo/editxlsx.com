@@ -1,0 +1,53 @@
+import { afterEach, describe, expect, it, vi } from 'vitest';
+import { OpenAIProvider } from '../../lib/agent-plugin/llm/openai';
+import { clearApiKey, setApiKey } from '../../lib/agent-plugin/llm/keys';
+
+const okResponse = (body: unknown): Response => ({ ok: true, json: async () => body }) as unknown as Response;
+
+describe('OpenAIProvider', () => {
+  afterEach(() => clearApiKey('openai'));
+
+  it('is not ready without a key', () => {
+    expect(new OpenAIProvider({ apiKey: undefined }).isReady()).toBe(false);
+  });
+
+  it('reads the key from storage', () => {
+    setApiKey('openai', 'sk-oai-stored');
+    expect(new OpenAIProvider().isReady()).toBe(true);
+  });
+
+  it('posts an OpenAI chat-completions request with auth and parses the result', async () => {
+    const fetchImpl = vi.fn(async (_url: string, _init: RequestInit) =>
+      okResponse({ choices: [{ message: { content: 'hi there' }, finish_reason: 'stop' }] }),
+    );
+    const provider = new OpenAIProvider({ apiKey: 'sk-oai-123', model: 'gpt-4o-mini', fetchImpl });
+
+    const result = await provider.chat(
+      [{ role: 'user', content: 'go' }],
+      [{ name: 'insert_text', description: 'd', inputSchema: { type: 'object' } }],
+    );
+
+    expect(fetchImpl).toHaveBeenCalledTimes(1);
+    const [url, init] = fetchImpl.mock.calls[0];
+    expect(url).toBe('https://api.openai.com/v1/chat/completions');
+    expect((init.headers as Record<string, string>).Authorization).toBe('Bearer sk-oai-123');
+    const body = JSON.parse(init.body as string);
+    expect(body.model).toBe('gpt-4o-mini');
+    expect(body.tool_choice).toBe('auto');
+    expect(body.messages[0].role).toBe('system');
+    expect(result.text).toBe('hi there');
+  });
+
+  it('throws with status detail on a non-ok response', async () => {
+    const fetchImpl = vi.fn(
+      async () => ({ ok: false, status: 401, text: async () => 'Unauthorized' }) as unknown as Response,
+    );
+    const provider = new OpenAIProvider({ apiKey: 'bad', fetchImpl });
+    await expect(provider.chat([{ role: 'user', content: 'x' }], [])).rejects.toThrow('401');
+  });
+
+  it('throws when no key is configured', async () => {
+    const provider = new OpenAIProvider({ apiKey: undefined });
+    await expect(provider.chat([{ role: 'user', content: 'x' }], [])).rejects.toThrow('not configured');
+  });
+});

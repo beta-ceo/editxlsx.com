@@ -404,3 +404,30 @@ r-button[type='text']::part(ran-btn-content) {
   cursor: pointer;
   font-size: 12px;
 }
+
+.agent-panel-model-row {
+  display: flex;
+  gap: 8px;
+}
+.agent-panel-model {
+  flex: 1;
+  min-width: 0;
+  padding: 6px 8px;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  font: inherit;
+  background: #fff;
+}
+.agent-panel-load {
+  flex-shrink: 0;
+  border: 1px solid #d1d5db;
+  background: #fff;
+  border-radius: 6px;
+  padding: 4px 10px;
+  cursor: pointer;
+  font-size: 12px;
+}
+.agent-panel-load:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
