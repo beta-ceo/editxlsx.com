@@ -60,11 +60,15 @@ createControlPanel();
 //   ?file=https://example.com/doc.docx
 //   ?src=https://example.com/doc.docx
 //   ?file=doc1.docx&src=doc2.xlsx (will use file: doc1.docx)
-const { file, src, readonly } = getAllQueryString();
+const { file, src, readonly, agent } = getAllQueryString();
 const documentUrl = file || src;
 // Pure preview mode: ?readonly=true (also accepts ?readonly=1 or bare ?readonly).
 // Opens the document with editing/download disabled (#25, #85, #87).
 const isReadonly = parseReadonly(readonly);
+// Experimental AI agent panel: opt-in via ?agent=1 (also ?agent=true or bare ?agent).
+if (agent === '1' || agent === 'true' || agent === '') {
+  void import('./lib/agent-plugin/ui/panel').then(({ createAgentPanel }) => createAgentPanel());
+}
 if (documentUrl) {
   // Decode URL if it's encoded
   try {
