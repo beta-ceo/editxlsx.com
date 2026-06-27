@@ -77,6 +77,57 @@ export function toOpenAIMessages(messages: LLMMessage[], systemPrompt: string): 
   return out;
 }
 
+/** A streamed chat-completions chunk (OpenAI `stream: true` / WebLLM delta). */
+export interface OpenAIStreamChunk {
+  choices?: Array<{
+    delta?: {
+      content?: string | null;
+      tool_calls?: Array<{ index?: number; id?: string; function?: { name?: string; arguments?: string } }>;
+    };
+    finish_reason?: string | null;
+  }>;
+}
+
+/**
+ * Fold a stream of OpenAI-format chunks into a single {@link OpenAICompletion},
+ * emitting each text fragment via `onDelta` as it arrives. Tool-call fragments
+ * are reassembled by their `index` (id + name + concatenated argument string).
+ * The result is fed back through {@link parseOpenAIResponse}, so streaming and
+ * non-streaming share the exact same parse path.
+ */
+export async function accumulateOpenAIStream(
+  chunks: AsyncIterable<OpenAIStreamChunk>,
+  onDelta: (textDelta: string) => void,
+): Promise<OpenAICompletion> {
+  let content = '';
+  let finishReason: string | undefined;
+  const byIndex = new Map<number, { id: string; name: string; args: string }>();
+  for await (const chunk of chunks) {
+    const choice = chunk.choices?.[0];
+    if (!choice) continue;
+    const piece = choice.delta?.content;
+    if (piece) {
+      content += piece;
+      onDelta(piece);
+    }
+    for (const call of choice.delta?.tool_calls ?? []) {
+      const index = call.index ?? 0;
+      const acc = byIndex.get(index) ?? { id: '', name: '', args: '' };
+      if (call.id) acc.id = call.id;
+      if (call.function?.name) acc.name = call.function.name;
+      if (call.function?.arguments) acc.args += call.function.arguments;
+      byIndex.set(index, acc);
+    }
+    if (choice.finish_reason) finishReason = choice.finish_reason;
+  }
+  const tool_calls: OpenAIToolCall[] = [...byIndex.entries()]
+    .sort((a, b) => a[0] - b[0])
+    .map(([, c]) => ({ id: c.id, type: 'function', function: { name: c.name, arguments: c.args } }));
+  const message: OpenAICompletion['choices'][number]['message'] = { content: content || null };
+  if (tool_calls.length) message.tool_calls = tool_calls;
+  return { choices: [{ message, finish_reason: finishReason ?? 'stop' }] };
+}
+
 /** Parse an OpenAI completion into the neutral {@link LLMResponse}. */
 export function parseOpenAIResponse(completion: OpenAICompletion): LLMResponse {
   const choice = completion.choices?.[0];

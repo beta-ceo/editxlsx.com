@@ -34,9 +34,18 @@ interface AnthropicResponse {
   stop_reason: string | null;
 }
 
+/** A streaming handle from `messages.stream()` (the bits this provider uses). */
+export interface AnthropicStream {
+  on(event: 'text', listener: (textDelta: string) => void): unknown;
+  finalMessage(): Promise<AnthropicResponse>;
+}
+
 /** The slice of the Anthropic client this provider uses (eases test mocking). */
 export interface AnthropicLike {
-  messages: { create(body: Record<string, unknown>): Promise<AnthropicResponse> };
+  messages: {
+    create(body: Record<string, unknown>): Promise<AnthropicResponse>;
+    stream?(body: Record<string, unknown>): AnthropicStream;
+  };
 }
 
 /** Convert a neutral tool definition to Anthropic's `{name, description, input_schema}`. */
@@ -129,14 +138,34 @@ export class AnthropicProvider implements LLMProvider {
     return this.client;
   }
 
-  async chat(messages: LLMMessage[], tools: LLMToolDef[]): Promise<LLMResponse> {
-    const response = await this.getClient().messages.create({
+  private requestBody(messages: LLMMessage[], tools: LLMToolDef[]): Record<string, unknown> {
+    return {
       model: this.model,
       max_tokens: this.maxTokens,
       system: this.systemPrompt,
       tools: tools.map(toAnthropicTool),
       messages: messages.map(toAnthropicMessage),
-    });
+    };
+  }
+
+  async chat(messages: LLMMessage[], tools: LLMToolDef[]): Promise<LLMResponse> {
+    const response = await this.getClient().messages.create(this.requestBody(messages, tools));
     return parseAnthropicResponse(response);
+  }
+
+  async chatStream(
+    messages: LLMMessage[],
+    tools: LLMToolDef[],
+    onDelta: (textDelta: string) => void,
+  ): Promise<LLMResponse> {
+    const client = this.getClient();
+    // The SDK's messages.stream() emits incremental "text" events and resolves
+    // the full message via finalMessage(), which parses exactly like create().
+    if (!client.messages.stream) {
+      return this.chat(messages, tools);
+    }
+    const stream = client.messages.stream(this.requestBody(messages, tools));
+    stream.on('text', (delta) => onDelta(delta));
+    return parseAnthropicResponse(await stream.finalMessage());
   }
 }

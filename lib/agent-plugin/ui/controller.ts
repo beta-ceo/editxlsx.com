@@ -19,6 +19,10 @@ export interface ChatTurn {
 export interface AgentChatControllerOptions {
   tools?: Record<string, AgentTool>;
   maxIterations?: number;
+  /** Called with each streamed assistant text delta (live-render the bubble). */
+  onAgentDelta?: (delta: string) => void;
+  /** Called when a streamed assistant turn completes (close the live bubble). */
+  onAgentStreamEnd?: () => void;
 }
 
 export class AgentChatController {
@@ -52,12 +56,21 @@ export class AgentChatController {
         history: this.history,
         signal: this.abortController.signal,
         onEvent: (event) => {
-          if (event.type === 'tool_call') {
+          if (event.type === 'assistant_delta') {
+            this.options.onAgentDelta?.(event.text);
+          } else if (event.type === 'tool_call') {
             this.onTurn({ role: 'tool', text: t('agentToolCallPrefix') + event.name });
           } else if (event.type === 'tool_result' && event.isError) {
             this.onTurn({ role: 'error', text: t('agentToolErrorPrefix') + event.content });
-          } else if (event.type === 'assistant' && event.text) {
-            this.onTurn({ role: 'agent', text: event.text });
+          } else if (event.type === 'assistant') {
+            // A streamed turn was already rendered via deltas — just close the
+            // live bubble. Without a delta handler wired, fall back to emitting
+            // the whole turn so the text is never lost.
+            if (event.streamed && this.options.onAgentDelta) {
+              this.options.onAgentStreamEnd?.();
+            } else if (event.text) {
+              this.onTurn({ role: 'agent', text: event.text });
+            }
           }
         },
       });

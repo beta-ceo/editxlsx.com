@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from 'vitest';
-import { runAgent, toLLMToolDefs } from '../../lib/agent-plugin/runtime';
+import { type AgentEvent, runAgent, toLLMToolDefs } from '../../lib/agent-plugin/runtime';
 import type { AgentTool } from '../../lib/agent-plugin/types';
 import type { LLMMessage, LLMProvider, LLMResponse } from '../../lib/agent-plugin/llm/types';
 
@@ -151,5 +151,27 @@ describe('runAgent', () => {
       onEvent: (e) => events.push(e.type),
     });
     expect(events).toEqual(['tool_call', 'tool_result', 'assistant']);
+  });
+
+  it('uses chatStream when present, emitting deltas then a streamed assistant event', async () => {
+    const chatStream = vi.fn(async (_messages: LLMMessage[], _tools, onDelta: (d: string) => void) => {
+      onDelta('Hel');
+      onDelta('lo');
+      return textResponse('Hello');
+    });
+    const chat = vi.fn();
+    const provider: LLMProvider = { name: 'test', isReady: () => true, chat, chatStream };
+    const events: AgentEvent[] = [];
+
+    const result = await runAgent(provider, 'go', { tools: {}, onEvent: (e) => events.push(e) });
+
+    expect(chatStream).toHaveBeenCalledTimes(1);
+    expect(chat).not.toHaveBeenCalled();
+    expect(events.filter((e) => e.type === 'assistant_delta').map((e) => (e as { text: string }).text)).toEqual([
+      'Hel',
+      'lo',
+    ]);
+    expect(events.find((e) => e.type === 'assistant')).toMatchObject({ text: 'Hello', streamed: true });
+    expect(result.text).toBe('Hello');
   });
 });

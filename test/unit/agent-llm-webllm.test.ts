@@ -46,6 +46,21 @@ describe('WebLLMProvider', () => {
     const provider = new WebLLMProvider({ engine: { chat: { completions: { create: vi.fn() } } } });
     await expect(provider.preload()).resolves.toBeUndefined();
   });
+
+  it('chatStream() requests a stream, reports deltas, and resolves the full text', async () => {
+    async function* chunks() {
+      yield { choices: [{ delta: { content: 'on' } }] };
+      yield { choices: [{ delta: { content: 'line' } }] };
+      yield { choices: [{ delta: {}, finish_reason: 'stop' }] };
+    }
+    const create = vi.fn().mockResolvedValue(chunks());
+    const provider = new WebLLMProvider({ engine: { chat: { completions: { create } } } });
+    const deltas: string[] = [];
+    const result = await provider.chatStream([{ role: 'user', content: 'go' }], [], (d) => deltas.push(d));
+    expect(create.mock.calls[0][0].stream).toBe(true);
+    expect(deltas).toEqual(['on', 'line']);
+    expect(result.text).toBe('online');
+  });
 });
 
 describe('provider factory', () => {

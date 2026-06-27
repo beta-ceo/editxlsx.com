@@ -54,4 +54,10 @@ export interface LLMProvider {
   isReady(): boolean;
   /** Run one model turn over the conversation with the given tools available. */
   chat(messages: LLMMessage[], tools: LLMToolDef[]): Promise<LLMResponse>;
+  /**
+   * Optional streaming variant: emit assistant text deltas via `onDelta` as they
+   * arrive, then resolve with the same full {@link LLMResponse} as {@link chat}.
+   * Providers that omit it transparently fall back to `chat` in the runtime.
+   */
+  chatStream?(messages: LLMMessage[], tools: LLMToolDef[], onDelta: (textDelta: string) => void): Promise<LLMResponse>;
 }

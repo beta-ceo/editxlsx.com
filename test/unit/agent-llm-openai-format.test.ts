@@ -1,6 +1,16 @@
-import { describe, expect, it } from 'vitest';
-import { parseOpenAIResponse, toOpenAIMessages, toOpenAITools } from '../../lib/agent-plugin/llm/openai-format';
+import { describe, expect, it, vi } from 'vitest';
+import {
+  accumulateOpenAIStream,
+  type OpenAIStreamChunk,
+  parseOpenAIResponse,
+  toOpenAIMessages,
+  toOpenAITools,
+} from '../../lib/agent-plugin/llm/openai-format';
 import type { LLMMessage } from '../../lib/agent-plugin/llm/types';
+
+async function* asStream(chunks: OpenAIStreamChunk[]): AsyncIterable<OpenAIStreamChunk> {
+  for (const chunk of chunks) yield chunk;
+}
 
 describe('openai-format conversion', () => {
   it('maps tools to OpenAI function shape', () => {
@@ -73,5 +83,63 @@ describe('openai-format conversion', () => {
     expect(parsed.toolCalls[0].input).toEqual({});
     expect(parsed.text).toBe('');
     expect(parsed.stopReason).toBe('stop');
+  });
+});
+
+describe('accumulateOpenAIStream', () => {
+  it('concatenates text deltas and reports each via onDelta', async () => {
+    const onDelta = vi.fn();
+    const completion = await accumulateOpenAIStream(
+      asStream([
+        { choices: [{ delta: { content: 'Hel' } }] },
+        { choices: [{ delta: { content: 'lo' } }] },
+        { choices: [{ delta: {}, finish_reason: 'stop' }] },
+      ]),
+      onDelta,
+    );
+    expect(onDelta.mock.calls.map((c) => c[0])).toEqual(['Hel', 'lo']);
+    const parsed = parseOpenAIResponse(completion);
+    expect(parsed.text).toBe('Hello');
+    expect(parsed.stopReason).toBe('stop');
+    expect(parsed.toolCalls).toEqual([]);
+  });
+
+  it('reassembles a tool call from fragmented deltas by index', async () => {
+    const onDelta = vi.fn();
+    const completion = await accumulateOpenAIStream(
+      asStream([
+        { choices: [{ delta: { tool_calls: [{ index: 0, id: 't1', function: { name: 'insert_text' } }] } }] },
+        { choices: [{ delta: { tool_calls: [{ index: 0, function: { arguments: '{"text":"' } }] } }] },
+        { choices: [{ delta: { tool_calls: [{ index: 0, function: { arguments: 'hi"}' } }] } }] },
+        { choices: [{ delta: {}, finish_reason: 'tool_calls' }] },
+      ]),
+      onDelta,
+    );
+    expect(onDelta).not.toHaveBeenCalled();
+    const parsed = parseOpenAIResponse(completion);
+    expect(parsed.toolCalls).toEqual([{ id: 't1', name: 'insert_text', input: { text: 'hi' } }]);
+    expect(parsed.stopReason).toBe('tool_calls');
+  });
+
+  it('keeps multiple tool calls separate and ordered by index', async () => {
+    const completion = await accumulateOpenAIStream(
+      asStream([
+        {
+          choices: [
+            {
+              delta: {
+                tool_calls: [
+                  { index: 1, id: 'b', function: { name: 'second', arguments: '{}' } },
+                  { index: 0, id: 'a', function: { name: 'first', arguments: '{}' } },
+                ],
+              },
+            },
+          ],
+        },
+      ]),
+      vi.fn(),
+    );
+    const parsed = parseOpenAIResponse(completion);
+    expect(parsed.toolCalls.map((c) => c.name)).toEqual(['first', 'second']);
   });
 });

@@ -16,7 +16,8 @@ import type { LLMContent, LLMMessage, LLMProvider, LLMToolDef } from './llm/type
 
 /** Progress event emitted during a run (for UI: chat bubbles, tool activity). */
 export type AgentEvent =
-  | { type: 'assistant'; text: string }
+  | { type: 'assistant'; text: string; streamed: boolean }
+  | { type: 'assistant_delta'; text: string }
   | { type: 'tool_call'; name: string; input: Record<string, unknown> }
   | { type: 'tool_result'; name: string; content: string; isError: boolean };
 
@@ -72,9 +73,19 @@ export async function runAgent(
     if (options.signal?.aborted) {
       return { text: '', messages, toolCallCount, stoppedOnLimit: false, aborted: true };
     }
-    const response = await provider.chat(messages, toolDefs);
+    // Stream when the provider supports it, surfacing text deltas as they arrive;
+    // otherwise fall back to a single blocking chat call. Either way the final
+    // response shape is identical, so the rest of the loop is unchanged.
+    let streamed = false;
+    const response = provider.chatStream
+      ? await provider.chatStream(messages, toolDefs, (delta) => {
+          if (!delta) return;
+          streamed = true;
+          options.onEvent?.({ type: 'assistant_delta', text: delta });
+        })
+      : await provider.chat(messages, toolDefs);
     messages.push(response.assistant);
-    if (response.text) options.onEvent?.({ type: 'assistant', text: response.text });
+    if (response.text) options.onEvent?.({ type: 'assistant', text: response.text, streamed });
 
     if (response.toolCalls.length === 0) {
       return { text: response.text, messages, toolCallCount, stoppedOnLimit: false, aborted: false };

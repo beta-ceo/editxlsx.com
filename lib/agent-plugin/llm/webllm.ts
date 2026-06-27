@@ -10,7 +10,14 @@
  * engine is injectable so the provider can be unit tested without WebGPU or a
  * model download.
  */
-import { type OpenAICompletion, parseOpenAIResponse, toOpenAIMessages, toOpenAITools } from './openai-format';
+import {
+  accumulateOpenAIStream,
+  type OpenAICompletion,
+  type OpenAIStreamChunk,
+  parseOpenAIResponse,
+  toOpenAIMessages,
+  toOpenAITools,
+} from './openai-format';
 import { DEFAULT_SYSTEM_PROMPT } from './prompt';
 import type { LLMMessage, LLMProvider, LLMResponse, LLMToolDef } from './types';
 
@@ -118,6 +125,25 @@ export class WebLLMProvider implements LLMProvider {
       tools: toOpenAITools(tools),
       tool_choice: 'auto',
     });
+    return parseOpenAIResponse(completion);
+  }
+
+  async chatStream(
+    messages: LLMMessage[],
+    tools: LLMToolDef[],
+    onDelta: (textDelta: string) => void,
+  ): Promise<LLMResponse> {
+    const engine = await this.getEngine();
+    // With `stream: true` WebLLM returns an async iterable of OpenAI-format
+    // chunks instead of a completion; the shared accumulator folds them back
+    // into a completion that parses identically to the non-streaming path.
+    const stream = (await engine.chat.completions.create({
+      messages: toOpenAIMessages(messages, this.systemPrompt),
+      tools: toOpenAITools(tools),
+      tool_choice: 'auto',
+      stream: true,
+    })) as unknown as AsyncIterable<OpenAIStreamChunk>;
+    const completion = await accumulateOpenAIStream(stream, onDelta);
     return parseOpenAIResponse(completion);
   }
 }

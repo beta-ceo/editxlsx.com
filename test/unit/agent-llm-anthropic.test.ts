@@ -118,4 +118,34 @@ describe('AnthropicProvider', () => {
     const provider = new AnthropicProvider({ apiKey: undefined });
     await expect(provider.chat([{ role: 'user', content: 'x' }], [])).rejects.toThrow('not configured');
   });
+
+  it('chatStream() forwards text deltas and parses finalMessage()', async () => {
+    const deltas: string[] = [];
+    const stream = vi.fn().mockReturnValue({
+      on: (_event: 'text', listener: (d: string) => void) => {
+        listener('Hel');
+        listener('lo');
+      },
+      finalMessage: async () => ({ content: [{ type: 'text', text: 'Hello' }], stop_reason: 'end_turn' }),
+    });
+    const provider = new AnthropicProvider({ client: { messages: { create: vi.fn(), stream } } });
+
+    const result = await provider.chatStream([{ role: 'user', content: 'go' }], [], (d) => deltas.push(d));
+
+    expect(stream).toHaveBeenCalledTimes(1);
+    expect(deltas).toEqual(['Hel', 'lo']);
+    expect(result.text).toBe('Hello');
+  });
+
+  it('chatStream() falls back to chat() when the client cannot stream', async () => {
+    const create = vi
+      .fn()
+      .mockResolvedValue({ content: [{ type: 'text', text: 'fallback' }], stop_reason: 'end_turn' });
+    const provider = new AnthropicProvider({ client: { messages: { create } } });
+    const onDelta = vi.fn();
+    const result = await provider.chatStream([{ role: 'user', content: 'go' }], [], onDelta);
+    expect(create).toHaveBeenCalledTimes(1);
+    expect(onDelta).not.toHaveBeenCalled();
+    expect(result.text).toBe('fallback');
+  });
 });

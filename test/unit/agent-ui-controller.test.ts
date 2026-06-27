@@ -158,6 +158,49 @@ describe('AgentChatController', () => {
     expect(controller.isRunning()).toBe(false);
   });
 
+  it('streams deltas via onAgentDelta and finalizes without a duplicate agent turn', async () => {
+    const streamingProvider: LLMProvider = {
+      name: 'test',
+      isReady: () => true,
+      chat: vi.fn(),
+      chatStream: vi.fn(async (_messages, _tools, onDelta: (d: string) => void) => {
+        onDelta('Hel');
+        onDelta('lo');
+        return textResponse('Hello');
+      }),
+    };
+    const turns: ChatTurn[] = [];
+    const deltas: string[] = [];
+    let ended = 0;
+    const controller = new AgentChatController(streamingProvider, (t) => turns.push(t), {
+      tools: {},
+      onAgentDelta: (d) => deltas.push(d),
+      onAgentStreamEnd: () => ended++,
+    });
+
+    await controller.send('go');
+
+    expect(deltas).toEqual(['Hel', 'lo']);
+    expect(ended).toBe(1);
+    // The streamed text was shown via deltas, so no separate agent turn is emitted.
+    expect(turns).toEqual([{ role: 'user', text: 'go' }]);
+  });
+
+  it('falls back to an agent turn for a streamed reply when no delta handler is wired', async () => {
+    const streamingProvider: LLMProvider = {
+      name: 'test',
+      isReady: () => true,
+      chat: vi.fn(),
+      chatStream: vi.fn(async (_messages, _tools, onDelta: (d: string) => void) => {
+        onDelta('Hi');
+        return textResponse('Hi');
+      }),
+    };
+    const { controller, turns } = collect(streamingProvider, { tools: {} });
+    await controller.send('go');
+    expect(turns).toContainEqual({ role: 'agent', text: 'Hi' });
+  });
+
   it('reset clears history', async () => {
     const { provider, snapshots } = scriptedWithSnapshots([textResponse('first'), textResponse('second')]);
     const { controller } = collect(provider, { tools: {} });

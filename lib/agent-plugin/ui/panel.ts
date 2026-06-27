@@ -144,7 +144,7 @@ export function createAgentPanel(): HTMLElement {
   // ── Conversation ────────────────────────────────────────────────────────
   const conversation = document.createElement('div');
   conversation.className = 'agent-panel-conversation';
-  const appendTurn = (turn: ChatTurn): void => {
+  const appendTurn = (turn: ChatTurn): HTMLElement => {
     const row = document.createElement('div');
     row.className = `agent-turn agent-turn-${turn.role}`;
     const who = document.createElement('span');
@@ -156,6 +156,20 @@ export function createAgentPanel(): HTMLElement {
     row.append(who, body);
     conversation.append(row);
     conversation.scrollTop = conversation.scrollHeight;
+    return body;
+  };
+
+  // Streaming: append deltas into a single live agent bubble until the turn ends.
+  let liveBubble: HTMLElement | null = null;
+  const controllerOptions = {
+    onAgentDelta: (delta: string): void => {
+      if (!liveBubble) liveBubble = appendTurn({ role: 'agent', text: '' });
+      liveBubble.textContent = (liveBubble.textContent ?? '') + delta;
+      conversation.scrollTop = conversation.scrollHeight;
+    },
+    onAgentStreamEnd: (): void => {
+      liveBubble = null;
+    },
   };
 
   // ── Input ───────────────────────────────────────────────────────────────
@@ -235,7 +249,7 @@ export function createAgentPanel(): HTMLElement {
           model: modelSelect.value,
           onProgress: (p) => (note.textContent = p.text),
         });
-        controller = new AgentChatController(webllmProvider, appendTurn);
+        controller = new AgentChatController(webllmProvider, appendTurn, controllerOptions);
         controllerKind = kind;
       }
       return controller;
@@ -244,7 +258,11 @@ export function createAgentPanel(): HTMLElement {
       const model = ollamaModelInput.value.trim() || undefined;
       const kind = `ollama:${model ?? ''}`;
       if (!controller || controllerKind !== kind) {
-        controller = new AgentChatController(createProvider('ollama', { ollamaModel: model }), appendTurn);
+        controller = new AgentChatController(
+          createProvider('ollama', { ollamaModel: model }),
+          appendTurn,
+          controllerOptions,
+        );
         controllerKind = kind;
         webllmProvider = null;
       }
@@ -254,7 +272,7 @@ export function createAgentPanel(): HTMLElement {
     if (!key) return null;
     const kind = `${id}:${key}`;
     if (!controller || controllerKind !== kind) {
-      controller = new AgentChatController(createProvider(id, { apiKey: key }), appendTurn);
+      controller = new AgentChatController(createProvider(id, { apiKey: key }), appendTurn, controllerOptions);
       controllerKind = kind;
       webllmProvider = null;
     }
@@ -297,6 +315,7 @@ export function createAgentPanel(): HTMLElement {
       return;
     }
     textarea.value = '';
+    liveBubble = null;
     setRunning(true);
     try {
       await ctl.send(text);
@@ -319,6 +338,7 @@ export function createAgentPanel(): HTMLElement {
   clearBtn.addEventListener('click', () => {
     controller?.reset();
     conversation.replaceChildren();
+    liveBubble = null;
   });
 
   // Quote the current selection (Word text / Excel cells / PPT shape text) into
