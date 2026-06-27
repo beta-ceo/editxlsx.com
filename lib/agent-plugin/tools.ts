@@ -2,11 +2,11 @@
  * Agent tool definitions. Each tool wraps a verified editor capability
  * (see editor-bridge.ts) behind a typed `execute` + JSON Schema.
  *
- * Phase 1 tools (all over verified editor methods): insert_text, get_selection,
- * replace_selection, set_review_mode. Still pending mechanism verification:
- * get_document_text (non-destructive full-text read) and add_comment.
+ * Phase 1 tools, all over editor methods verified live against the v7.5 SDK:
+ * insert_text, get_selection, replace_selection, set_review_mode,
+ * get_document_text, add_comment.
  */
-import { requireEditorApi } from './editor-bridge';
+import { requireEditorApi, requireEditorContext } from './editor-bridge';
 import type { AgentTool } from './types';
 
 /**
@@ -123,10 +123,81 @@ export const setReviewModeTool: AgentTool<SetReviewModeParams, { enabled: boolea
   },
 };
 
+export interface GetDocumentTextParams {
+  /** Maximum characters to return (default 8000). Long documents are truncated. */
+  maxChars?: number;
+}
+
+const DEFAULT_MAX_CHARS = 8000;
+
+export const getDocumentTextTool: AgentTool<GetDocumentTextParams, { text: string; truncated: boolean }> = {
+  name: 'get_document_text',
+  description:
+    'Read the full plain text of the document. Long documents are truncated ' +
+    '(default 8000 characters). Side effect: this clears the current selection ' +
+    'and moves the cursor — call it before editing, not mid-edit.',
+  inputSchema: {
+    type: 'object',
+    properties: {
+      maxChars: { type: 'number', description: 'Maximum characters to return (default 8000).' },
+    },
+    additionalProperties: false,
+  },
+  readOnlyHint: true,
+  execute: async ({ maxChars = DEFAULT_MAX_CHARS } = {}) => {
+    const api = requireEditorApi();
+    // No non-destructive full-text read exists on the offline SDK, so select
+    // all → read → clear. GetSelectedText returns CRLF; normalise to \n.
+    api.asc_EditSelectAll();
+    const full = api.pluginMethod_GetSelectedText().replace(/\r\n/g, '\n');
+    api.asc_RemoveSelection();
+    const truncated = full.length > maxChars;
+    return { text: truncated ? full.slice(0, maxChars) : full, truncated };
+  },
+};
+
+export interface AddCommentParams {
+  /** The comment text. */
+  text: string;
+  /** Comment author name (default "Agent"). */
+  author?: string;
+}
+
+export const addCommentTool: AgentTool<AddCommentParams, { added: true }> = {
+  name: 'add_comment',
+  description:
+    'Add a comment anchored to the current selection. Select the text to ' +
+    'annotate first (see get_selection). Prefer this over editing when you want ' +
+    'to suggest a change without altering the document text.',
+  inputSchema: {
+    type: 'object',
+    properties: {
+      text: { type: 'string', description: 'The comment text.' },
+      author: { type: 'string', description: 'Comment author name (default "Agent").' },
+    },
+    required: ['text'],
+    additionalProperties: false,
+  },
+  readOnlyHint: false,
+  execute: async ({ text, author = 'Agent' }) => {
+    if (typeof text !== 'string') {
+      throw new TypeError('add_comment requires a string "text" parameter');
+    }
+    const { api, Asc } = requireEditorContext();
+    const data = new Asc.asc_CCommentDataWord();
+    data.asc_putText(text);
+    data.asc_putUserName(author);
+    api.asc_addComment(data);
+    return { added: true };
+  },
+};
+
 /** All registered agent tools, keyed by name for lookup by the runtime. */
 export const agentTools: Record<string, AgentTool> = {
   [insertTextTool.name]: insertTextTool as unknown as AgentTool,
   [getSelectionTool.name]: getSelectionTool as unknown as AgentTool,
   [replaceSelectionTool.name]: replaceSelectionTool as unknown as AgentTool,
   [setReviewModeTool.name]: setReviewModeTool as unknown as AgentTool,
+  [getDocumentTextTool.name]: getDocumentTextTool as unknown as AgentTool,
+  [addCommentTool.name]: addCommentTool as unknown as AgentTool,
 };

@@ -1,5 +1,11 @@
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
-import { EditorNotReadyError, getEditorApi, requireEditorApi } from '../../lib/agent-plugin/editor-bridge';
+import {
+  EditorNotReadyError,
+  getEditorApi,
+  getEditorContext,
+  requireEditorApi,
+  requireEditorContext,
+} from '../../lib/agent-plugin/editor-bridge';
 
 /**
  * OnlyOffice replaces the placeholder div with `<iframe name="frameEditor">`,
@@ -76,6 +82,38 @@ describe('agent editor-bridge', () => {
       const api = { pluginMethod_PasteHtml: () => {} };
       mountIframe({ editor: api }, { name: 'frameEditor' });
       expect(requireEditorApi()).toBe(api);
+    });
+  });
+
+  describe('getEditorContext', () => {
+    it('returns null when no editor is mounted', () => {
+      expect(getEditorContext()).toBeNull();
+    });
+
+    it('returns null when the editor is present but Asc is missing', () => {
+      mountIframe({ editor: { pluginMethod_PasteHtml: () => {} } }, { name: 'frameEditor' });
+      expect(getEditorContext()).toBeNull();
+    });
+
+    it('returns both api and Asc when present', () => {
+      const api = { pluginMethod_PasteHtml: () => {} };
+      const Asc = { asc_CCommentDataWord: function () {} };
+      mountIframe({ editor: api, Asc }, { name: 'frameEditor' });
+      expect(getEditorContext()).toEqual({ api, Asc });
+    });
+  });
+
+  describe('requireEditorContext', () => {
+    it('throws EditorNotReadyError when the context is unavailable', () => {
+      mountIframe({ editor: { pluginMethod_PasteHtml: () => {} } }, { name: 'frameEditor' });
+      expect(() => requireEditorContext()).toThrow(EditorNotReadyError);
+    });
+
+    it('returns the context when available', () => {
+      const api = { pluginMethod_PasteHtml: () => {} };
+      const Asc = { asc_CCommentDataWord: function () {} };
+      mountIframe({ editor: api, Asc }, { name: 'frameEditor' });
+      expect(requireEditorContext()).toEqual({ api, Asc });
     });
   });
 });

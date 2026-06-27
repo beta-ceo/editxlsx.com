@@ -7,6 +7,9 @@ const getSelectionType = vi.fn(() => 'text');
 const replaceTextSmart = vi.fn();
 const setTrackRevisions = vi.fn();
 const isTrackRevisions = vi.fn(() => true);
+const editSelectAll = vi.fn();
+const removeSelection = vi.fn();
+const addComment = vi.fn();
 const makeApi = () => ({
   pluginMethod_PasteHtml: pasteHtml,
   pluginMethod_GetSelectedText: getSelectedText,
@@ -14,15 +17,32 @@ const makeApi = () => ({
   pluginMethod_ReplaceTextSmart: replaceTextSmart,
   asc_SetTrackRevisions: setTrackRevisions,
   asc_IsTrackRevisions: isTrackRevisions,
+  asc_EditSelectAll: editSelectAll,
+  asc_RemoveSelection: removeSelection,
+  asc_addComment: addComment,
+});
+// Comment-data object built by the editor frame's Asc namespace.
+const putText = vi.fn();
+const putUserName = vi.fn();
+const commentData = { asc_putText: putText, asc_putUserName: putUserName, asc_putUserId: vi.fn() };
+// Must be a regular function (not arrow) so it works with `new`.
+const makeAsc = () => ({
+  asc_CCommentDataWord: vi.fn(function () {
+    return commentData;
+  }),
 });
 const requireEditorApi = vi.fn(makeApi);
+const requireEditorContext = vi.fn(() => ({ api: makeApi(), Asc: makeAsc() }));
 vi.mock('../../lib/agent-plugin/editor-bridge', () => ({
   requireEditorApi: () => requireEditorApi(),
+  requireEditorContext: () => requireEditorContext(),
   EditorNotReadyError: class EditorNotReadyError extends Error {},
 }));
 
 import {
+  addCommentTool,
   agentTools,
+  getDocumentTextTool,
   getSelectionTool,
   insertTextTool,
   replaceSelectionTool,
@@ -37,6 +57,7 @@ describe('agent tools', () => {
     getSelectionType.mockReturnValue('text');
     isTrackRevisions.mockReturnValue(true);
     requireEditorApi.mockImplementation(makeApi);
+    requireEditorContext.mockImplementation(() => ({ api: makeApi(), Asc: makeAsc() }));
   });
 
   describe('textToHtml', () => {
@@ -149,6 +170,59 @@ describe('agent tools', () => {
       // @ts-expect-error intentionally wrong type
       await expect(setReviewModeTool.execute({ enabled: 'yes' })).rejects.toThrow(TypeError);
       expect(setTrackRevisions).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('get_document_text tool', () => {
+    it('is read-only and registered', () => {
+      expect(agentTools.get_document_text).toBe(getDocumentTextTool);
+      expect(getDocumentTextTool.readOnlyHint).toBe(true);
+    });
+
+    it('selects all, reads CRLF-normalised text, then clears the selection', async () => {
+      getSelectedText.mockReturnValue('Alpha.\r\nBeta.');
+      const result = await getDocumentTextTool.execute({});
+      expect(editSelectAll).toHaveBeenCalledTimes(1);
+      expect(removeSelection).toHaveBeenCalledTimes(1);
+      expect(result).toEqual({ text: 'Alpha.\nBeta.', truncated: false });
+    });
+
+    it('truncates to maxChars and flags it', async () => {
+      getSelectedText.mockReturnValue('abcdefghij');
+      const result = await getDocumentTextTool.execute({ maxChars: 4 });
+      expect(result).toEqual({ text: 'abcd', truncated: true });
+    });
+
+    it('defaults maxChars when called with empty params', async () => {
+      getSelectedText.mockReturnValue('short');
+      const result = await getDocumentTextTool.execute({});
+      expect(result).toEqual({ text: 'short', truncated: false });
+    });
+  });
+
+  describe('add_comment tool', () => {
+    it('is a write tool and registered', () => {
+      expect(agentTools.add_comment).toBe(addCommentTool);
+      expect(addCommentTool.readOnlyHint).toBe(false);
+    });
+
+    it('builds a comment data object and adds it with the given author', async () => {
+      const result = await addCommentTool.execute({ text: 'Consider rephrasing', author: 'Reviewer' });
+      expect(putText).toHaveBeenCalledWith('Consider rephrasing');
+      expect(putUserName).toHaveBeenCalledWith('Reviewer');
+      expect(addComment).toHaveBeenCalledWith(commentData);
+      expect(result).toEqual({ added: true });
+    });
+
+    it('defaults the author to "Agent"', async () => {
+      await addCommentTool.execute({ text: 'note' });
+      expect(putUserName).toHaveBeenCalledWith('Agent');
+    });
+
+    it('throws a TypeError for non-string text', async () => {
+      // @ts-expect-error intentionally wrong type
+      await expect(addCommentTool.execute({ text: 123 })).rejects.toThrow(TypeError);
+      expect(addComment).not.toHaveBeenCalled();
     });
   });
 });
