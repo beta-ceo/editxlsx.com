@@ -10,10 +10,16 @@
  * The editor iframe is served from the same origin (web-apps/apps/.../index.html),
  * so the parent page can call `iframe.contentWindow.editor.<method>(...)` directly
  * — no postMessage, no plugin loading required.
+ *
+ * Note on locating the iframe: DocsAPI is created with target id 'iframe', but
+ * OnlyOffice *replaces* that placeholder `<div id="iframe">` with an
+ * `<iframe name="frameEditor">` mounted under #app — so after mount there is no
+ * `#iframe` element. We locate the editor iframe by its `name` (verified at
+ * runtime in Phase 1), falling back to any iframe that exposes `editor`.
  */
 
-/** The id of the container div that OnlyOffice mounts its editor iframe into. */
-const EDITOR_CONTAINER_ID = 'iframe';
+/** OnlyOffice names its editor iframe element `frameEditor`. */
+const EDITOR_FRAME_NAME = 'frameEditor';
 
 /**
  * The asc_docs_api instance inside the editor iframe. Only the methods verified
@@ -29,10 +35,12 @@ export interface EditorApi {
   pluginMethod_GetSelectedText(): string;
   /** Return the current selection type, e.g. "none" | "text" | "image". */
   pluginMethod_GetSelectionType(): string;
+  /** Replace the current selection with the given lines (one array entry per line). */
+  pluginMethod_ReplaceTextSmart(lines: string[]): void;
   /** Toggle track-changes (revision) mode. */
   asc_SetTrackRevisions(value: boolean): void;
   /** Whether track-changes mode is currently on. */
-  asc_IsTrackRevisions?(): boolean;
+  asc_IsTrackRevisions(): boolean;
   [method: string]: unknown;
 }
 
@@ -53,18 +61,25 @@ export class EditorNotReadyError extends Error {
  */
 export function getEditorApi(): EditorApi | null {
   if (typeof document === 'undefined') return null;
-  const container = document.getElementById(EDITOR_CONTAINER_ID);
-  const iframe = container?.querySelector('iframe') as HTMLIFrameElement | null;
-  if (!iframe) return null;
-  try {
-    const win = iframe.contentWindow as Window | null;
-    const api = (win as unknown as { editor?: unknown } | null)?.editor;
-    return api && typeof api === 'object' ? (api as unknown as EditorApi) : null;
-  } catch {
-    // Cross-origin access would throw; in a same-origin deploy this never fires,
-    // but failing safe keeps callers from crashing on an unexpected setup.
-    return null;
+  // Try the named editor iframe first, then fall back to scanning every iframe
+  // for one whose window exposes `editor` (defends against name changes).
+  const named = document.querySelector(`iframe[name="${EDITOR_FRAME_NAME}"]`);
+  const iframes: Element[] = [];
+  if (named) iframes.push(named);
+  for (const f of document.querySelectorAll('iframe')) {
+    if (f !== named) iframes.push(f);
   }
+  for (const iframe of iframes) {
+    try {
+      const win = (iframe as HTMLIFrameElement).contentWindow as Window | null;
+      const api = (win as unknown as { editor?: unknown } | null)?.editor;
+      if (api && typeof api === 'object') return api as unknown as EditorApi;
+    } catch {
+      // Cross-origin access would throw; in a same-origin deploy this never
+      // fires, but skipping keeps the scan from crashing on an odd iframe.
+    }
+  }
+  return null;
 }
 
 /** Return the editor API, throwing {@link EditorNotReadyError} if unavailable. */

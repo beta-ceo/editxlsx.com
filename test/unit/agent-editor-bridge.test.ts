@@ -2,17 +2,16 @@ import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { EditorNotReadyError, getEditorApi, requireEditorApi } from '../../lib/agent-plugin/editor-bridge';
 
 /**
- * Build the DOM shape getEditorApi() walks: <div id="iframe"><iframe/></div>,
- * then override the iframe's contentWindow so we can plant a fake editor API
- * (jsdom's real contentWindow can't be assigned a `.editor` reliably).
+ * OnlyOffice replaces the placeholder div with `<iframe name="frameEditor">`,
+ * so we plant such an iframe and override its contentWindow (jsdom's real one
+ * can't be assigned a `.editor` reliably).
  */
-function mountEditorIframe(contentWindow: unknown): void {
-  const container = document.createElement('div');
-  container.id = 'iframe';
+function mountIframe(contentWindow: unknown, opts: { name?: string } = {}): HTMLIFrameElement {
   const iframe = document.createElement('iframe');
+  if (opts.name) iframe.setAttribute('name', opts.name);
   Object.defineProperty(iframe, 'contentWindow', { value: contentWindow, configurable: true });
-  container.appendChild(iframe);
-  document.body.appendChild(container);
+  document.body.appendChild(iframe);
+  return iframe;
 }
 
 describe('agent editor-bridge', () => {
@@ -24,41 +23,47 @@ describe('agent editor-bridge', () => {
   });
 
   describe('getEditorApi', () => {
-    it('returns null when the container is absent', () => {
+    it('returns null when there is no iframe', () => {
       expect(getEditorApi()).toBeNull();
     });
 
-    it('returns null when the container has no iframe', () => {
-      const container = document.createElement('div');
-      container.id = 'iframe';
-      document.body.appendChild(container);
-      expect(getEditorApi()).toBeNull();
-    });
-
-    it('returns null when the iframe has no editor on its window', () => {
-      mountEditorIframe({ editor: undefined });
-      expect(getEditorApi()).toBeNull();
-    });
-
-    it('returns the editor api when present', () => {
+    it('returns the api from the named frameEditor iframe', () => {
       const api = { pluginMethod_PasteHtml: () => {} };
-      mountEditorIframe({ editor: api });
+      mountIframe({ editor: api }, { name: 'frameEditor' });
       expect(getEditorApi()).toBe(api);
     });
 
-    it('returns null (fails safe) when contentWindow access throws (cross-origin)', () => {
-      const container = document.createElement('div');
-      container.id = 'iframe';
-      const iframe = document.createElement('iframe');
-      Object.defineProperty(iframe, 'contentWindow', {
+    it('falls back to any iframe exposing editor when none is named frameEditor', () => {
+      const api = { pluginMethod_PasteHtml: () => {} };
+      mountIframe({ editor: api });
+      expect(getEditorApi()).toBe(api);
+    });
+
+    it('prefers the named frameEditor iframe over other iframes', () => {
+      const other = { pluginMethod_PasteHtml: () => {}, _which: 'other' };
+      const editorApi = { pluginMethod_PasteHtml: () => {}, _which: 'editor' };
+      mountIframe({ editor: other }); // unnamed, appears first in DOM order
+      mountIframe({ editor: editorApi }, { name: 'frameEditor' });
+      expect(getEditorApi()).toBe(editorApi);
+    });
+
+    it('returns null when no iframe exposes an editor', () => {
+      mountIframe({ editor: undefined }, { name: 'frameEditor' });
+      expect(getEditorApi()).toBeNull();
+    });
+
+    it('skips iframes whose contentWindow access throws (cross-origin) and keeps scanning', () => {
+      const crossOrigin = document.createElement('iframe');
+      Object.defineProperty(crossOrigin, 'contentWindow', {
         get() {
           throw new Error('cross-origin');
         },
         configurable: true,
       });
-      container.appendChild(iframe);
-      document.body.appendChild(container);
-      expect(getEditorApi()).toBeNull();
+      document.body.appendChild(crossOrigin);
+      const api = { pluginMethod_PasteHtml: () => {} };
+      mountIframe({ editor: api }, { name: 'frameEditor' });
+      expect(getEditorApi()).toBe(api);
     });
   });
 
@@ -69,7 +74,7 @@ describe('agent editor-bridge', () => {
 
     it('returns the api when available', () => {
       const api = { pluginMethod_PasteHtml: () => {} };
-      mountEditorIframe({ editor: api });
+      mountIframe({ editor: api }, { name: 'frameEditor' });
       expect(requireEditorApi()).toBe(api);
     });
   });
