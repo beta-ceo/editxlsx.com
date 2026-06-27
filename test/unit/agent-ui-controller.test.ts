@@ -1,4 +1,5 @@
 import { describe, expect, it, vi } from 'vitest';
+import { t } from '../../lib/i18n';
 import { AgentChatController, type ChatTurn } from '../../lib/agent-plugin/ui/controller';
 import type { AgentTool } from '../../lib/agent-plugin/types';
 import type { LLMMessage, LLMProvider, LLMResponse } from '../../lib/agent-plugin/llm/types';
@@ -82,7 +83,7 @@ describe('AgentChatController', () => {
     await controller.send('insert hi');
     expect(turns).toEqual([
       { role: 'user', text: 'insert hi' },
-      { role: 'tool', text: '调用工具：insert_text' },
+      { role: 'tool', text: t('agentToolCallPrefix') + 'insert_text' },
       { role: 'agent', text: 'inserted' },
     ]);
   });
@@ -96,7 +97,7 @@ describe('AgentChatController', () => {
     const provider = scripted([toolResponse('t1', 'boom', {}), textResponse('recovered')]);
     const { turns, controller } = collect(provider, { tools });
     await controller.send('go');
-    expect(turns).toContainEqual({ role: 'error', text: '工具出错：editor not ready' });
+    expect(turns).toContainEqual({ role: 'error', text: t('agentToolErrorPrefix') + 'editor not ready' });
   });
 
   it('emits an error turn when the iteration cap is hit', async () => {
@@ -104,7 +105,7 @@ describe('AgentChatController', () => {
     const provider = scripted([toolResponse('t', 'loop', {})]);
     const { controller, turns } = collect(provider, { tools, maxIterations: 2 });
     await controller.send('go');
-    expect(turns).toContainEqual({ role: 'error', text: '已达到最大执行步数，已停止。' });
+    expect(turns).toContainEqual({ role: 'error', text: t('agentMaxSteps') });
   });
 
   it('emits an error turn when the provider throws', async () => {
@@ -153,7 +154,7 @@ describe('AgentChatController', () => {
     resolveChat(); // first chat returns a tool call; next iteration sees the abort
     await pending;
 
-    expect(turns).toContainEqual({ role: 'error', text: '已停止。' });
+    expect(turns).toContainEqual({ role: 'error', text: t('agentStopped') });
     expect(controller.isRunning()).toBe(false);
   });
 

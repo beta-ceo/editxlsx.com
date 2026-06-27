@@ -8,19 +8,30 @@
  * orchestration lives in the controller and the LLM factory; this file only
  * builds DOM and forwards events. Loaded behind `?agent=1`.
  */
+import { type I18nMessages, t } from '../../i18n';
 import { getEditorApi } from '../editor-bridge';
 import { createProvider, defaultProviderId, type ProviderId } from '../llm/factory';
 import { getApiKey, setApiKey } from '../llm/keys';
 import { DEFAULT_WEBLLM_MODEL, isModelCached, isWebGPUAvailable, WEBLLM_MODELS, WebLLMProvider } from '../llm/webllm';
 import { AgentChatController, type ChatTurn } from './controller';
 
-const TURN_LABEL: Record<ChatTurn['role'], string> = { user: '你', agent: 'Agent', tool: '工具', error: '错误' };
+const TURN_LABEL_KEY: Record<ChatTurn['role'], keyof I18nMessages | null> = {
+  user: 'agentRoleUser',
+  agent: null, // "Agent" — same in every language
+  tool: 'agentRoleTool',
+  error: 'agentRoleError',
+};
+const turnLabel = (role: ChatTurn['role']): string => {
+  const key = TURN_LABEL_KEY[role];
+  return key ? t(key) : 'Agent';
+};
 
-const PROVIDER_OPTIONS: Array<[ProviderId, string]> = [
-  ['anthropic', 'Claude（云端，需 API Key）'],
-  ['openai', 'OpenAI（云端，需 API Key）'],
-  ['webllm', '本地离线（WebLLM，需 WebGPU）'],
-];
+const PROVIDER_LABEL_KEY: Record<ProviderId, keyof I18nMessages> = {
+  anthropic: 'agentProviderClaude',
+  openai: 'agentProviderOpenAI',
+  webllm: 'agentProviderLocal',
+};
+const PROVIDER_IDS: ProviderId[] = ['anthropic', 'openai', 'webllm'];
 
 const KEY_PLACEHOLDER: Partial<Record<ProviderId, string>> = { anthropic: 'sk-ant-...', openai: 'sk-...' };
 
@@ -34,7 +45,7 @@ export function createAgentPanel(): HTMLElement {
   launcher.className = 'agent-launcher agent-launcher-hidden';
   launcher.type = 'button';
   launcher.textContent = 'AI';
-  launcher.title = '打开 AI 助手';
+  launcher.title = t('agentOpenTip');
   const setOpen = (open: boolean): void => {
     panel.classList.toggle('agent-panel-hidden', !open);
     launcher.classList.toggle('agent-launcher-hidden', open);
@@ -46,7 +57,7 @@ export function createAgentPanel(): HTMLElement {
   header.className = 'agent-panel-header';
   const title = document.createElement('span');
   title.className = 'agent-panel-title';
-  title.textContent = 'AI 助手';
+  title.textContent = t('agentTitle');
   const closeBtn = document.createElement('button');
   closeBtn.className = 'agent-panel-close';
   closeBtn.type = 'button';
@@ -60,10 +71,10 @@ export function createAgentPanel(): HTMLElement {
 
   const providerSelect = document.createElement('select');
   providerSelect.className = 'agent-panel-provider';
-  for (const [value, label] of PROVIDER_OPTIONS) {
+  for (const value of PROVIDER_IDS) {
     const opt = document.createElement('option');
     opt.value = value;
-    opt.textContent = label;
+    opt.textContent = t(PROVIDER_LABEL_KEY[value]);
     providerSelect.append(opt);
   }
   providerSelect.value = defaultProviderId();
@@ -88,7 +99,7 @@ export function createAgentPanel(): HTMLElement {
   const loadBtn = document.createElement('button');
   loadBtn.className = 'agent-panel-load';
   loadBtn.type = 'button';
-  loadBtn.textContent = '加载模型';
+  loadBtn.textContent = t('agentLoadModel');
   modelRow.append(modelSelect, loadBtn);
 
   const note = document.createElement('div');
@@ -103,16 +114,17 @@ export function createAgentPanel(): HTMLElement {
   reviewLabel.className = 'agent-panel-review';
   const reviewCheck = document.createElement('input');
   reviewCheck.type = 'checkbox';
-  reviewLabel.append(reviewCheck, document.createTextNode(' 修订模式'));
+  const reviewText = document.createTextNode(' ' + t('agentReviewMode'));
+  reviewLabel.append(reviewCheck, reviewText);
   const quoteBtn = document.createElement('button');
   quoteBtn.className = 'agent-panel-quote';
   quoteBtn.type = 'button';
-  quoteBtn.textContent = '引用选区';
-  quoteBtn.title = '把当前在文档/表格/幻灯片中选中的文字引用到输入框';
+  quoteBtn.textContent = t('agentQuote');
+  quoteBtn.title = t('agentQuoteTip');
   const clearBtn = document.createElement('button');
   clearBtn.className = 'agent-panel-clear';
   clearBtn.type = 'button';
-  clearBtn.textContent = '清空对话';
+  clearBtn.textContent = t('agentClear');
   toolbar.append(reviewLabel, quoteBtn, clearBtn);
 
   // ── Conversation ────────────────────────────────────────────────────────
@@ -123,7 +135,7 @@ export function createAgentPanel(): HTMLElement {
     row.className = `agent-turn agent-turn-${turn.role}`;
     const who = document.createElement('span');
     who.className = 'agent-turn-role';
-    who.textContent = TURN_LABEL[turn.role];
+    who.textContent = turnLabel(turn.role);
     const body = document.createElement('div');
     body.className = 'agent-turn-text';
     body.textContent = turn.text;
@@ -138,11 +150,11 @@ export function createAgentPanel(): HTMLElement {
   const textarea = document.createElement('textarea');
   textarea.className = 'agent-panel-input';
   textarea.rows = 2;
-  textarea.placeholder = '让 AI 帮你编辑文档…（Enter 发送，Shift+Enter 换行）';
+  textarea.placeholder = t('agentInputPlaceholder');
   const sendBtn = document.createElement('button');
   sendBtn.className = 'agent-panel-send';
   sendBtn.type = 'button';
-  sendBtn.textContent = '发送';
+  sendBtn.textContent = t('agentSend');
   inputRow.append(textarea, sendBtn);
 
   // ── Controller wiring ───────────────────────────────────────────────────
@@ -156,18 +168,16 @@ export function createAgentPanel(): HTMLElement {
   const updateLocalHint = async (): Promise<void> => {
     if (currentProvider() !== 'webllm') return;
     if (!isWebGPUAvailable()) {
-      note.textContent = '当前浏览器不支持 WebGPU，无法使用本地模式。';
+      note.textContent = t('agentNoWebGPU');
       return;
     }
     const model = WEBLLM_MODELS.find((m) => m.id === modelSelect.value);
     const size = model?.size ?? '';
     const id = modelSelect.value;
-    note.textContent = '检查模型缓存…';
+    note.textContent = t('agentCheckingCache');
     const cached = await isModelCached(id);
     if (currentProvider() !== 'webllm' || modelSelect.value !== id) return; // changed meanwhile
-    note.textContent = cached
-      ? '该模型已缓存，点击「加载模型」秒开（刷新页面也不会重新下载）。'
-      : `首次使用需下载（${size}），之后浏览器缓存，刷新不再下载。`;
+    note.textContent = cached ? t('agentModelCached') : t('agentModelFirstDownload').replace('{size}', size);
   };
 
   const syncProviderUi = (): void => {
@@ -225,14 +235,14 @@ export function createAgentPanel(): HTMLElement {
 
   loadBtn.addEventListener('click', async () => {
     if (!isWebGPUAvailable()) {
-      note.textContent = '当前浏览器不支持 WebGPU。';
+      note.textContent = t('agentNoWebGPU');
       return;
     }
     buildController();
     loadBtn.disabled = true;
     try {
       await webllmProvider?.preload();
-      note.textContent = '模型已加载，可以开始对话。';
+      note.textContent = t('agentModelLoaded');
     } catch (error) {
       appendTurn({ role: 'error', text: error instanceof Error ? error.message : String(error) });
     } finally {
@@ -243,7 +253,7 @@ export function createAgentPanel(): HTMLElement {
   let running = false;
   const setRunning = (value: boolean): void => {
     running = value;
-    sendBtn.textContent = value ? '停止' : '发送';
+    sendBtn.textContent = value ? t('agentStop') : t('agentSend');
     textarea.disabled = value;
   };
 
@@ -254,7 +264,7 @@ export function createAgentPanel(): HTMLElement {
     if (!ctl) {
       appendTurn({
         role: 'error',
-        text: currentProvider() === 'webllm' ? '当前浏览器不支持 WebGPU。' : '请先填写 API Key。',
+        text: currentProvider() === 'webllm' ? t('agentNoWebGPU') : t('agentNeedKey'),
       });
       return;
     }
@@ -289,10 +299,10 @@ export function createAgentPanel(): HTMLElement {
   quoteBtn.addEventListener('click', () => {
     const selected = getEditorApi()?.pluginMethod_GetSelectedText() ?? '';
     if (!selected.trim()) {
-      appendTurn({ role: 'error', text: '没有检测到选中的内容，请先在文档中选择文字。' });
+      appendTurn({ role: 'error', text: t('agentNoSelection') });
       return;
     }
-    const quoted = `请参考我选中的内容：\n"""\n${selected.replace(/\r\n/g, '\n')}\n"""\n\n`;
+    const quoted = `${t('agentQuotePrefix')}\n"""\n${selected.replace(/\r\n/g, '\n')}\n"""\n\n`;
     textarea.value = quoted + textarea.value;
     textarea.focus();
   });
@@ -304,6 +314,24 @@ export function createAgentPanel(): HTMLElement {
   reviewCheck.addEventListener('change', () => {
     getEditorApi()?.asc_SetTrackRevisions(reviewCheck.checked);
   });
+
+  // Re-apply translatable labels when the app language changes.
+  const applyLabels = (): void => {
+    launcher.title = t('agentOpenTip');
+    title.textContent = t('agentTitle');
+    for (const opt of providerSelect.options) {
+      opt.textContent = t(PROVIDER_LABEL_KEY[opt.value as ProviderId]);
+    }
+    loadBtn.textContent = t('agentLoadModel');
+    reviewText.textContent = ' ' + t('agentReviewMode');
+    quoteBtn.textContent = t('agentQuote');
+    quoteBtn.title = t('agentQuoteTip');
+    clearBtn.textContent = t('agentClear');
+    textarea.placeholder = t('agentInputPlaceholder');
+    sendBtn.textContent = running ? t('agentStop') : t('agentSend');
+    syncProviderUi(); // refresh key placeholder / model hint in the new language
+  };
+  window.addEventListener('languagechange', applyLabels);
 
   panel.append(header, settings, toolbar, conversation, inputRow);
   document.body.append(panel, launcher);

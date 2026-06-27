@@ -6,6 +6,7 @@
  * over this; all orchestration and state logic lives here so it can be unit
  * tested with a mock provider.
  */
+import { t } from '../../i18n';
 import { runAgent } from '../runtime';
 import type { AgentTool } from '../types';
 import type { LLMMessage, LLMProvider } from '../llm/types';
@@ -52,9 +53,9 @@ export class AgentChatController {
         signal: this.abortController.signal,
         onEvent: (event) => {
           if (event.type === 'tool_call') {
-            this.onTurn({ role: 'tool', text: `调用工具：${event.name}` });
+            this.onTurn({ role: 'tool', text: t('agentToolCallPrefix') + event.name });
           } else if (event.type === 'tool_result' && event.isError) {
-            this.onTurn({ role: 'error', text: `工具出错：${event.content}` });
+            this.onTurn({ role: 'error', text: t('agentToolErrorPrefix') + event.content });
           } else if (event.type === 'assistant' && event.text) {
             this.onTurn({ role: 'agent', text: event.text });
           }
@@ -62,9 +63,9 @@ export class AgentChatController {
       });
       this.history = result.messages;
       if (result.aborted) {
-        this.onTurn({ role: 'error', text: '已停止。' });
+        this.onTurn({ role: 'error', text: t('agentStopped') });
       } else if (result.stoppedOnLimit) {
-        this.onTurn({ role: 'error', text: '已达到最大执行步数，已停止。' });
+        this.onTurn({ role: 'error', text: t('agentMaxSteps') });
       }
     } catch (error) {
       this.onTurn({ role: 'error', text: error instanceof Error ? error.message : String(error) });

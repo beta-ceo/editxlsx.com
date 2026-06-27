@@ -20,4 +20,5 @@ export const DEFAULT_SYSTEM_PROMPT = [
   '  asks for feedback rather than edits.',
   '- Keep edits minimal and on-target; do not rewrite content the user did not ask',
   '  you to touch.',
+  '- Reply in the same language the user writes in.',
 ].join('\n');
