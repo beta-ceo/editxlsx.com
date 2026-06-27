@@ -11,7 +11,7 @@
 import { getEditorApi } from '../editor-bridge';
 import { createProvider, defaultProviderId, type ProviderId } from '../llm/factory';
 import { getApiKey, setApiKey } from '../llm/keys';
-import { DEFAULT_WEBLLM_MODEL, isWebGPUAvailable, WEBLLM_MODELS, WebLLMProvider } from '../llm/webllm';
+import { DEFAULT_WEBLLM_MODEL, isModelCached, isWebGPUAvailable, WEBLLM_MODELS, WebLLMProvider } from '../llm/webllm';
 import { AgentChatController, type ChatTurn } from './controller';
 
 const TURN_LABEL: Record<ChatTurn['role'], string> = { user: '你', agent: 'Agent', tool: '工具', error: '错误' };
@@ -135,6 +135,24 @@ export function createAgentPanel(): HTMLElement {
   let controllerKind = '';
   let webllmProvider: WebLLMProvider | null = null;
 
+  // Reflect whether the selected local model is already cached (no re-download).
+  const updateLocalHint = async (): Promise<void> => {
+    if (currentProvider() !== 'webllm') return;
+    if (!isWebGPUAvailable()) {
+      note.textContent = '当前浏览器不支持 WebGPU，无法使用本地模式。';
+      return;
+    }
+    const model = WEBLLM_MODELS.find((m) => m.id === modelSelect.value);
+    const size = model?.size ?? '';
+    const id = modelSelect.value;
+    note.textContent = '检查模型缓存…';
+    const cached = await isModelCached(id);
+    if (currentProvider() !== 'webllm' || modelSelect.value !== id) return; // changed meanwhile
+    note.textContent = cached
+      ? '该模型已缓存，点击「加载模型」秒开（刷新页面也不会重新下载）。'
+      : `首次使用需下载（${size}），之后浏览器缓存，刷新不再下载。`;
+  };
+
   const syncProviderUi = (): void => {
     const id = currentProvider();
     const isCloud = id === 'anthropic' || id === 'openai';
@@ -145,14 +163,16 @@ export function createAgentPanel(): HTMLElement {
       keyInput.value = getApiKey(id) ?? '';
       note.textContent = '';
     } else {
-      note.textContent = isWebGPUAvailable()
-        ? '选择模型后点「加载模型」预下载（之后浏览器缓存），或直接发送。'
-        : '当前浏览器不支持 WebGPU，无法使用本地模式。';
+      void updateLocalHint();
     }
   };
   providerSelect.addEventListener('change', () => {
     controller = null;
     syncProviderUi();
+  });
+  modelSelect.addEventListener('change', () => {
+    controller = null; // different model → rebuild
+    void updateLocalHint();
   });
   keyInput.addEventListener('change', () => {
     const id = currentProvider();

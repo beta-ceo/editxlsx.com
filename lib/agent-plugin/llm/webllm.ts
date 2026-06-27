@@ -51,6 +51,21 @@ export function isWebGPUAvailable(): boolean {
   return typeof navigator !== 'undefined' && !!(navigator as unknown as { gpu?: unknown }).gpu;
 }
 
+/**
+ * Whether a model's weights are already cached in the browser (Cache API).
+ * When true, loading it skips the download and only re-initialises from cache
+ * (fast, no network) — so a page refresh never re-downloads. Returns false if
+ * the SDK can't be loaded or the check throws.
+ */
+export async function isModelCached(modelId: string): Promise<boolean> {
+  try {
+    const { hasModelInCache } = await import('@mlc-ai/web-llm');
+    return await hasModelInCache(modelId);
+  } catch {
+    return false;
+  }
+}
+
 export interface WebLLMProviderOptions {
   model?: string;
   systemPrompt?: string;
