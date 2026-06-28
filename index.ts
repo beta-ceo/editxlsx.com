@@ -69,6 +69,16 @@ const isReadonly = parseReadonly(readonly);
 if (agent === '1' || agent === 'true' || agent === '') {
   void import('./lib/agent-plugin').then(({ createAgentPanel }) => createAgentPanel());
 }
+// Bridge: the AI button injected into OnlyOffice's left menu lives inside the
+// (same-origin) editor iframe. It toggles the panel either by calling this
+// global directly or, as a fallback, by posting `agent:toggle` to this window.
+const toggleAgentPanelLazy = (): void => {
+  void import('./lib/agent-plugin').then(({ toggleAgentPanel }) => toggleAgentPanel());
+};
+(window as unknown as { __toggleAgentPanel?: () => void }).__toggleAgentPanel = toggleAgentPanelLazy;
+window.addEventListener('message', (event: MessageEvent) => {
+  if (event.data?.type === 'agent:toggle') toggleAgentPanelLazy();
+});
 if (documentUrl) {
   // Decode URL if it's encoded
   try {

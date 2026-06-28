@@ -129,6 +129,20 @@ export const createFixedActionButton = (): HTMLElement => {
       await onCreateNew('.pptx');
     }),
   );
+  // AI assistant entry — lazy-loads the agent panel on first click (no bundle
+  // cost until used). Idempotent: if a panel already exists (e.g. opened via
+  // ?agent=1 or a prior click), do nothing and let its own launcher reopen it.
+  menuPanel.appendChild(
+    createMenuButton(
+      t('agentTitle'),
+      async () => {
+        if (document.querySelector('.agent-panel')) return;
+        const { createAgentPanel } = await import('./agent-plugin');
+        createAgentPanel();
+      },
+      false,
+    ),
+  );
 
   let isMenuOpen = false;
   let hideMenuTimeout: NodeJS.Timeout;

@@ -264,6 +264,21 @@ r-button[type='text']::part(ran-btn-content) {
   box-shadow: -2px 0 12px rgba(0, 0, 0, 0.08);
   font-size: 14px;
 }
+/* Dock mode: the editor gives up 360px so the panel sits beside it instead of
+   overlaying the document. DocsAPI REPLACES the #iframe placeholder div with the
+   editor <iframe> (name="frameEditor", no id) inside #app, so target that iframe
+   directly. Narrowing it makes OnlyOffice reflow its content. */
+#app iframe {
+  transition: width 0.2s ease;
+}
+body.agent-docked #app iframe {
+  width: calc(100% - 360px) !important;
+}
+@media (max-width: 480px) {
+  body.agent-docked #app iframe {
+    width: 100% !important;
+  }
+}
 .agent-panel-hidden {
   display: none;
 }

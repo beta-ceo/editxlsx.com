@@ -93,7 +93,27 @@ function ranInput(className: string, type: string): InputEl {
 }
 
 /** Build the Agent panel, append it to the body, and return its root element. */
+/**
+ * Singleton handle to the live panel, so external triggers (the AI button
+ * injected into OnlyOffice's left menu, posting `agent:toggle`) can open/close
+ * it without building a second panel. Set on first {@link createAgentPanel}.
+ */
+let panelHandle: { setOpen: (open: boolean) => void; isOpen: () => boolean } | null = null;
+
+/** Open the panel (creating it on first use), close it, or flip it. */
+export function toggleAgentPanel(): void {
+  if (panelHandle) panelHandle.setOpen(!panelHandle.isOpen());
+  else createAgentPanel(); // first call creates the panel already open
+}
+
 export function createAgentPanel(): HTMLElement {
+  // Idempotent: a second call just reveals the existing panel.
+  const existing = document.querySelector('.agent-panel');
+  if (existing) {
+    panelHandle?.setOpen(true);
+    return existing as HTMLElement;
+  }
+
   const panel = document.createElement('div');
   panel.className = 'agent-panel';
 
@@ -103,10 +123,20 @@ export function createAgentPanel(): HTMLElement {
   launcher.type = 'button';
   launcher.textContent = 'AI';
   launcher.title = t('agentOpenTip');
-  const setOpen = (open: boolean): void => {
-    panel.classList.toggle('agent-panel-hidden', !open);
-    launcher.classList.toggle('agent-launcher-hidden', open);
+  let open = true;
+  const setOpen = (next: boolean): void => {
+    open = next;
+    panel.classList.toggle('agent-panel-hidden', !next);
+    launcher.classList.toggle('agent-launcher-hidden', next);
+    // Dock mode: shrink the editor so the panel takes layout space instead of
+    // overlaying the document. CSS keys off this body class.
+    document.body.classList.toggle('agent-docked', next);
+    // Tell the editor iframe so the injected AI button can show active state.
+    // DocsAPI replaces the placeholder with an iframe (name="frameEditor") in #app.
+    const frame = document.querySelector<HTMLIFrameElement>('#app iframe');
+    frame?.contentWindow?.postMessage({ type: 'agent:state', open: next }, '*');
   };
+  panelHandle = { setOpen, isOpen: () => open };
   launcher.addEventListener('click', () => setOpen(true));
 
   // ── Header ──────────────────────────────────────────────────────────────
@@ -394,10 +424,14 @@ export function createAgentPanel(): HTMLElement {
   // reports the new state via the change event's detail (a real boolean), and its
   // initial state is set through the `checked` attribute.
   const api = getEditorApi();
-  if (!api) reviewCheck.setAttribute('disabled', '');
-  if (api) reviewCheck.setAttribute('checked', String(!!api.asc_IsTrackRevisions()));
+  // Track-changes is a Word/Spreadsheet API; the presentation editor has no
+  // asc_IsTrackRevisions, so feature-detect before using it (calling a missing
+  // method would otherwise abort the whole panel build).
+  const canReview = !!api && typeof api.asc_IsTrackRevisions === 'function';
+  if (!canReview) reviewCheck.setAttribute('disabled', '');
+  if (canReview) reviewCheck.setAttribute('checked', String(!!api!.asc_IsTrackRevisions()));
   reviewCheck.addEventListener('change', (e) => {
-    getEditorApi()?.asc_SetTrackRevisions((e as CheckedDetail).detail.checked);
+    getEditorApi()?.asc_SetTrackRevisions?.((e as CheckedDetail).detail.checked);
   });
 
   // Reactive labels: a `lang` signal bumped on languagechange drives one effect
@@ -431,5 +465,6 @@ export function createAgentPanel(): HTMLElement {
 
   panel.append(header, settings, toolbar, conversation, inputRow);
   document.body.append(panel, launcher);
+  setOpen(true); // start open + docked
   return panel;
 }

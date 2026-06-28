@@ -6,5 +6,5 @@
  * the controller to the editor and an {@link LLMProvider}.
  */
 export { AgentChatController, type AgentChatControllerOptions, type ChatTurn } from './controller';
-export { createAgentPanel } from './panel';
+export { createAgentPanel, toggleAgentPanel } from './panel';
 export { createHistoryStorage, type HistoryStorage, historyToTurns } from './storage';
