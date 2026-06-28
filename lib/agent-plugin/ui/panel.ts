@@ -1,20 +1,20 @@
 /**
  * Agent sidebar panel — a thin DOM view over {@link AgentChatController}.
  *
- * Header (title + close), a settings block (provider selector → cloud API key
- * for Claude/OpenAI/Gemini, or a local model picker + load button for WebLLM, or
- * a model-name input for Ollama), a toolbar (review-mode toggle + clear), a
- * conversation list, and an input box whose button toggles between Send and Stop
- * while a run is active. The form controls are ranui Web Components (r-select,
- * r-input, r-button, r-checkbox) — importing each registers its custom element.
- * All orchestration lives in the controller and the LLM factory; this file only
+ * Header (title + gear + close); a collapsible settings block (provider selector
+ * → cloud API key for Claude/OpenAI/Gemini, a local model picker + load button
+ * for WebLLM, or a model-name input for Ollama), hidden behind the gear so the
+ * main panel is a clean chat; a toolbar (review-mode toggle + quote + clear); and
+ * the reusable @ranuts/chat-ui ChatView. Form controls are ranui Web Components
+ * built with the ranui `builder` (View/Div/... fluent factories). All
+ * orchestration lives in the controller and the LLM factory; this file only
  * builds DOM and forwards events. Loaded behind `?agent=1`.
  */
 import 'ranui/button';
 import 'ranui/input';
 import 'ranui/select';
 import 'ranui/checkbox';
-import { createEffect, signal } from 'ranui/builder';
+import { ButtonBuilder, Div, Label, Span, View, createEffect, signal } from 'ranui/builder';
 import { localStorageGetItem, localStorageSetItem } from 'ranuts/utils';
 import { getLanguage, type I18nMessages, t } from '@ranuts/shared/i18n';
 import { getEditorApi } from '../editor-bridge';
@@ -64,37 +64,21 @@ const KEY_PLACEHOLDER: Partial<Record<ProviderId, string>> = {
   gemini: 'AIza...',
 };
 
-/** Create an r-button with a label and class. */
-function ranButton(text: string, className: string): HTMLElement {
-  const btn = document.createElement('r-button');
-  btn.className = className;
-  btn.textContent = text;
-  return btn;
-}
+/** An r-button (ranui builder) with a label and class. */
+const ranButton = (text: string, className: string): HTMLElement => View('r-button').class(className).text(text).build();
 
-/** Create an r-select with r-option children and an initial value. */
-function ranSelect(className: string, options: Array<{ value: string; label: string }>, value: string): ValueEl {
-  const select = document.createElement('r-select') as ValueEl;
-  select.className = className;
-  for (const option of options) {
-    const opt = document.createElement('r-option');
-    opt.setAttribute('value', option.value);
-    opt.textContent = option.label;
-    select.append(opt);
-  }
-  select.setAttribute('value', value);
-  return select;
-}
+/** An r-select with r-option children and an initial value (ranui builder). */
+const ranSelect = (className: string, options: Array<{ value: string; label: string }>, value: string): ValueEl =>
+  View('r-select')
+    .class(className)
+    .attr('value', value)
+    .children(options.map((o) => View('r-option').attr('value', o.value).text(o.label).build()))
+    .build() as ValueEl;
 
-/** Create an r-input of the given type. */
-function ranInput(className: string, type: string): InputEl {
-  const input = document.createElement('r-input') as InputEl;
-  input.className = className;
-  input.setAttribute('type', type);
-  return input;
-}
+/** An r-input of the given type (ranui builder). */
+const ranInput = (className: string, type: string): InputEl =>
+  View('r-input').class(className).attr('type', type).build() as InputEl;
 
-/** Build the Agent panel, append it to the body, and return its root element. */
 /**
  * Singleton handle to the live panel, so external triggers (the AI button
  * injected into OnlyOffice's left menu, posting `agent:toggle`) can open/close
@@ -108,6 +92,7 @@ export function toggleAgentPanel(): void {
   else createAgentPanel(); // first call creates the panel already open
 }
 
+/** Build the Agent panel, append it to the body, and return its root element. */
 export function createAgentPanel(): HTMLElement {
   // Idempotent: a second call just reveals the existing panel.
   const existing = document.querySelector('.agent-panel');
@@ -116,15 +101,15 @@ export function createAgentPanel(): HTMLElement {
     return existing as HTMLElement;
   }
 
-  const panel = document.createElement('div');
-  panel.className = 'agent-panel';
+  const panel = Div().class('agent-panel').build();
 
   // Floating launcher — shown when the panel is closed, reopens it on click.
-  const launcher = document.createElement('button');
-  launcher.className = 'agent-launcher agent-launcher-hidden';
-  launcher.type = 'button';
-  launcher.textContent = 'AI';
-  launcher.title = t('agentOpenTip');
+  const launcher = ButtonBuilder()
+    .class('agent-launcher agent-launcher-hidden')
+    .attr('type', 'button')
+    .text('AI')
+    .on('click', () => setOpen(true))
+    .build();
   let open = true;
   const setOpen = (next: boolean): void => {
     open = next;
@@ -139,25 +124,26 @@ export function createAgentPanel(): HTMLElement {
     frame?.contentWindow?.postMessage({ type: 'agent:state', open: next }, '*');
   };
   panelHandle = { setOpen, isOpen: () => open };
-  launcher.addEventListener('click', () => setOpen(true));
 
   // ── Header ──────────────────────────────────────────────────────────────
-  const header = document.createElement('div');
-  header.className = 'agent-panel-header';
-  const title = document.createElement('span');
-  title.className = 'agent-panel-title';
-  title.textContent = t('agentTitle');
-  const closeBtn = document.createElement('button');
-  closeBtn.className = 'agent-panel-close';
-  closeBtn.type = 'button';
-  closeBtn.textContent = '×';
-  closeBtn.addEventListener('click', () => setOpen(false));
-  header.append(title, closeBtn);
+  const title = Span().class('agent-panel-title').text(t('agentTitle')).build();
+  // Gear toggles the settings block (provider / key / model), hidden by default
+  // so the main panel stays a clean chat surface.
+  const settingsBtn = ButtonBuilder()
+    .class('agent-panel-settings-toggle')
+    .attr('type', 'button')
+    .text('⚙')
+    .on('click', () => settings.classList.toggle('agent-panel-settings-hidden'))
+    .build();
+  const closeBtn = ButtonBuilder()
+    .class('agent-panel-close')
+    .attr('type', 'button')
+    .text('×')
+    .on('click', () => setOpen(false))
+    .build();
+  const header = Div().class('agent-panel-header').children(title, settingsBtn, closeBtn).build();
 
-  // ── Settings ────────────────────────────────────────────────────────────
-  const settings = document.createElement('div');
-  settings.className = 'agent-panel-settings';
-
+  // ── Settings (collapsed by default; opened via the gear) ──────────────────
   const providerSelect = ranSelect(
     'agent-panel-provider',
     PROVIDER_IDS.map((id) => ({ value: id, label: t(PROVIDER_LABEL_KEY[id]) })),
@@ -176,34 +162,32 @@ export function createAgentPanel(): HTMLElement {
   });
 
   // Local: model picker + load button
-  const modelRow = document.createElement('div');
-  modelRow.className = 'agent-panel-model-row';
   const modelSelect = ranSelect(
     'agent-panel-model',
     WEBLLM_MODELS.map((model) => ({ value: model.id, label: `${model.label}（${model.size}）` })),
     DEFAULT_WEBLLM_MODEL,
   );
   const loadBtn = ranButton(t('agentLoadModel'), 'agent-panel-load');
-  modelRow.append(modelSelect, loadBtn);
+  loadBtn.addEventListener('click', () => void loadModel());
+  const modelRow = Div().class('agent-panel-model-row').children(modelSelect, loadBtn).build();
 
-  const note = document.createElement('div');
-  note.className = 'agent-panel-note';
+  // Model-load progress / hints. Lives in the MAIN view (not settings) so the
+  // auto-load progress is visible; `:empty` collapses it when idle.
+  const note = Div().class('agent-panel-note').build();
 
-  settings.append(providerSelect, keyInput, ollamaModelInput, modelRow, note);
+  const settings = Div()
+    .class('agent-panel-settings agent-panel-settings-hidden')
+    .children(providerSelect, keyInput, ollamaModelInput, modelRow)
+    .build();
 
   // ── Toolbar ─────────────────────────────────────────────────────────────
-  const toolbar = document.createElement('div');
-  toolbar.className = 'agent-panel-toolbar';
-  const reviewLabel = document.createElement('label');
-  reviewLabel.className = 'agent-panel-review';
-  const reviewCheck = document.createElement('r-checkbox');
-  const reviewText = document.createElement('span');
-  reviewText.textContent = t('agentReviewMode');
-  reviewLabel.append(reviewCheck, reviewText);
+  const reviewCheck = View('r-checkbox').build();
+  const reviewText = Span().text(t('agentReviewMode')).build();
+  const reviewLabel = Label().class('agent-panel-review').children(reviewCheck, reviewText).build();
   const quoteBtn = ranButton(t('agentQuote'), 'agent-panel-quote');
   quoteBtn.title = t('agentQuoteTip');
   const clearBtn = ranButton(t('agentClear'), 'agent-panel-clear');
-  toolbar.append(reviewLabel, quoteBtn, clearBtn);
+  const toolbar = Div().class('agent-panel-toolbar').children(reviewLabel, quoteBtn, clearBtn).build();
 
   // ── Conversation + input (reusable chat UI) ──────────────────────────────
   // The message list, streaming, and input box are the framework-free
@@ -334,7 +318,9 @@ export function createAgentPanel(): HTMLElement {
     return controller;
   };
 
-  loadBtn.addEventListener('click', async () => {
+  // Load (download + warm) the selected WebLLM model. Used by the Load button and
+  // auto-triggered on open when the default provider is local.
+  const loadModel = async (): Promise<void> => {
     if (!isWebGPUAvailable()) {
       note.textContent = t('agentNoWebGPU');
       return;
@@ -349,7 +335,7 @@ export function createAgentPanel(): HTMLElement {
     } finally {
       loadBtn.removeAttribute('disabled');
     }
-  });
+  };
 
   // ChatView owns the Send/Stop button, Enter-to-send, and the input lock; this
   // just runs a turn. `submit` is passed to ChatView's onSend above.
@@ -414,6 +400,7 @@ export function createAgentPanel(): HTMLElement {
     lang(); // subscribe: re-run whenever the language changes
     launcher.title = t('agentOpenTip');
     title.textContent = t('agentTitle');
+    settingsBtn.title = t('agentSettings');
     const selected = providerSelect.value;
     for (const opt of providerSelect.querySelectorAll('r-option')) {
       opt.textContent = t(PROVIDER_LABEL_KEY[(opt.getAttribute('value') as ProviderId) ?? 'anthropic']);
@@ -428,8 +415,13 @@ export function createAgentPanel(): HTMLElement {
     syncProviderUi(); // refresh key placeholder / model hint in the new language
   });
 
-  panel.append(header, settings, toolbar, chat.el);
+  panel.append(header, settings, toolbar, note, chat.el);
   document.body.append(panel, launcher);
   setOpen(true); // start open + docked
+
+  // Auto-load the default local model on open (per product choice). Cloud
+  // providers are ready on first send once a key is set, so only WebLLM needs this.
+  if (currentProvider() === 'webllm' && isWebGPUAvailable()) void loadModel();
+
   return panel;
 }

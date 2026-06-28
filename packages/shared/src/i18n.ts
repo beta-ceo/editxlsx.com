@@ -51,6 +51,7 @@ export interface I18nMessages {
   // AI agent panel
   agentTitle: string;
   agentOpenTip: string;
+  agentSettings: string;
   agentRoleUser: string;
   agentRoleTool: string;
   agentRoleError: string;
@@ -101,6 +102,7 @@ const messages: Record<Language, I18nMessages> = {
     documentOperationFailed: '文档操作失败：',
     agentTitle: 'AI 助手',
     agentOpenTip: '打开 AI 助手',
+    agentSettings: '设置',
     agentRoleUser: '你',
     agentRoleTool: '工具',
     agentRoleError: '错误',
@@ -148,6 +150,7 @@ const messages: Record<Language, I18nMessages> = {
     documentOperationFailed: 'Document operation failed: ',
     agentTitle: 'AI Assistant',
     agentOpenTip: 'Open AI Assistant',
+    agentSettings: 'Settings',
     agentRoleUser: 'You',
     agentRoleTool: 'Tool',
     agentRoleError: 'Error',

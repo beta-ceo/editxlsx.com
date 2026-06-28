@@ -300,12 +300,30 @@ body.agent-docked #app iframe {
   cursor: pointer;
   color: #888;
 }
+/* Gear button: toggles the settings block. Sits left of the close button. */
+.agent-panel-settings-toggle {
+  margin-left: auto;
+  margin-right: 8px;
+  border: none;
+  background: none;
+  font-size: 16px;
+  line-height: 1;
+  cursor: pointer;
+  color: #888;
+}
+.agent-panel-settings-toggle:hover {
+  color: #333;
+}
 .agent-panel-settings {
   display: flex;
   flex-direction: column;
   gap: 4px;
   padding: 10px 16px;
   border-bottom: 1px solid #f0f0f0;
+}
+/* Collapsed by default; the header gear toggles it. */
+.agent-panel-settings-hidden {
+  display: none;
 }
 .agent-panel-key-label {
   font-size: 12px;
