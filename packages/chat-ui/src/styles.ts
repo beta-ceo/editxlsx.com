@@ -1,3 +1,5 @@
+import { Style } from 'ranui/builder';
+
 /**
  * Component styles, injected once into the document head on first construction
  * (so consumers don't need a separate CSS import). All classes are `cui-`
@@ -237,16 +239,13 @@ export const CHAT_UI_CSS = `
 
 let injected = false;
 
-/** Inject the component stylesheet once per document. */
+/** Inject the component stylesheet once per document (built via the ranui builder). */
 export function ensureChatUiStyles(): void {
   if (injected || typeof document === 'undefined') return;
   if (document.getElementById('cui-styles')) {
     injected = true;
     return;
   }
-  const style = document.createElement('style');
-  style.id = 'cui-styles';
-  style.textContent = CHAT_UI_CSS;
-  document.head.appendChild(style);
+  document.head.appendChild(Style().id('cui-styles').text(CHAT_UI_CSS).build());
   injected = true;
 }

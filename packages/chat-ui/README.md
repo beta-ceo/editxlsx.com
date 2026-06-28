@@ -1,6 +1,6 @@
 # @ranuts/chat-ui
 
-Framework-free, dependency-free chat / IM UI component: a scrolling message list
+Framework-free chat / IM UI component (built with the ranui builder): a scrolling message list
 with streaming support and an auto-growing input box whose button doubles as
 Send / Stop. Bring your own backend — it only renders and emits events.
 

@@ -1,6 +1,6 @@
 # @ranuts/chat-ui — AI usage guide
 
-Framework-free, dependency-free chat/IM UI. Renders messages + an input box and
+Framework-free chat/IM UI built with the ranui builder. Renders messages + an input box and
 emits events; it has **no backend, no LLM, no editor knowledge**. Wire it to
 whatever you want.
 
@@ -69,4 +69,4 @@ onSend: async (text) => {
 - The send button is an **icon** (up-arrow ⇄ stop square); `labels.send`/`labels.stop` become its `title`/`aria-label`. It auto-disables when the input is empty (and idle).
 - Modern look: assistant messages are bubble-less/full-width, the user gets an accent bubble, tool/error render as subtle chips; a jump-to-latest button appears when scrolled up and new content only auto-scrolls when already near the bottom.
 - Restyle via CSS custom properties on `.cui-root` (`--cui-accent`, `--cui-user-bg`, …) — don't depend on internal `cui-*` class names.
-- Zero dependencies on purpose — **never** add ranui/ranuts here.
+- DOM is built with the ranui `builder` (View/Div/Span/ButtonBuilder) and the scroll handler is throttled via ranuts; the package depends on `ranui` + `ranuts`.
