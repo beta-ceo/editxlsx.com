@@ -342,9 +342,17 @@ body.agent-docked #app iframe {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 8px;
   padding: 8px 16px;
   border-bottom: 1px solid #f0f0f0;
   font-size: 13px;
+}
+
+/* ranui renders select dropdowns as a body-level <r-dropdown> portal at z-index
+   10, which the agent panel (z-index 10000) would otherwise cover — lift it. */
+r-dropdown[role='listbox'] {
+  z-index: 100000;
 }
 .agent-panel-review {
   display: flex;
