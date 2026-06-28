@@ -1,9 +1,18 @@
 import { ensureChatUiStyles } from './styles';
 import type { ChatMessage, ChatRole, ChatViewLabels, ChatViewOptions } from './types';
 
+const ICON_SEND =
+  '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5"/><path d="M5 12l7-7 7 7"/></svg>';
+const ICON_STOP = '<svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><rect x="5" y="5" width="14" height="14" rx="3"/></svg>';
+const ICON_DOWN =
+  '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14"/><path d="M19 12l-7 7-7-7"/></svg>';
+
+/** Distance (px) from the bottom within which we keep auto-scrolling on new content. */
+const STICK_THRESHOLD = 60;
+
 /**
  * A framework-free chat UI: a scrolling message list with streaming support and
- * an auto-growing input box whose button doubles as Send / Stop.
+ * a modern, auto-growing composer whose icon button doubles as Send / Stop.
  *
  * Mount {@link ChatView.el} anywhere. Drive it with {@link ChatView.append},
  * {@link ChatView.appendDelta}, and {@link ChatView.setRunning}; receive user
@@ -23,6 +32,7 @@ export class ChatView {
   private readonly emptyEl: HTMLDivElement;
   private readonly input: HTMLTextAreaElement;
   private readonly sendBtn: HTMLButtonElement;
+  private readonly scrollBtn: HTMLButtonElement;
   private labels: ChatViewLabels;
   private running = false;
   /** The agent bubble currently receiving streamed deltas, if any. */
@@ -37,19 +47,36 @@ export class ChatView {
 
     this.messagesEl = document.createElement('div');
     this.messagesEl.className = 'cui-messages';
+    this.messagesEl.addEventListener('scroll', () => this.updateScrollBtn());
 
     this.emptyEl = document.createElement('div');
     this.emptyEl.className = 'cui-empty';
     this.emptyEl.textContent = this.labels.empty ?? '';
     this.messagesEl.appendChild(this.emptyEl);
 
-    const inputRow = document.createElement('div');
-    inputRow.className = 'cui-input-row';
+    // Jump-to-latest button — appears when the user scrolls up.
+    this.scrollBtn = document.createElement('button');
+    this.scrollBtn.type = 'button';
+    this.scrollBtn.className = 'cui-scroll-bottom cui-hidden';
+    this.scrollBtn.setAttribute('aria-label', 'Scroll to latest');
+    this.scrollBtn.innerHTML = ICON_DOWN;
+    this.scrollBtn.addEventListener('click', () => this.scrollToEnd(true));
+
+    // Compose toolbar slot: host-populated controls just above the input.
+    this.actionsEl = document.createElement('div');
+    this.actionsEl.className = 'cui-actions';
+
+    // Composer: rounded container holding the textarea + a circular icon button.
+    const composer = document.createElement('div');
+    composer.className = 'cui-composer';
     this.input = document.createElement('textarea');
     this.input.className = 'cui-input';
     this.input.rows = 1;
     this.input.placeholder = this.labels.placeholder ?? '';
-    this.input.addEventListener('input', () => this.autoGrow());
+    this.input.addEventListener('input', () => {
+      this.autoGrow();
+      this.updateSendState();
+    });
     this.input.addEventListener('keydown', (e) => {
       if (e.key === 'Enter' && !e.shiftKey) {
         e.preventDefault();
@@ -60,23 +87,26 @@ export class ChatView {
     this.sendBtn = document.createElement('button');
     this.sendBtn.type = 'button';
     this.sendBtn.className = 'cui-send';
-    this.sendBtn.textContent = this.labels.send ?? 'Send';
+    this.sendBtn.innerHTML = ICON_SEND;
     this.sendBtn.addEventListener('click', () => {
       if (this.running) this.options.onStop?.();
       else this.submit();
     });
+    composer.append(this.input, this.sendBtn);
 
-    inputRow.append(this.input, this.sendBtn);
+    // Footer hosts the jump-to-latest button (floats just above it), the action
+    // slot, and the composer.
+    const footer = document.createElement('div');
+    footer.className = 'cui-footer';
+    footer.append(this.scrollBtn, this.actionsEl, composer);
 
-    // Compose toolbar slot: host-populated controls just above the input.
-    this.actionsEl = document.createElement('div');
-    this.actionsEl.className = 'cui-actions';
-
-    this.el.append(this.messagesEl, this.actionsEl, inputRow);
+    this.el.append(this.messagesEl, footer);
+    this.updateSendState();
   }
 
   /** Append a finished message and scroll to it. Returns the bubble element. */
   append(message: ChatMessage): HTMLDivElement {
+    const stick = this.nearBottom();
     this.emptyEl.remove();
     const row = document.createElement('div');
     row.className = `cui-msg cui-msg-${message.role}`;
@@ -95,7 +125,7 @@ export class ChatView {
     row.appendChild(bubble);
 
     this.messagesEl.appendChild(row);
-    this.scrollToEnd();
+    if (stick) this.scrollToEnd();
     return bubble;
   }
 
@@ -105,13 +135,14 @@ export class ChatView {
    */
   appendDelta(delta: string): void {
     if (!delta) return;
+    const stick = this.nearBottom();
     if (!this.liveMsg) {
       this.liveMsg = this.append({ role: 'agent', text: '' }).parentElement as HTMLDivElement;
       this.liveMsg.classList.add('cui-streaming');
     }
     const bubble = this.liveMsg.querySelector('.cui-bubble');
     if (bubble) bubble.textContent = (bubble.textContent ?? '') + delta;
-    this.scrollToEnd();
+    if (stick) this.scrollToEnd();
   }
 
   /** Finalise the current streaming bubble (removes the caret). */
@@ -124,8 +155,7 @@ export class ChatView {
   setRunning(running: boolean): void {
     this.running = running;
     this.input.disabled = running;
-    this.sendBtn.textContent = running ? this.labels.stop ?? 'Stop' : this.labels.send ?? 'Send';
-    this.sendBtn.classList.toggle('cui-send-stop', running);
+    this.updateSendState();
   }
 
   /** Remove all messages and restore the empty state. */
@@ -133,6 +163,7 @@ export class ChatView {
     this.messagesEl.replaceChildren(this.emptyEl);
     this.emptyEl.textContent = this.labels.empty ?? '';
     this.liveMsg = null;
+    this.updateScrollBtn();
   }
 
   /** Current input text. */
@@ -144,6 +175,7 @@ export class ChatView {
   setInput(text: string): void {
     this.input.value = text;
     this.autoGrow();
+    this.updateSendState();
   }
 
   focus(): void {
@@ -154,9 +186,8 @@ export class ChatView {
   setLabels(labels: ChatViewLabels): void {
     this.labels = labels;
     this.input.placeholder = labels.placeholder ?? '';
-    this.sendBtn.textContent = this.running ? labels.stop ?? 'Stop' : labels.send ?? 'Send';
-    if (!this.emptyEl.parentElement) return;
-    this.emptyEl.textContent = labels.empty ?? '';
+    this.updateSendState();
+    if (this.emptyEl.parentElement) this.emptyEl.textContent = labels.empty ?? '';
   }
 
   private submit(): void {
@@ -164,7 +195,18 @@ export class ChatView {
     if (!text || this.running) return;
     this.input.value = '';
     this.autoGrow();
+    this.updateSendState();
     this.options.onSend(text);
+  }
+
+  /** Reflect run state + empty input on the send button (icon, disabled, title). */
+  private updateSendState(): void {
+    this.sendBtn.innerHTML = this.running ? ICON_STOP : ICON_SEND;
+    this.sendBtn.classList.toggle('cui-send-stop', this.running);
+    this.sendBtn.title = this.running ? this.labels.stop ?? 'Stop' : this.labels.send ?? 'Send';
+    this.sendBtn.setAttribute('aria-label', this.sendBtn.title);
+    // Disabled only when idle with an empty input; while running it acts as Stop.
+    this.sendBtn.disabled = !this.running && this.input.value.trim() === '';
   }
 
   private roleChip(role: ChatRole): string {
@@ -174,10 +216,20 @@ export class ChatView {
 
   private autoGrow(): void {
     this.input.style.height = 'auto';
-    this.input.style.height = `${this.input.scrollHeight}px`;
+    this.input.style.height = `${Math.min(this.input.scrollHeight, 160)}px`;
   }
 
-  private scrollToEnd(): void {
-    this.messagesEl.scrollTop = this.messagesEl.scrollHeight;
+  private nearBottom(): boolean {
+    const el = this.messagesEl;
+    return el.scrollHeight - el.scrollTop - el.clientHeight < STICK_THRESHOLD;
+  }
+
+  private scrollToEnd(smooth = false): void {
+    this.messagesEl.scrollTo({ top: this.messagesEl.scrollHeight, behavior: smooth ? 'smooth' : 'auto' });
+    this.updateScrollBtn();
+  }
+
+  private updateScrollBtn(): void {
+    this.scrollBtn.classList.toggle('cui-hidden', this.nearBottom());
   }
 }

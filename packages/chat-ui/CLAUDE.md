@@ -66,5 +66,7 @@ onSend: async (text) => {
 
 - `onSend` only fires for non-empty trimmed input; the component clears the input itself.
 - Streaming: call `appendDelta` repeatedly, then exactly one `endStream`. Don't `append` an agent message during a stream.
-- Restyle via CSS custom properties on `.cui-root` (`--cui-accent`, `--cui-agent-bg`, …) — don't depend on internal `cui-*` class names.
+- The send button is an **icon** (up-arrow ⇄ stop square); `labels.send`/`labels.stop` become its `title`/`aria-label`. It auto-disables when the input is empty (and idle).
+- Modern look: assistant messages are bubble-less/full-width, the user gets an accent bubble, tool/error render as subtle chips; a jump-to-latest button appears when scrolled up and new content only auto-scrolls when already near the bottom.
+- Restyle via CSS custom properties on `.cui-root` (`--cui-accent`, `--cui-user-bg`, …) — don't depend on internal `cui-*` class names.
 - Zero dependencies on purpose — **never** add ranui/ranuts here.
