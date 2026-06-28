@@ -21,6 +21,7 @@ import { getEditorApi } from '../editor-bridge';
 import { createProvider, defaultProviderId, type ProviderId } from '../llm/factory';
 import { getApiKey, setApiKey } from '../llm/keys';
 import { DEFAULT_WEBLLM_MODEL, isModelCached, isWebGPUAvailable, WEBLLM_MODELS, WebLLMProvider } from '../llm/webllm';
+import { ChatView, type ChatViewLabels } from '@ranuts/chat-ui';
 import { AgentChatController, type ChatTurn } from './controller';
 import { createHistoryStorage, historyToTurns } from './storage';
 
@@ -203,54 +204,37 @@ export function createAgentPanel(): HTMLElement {
   const clearBtn = ranButton(t('agentClear'), 'agent-panel-clear');
   toolbar.append(reviewLabel, quoteBtn, clearBtn);
 
-  // ── Conversation ────────────────────────────────────────────────────────
-  const conversation = document.createElement('div');
-  conversation.className = 'agent-panel-conversation';
-  const appendTurn = (turn: ChatTurn): HTMLElement => {
-    const row = document.createElement('div');
-    row.className = `agent-turn agent-turn-${turn.role}`;
-    const who = document.createElement('span');
-    who.className = 'agent-turn-role';
-    who.textContent = turnLabel(turn.role);
-    const body = document.createElement('div');
-    body.className = 'agent-turn-text';
-    body.textContent = turn.text;
-    row.append(who, body);
-    conversation.append(row);
-    conversation.scrollTop = conversation.scrollHeight;
-    return body;
+  // ── Conversation + input (reusable chat UI) ──────────────────────────────
+  // The message list, streaming, and input box are the framework-free
+  // @ranuts/chat-ui ChatView. This panel only wires it to the agent controller.
+  const chatLabels = (): ChatViewLabels => ({
+    send: t('agentSend'),
+    stop: t('agentStop'),
+    placeholder: t('agentInputPlaceholder'),
+    empty: t('agentInputPlaceholder'),
+    role: (role) => turnLabel(role),
+  });
+  const chat = new ChatView({
+    onSend: (text) => void submit(text),
+    onStop: () => controller?.stop(),
+    labels: chatLabels(),
+  });
+  const appendTurn = (turn: ChatTurn): void => {
+    chat.append(turn);
   };
 
   // Persist the conversation so a reload keeps it (model context + display).
   const historyStorage = createHistoryStorage();
 
-  // Streaming: append deltas into a single live agent bubble until the turn ends.
-  let liveBubble: HTMLElement | null = null;
+  // Streaming: ChatView owns the live bubble; just forward deltas and the end.
   const controllerOptions = {
-    onAgentDelta: (delta: string): void => {
-      if (!liveBubble) liveBubble = appendTurn({ role: 'agent', text: '' });
-      liveBubble.textContent = (liveBubble.textContent ?? '') + delta;
-      conversation.scrollTop = conversation.scrollHeight;
-    },
-    onAgentStreamEnd: (): void => {
-      liveBubble = null;
-    },
+    onAgentDelta: (delta: string): void => chat.appendDelta(delta),
+    onAgentStreamEnd: (): void => chat.endStream(),
     storage: historyStorage,
   };
 
   // Restore a previous conversation into the view on load.
-  for (const turn of historyToTurns(historyStorage.load())) appendTurn(turn);
-
-  // ── Input ───────────────────────────────────────────────────────────────
-  const inputRow = document.createElement('div');
-  inputRow.className = 'agent-panel-input-row';
-  const textarea = document.createElement('textarea');
-  textarea.className = 'agent-panel-input';
-  textarea.rows = 2;
-  textarea.placeholder = t('agentInputPlaceholder');
-  const sendBtn = ranButton(t('agentSend'), 'agent-panel-send');
-  sendBtn.setAttribute('type', 'primary'); // ranui's emphasized button style
-  inputRow.append(textarea, sendBtn);
+  for (const turn of historyToTurns(historyStorage.load())) chat.append(turn);
 
   // ── Controller wiring ───────────────────────────────────────────────────
   const currentProvider = (): ProviderId => providerSelect.value as ProviderId;
@@ -363,47 +347,31 @@ export function createAgentPanel(): HTMLElement {
     }
   });
 
-  // Reactive run state (ranui signal). The Send/Stop label + input lock derive
-  // from it through an effect below, so flipping it updates the UI on its own.
-  const [running, setRunning] = signal(false);
-
-  const submit = async (): Promise<void> => {
-    const text = textarea.value.trim();
-    if (!text) return;
+  // ChatView owns the Send/Stop button, Enter-to-send, and the input lock; this
+  // just runs a turn. `submit` is passed to ChatView's onSend above.
+  const submit = async (text: string): Promise<void> => {
+    const trimmed = text.trim();
+    if (!trimmed) return;
     const ctl = buildController();
     if (!ctl) {
-      appendTurn({
+      chat.append({
         role: 'error',
         text: currentProvider() === 'webllm' ? t('agentNoWebGPU') : t('agentNeedKey'),
       });
       return;
     }
-    textarea.value = '';
-    liveBubble = null;
-    setRunning(true);
+    chat.setRunning(true);
     try {
-      await ctl.send(text);
+      await ctl.send(trimmed);
     } finally {
-      setRunning(false);
-      textarea.focus();
+      chat.setRunning(false);
+      chat.focus();
     }
   };
-
-  sendBtn.addEventListener('click', () => {
-    if (running()) controller?.stop();
-    else void submit();
-  });
-  textarea.addEventListener('keydown', (e) => {
-    if (e.key === 'Enter' && !e.shiftKey) {
-      e.preventDefault();
-      void submit();
-    }
-  });
   clearBtn.addEventListener('click', () => {
     controller?.reset();
     historyStorage.clear(); // also clear when no controller has been built yet
-    conversation.replaceChildren();
-    liveBubble = null;
+    chat.clear();
   });
 
   // Quote the current selection (Word text / Excel cells / PPT shape text) into
@@ -416,8 +384,8 @@ export function createAgentPanel(): HTMLElement {
       return;
     }
     const quoted = `${t('agentQuotePrefix')}\n"""\n${selected.replace(/\r\n/g, '\n')}\n"""\n\n`;
-    textarea.value = quoted + textarea.value;
-    textarea.focus();
+    chat.setInput(quoted + chat.getInput());
+    chat.focus();
   });
 
   // Review-mode toggle reads/sets track-changes directly on the editor. r-checkbox
@@ -452,18 +420,11 @@ export function createAgentPanel(): HTMLElement {
     quoteBtn.textContent = t('agentQuote');
     quoteBtn.title = t('agentQuoteTip');
     clearBtn.textContent = t('agentClear');
-    textarea.placeholder = t('agentInputPlaceholder');
+    chat.setLabels(chatLabels()); // Send/Stop/placeholder/empty + role chips
     syncProviderUi(); // refresh key placeholder / model hint in the new language
   });
-  // Send/Stop label + input lock react to the run state (and language).
-  createEffect(() => {
-    const active = running();
-    lang();
-    sendBtn.textContent = active ? t('agentStop') : t('agentSend');
-    textarea.disabled = active;
-  });
 
-  panel.append(header, settings, toolbar, conversation, inputRow);
+  panel.append(header, settings, toolbar, chat.el);
   document.body.append(panel, launcher);
   setOpen(true); // start open + docked
   return panel;
