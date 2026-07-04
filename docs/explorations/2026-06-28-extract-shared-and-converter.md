@@ -42,6 +42,7 @@ packages/
   shared/       document-utils / types / i18n / store（内部）
   converter/    x2t 转换 + docx-zip（依赖 shared）
 ```
+
 `lib/` 现在剩：编辑器核心（onlyoffice-editor/converter/document/ui/embed-api/events/loading/file-types/empty_bin）+ agent-plugin 的编辑器部分（tools/editor-bridge/ui）。这些是版本相关的"应用核心"，按规划归 v7/v9 各自的 editor 包，暂留本地。
 
 ## 提交

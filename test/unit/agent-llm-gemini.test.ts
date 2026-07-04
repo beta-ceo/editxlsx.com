@@ -1,10 +1,5 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import {
-  GeminiProvider,
-  parseGeminiResponse,
-  toGeminiContents,
-  toGeminiTools,
-} from '@ranuts/agent-core/llm/gemini';
+import { GeminiProvider, parseGeminiResponse, toGeminiContents, toGeminiTools } from '@ranuts/agent-core/llm/gemini';
 import { clearApiKey, setApiKey } from '@ranuts/agent-core/llm/keys';
 import type { LLMMessage } from '@ranuts/agent-core/llm/types';
 

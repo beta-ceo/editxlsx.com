@@ -18,7 +18,7 @@ import { X2TConverter, extractDocxMediaUrls, preprocessXlsxLineBreaks, preproces
 
 ```ts
 const converter = new X2TConverter();
-await converter.init();                 // loads x2t WASM (idempotent)
+await converter.init(); // loads x2t WASM (idempotent)
 const result = await converter.convert(file, 'pdf');
 ```
 

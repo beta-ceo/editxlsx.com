@@ -14,6 +14,7 @@
 ### panel.ts 全面改用 ranui builder
 
 之前 ui.ts 用了 builder，但 panel.ts 仍是 `document.createElement`（不一致，用户指出）。这次全部改为 ranui `builder`：
+
 - 自定义元素用 `View('r-select' | 'r-input' | 'r-button' | 'r-checkbox' | 'r-option')`。
 - 原生用 `Div / Span / Label / ButtonBuilder`。
 - 链式 `.id().class().attr().text().children().on().build()`；事件用 `.on()`（闭包可引用后定义的 submit/controller）。

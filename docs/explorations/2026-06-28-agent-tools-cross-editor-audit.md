@@ -4,18 +4,18 @@
 
 ## 能力矩阵（✓=存在）
 
-| 工具 / 方法 | Word | Excel | PPT |
-|---|---|---|---|
-| insert_text · `pluginMethod_PasteHtml` | ✓ | ✓ | ✓ |
-| get_selection · `pluginMethod_GetSelectionType/GetSelectedText` | ✓ | ✓ | ✓ |
-| replace_selection · `pluginMethod_ReplaceTextSmart` | ✓ | ✓ | ✓ |
-| get_document_text · `asc_EditSelectAll` | ✓ | ✓ | ✓ |
-| （get_document_text 清选区）`asc_RemoveSelection` | ✓ | ✗ | ✗ |
-| add_comment · `asc_addComment` | ✓ | ✓ | ✓ |
-| add_comment 构造器 `asc_CCommentDataWord` | ✓ | ✗ | ✗ |
-| add_comment 构造器 `asc_CCommentData` | ✗ | ✓ | ✓ |
-| **set_review_mode · `asc_SetTrackRevisions/IsTrackRevisions`** | ✓ | **✗** | **✗** |
-| set_cell/get_cell · `asc_findCell/getCellInfo` | ✗ | ✓ | ✗ |
+| 工具 / 方法                                                     | Word | Excel | PPT   |
+| --------------------------------------------------------------- | ---- | ----- | ----- |
+| insert_text · `pluginMethod_PasteHtml`                          | ✓    | ✓     | ✓     |
+| get_selection · `pluginMethod_GetSelectionType/GetSelectedText` | ✓    | ✓     | ✓     |
+| replace_selection · `pluginMethod_ReplaceTextSmart`             | ✓    | ✓     | ✓     |
+| get_document_text · `asc_EditSelectAll`                         | ✓    | ✓     | ✓     |
+| （get_document_text 清选区）`asc_RemoveSelection`               | ✓    | ✗     | ✗     |
+| add_comment · `asc_addComment`                                  | ✓    | ✓     | ✓     |
+| add_comment 构造器 `asc_CCommentDataWord`                       | ✓    | ✗     | ✗     |
+| add_comment 构造器 `asc_CCommentData`                           | ✗    | ✓     | ✓     |
+| **set_review_mode · `asc_SetTrackRevisions/IsTrackRevisions`**  | ✓    | **✗** | **✗** |
+| set_cell/get_cell · `asc_findCell/getCellInfo`                  | ✗    | ✓     | ✗     |
 
 ## 发现的问题与处理
 

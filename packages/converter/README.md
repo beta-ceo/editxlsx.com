@@ -17,7 +17,7 @@ pnpm add @ranuts/converter
 import { X2TConverter } from '@ranuts/converter';
 
 const converter = new X2TConverter();
-await converter.init();                      // loads the x2t WASM module
+await converter.init(); // loads the x2t WASM module
 const result = await converter.convert(file, /* targetExt */ 'pdf');
 ```
 

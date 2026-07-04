@@ -37,10 +37,11 @@ const tools: Record<string, AgentTool> = {
 const provider = createProvider('anthropic', { apiKey: getApiKey('anthropic') });
 const result = await runAgent(provider, 'echo hello', {
   tools,
-  maxIterations: 8,              // default 8
-  history: prior,               // LLMMessage[] to continue a conversation
+  maxIterations: 8, // default 8
+  history: prior, // LLMMessage[] to continue a conversation
   signal: abortController.signal,
-  onEvent: (e) => {             // 'assistant' | 'assistant_delta' | 'tool_call' | 'tool_result'
+  onEvent: (e) => {
+    // 'assistant' | 'assistant_delta' | 'tool_call' | 'tool_result'
     if (e.type === 'assistant_delta') render(e.text);
   },
 });
@@ -58,7 +59,7 @@ Cloud keys live in localStorage via `getApiKey/setApiKey` (per provider).
 - The runtime is **editor-agnostic**: it does NOT default to any tools. If you
   don't pass `options.tools`, the model gets none. Always pass your registry.
 - `runAgent` streams via `provider.chatStream` when available, else falls back to `chat`.
-- `signal` aborts *between* iterations; the in-flight model call still finishes.
+- `signal` aborts _between_ iterations; the in-flight model call still finishes.
 - Tool `execute` errors are caught and fed back to the model as an error tool result (not thrown).
 - Deps: `@anthropic-ai/sdk`, `@mlc-ai/web-llm`. No editor/DOM beyond `localStorage` for keys.
 

@@ -109,7 +109,10 @@
     btn.id = 'btn-ai';
     // Reuse the native button's classes for sizing/hover, minus transient state
     // and the arrow-left marker (those belong to OnlyOffice's own panel toggles).
-    btn.className = sample.className.replace(/\b(active|disabled|arrow-left)\b/g, '').replace(/\s+/g, ' ').trim();
+    btn.className = sample.className
+      .replace(/\b(active|disabled|arrow-left)\b/g, '')
+      .replace(/\s+/g, ' ')
+      .trim();
     btn.title = 'AI';
     btn.innerHTML = '<span class="agent-ai-label">AI</span>';
     btn.addEventListener('click', function () {

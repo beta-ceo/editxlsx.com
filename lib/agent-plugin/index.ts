@@ -28,7 +28,13 @@ export { agentTools } from './tools';
 
 // Editor-agnostic core (re-exported from @ranuts/agent-core)
 export type { AgentTool, JsonSchema } from '@ranuts/agent-core/types';
-export { type AgentEvent, type AgentRunOptions, type AgentRunResult, runAgent, toLLMToolDefs } from '@ranuts/agent-core/runtime';
+export {
+  type AgentEvent,
+  type AgentRunOptions,
+  type AgentRunResult,
+  runAgent,
+  toLLMToolDefs,
+} from '@ranuts/agent-core/runtime';
 export * from '@ranuts/agent-core/llm';
 
 // UI

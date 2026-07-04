@@ -22,25 +22,34 @@ Styles are injected automatically on first `new ChatView(...)` — **do not impo
 
 ```ts
 const chat = new ChatView({
-  onSend: (text) => { /* user submitted `text` (trimmed, non-empty) */ },
-  onStop: () => { /* user clicked Send while running → treat as abort */ },
-  labels: { send: 'Send', stop: 'Stop', placeholder: 'Type…', empty: 'Start chatting',
-            role: (r) => (r === 'agent' ? 'AI' : '') },
+  onSend: (text) => {
+    /* user submitted `text` (trimmed, non-empty) */
+  },
+  onStop: () => {
+    /* user clicked Send while running → treat as abort */
+  },
+  labels: {
+    send: 'Send',
+    stop: 'Stop',
+    placeholder: 'Type…',
+    empty: 'Start chatting',
+    role: (r) => (r === 'agent' ? 'AI' : ''),
+  },
 });
-container.appendChild(chat.el);   // mount the root element
+container.appendChild(chat.el); // mount the root element
 ```
 
 ## Methods
 
-| Method | Purpose |
-| --- | --- |
-| `append({ role, text })` | Add a finished message. `role`: `'user' \| 'agent' \| 'tool' \| 'error'`. |
-| `appendDelta(text)` | Stream into a live agent bubble (auto-created on first delta). |
-| `endStream()` | Finalise the streaming bubble (drops the caret). |
-| `setRunning(bool)` | Toggle Send⇄Stop and lock the input. |
-| `clear()` | Remove all messages, restore empty state. |
-| `getInput()` / `setInput(text)` / `focus()` | Input helpers (e.g. prepend a quote). |
-| `setLabels(labels)` | Re-apply labels live (e.g. language change). |
+| Method                                      | Purpose                                                                   |
+| ------------------------------------------- | ------------------------------------------------------------------------- |
+| `append({ role, text })`                    | Add a finished message. `role`: `'user' \| 'agent' \| 'tool' \| 'error'`. |
+| `appendDelta(text)`                         | Stream into a live agent bubble (auto-created on first delta).            |
+| `endStream()`                               | Finalise the streaming bubble (drops the caret).                          |
+| `setRunning(bool)`                          | Toggle Send⇄Stop and lock the input.                                      |
+| `clear()`                                   | Remove all messages, restore empty state.                                 |
+| `getInput()` / `setInput(text)` / `focus()` | Input helpers (e.g. prepend a quote).                                     |
+| `setLabels(labels)`                         | Re-apply labels live (e.g. language change).                              |
 
 `chat.actionsEl` is a host-populated slot directly above the input (an IM-style
 compose toolbar) — append your own controls; it collapses when empty.
@@ -59,7 +68,7 @@ onSend: async (text) => {
   } finally {
     chat.setRunning(false);
   }
-}
+};
 ```
 
 ## Gotchas

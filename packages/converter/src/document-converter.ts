@@ -1,7 +1,12 @@
 import { createObjectURL, getExtensions, scriptOnLoad } from 'ranuts/utils';
 import 'ranui/message';
 import { t } from '@ranuts/shared/i18n';
-import type { BinConversionResult, ConversionResult, DocumentType, EmscriptenModule } from '@ranuts/shared/document-types';
+import type {
+  BinConversionResult,
+  ConversionResult,
+  DocumentType,
+  EmscriptenModule,
+} from '@ranuts/shared/document-types';
 import { BASE_PATH, DOCUMENT_TYPE_MAP } from '@ranuts/shared/document-utils';
 import { extractDocxMediaUrls } from './docx-zip';
 

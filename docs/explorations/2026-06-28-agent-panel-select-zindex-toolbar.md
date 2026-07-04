@@ -16,8 +16,13 @@
 ## 修复（styles/base.css）
 
 ```css
-r-dropdown[role='listbox'] { z-index: 100000; }   /* 抬到面板之上 */
-.agent-panel-toolbar { flex-wrap: wrap; gap: 8px; } /* 防溢出，必要时换行 */
+r-dropdown[role='listbox'] {
+  z-index: 100000;
+} /* 抬到面板之上 */
+.agent-panel-toolbar {
+  flex-wrap: wrap;
+  gap: 8px;
+} /* 防溢出，必要时换行 */
 ```
 
 ## 验证

@@ -7,8 +7,20 @@ not generic. Editor / converter / agent layers all import from here.
 ## Import (prefer subpaths)
 
 ```ts
-import { getDocumentType, getMimeTypeFromExtension, parseReadonly, BASE_PATH, DOCUMENT_TYPE_MAP } from '@ranuts/shared/document-utils';
-import type { DocumentType, ConversionResult, BinConversionResult, SaveEvent, EmscriptenModule } from '@ranuts/shared/document-types';
+import {
+  getDocumentType,
+  getMimeTypeFromExtension,
+  parseReadonly,
+  BASE_PATH,
+  DOCUMENT_TYPE_MAP,
+} from '@ranuts/shared/document-utils';
+import type {
+  DocumentType,
+  ConversionResult,
+  BinConversionResult,
+  SaveEvent,
+  EmscriptenModule,
+} from '@ranuts/shared/document-types';
 import { t, getLanguage, setLanguage, getOnlyOfficeLang } from '@ranuts/shared/i18n';
 import type { Language, I18nMessages } from '@ranuts/shared/i18n';
 import { getDocmentObj, setDocmentObj } from '@ranuts/shared/store';

@@ -5,7 +5,8 @@ import type { ChatMessage, ChatRole, ChatViewLabels, ChatViewOptions } from './t
 
 const ICON_SEND =
   '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5"/><path d="M5 12l7-7 7 7"/></svg>';
-const ICON_STOP = '<svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><rect x="5" y="5" width="14" height="14" rx="3"/></svg>';
+const ICON_STOP =
+  '<svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><rect x="5" y="5" width="14" height="14" rx="3"/></svg>';
 const ICON_DOWN =
   '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14"/><path d="M19 12l-7 7-7-7"/></svg>';
 
@@ -46,11 +47,17 @@ export class ChatView {
     ensureChatUiStyles();
     this.labels = options.labels ?? {};
 
-    this.emptyEl = Div().class('cui-empty').text(this.labels.empty ?? '').build();
+    this.emptyEl = Div()
+      .class('cui-empty')
+      .text(this.labels.empty ?? '')
+      .build();
 
     this.messagesEl = Div()
       .class('cui-messages')
-      .on('scroll', throttle(() => this.updateScrollBtn(), 100))
+      .on(
+        'scroll',
+        throttle(() => this.updateScrollBtn(), 100),
+      )
       .children(this.emptyEl)
       .build();
 
@@ -194,7 +201,7 @@ export class ChatView {
   private updateSendState(): void {
     this.sendBtn.innerHTML = this.running ? ICON_STOP : ICON_SEND;
     this.sendBtn.classList.toggle('cui-send-stop', this.running);
-    this.sendBtn.title = this.running ? this.labels.stop ?? 'Stop' : this.labels.send ?? 'Send';
+    this.sendBtn.title = this.running ? (this.labels.stop ?? 'Stop') : (this.labels.send ?? 'Send');
     this.sendBtn.setAttribute('aria-label', this.sendBtn.title);
     // Disabled only when idle with an empty input; while running it acts as Stop.
     this.sendBtn.disabled = !this.running && this.input.value.trim() === '';
