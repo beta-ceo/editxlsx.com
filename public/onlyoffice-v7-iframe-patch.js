@@ -56,6 +56,15 @@
 
   var FALLBACK = 'NotoSansSC-VF.ttf';
 
+  // Font remap is only needed in the SPREADSHEET (cell) editor, where v7's cell
+  // SDK requests CJK fonts via ascdesktop:// / Windows paths that fail in the
+  // browser (#62, #64). The Word and slide editors render text by glyph-ID
+  // against the served font's glyph table; substituting a different TTF shifts
+  // every glyph (Calibri style names / "Click to add title" → garbled). Letting
+  // the request fail there makes the engine use its built-in glyph data, which is
+  // correct. So: enable remap ONLY in the spreadsheet editor.
+  var DISABLE_FONT_REMAP = window.location.pathname.indexOf('spreadsheeteditor') === -1;
+
   function extractFilename(path) {
     // Extract bare filename from any path (forward slash, backslash, or mixed)
     return path.split(/[/\\]/).pop().toLowerCase();
@@ -63,7 +72,7 @@
 
   var origOpen = window.XMLHttpRequest.prototype.open;
   window.XMLHttpRequest.prototype.open = function (method, url) {
-    if (typeof url === 'string') {
+    if (!DISABLE_FONT_REMAP && typeof url === 'string') {
       var fn;
       if (url.indexOf('ascdesktop://fonts/') === 0) {
         // Scheme 1: ascdesktop://fonts/<file> or ascdesktop://fonts/C:\Windows\Fonts\<file>
@@ -81,4 +90,95 @@
     }
     return origOpen.apply(this, arguments);
   };
+
+  // ── AI button in OnlyOffice's left menu ───────────────────────────────────
+  // The editor's left rail (#left-menu) is rendered at runtime by app.js with
+  // icon buttons of class .btn-category (search, navigation, comments, ...).
+  // We add a matching "AI" button there. It can't reach the agent panel (that
+  // lives in the parent window), so clicking it posts `agent:toggle` upward.
+  function injectAiButton() {
+    if (document.getElementById('btn-ai')) return;
+    // Put the AI button in the RIGHT menu — the same side the panel docks on, so
+    // the trigger sits next to what it opens. Right-menu buttons are .btn-category
+    // (with an `arrow-left` modifier + content-target) inside #right-menu.
+    var sample = document.querySelector('#right-menu .btn-category');
+    if (!sample || !sample.parentNode) return; // right menu not rendered yet
+    var container = sample.parentNode;
+
+    var btn = document.createElement(sample.tagName);
+    btn.id = 'btn-ai';
+    // Reuse the native button's classes for sizing/hover, minus transient state
+    // and the arrow-left marker (those belong to OnlyOffice's own panel toggles).
+    btn.className = sample.className
+      .replace(/\b(active|disabled|arrow-left)\b/g, '')
+      .replace(/\s+/g, ' ')
+      .trim();
+    btn.title = 'AI';
+    btn.innerHTML = '<span class="agent-ai-label">AI</span>';
+    btn.addEventListener('click', function () {
+      // The agent panel lives in the top page. Same-origin: call its toggle
+      // directly; fall back to postMessage if that's blocked.
+      var top = window.top || window.parent;
+      try {
+        if (top && top.__toggleAgentPanel) {
+          top.__toggleAgentPanel();
+          return;
+        }
+      } catch (e) {
+        /* cross-origin or not ready — fall through to postMessage */
+      }
+      top.postMessage({ type: 'agent:toggle' }, '*');
+    });
+
+    // Place it at the top of the right rail, above the first settings button.
+    container.insertBefore(btn, sample);
+  }
+
+  function ensureAiButtonStyles() {
+    if (document.getElementById('agent-ai-style')) return;
+    var style = document.createElement('style');
+    style.id = 'agent-ai-style';
+    style.textContent =
+      '#btn-ai{cursor:pointer;display:flex;align-items:center;justify-content:center;}' +
+      '#btn-ai .agent-ai-label{font-weight:700;font-size:12px;letter-spacing:.5px;color:#444;}';
+    (document.head || document.documentElement).appendChild(style);
+  }
+
+  // The AI button is opt-in: it only appears when the top page enabled the agent
+  // feature (via ?agent=1). The top page (same-origin) exposes `__agentEnabled`;
+  // if we can't read it (cross-origin embed) default to hidden.
+  function agentEnabled() {
+    try {
+      var w = window.top || window.parent;
+      return !!(w && w.__agentEnabled);
+    } catch (e) {
+      return false;
+    }
+  }
+
+  function startAiButtonInjection() {
+    if (!agentEnabled()) return; // no ?agent=1 → don't inject the AI button
+    ensureAiButtonStyles();
+    injectAiButton();
+    // The left menu renders asynchronously and may re-render; keep the button
+    // present by re-checking on DOM mutations.
+    var obs = new MutationObserver(function () {
+      injectAiButton();
+    });
+    obs.observe(document.documentElement, { childList: true, subtree: true });
+  }
+
+  // Reflect the panel's open/closed state on the AI button (the panel lives in
+  // the top page and posts `agent:state` whenever it toggles).
+  window.addEventListener('message', function (event) {
+    if (!event.data || event.data.type !== 'agent:state') return;
+    var btn = document.getElementById('btn-ai');
+    if (btn) btn.classList.toggle('active', !!event.data.open);
+  });
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', startAiButtonInjection);
+  } else {
+    startAiButtonInjection();
+  }
 })();

@@ -12,6 +12,17 @@
 
 ---
 
+## 分支上下文与当前发现（2026-06-23 更新）
+
+> 本次实施在 `feat/agent-collab` 分支进行，从 `release/v0.0.4` 切出。
+
+- **结构**：本分支是 **monorepo 之前的扁平结构**（`lib/`、`store/`、`public/`），本计划中的所有路径正好与之对应，无需翻译。不在本分支引入 monorepo 迁移。
+- **OnlyOffice 版本**：v7.5.0 离线 WASM 版（`public/sdkjs/`、`public/web-apps/`），单一 v7 编辑器（无 v9）。
+- **关键风险已部分坐实**：`grep` 确认 `window.Asc.plugin` 的运行时代码**已编译进** `public/sdkjs/word/sdk-all-min.js`，**但** `public/sdkjs/` 与 `public/web-apps/` 下**没有任何 plugins 资源目录**，离线构建很可能裁掉了插件加载基建（读取 `pluginsData` → 拉 `config.json` → 注入插件 iframe 的那条链路）。
+- **因此阶段零不是走过场**：需实测「DocEditor 配置里传入 `editorConfig.plugins.pluginsData` 后，SDK 是否真的会加载并运行该插件」。若加载链路被裁，需评估：(a) 从完整发行版补回 plugins 资源；(b) 升级到带插件基建的版本；(c) 切 Docs Server。结论填入文末「验证结果」。
+
+---
+
 ## LLM 推理层选型
 
 本方案支持两种推理模式，用户可在设置中切换：
@@ -334,9 +345,36 @@ export const [getAgentProvider, setAgentProvider] = createSignal<Provider>('anth
 
 ## 验证结果
 
-> 阶段零完成后填写。
+> 阶段零完成（2026-06-23，feat/agent-collab 分支，chrome-devtools 实测 v7.5 离线版）。
 
-- Plugin API 可用性：待测
-- 可用的 API 列表：待测
-- 已知限制：待测
-- 是否需要切换到 Docs Server：待定
+**结论：Plugin 命令 API 完全可用，无需切换 Docs Server。但走法与原计划不同 —— 不用标准插件模型，改为直连编辑器宿主实例。**
+
+### 关键发现
+
+1. **标准插件模型不可用**：离线构建裁掉了插件资源基建 —— 无 `plugins.js` 插件侧桥接、无 `api/plugins` 目录、无插件资源；编辑器 iframe 内 `window.Asc.plugin` 单例为 `undefined`（没有插件被加载）。所以 config.json + 插件 iframe + `pluginsData` 这条路走不通，**agent-probe 插件无需再建**。
+2. **但插件命令 API 全部编译进 SDK 且可达**：编辑器宿主实例 `window.editor`（即 `Asc.editor`，`asc_docs_api`）上挂着完整的 `pluginMethod_*` 与 `asc_*` 方法。插件类 `Asc.CPlugin` 可实例化，`installDeveloperPlugin` 也在（v7.5 未裁）。
+3. **编辑器 iframe 同源**：`http://<origin>/web-apps/apps/documenteditor/main/index.html`，父页面可直接 `iframe.contentWindow.editor.<method>(...)` 调用，无需 postMessage 桥接。
+4. **端到端实证通过**：
+   - `pluginMethod_PasteHtml('<p>...</p>')` → 文本成功插入文档（截图确认）
+   - `pluginMethod_GetSelectionType()` → `"none"`；`pluginMethod_GetSelectedText()` → `""`（直接返回，无需回调）
+   - `asc_SetTrackRevisions(true)` → 修订模式开启成功
+
+### 已确认可用的 API（agent 工具层直接封装这些）
+
+| 能力          | 方法（`window.editor` 上）                                                                          |
+| ------------- | --------------------------------------------------------------------------------------------------- |
+| 插入文本/HTML | `pluginMethod_PasteHtml` / `pluginMethod_InputText`                                                 |
+| 读取选区      | `pluginMethod_GetSelectedText` / `pluginMethod_GetSelectionType`                                    |
+| 智能替换      | `pluginMethod_ReplaceTextSmart`                                                                     |
+| 评论          | `asc_addComment` / `asc_removeComment` / `asc_changeComment` / `asc_GetCommentsReportByAuthors`     |
+| 修订模式      | `asc_SetTrackRevisions` / `asc_IsTrackRevisions`                                                    |
+| 接受/拒绝修订 | `asc_AcceptChanges` / `asc_RejectChanges` / `asc_AcceptAllChanges` / `asc_RejectChangesBySelection` |
+| 导出/转换     | `pluginMethod_ConvertDocument` / `pluginMethod_GetFileToDownload`                                   |
+| 图片          | `pluginMethod_GetImageDataFromSelection` / `pluginMethod_PutImageDataToSelection`                   |
+
+### 对后续阶段的影响（计划修正）
+
+- **阶段零的 agent-probe 插件作废**：不建 `public/plugins/`，改为新增 `lib/agent-plugin/editor-bridge.ts` —— 一个拿到编辑器 iframe `contentWindow.editor` 的同源访问器。
+- **阶段一工具层**：所有工具改为封装 `window.editor.pluginMethod_*` / `asc_*` 直接调用，而非 `Asc.plugin.callCommand`。语义更直接，少一层 postMessage。
+- **待补验证**：`pluginMethod_*` 中带回调返回的方法（如 `GetFileToDownload`）的异步约定；`ReplaceTextSmart` 在修订模式下是否自动记录为 change。这些在阶段一首个工具落地时一并确认。
+- **已知限制**：getter 类（`GetSelectedText`/`GetSelectionType`）当前同步返回；若某些方法依赖插件上下文（`this`/权限），需在 bridge 里补一个最小的伪插件上下文 —— 实测目前未遇到。

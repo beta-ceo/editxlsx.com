@@ -247,3 +247,171 @@ r-button[type='text']::part(ran-btn-content) {
   flex-shrink: 0;
   transform: scale(1);
 }
+
+/* ── AI Agent panel (experimental, ?agent=1) ───────────────────────────── */
+.agent-panel {
+  position: fixed;
+  top: 0;
+  right: 0;
+  z-index: 10000;
+  display: flex;
+  flex-direction: column;
+  width: 360px;
+  max-width: 90vw;
+  height: 100vh;
+  background: #fff;
+  border-left: 1px solid #e5e7eb;
+  box-shadow: -2px 0 12px rgba(0, 0, 0, 0.08);
+  font-size: 14px;
+}
+/* Dock mode: the editor gives up 360px so the panel sits beside it instead of
+   overlaying the document. DocsAPI REPLACES the #iframe placeholder div with the
+   editor <iframe> (name="frameEditor", no id) inside #app, so target that iframe
+   directly. Narrowing it makes OnlyOffice reflow its content. */
+#app iframe {
+  transition: width 0.2s ease;
+}
+body.agent-docked #app iframe {
+  width: calc(100% - 360px) !important;
+}
+@media (max-width: 480px) {
+  body.agent-docked #app iframe {
+    width: 100% !important;
+  }
+}
+.agent-panel-hidden {
+  display: none;
+}
+.agent-panel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  border-bottom: 1px solid #eee;
+}
+.agent-panel-title {
+  font-weight: 600;
+}
+.agent-panel-close {
+  border: none;
+  background: none;
+  font-size: 20px;
+  line-height: 1;
+  cursor: pointer;
+  color: #888;
+}
+/* Gear button: toggles the settings block. Sits left of the close button. */
+.agent-panel-settings-toggle {
+  margin-left: auto;
+  margin-right: 8px;
+  border: none;
+  background: none;
+  font-size: 16px;
+  line-height: 1;
+  cursor: pointer;
+  color: #888;
+}
+.agent-panel-settings-toggle:hover {
+  color: #333;
+}
+.agent-panel-settings {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 10px 16px;
+  border-bottom: 1px solid #f0f0f0;
+}
+/* Collapsed by default; the header gear toggles it. */
+.agent-panel-settings-hidden {
+  display: none;
+}
+.agent-panel-key-label {
+  font-size: 12px;
+  color: #666;
+}
+/* ranui r-input draws its own field — host carries layout only (no border). */
+.agent-panel-key-input,
+.agent-panel-ollama-model {
+  width: 100%;
+  box-sizing: border-box;
+}
+/* The conversation list, input box, and message bubbles now live in the
+   @ranuts/chat-ui ChatView (it injects its own `cui-*` styles). It must flex to
+   fill the panel's remaining height below the header/settings/toolbar. */
+.agent-panel .cui-root {
+  flex: 1 1 auto;
+  min-height: 0;
+  height: auto;
+}
+
+/* r-select draws its own control — host carries layout only. */
+.agent-panel-provider {
+  width: 100%;
+  box-sizing: border-box;
+}
+.agent-panel-note {
+  font-size: 12px;
+  color: #888;
+  white-space: pre-line; /* honour \n so multi-line hints (e.g. cache status + chat-only note) stack */
+}
+.agent-panel-note:empty {
+  display: none;
+}
+.agent-panel-link {
+  color: #2563eb;
+  cursor: pointer;
+  white-space: nowrap;
+  text-decoration: underline;
+}
+.agent-panel-link:hover,
+.agent-panel-link:focus-visible {
+  color: #1d4ed8;
+}
+/* (Review / quote / clear moved into ChatView's `.cui-actions` slot above the
+   input; the old top toolbar is gone.) */
+
+/* ranui renders select dropdowns as a body-level <r-dropdown> portal at z-index
+   10, which the agent panel (z-index 10000) would otherwise cover — lift it. */
+r-dropdown[role='listbox'] {
+  z-index: 100000;
+}
+.agent-panel-review {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  color: #555;
+  cursor: pointer;
+}
+.agent-panel-model-row {
+  display: flex;
+  gap: 8px;
+}
+/* r-select / r-button below render themselves — host carries layout only. */
+.agent-panel-model {
+  flex: 1;
+  min-width: 0;
+}
+.agent-panel-load {
+  flex-shrink: 0;
+}
+
+.agent-launcher {
+  position: fixed;
+  right: 16px;
+  bottom: 80px;
+  z-index: 9999;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  border: none;
+  background: #2563eb;
+  color: #fff;
+  font-weight: 600;
+  font-size: 15px;
+  cursor: pointer;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+}
+.agent-launcher-hidden {
+  display: none;
+}
+/* .agent-panel-quote / .agent-panel-clear are r-buttons — no host styling needed. */

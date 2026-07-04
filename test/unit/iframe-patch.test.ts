@@ -84,12 +84,24 @@ describe('onlyoffice-v7-iframe-patch', () => {
 
   describe('font XHR rewriting (#62, #64)', () => {
     let openSpy: ReturnType<typeof vi.fn>;
+    let originalHref: string;
 
     beforeEach(() => {
+      // Font remap is spreadsheet-editor-only (924ffb8): Word/PPT render by glyph-ID
+      // and substituting fonts garbles them, so the patch only rewrites in the cell
+      // editor. These #62/#64 cases ARE the cell editor, so run them under a
+      // spreadsheet-editor path (otherwise DISABLE_FONT_REMAP is true and nothing is
+      // rewritten). The "outside the spreadsheet editor" test below overrides this.
+      originalHref = window.location.href;
+      window.history.replaceState({}, '', '/web-apps/apps/spreadsheeteditor/main/index.html');
       // The patch captures the current prototype.open as origOpen, then wraps it.
       // Installing a fresh spy before each eval prevents wrappers from stacking.
       openSpy = vi.fn();
       window.XMLHttpRequest.prototype.open = openSpy as unknown as typeof window.XMLHttpRequest.prototype.open;
+    });
+
+    afterEach(() => {
+      window.history.replaceState({}, '', originalHref);
     });
 
     const openUrl = (url: string): string | undefined => {
@@ -126,6 +138,15 @@ describe('onlyoffice-v7-iframe-patch', () => {
       runPatch();
       await flush();
       expect(openUrl('https://example.com/api/data.json')).toBe('https://example.com/api/data.json');
+    });
+
+    it('does NOT rewrite fonts outside the spreadsheet editor (Word/PPT)', async () => {
+      // Word/PPT render by glyph-ID; rewriting their font requests garbles them, so
+      // remap is disabled there (924ffb8). The font URL must pass through unchanged.
+      window.history.replaceState({}, '', '/web-apps/apps/documenteditor/main/index.html');
+      runPatch();
+      await flush();
+      expect(openUrl('c:\\Windows\\Fonts\\arial.ttf')).toBe('c:\\Windows\\Fonts\\arial.ttf');
     });
   });
 });

@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it } from 'vitest';
-import { getLanguage, getOnlyOfficeLang, LanguageCode, setLanguage, t } from '../../lib/i18n';
+import { getLanguage, getOnlyOfficeLang, LanguageCode, setLanguage, t } from '@ranuts/shared/i18n';
 
 describe('i18n', () => {
   afterEach(() => {
@@ -23,5 +23,29 @@ describe('i18n', () => {
 
   it('falls back to the key for unknown translations', () => {
     expect(t('missing.translation.key' as Parameters<typeof t>[0])).toBe('missing.translation.key');
+  });
+
+  it('has non-empty agent-panel translations in both languages', () => {
+    const agentKeys = [
+      'agentTitle',
+      'agentSend',
+      'agentStop',
+      'agentClear',
+      'agentQuote',
+      'agentReviewMode',
+      'agentProviderClaude',
+      'agentProviderOpenAI',
+      'agentProviderLocal',
+      'agentLoadModel',
+      'agentNeedKey',
+      'agentStopped',
+      'agentToolCallPrefix',
+    ] as const;
+    for (const lang of [LanguageCode.EN, LanguageCode.ZH]) {
+      setLanguage(lang);
+      for (const key of agentKeys) {
+        expect(t(key), `${key} (${lang})`).toBeTruthy();
+      }
+    }
   });
 });

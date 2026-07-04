@@ -2,7 +2,7 @@ import { getAllQueryString } from 'ranuts/utils';
 import { initEmbedApi } from './lib/embed-api';
 import { initEvents, setEventUICallbacks } from './lib/events';
 import { onCreateNew, openDocumentFromUrl, setUICallbacks } from './lib/document';
-import { parseReadonly } from './lib/document-utils';
+import { parseReadonly } from '@ranuts/shared/document-utils';
 import {
   createControlPanel,
   createFixedActionButton,
@@ -60,11 +60,30 @@ createControlPanel();
 //   ?file=https://example.com/doc.docx
 //   ?src=https://example.com/doc.docx
 //   ?file=doc1.docx&src=doc2.xlsx (will use file: doc1.docx)
-const { file, src, readonly } = getAllQueryString();
+const { file, src, readonly, agent } = getAllQueryString();
 const documentUrl = file || src;
 // Pure preview mode: ?readonly=true (also accepts ?readonly=1 or bare ?readonly).
 // Opens the document with editing/download disabled (#25, #85, #87).
 const isReadonly = parseReadonly(readonly);
+// Experimental AI agent panel: opt-in via ?agent=1 (also ?agent=true or bare ?agent).
+const agentEnabled = agent === '1' || agent === 'true' || agent === '';
+// Expose the opt-in to the editor iframe (same-origin) so its injected patch only
+// adds the "AI" button when the agent feature is enabled — otherwise the button
+// stays hidden. See public/onlyoffice-v7-iframe-patch.js.
+(window as unknown as { __agentEnabled?: boolean }).__agentEnabled = agentEnabled;
+if (agentEnabled) {
+  void import('./lib/agent-plugin').then(({ createAgentPanel }) => createAgentPanel());
+}
+// Bridge: the AI button injected into OnlyOffice's left menu lives inside the
+// (same-origin) editor iframe. It toggles the panel either by calling this
+// global directly or, as a fallback, by posting `agent:toggle` to this window.
+const toggleAgentPanelLazy = (): void => {
+  void import('./lib/agent-plugin').then(({ toggleAgentPanel }) => toggleAgentPanel());
+};
+(window as unknown as { __toggleAgentPanel?: () => void }).__toggleAgentPanel = toggleAgentPanelLazy;
+window.addEventListener('message', (event: MessageEvent) => {
+  if (event.data?.type === 'agent:toggle') toggleAgentPanelLazy();
+});
 if (documentUrl) {
   // Decode URL if it's encoded
   try {

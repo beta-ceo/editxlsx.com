@@ -47,6 +47,44 @@ export interface I18nMessages {
   unsupportedFileType: string;
   invalidFileObject: string;
   documentOperationFailed: string;
+
+  // AI agent panel
+  agentTitle: string;
+  agentOpenTip: string;
+  agentSettings: string;
+  agentRoleUser: string;
+  agentRoleTool: string;
+  agentRoleError: string;
+  agentProviderClaude: string;
+  agentProviderOpenAI: string;
+  agentProviderGemini: string;
+  agentProviderLocal: string;
+  agentProviderOllama: string;
+  agentOllamaModelPlaceholder: string;
+  agentOllamaHint: string;
+  agentLoadModel: string;
+  agentModelLoaded: string;
+  agentCheckingCache: string;
+  agentModelCached: string;
+  /** `{size}` placeholder is replaced with the model's download size. */
+  agentModelFirstDownload: string;
+  agentNoWebGPU: string;
+  agentLocalChatOnly: string;
+  agentSwitchCloud: string;
+  agentReviewMode: string;
+  agentQuote: string;
+  agentQuoteTip: string;
+  agentClear: string;
+  agentInputPlaceholder: string;
+  agentSend: string;
+  agentStop: string;
+  agentNeedKey: string;
+  agentNoSelection: string;
+  agentQuotePrefix: string;
+  agentStopped: string;
+  agentMaxSteps: string;
+  agentToolCallPrefix: string;
+  agentToolErrorPrefix: string;
 }
 
 const messages: Record<Language, I18nMessages> = {
@@ -64,6 +102,41 @@ const messages: Record<Language, I18nMessages> = {
     unsupportedFileType: '不支持的文件类型：',
     invalidFileObject: '无效的文件对象',
     documentOperationFailed: '文档操作失败：',
+    agentTitle: 'AI 助手',
+    agentOpenTip: '打开 AI 助手',
+    agentSettings: '设置',
+    agentRoleUser: '你',
+    agentRoleTool: '工具',
+    agentRoleError: '错误',
+    agentProviderClaude: 'Claude（云端，需 API Key）',
+    agentProviderOpenAI: 'OpenAI（云端，需 API Key）',
+    agentProviderGemini: 'Gemini（云端，需 API Key）',
+    agentProviderLocal: '本地离线（WebLLM，需 WebGPU）',
+    agentProviderOllama: 'Ollama（本地服务，需自行运行）',
+    agentOllamaModelPlaceholder: '模型名，如 llama3.2',
+    agentOllamaHint: '连接本地 Ollama（http://localhost:11434），无需 API Key，请确保已运行对应模型。',
+    agentLoadModel: '加载模型',
+    agentModelLoaded: '模型已加载，可以开始对话。',
+    agentCheckingCache: '检查模型缓存…',
+    agentModelCached: '该模型已缓存，点击「加载模型」秒开（刷新页面也不会重新下载）。',
+    agentModelFirstDownload: '首次使用需下载（{size}），之后浏览器缓存，刷新不再下载。',
+    agentNoWebGPU: '当前浏览器不支持 WebGPU，无法使用本地模式。',
+    agentLocalChatOnly: '本地模型仅用于问答/改写，不会直接编辑文档。如需 AI 直接编辑文档，',
+    agentSwitchCloud: '切换到云端 →',
+    agentReviewMode: '修订模式',
+    agentQuote: '引用选区',
+    agentQuoteTip: '把当前在文档/表格/幻灯片中选中的文字引用到输入框',
+    agentClear: '清空对话',
+    agentInputPlaceholder: '让 AI 帮你编辑文档…（Enter 发送，Shift+Enter 换行）',
+    agentSend: '发送',
+    agentStop: '停止',
+    agentNeedKey: '请先填写 API Key。',
+    agentNoSelection: '没有检测到选中的内容，请先在文档中选择文字。',
+    agentQuotePrefix: '请参考我选中的内容：',
+    agentStopped: '已停止。',
+    agentMaxSteps: '已达到最大执行步数，已停止。',
+    agentToolCallPrefix: '调用工具：',
+    agentToolErrorPrefix: '工具出错：',
   },
   [LanguageCode.EN]: {
     webOffice: 'Web Office',
@@ -79,6 +152,43 @@ const messages: Record<Language, I18nMessages> = {
     unsupportedFileType: 'Unsupported file type: ',
     invalidFileObject: 'Invalid file object',
     documentOperationFailed: 'Document operation failed: ',
+    agentTitle: 'AI Assistant',
+    agentOpenTip: 'Open AI Assistant',
+    agentSettings: 'Settings',
+    agentRoleUser: 'You',
+    agentRoleTool: 'Tool',
+    agentRoleError: 'Error',
+    agentProviderClaude: 'Claude (cloud, needs API Key)',
+    agentProviderOpenAI: 'OpenAI (cloud, needs API Key)',
+    agentProviderGemini: 'Gemini (cloud, needs API Key)',
+    agentProviderLocal: 'Local offline (WebLLM, needs WebGPU)',
+    agentProviderOllama: 'Ollama (local server, run it yourself)',
+    agentOllamaModelPlaceholder: 'Model name, e.g. llama3.2',
+    agentOllamaHint: 'Connects to local Ollama (http://localhost:11434); no API Key — make sure the model is running.',
+    agentLoadModel: 'Load model',
+    agentModelLoaded: 'Model loaded — you can start chatting.',
+    agentCheckingCache: 'Checking model cache…',
+    agentModelCached: 'This model is cached — click "Load model" for an instant start (a refresh won\'t re-download).',
+    agentModelFirstDownload:
+      "First use downloads the model ({size}); it is then cached, so a refresh won't re-download.",
+    agentNoWebGPU: 'This browser does not support WebGPU; local mode is unavailable.',
+    agentLocalChatOnly:
+      'The local model only answers and rewrites — it will not edit the document directly. For AI-driven editing, ',
+    agentSwitchCloud: 'switch to cloud →',
+    agentReviewMode: 'Review mode',
+    agentQuote: 'Quote selection',
+    agentQuoteTip: 'Quote the text currently selected in the document/spreadsheet/slide into the input',
+    agentClear: 'Clear chat',
+    agentInputPlaceholder: 'Ask AI to edit the document… (Enter to send, Shift+Enter for newline)',
+    agentSend: 'Send',
+    agentStop: 'Stop',
+    agentNeedKey: 'Please enter an API Key first.',
+    agentNoSelection: 'No selection detected — please select text in the document first.',
+    agentQuotePrefix: 'Please consider my selected content:',
+    agentStopped: 'Stopped.',
+    agentMaxSteps: 'Reached the maximum number of steps; stopped.',
+    agentToolCallPrefix: 'Tool call: ',
+    agentToolErrorPrefix: 'Tool error: ',
   },
 };
 
