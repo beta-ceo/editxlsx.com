@@ -248,6 +248,23 @@
   gap: var(--ran-space-3);
   margin-top: clamp(24px, 2.8vw, 36px);
 }
+/* quiet per-format create row under the CTAs (the FAB menu only exists once
+   a document is open, so the homepage keeps an entry for every format) */
+#landing-hero .new-row {
+  margin: var(--ran-space-3) 0 0;
+  font: 500 12.5px/1.6 var(--mono);
+  color: var(--muted);
+}
+#landing-hero .new-row a {
+  color: var(--accent);
+}
+#landing-hero .new-row a:hover {
+  text-decoration: underline;
+}
+#landing-hero .new-row .sep {
+  margin: 0 var(--ran-space-2);
+  color: var(--rule);
+}
 #landing-hero .trust {
   margin-top: var(--ran-space-6);
   font: 500 12.5px/1.6 var(--mono);

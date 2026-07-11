@@ -206,6 +206,12 @@
               <r-button type="contrast" id="hero-open">Open a file</r-button>
               <r-button id="hero-new">New document</r-button>
             </div>
+            <!-- Every format keeps a create entry on the homepage (the FAB menu
+                 only exists once a document is open) — ?new= deep-links. -->
+            <p class="new-row reveal d5">
+              start blank: <a href="/?new=docx">Word</a><span class="sep">·</span><a href="/?new=xlsx">Excel</a
+              ><span class="sep">·</span><a href="/?new=pptx">PowerPoint</a>
+            </p>
             <div class="trust reveal d5">
               <span>0 bytes uploaded</span><span class="sep">·</span><span>no account</span><span class="sep">·</span
               ><span>works offline</span><span class="sep">·</span><span>.docx .xlsx .pptx .csv</span>

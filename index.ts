@@ -84,8 +84,12 @@ const langSelect = document.querySelector('#landing-hero r-select.lang-select');
 if (langSelect) {
   langSelect.addEventListener('change', (event) => {
     const value = (event as CustomEvent<{ value?: string }>).detail?.value;
-    if (value === 'zh-CN') location.href = '/zh-CN/';
-    else if (value === 'en') location.href = '/';
+    // Guard: r-select can emit `change` while initializing its value on load.
+    // Navigating on a same-as-current-locale event reloads the page and wipes
+    // deep-link params (?new=docx, ?locale=…), so only act on a real switch.
+    const onZhPage = location.pathname.startsWith('/zh-CN');
+    if (value === 'zh-CN' && !onZhPage) location.href = '/zh-CN/';
+    else if (value === 'en' && onZhPage) location.href = '/';
   });
 }
 
