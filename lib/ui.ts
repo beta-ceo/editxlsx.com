@@ -23,11 +23,17 @@ export const hideLanding = (): void => {
   if (hero) hero.style.display = 'none';
 };
 
+// The control panel, FAB container and FAB button are all created by this
+// module (createControlPanel / createFixedActionButton below), so hold direct
+// references instead of re-querying the DOM on every toggle. They stay null
+// until the create functions run — callers can fire earlier (e.g. an embed
+// message during boot), so the guards below remain.
+let controlPanelContainer: HTMLElement | null = null;
+let fabContainer: HTMLElement | null = null;
+let fabButton: HTMLElement | null = null;
+
 // Hide control panel and show top floating bar
 export const hideControlPanel = (): void => {
-  const container = document.querySelector('#control-panel-container') as HTMLElement;
-  const fabContainer = document.querySelector('#fab-container') as HTMLElement;
-
   // A document is taking over — dismiss the crawlable landing hero with the panel.
   hideLanding();
 
@@ -36,6 +42,7 @@ export const hideControlPanel = (): void => {
     fabContainer.style.display = 'block';
   }
 
+  const container = controlPanelContainer;
   if (container) {
     // Immediately disable pointer events to prevent blocking
     container.style.pointerEvents = 'none';
@@ -49,13 +56,11 @@ export const hideControlPanel = (): void => {
 
 // Show control panel and hide FAB
 export const showControlPanel = (): void => {
-  const container = document.querySelector('#control-panel-container') as HTMLElement;
-  const fabContainer = document.querySelector('#fab-container') as HTMLElement;
-
   // Back to the home state (no document, or an error) — bring the hero back so
   // it, not the legacy overlay, is what the user (and crawlers) see.
   showLanding();
 
+  const container = controlPanelContainer;
   if (container) {
     container.style.display = 'flex';
     setTimeout(() => {
@@ -185,7 +190,7 @@ export const createFixedActionButton = (): HTMLElement => {
     .build();
 
   // Main FAB button
-  const fabButton = ButtonBuilder()
+  const button = ButtonBuilder()
     .id('fab-button')
     .class('fab-button')
     .text(t('menu'))
@@ -206,9 +211,11 @@ export const createFixedActionButton = (): HTMLElement => {
     })
     .build();
 
-  const fabContainer = Div().id('fab-container').class('fab-container').children(menuPanel, fabButton).build();
-  document.body.appendChild(fabContainer);
-  return fabContainer;
+  const container = Div().id('fab-container').class('fab-container').children(menuPanel, button).build();
+  document.body.appendChild(container);
+  fabButton = button;
+  fabContainer = container;
+  return container;
 };
 
 // Show menu guide tooltip
@@ -226,8 +233,8 @@ export const showMenuGuide = (): void => {
     return;
   }
 
-  const fabButton = document.querySelector('#fab-button') as HTMLElement;
-  if (!fabButton) {
+  const button = fabButton;
+  if (!button) {
     return;
   }
 
@@ -274,7 +281,7 @@ export const showMenuGuide = (): void => {
   }, 5000);
 
   // Hide when hovering over menu button (don't save to storage)
-  fabButton.addEventListener(
+  button.addEventListener(
     'mouseenter',
     () => {
       if (menuGuideElement === guide) {
@@ -332,4 +339,5 @@ export const createControlPanel = (): void => {
   // Container - centered in viewport
   const container = Div().id('control-panel-container').class('control-panel-container').children(buttonGroup).build();
   document.body.appendChild(container);
+  controlPanelContainer = container;
 };
