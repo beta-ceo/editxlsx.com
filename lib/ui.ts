@@ -23,14 +23,17 @@ export const hideLanding = (): void => {
   if (hero) hero.style.display = 'none';
 };
 
-// The control panel, FAB container and FAB button are all created by this
-// module (createControlPanel / createFixedActionButton below), so hold direct
-// references instead of re-querying the DOM on every toggle. They stay null
-// until the create functions run — callers can fire earlier (e.g. an embed
-// message during boot), so the guards below remain.
-let controlPanelContainer: HTMLElement | null = null;
-let fabContainer: HTMLElement | null = null;
-let fabButton: HTMLElement | null = null;
+// DOM this module owns, as lazy singletons — the TS equivalent of a Swift
+// `lazy var`: built on first access via `??=`, so consumers always get a
+// non-null element and never carry Optional guards. The two FAB elements live
+// in one object because they're created together and only make sense together.
+// (index.ts still calls the create* wrappers at boot, so in practice
+// everything is built up front; the laziness just makes call order a non-issue.)
+let controlPanel: HTMLElement | null = null;
+let fab: { container: HTMLElement; button: HTMLElement } | null = null;
+
+const getControlPanel = (): HTMLElement => (controlPanel ??= buildControlPanel());
+const getFab = (): { container: HTMLElement; button: HTMLElement } => (fab ??= buildFab());
 
 // Hide control panel and show top floating bar
 export const hideControlPanel = (): void => {
@@ -38,20 +41,16 @@ export const hideControlPanel = (): void => {
   hideLanding();
 
   // Always ensure FAB is visible when hiding control panel
-  if (fabContainer) {
-    fabContainer.style.display = 'block';
-  }
+  getFab().container.style.display = 'block';
 
-  const container = controlPanelContainer;
-  if (container) {
-    // Immediately disable pointer events to prevent blocking
-    container.style.pointerEvents = 'none';
-    container.style.opacity = '0';
-    // Hide after transition for smooth animation
-    setTimeout(() => {
-      container.style.display = 'none';
-    }, 300);
-  }
+  const panel = getControlPanel();
+  // Immediately disable pointer events to prevent blocking
+  panel.style.pointerEvents = 'none';
+  panel.style.opacity = '0';
+  // Hide after transition for smooth animation
+  setTimeout(() => {
+    panel.style.display = 'none';
+  }, 300);
 };
 
 // Show control panel and hide FAB
@@ -60,22 +59,26 @@ export const showControlPanel = (): void => {
   // it, not the legacy overlay, is what the user (and crawlers) see.
   showLanding();
 
-  const container = controlPanelContainer;
-  if (container) {
-    container.style.display = 'flex';
-    setTimeout(() => {
-      container.style.opacity = '1';
-    }, 10);
-  }
+  const panel = getControlPanel();
+  panel.style.display = 'flex';
+  setTimeout(() => {
+    panel.style.opacity = '1';
+  }, 10);
   // Only hide FAB if editor is not open
   // If editor is already open, keep FAB visible so user can access menu
-  if (fabContainer && !window.editor) {
-    fabContainer.style.display = 'none';
+  if (!window.editor) {
+    getFab().container.style.display = 'none';
   }
 };
 
-// Create fixed action button in bottom right corner
-export const createFixedActionButton = (): HTMLElement => {
+// Create fixed action button in bottom right corner. Kept as the public
+// boot-time API (index.ts warms the UI up front); idempotent via the lazy
+// getter, so a second call never builds a duplicate.
+export const createFixedActionButton = (): HTMLElement => getFab().container;
+
+// Build the FAB (menu panel + trigger button) and mount it. Function
+// declaration (hoisted) so the lazy getters above can reference it.
+function buildFab(): { container: HTMLElement; button: HTMLElement } {
   let isMenuOpen = false;
   let hideMenuTimeout: NodeJS.Timeout;
 
@@ -213,10 +216,8 @@ export const createFixedActionButton = (): HTMLElement => {
 
   const container = Div().id('fab-container').class('fab-container').children(menuPanel, button).build();
   document.body.appendChild(container);
-  fabButton = button;
-  fabContainer = container;
-  return container;
-};
+  return { container, button };
+}
 
 // Show menu guide tooltip
 let menuGuideElement: HTMLElement | null = null;
@@ -233,10 +234,7 @@ export const showMenuGuide = (): void => {
     return;
   }
 
-  const button = fabButton;
-  if (!button) {
-    return;
-  }
+  const { button } = getFab();
 
   const hideGuide = (saveToStorage = false) => {
     if (saveToStorage) {
@@ -292,8 +290,14 @@ export const showMenuGuide = (): void => {
   );
 };
 
-// Create and append the control panel
+// Create and append the control panel. Same boot-time wrapper pattern as
+// createFixedActionButton above.
 export const createControlPanel = (): void => {
+  getControlPanel();
+};
+
+// Build the control panel and mount it (hoisted for the lazy getter).
+function buildControlPanel(): HTMLElement {
   // Helper: a text-style r-button. Hover treatment lives in CSS
   // (.control-panel-button:hover in styles/base.css) so it stays tokenized;
   // the old inline host `color` never reached the shadow content anyway.
@@ -339,5 +343,5 @@ export const createControlPanel = (): void => {
   // Container - centered in viewport
   const container = Div().id('control-panel-container').class('control-panel-container').children(buttonGroup).build();
   document.body.appendChild(container);
-  controlPanelContainer = container;
-};
+  return container;
+}
