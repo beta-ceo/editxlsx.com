@@ -222,6 +222,23 @@ r-button[type='text']::part(content) {
   transition: color 0.2s ease;
 }
 
+/* Full-screen loading overlay (lib/loading.ts). gray-alpha rides the token
+   ladder, so the scrim stays a contrast veil in both themes. */
+.loading-mask {
+  position: fixed;
+  inset: 0;
+  z-index: 10000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--ran-gray-alpha-500);
+  backdrop-filter: blur(2px);
+}
+.loading-mask r-loading {
+  color: var(--ran-color-primary);
+  font-size: 24px;
+}
+
 /* Control Panel */
 .control-panel-container {
   position: fixed;

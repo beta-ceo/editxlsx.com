@@ -1,27 +1,17 @@
 import 'ranui/loading';
+import { Div, View } from 'ranui/builder';
 
+// Full-screen loading overlay. Structure via the ranui builder (ecosystem
+// convention), visuals via .loading-mask in styles/base.css (token layer).
 export const showLoading = (): { removeLoading: () => void } => {
-  const loading = document.createElement('r-loading');
-  loading.setAttribute('name', 'circle');
-  loading.setAttribute('size', 'large');
-  loading.style.cssText = `
-    color: #1890ff;
-    font-size: 24px;
-  `;
-
-  const mask = document.createElement('div');
-  mask.setAttribute('class', 'w-full h-full fixed top-0 left-0 bg-black/30 flex items-center justify-center');
-  mask.style.cssText = `
-    backdrop-filter: blur(2px);
-    z-index: 10000;
-  `;
-  mask.appendChild(loading);
+  const mask = Div()
+    .class('loading-mask')
+    .children(View('r-loading').attr('name', 'circle').attr('size', 'large').build())
+    .build();
   document.body.appendChild(mask);
   return {
     removeLoading: () => {
-      if (document.body?.contains(mask)) {
-        document.body?.removeChild(mask);
-      }
+      mask.remove();
     },
   };
 };

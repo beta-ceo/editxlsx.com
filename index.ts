@@ -1,4 +1,5 @@
 import { getAllQueryString } from 'ranuts/utils';
+import { View } from 'ranui/builder';
 import { initEmbedApi } from './lib/embed-api';
 import { initEvents, setEventUICallbacks } from './lib/events';
 import { onCreateNew, onOpenDocument, openDocumentFromUrl, setUICallbacks } from './lib/document';
@@ -74,8 +75,12 @@ createControlPanel();
 // blank DOCX. Both funnel into the same flows the legacy control panel uses.
 const heroOpen = document.getElementById('hero-open');
 if (heroOpen) heroOpen.addEventListener('click', () => onOpenDocument());
-const heroNew = document.getElementById('hero-new');
-if (heroNew) heroNew.addEventListener('click', () => void window.onCreateNew('.docx'));
+// One secondary create button per format — mirrors the FAB menu, which only
+// exists once a document is open.
+for (const ext of ['docx', 'xlsx', 'pptx']) {
+  const btn = document.getElementById(`hero-new-${ext}`);
+  if (btn) btn.addEventListener('click', () => void window.onCreateNew(`.${ext}`));
+}
 
 // Wire the ranui <r-select> language switch: it emits a `change` CustomEvent with
 // { value } — map the locale to the localized homepage URL. (Static pages can't
@@ -194,28 +199,24 @@ if ('serviceWorker' in navigator) {
   });
 }
 
-// Initialize PWA install component
+// Initialize PWA install component — built with the ranui builder (ecosystem
+// convention: no hand-rolled createElement/setAttribute chains).
 const initPwaInstall = () => {
-  const pwaInstall = document.createElement('pwa-install');
-  pwaInstall.id = 'pwa-install';
-
-  // Optimization: Only use attributes that enhance the specific project experience
-  // Use local storage to avoid showing the prompt too often
-  pwaInstall.setAttribute('use-local-storage', '');
-
-  // Professional branding
-  pwaInstall.setAttribute('name', 'Document Editor');
-  pwaInstall.setAttribute('description', 'A privacy-focused, local web-based document editor.');
-  pwaInstall.setAttribute('install-description', 'Install the App for a better offline experience and quick access.');
-
   // Use the browser's native resolution from the existing link tags
   const manifest = document.querySelector<HTMLLinkElement>('link[rel="manifest"]');
   const icon = document.querySelector<HTMLLinkElement>('link[rel="icon"]');
 
-  if (manifest?.href) pwaInstall.setAttribute('manifest-url', manifest.href);
-  if (icon?.href) pwaInstall.setAttribute('icon', icon.href);
+  const builder = View('pwa-install')
+    .id('pwa-install')
+    // use-local-storage: avoid showing the prompt too often
+    .attr('use-local-storage', '')
+    .attr('name', 'Document Editor')
+    .attr('description', 'A privacy-focused, local web-based document editor.')
+    .attr('install-description', 'Install the App for a better offline experience and quick access.');
+  if (manifest?.href) builder.attr('manifest-url', manifest.href);
+  if (icon?.href) builder.attr('icon', icon.href);
 
-  document.body.appendChild(pwaInstall);
+  document.body.appendChild(builder.build());
 };
 
 // Start PWA initialization after short delay to ensure everything is settled

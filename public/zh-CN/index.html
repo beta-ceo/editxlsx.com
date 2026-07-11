@@ -158,18 +158,10 @@
           </p>
           <div class="cta reveal d4">
             <a href="/?locale=zh-CN&amp;new=docx"><r-button type="contrast">打开编辑器 →</r-button></a>
-            <a href="https://github.com/ranuts/document" rel="noopener" target="_blank">
-              <r-button
-                ><svg class="ghmark" aria-hidden="true"><use href="#gh-mark"></use></svg> 查看源码</r-button
-              >
-            </a>
+            <a href="/?locale=zh-CN&amp;new=docx"><r-button>新建 Word</r-button></a>
+            <a href="/?locale=zh-CN&amp;new=xlsx"><r-button>新建 Excel</r-button></a>
+            <a href="/?locale=zh-CN&amp;new=pptx"><r-button>新建 PPT</r-button></a>
           </div>
-          <!-- 每种格式在首页都保留新建入口（FAB 菜单要等文档打开后才出现）——走 ?new= 深链。 -->
-          <p class="new-row reveal d5">
-            新建空白：<a href="/?locale=zh-CN&amp;new=docx">Word</a><span class="sep">·</span
-            ><a href="/?locale=zh-CN&amp;new=xlsx">Excel</a><span class="sep">·</span
-            ><a href="/?locale=zh-CN&amp;new=pptx">PowerPoint</a>
-          </p>
           <div class="trust reveal d5">
             <span>不传服务器</span><span class="sep">·</span><span>免注册</span><span class="sep">·</span
             ><span>可离线</span><span class="sep">·</span><span>.docx .xlsx .pptx .csv</span>
@@ -213,7 +205,7 @@
             <r-card hoverable>
               <div class="card-body">
                 <div class="k">.DOCX</div>
-                <h3>不装 Word 打开 DOCX</h3>
+                <h3>打开 DOCX</h3>
                 <p>完整排版查看任何 Word 文档——字体、表格、图片都在。</p>
                 <span class="fmt-go">打开 DOCX →</span>
               </div>
@@ -223,8 +215,8 @@
             <r-card hoverable>
               <div class="card-body">
                 <div class="k">.XLSX</div>
-                <h3>不装 Excel 打开 XLSX</h3>
-                <p>公式、图表、多工作表完整呈现，不是纯文本导出。</p>
+                <h3>打开 XLSX</h3>
+                <p>公式、图表、多工作表完整呈现。</p>
                 <span class="fmt-go">打开 XLSX →</span>
               </div>
             </r-card>
@@ -233,7 +225,7 @@
             <r-card hoverable>
               <div class="card-body">
                 <div class="k">.PPTX</div>
-                <h3>不装 PPT 打开 PPTX</h3>
+                <h3>打开 PPTX</h3>
                 <p>版式、主题、媒体都保留，直接在浏览器里看。</p>
                 <span class="fmt-go">打开 PPTX →</span>
               </div>

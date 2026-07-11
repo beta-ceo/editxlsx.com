@@ -1,4 +1,5 @@
 import { createObjectURL } from 'ranuts/utils';
+import { View } from 'ranui/builder';
 import { getDocmentObj, setDocmentObj } from '@ranuts/shared/store';
 import { handleDocumentOperation, initX2T, loadEditorApi, loadScript } from './converter';
 import { showLoading } from './loading';
@@ -19,11 +20,12 @@ export function setUICallbacks(callbacks: {
   showMenuGuideFn = callbacks.showMenuGuide;
 }
 
-// Create a single file input element
-const fileInput = document.createElement('input');
-fileInput.type = 'file';
-fileInput.accept = '.docx,.xlsx,.pptx,.doc,.xls,.ppt,.csv';
-fileInput.style.setProperty('visibility', 'hidden');
+// Create a single hidden file input (ranui builder, ecosystem convention)
+const fileInput = View('input')
+  .attr('type', 'file')
+  .attr('accept', '.docx,.xlsx,.pptx,.doc,.xls,.ppt,.csv')
+  .attr('style', 'visibility: hidden')
+  .build() as HTMLInputElement;
 document.body.appendChild(fileInput);
 
 export const onCreateNew = async (ext: string): Promise<void> => {
