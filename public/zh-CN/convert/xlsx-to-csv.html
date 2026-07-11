@@ -85,6 +85,56 @@
                   "@type": "Answer",
                   "text": "可以。打开 CSV 并导出为 XLSX——参见 CSV 转 XLSX 页面。"
                 }
+              },
+              {
+                "@type": "Question",
+                "name": "会导出哪个工作表为 CSV？",
+                "acceptedAnswer": {
+                  "@type": "Answer",
+                  "text": "CSV 是单表格式，因此会导出当前活动的工作表。先打开你想要的工作表，然后另存为 CSV。"
+                }
+              },
+              {
+                "@type": "Question",
+                "name": "导出的是公式还是它们的值？",
+                "acceptedAnswer": {
+                  "@type": "Answer",
+                  "text": "CSV 存储纯数值，因此公式会以其计算结果写出，而不是公式文本本身。"
+                }
+              },
+              {
+                "@type": "Question",
+                "name": "这个转换器能离线使用吗？",
+                "acceptedAnswer": {
+                  "@type": "Answer",
+                  "text": "可以。页面加载完成后它就是一个可安装的 PWA，因此在没有网络连接时转换依然可用。"
+                }
+              }
+            ]
+          },
+          {
+            "@type": "HowTo",
+            "name": "如何在浏览器中把 XLSX 转成 CSV",
+            "step": [
+              {
+                "@type": "HowToStep",
+                "name": "打开编辑器",
+                "text": "点击「打开你的 XLSX」，在浏览器中启动编辑器。"
+              },
+              {
+                "@type": "HowToStep",
+                "name": "选择文件",
+                "text": "从你的设备中选择 .xlsx 文件，或将它拖放到页面上。"
+              },
+              {
+                "@type": "HowToStep",
+                "name": "另存为 CSV",
+                "text": "选择「下载为 / 另存为」，并选中 CSV。OnlyOffice x2t 引擎会在本地完成转换。"
+              },
+              {
+                "@type": "HowToStep",
+                "name": "保存文件",
+                "text": "CSV 在你的设备上生成并下载——不会上传到任何服务器。"
               }
             ]
           },
@@ -169,15 +219,27 @@
       <a class="cta" href="/?locale=zh-CN&amp;new=docx"><r-button type="contrast">打开你的 XLSX →</r-button></a>
 
       <h2>如何操作</h2>
-      <ul>
-        <li>在上方编辑器中打开你的 <strong>.xlsx</strong> 文件</li>
-        <li>选择<strong>下载为 / 另存为</strong>，并选中 <strong>CSV</strong></li>
-        <li>CSV 在你的设备上生成——文件留在本地</li>
-      </ul>
+      <ol>
+        <li>点击<strong>打开你的 XLSX</strong>，在浏览器中启动编辑器。</li>
+        <li>从你的设备中选择 <strong>.xlsx</strong> 文件，或将它拖放到页面上。</li>
+        <li>选择<strong>下载为 / 另存为</strong>，并选中 <strong>CSV</strong>。</li>
+        <li>CSV 在你的设备上生成并下载——文件留在本地。</li>
+      </ol>
 
       <p>
         大多数"XLSX 转 CSV"转换器都会先把你的表格上传到它们的服务器。这个不会：它用 OnlyOffice
         引擎在本地打开文件，因此你的数据保持私密。无需 Excel，无需账号，支持离线。
+      </p>
+
+      <p>
+        转换本身由编译为 WebAssembly 的 OnlyOffice x2t 引擎完成。它面向常见的办公和文本格式——Word、Excel 和
+        PowerPoint，外加 PDF、TXT、HTML 和 CSV——因此非常适合把表格转成便携的 CSV。由于一切都在浏览器标签页内运行，没有上传队列，没有服务器施加的大小上限，你的数据也不会经过网络。请注意，CSV
+        是一种扁平的单表格式：会导出当前活动的工作表，每个公式都会以其计算结果写出。
+      </p>
+
+      <p>
+        CSV 是数据领域的"最大公约数"格式：几乎所有数据库、分析工具和编程语言都能导入它。当你需要把报表喂给另一个系统、在不发送整个工作簿的情况下分享表格数据，或者把文件精简为纯数值时，在这里把表格导出为
+        CSV 就很有用。而且由于导出在你的设备上运行，即便是敏感数据——客户名单、财务导出——也始终保持私密。
       </p>
 
       <r-card class="oss"
@@ -197,6 +259,12 @@
         <p>无需 Excel、无需 365 订阅，也无需注册。</p>
         <h3>我能把 CSV 再转回 XLSX 吗？</h3>
         <p>可以——参见 <a href="/zh-CN/convert/csv-to-xlsx">CSV 转 XLSX</a>。</p>
+        <h3>会导出哪个工作表为 CSV？</h3>
+        <p>CSV 只保存单个表格，因此会导出当前活动的工作表。先打开你想要的工作表，然后另存为 CSV。</p>
+        <h3>导出的是公式还是它们的值？</h3>
+        <p>CSV 存储纯数值，因此公式会以其计算结果写出。</p>
+        <h3>这个转换器能离线使用吗？</h3>
+        <p>可以。加载后它就是一个可安装的 PWA，因此在没有网络时依然可用。</p>
       </div>
 
       <footer>

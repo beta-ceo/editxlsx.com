@@ -91,6 +91,56 @@
                   "@type": "Answer",
                   "text": "Yes. You can edit the document and download it again as DOCX, PDF or TXT — no account required."
                 }
+              },
+              {
+                "@type": "Question",
+                "name": "Does it work with old .doc files?",
+                "acceptedAnswer": {
+                  "@type": "Answer",
+                  "text": "Yes. It opens both the modern .docx format and the older binary .doc, rendering them with the same OnlyOffice engine."
+                }
+              },
+              {
+                "@type": "Question",
+                "name": "Can I convert a DOCX to PDF?",
+                "acceptedAnswer": {
+                  "@type": "Answer",
+                  "text": "Yes. Open the DOCX, then choose Download as / Save as PDF. The PDF is generated on your device — nothing is uploaded."
+                }
+              },
+              {
+                "@type": "Question",
+                "name": "Is there a file size limit?",
+                "acceptedAnswer": {
+                  "@type": "Answer",
+                  "text": "There is no fixed limit. Because everything runs in your browser, the practical ceiling is your own device's memory."
+                }
+              }
+            ]
+          },
+          {
+            "@type": "HowTo",
+            "name": "How to open a DOCX file without Word",
+            "step": [
+              {
+                "@type": "HowToStep",
+                "name": "Open the editor",
+                "text": "Click Open your DOCX to launch the editor in your browser."
+              },
+              {
+                "@type": "HowToStep",
+                "name": "Pick your file",
+                "text": "Choose a .docx file from your device, or drag and drop it into the page."
+              },
+              {
+                "@type": "HowToStep",
+                "name": "View or edit",
+                "text": "The document renders locally with the OnlyOffice engine, so you can read or edit it with full formatting."
+              },
+              {
+                "@type": "HowToStep",
+                "name": "Download again",
+                "text": "Save your changes by downloading the file again as DOCX, PDF or TXT."
               }
             ]
           },
@@ -176,6 +226,21 @@
         Everything runs locally with WebAssembly, so the file stays on your device.
       </p>
 
+      <p>
+        Under the hood, the OnlyOffice document engine is compiled to WebAssembly and runs inside your browser tab. When
+        you pick a file it is read straight from disk into memory — there is no upload step and no server round-trip — so
+        even large or confidential documents stay on your machine. It handles both the modern <strong>.docx</strong>
+        format and the older binary <strong>.doc</strong>, and can export your edits back to DOCX, PDF or plain TXT.
+      </p>
+
+      <h2>How it works</h2>
+      <ol>
+        <li>Click <strong>Open your DOCX</strong> to launch the editor in your browser.</li>
+        <li>Pick a <strong>.docx</strong> file from your device, or drag and drop it onto the page.</li>
+        <li>It renders locally with the OnlyOffice engine — read it, or edit the text in place.</li>
+        <li>Download it again as DOCX, PDF or TXT when you are done.</li>
+      </ol>
+
       <h2>What you can do</h2>
       <ul>
         <li>Open and read any <strong>.docx</strong> (and .doc) file with full formatting</li>
@@ -202,6 +267,12 @@
         <p>No. The file is opened locally with WebAssembly and never leaves your device.</p>
         <h3>Can I edit and save it, not just view?</h3>
         <p>Yes. Edit it and download again as DOCX, PDF or TXT — no account required.</p>
+        <h3>Does it work with old .doc files?</h3>
+        <p>Yes. It opens both the modern .docx and the older binary .doc with the same OnlyOffice engine.</p>
+        <h3>Can I convert a DOCX to PDF?</h3>
+        <p>Yes. Open the DOCX, then choose Download as / Save as PDF — the PDF is generated on your device.</p>
+        <h3>Is there a file size limit?</h3>
+        <p>No fixed limit. Everything runs in your browser, so the practical ceiling is your device's memory.</p>
       </div>
 
       <footer>

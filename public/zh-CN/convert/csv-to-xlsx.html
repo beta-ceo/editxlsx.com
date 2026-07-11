@@ -85,6 +85,56 @@
                   "@type": "Answer",
                   "text": "无需 Microsoft Excel、无需订阅，也无需注册。"
                 }
+              },
+              {
+                "@type": "Question",
+                "name": "数字和日期列会被识别吗？",
+                "acceptedAnswer": {
+                  "@type": "Answer",
+                  "text": "CSV 会被解析成一个真正的表格，因此你可以在保存为 XLSX 之前设置数字、日期和文本单元格格式。"
+                }
+              },
+              {
+                "@type": "Question",
+                "name": "它期望什么分隔符和编码？",
+                "acceptedAnswer": {
+                  "@type": "Answer",
+                  "text": "它默认使用标准的逗号分隔值；如果你的文件需要，OnlyOffice 的导入步骤允许你选择不同的分隔符或文本编码。"
+                }
+              },
+              {
+                "@type": "Question",
+                "name": "这个转换器能离线使用吗？",
+                "acceptedAnswer": {
+                  "@type": "Answer",
+                  "text": "可以。页面加载完成后它就是一个可安装的 PWA，因此在没有网络连接时转换依然可用。"
+                }
+              }
+            ]
+          },
+          {
+            "@type": "HowTo",
+            "name": "如何在浏览器中把 CSV 转成 XLSX",
+            "step": [
+              {
+                "@type": "HowToStep",
+                "name": "打开编辑器",
+                "text": "点击「打开你的 CSV」，在浏览器中启动编辑器。"
+              },
+              {
+                "@type": "HowToStep",
+                "name": "选择文件",
+                "text": "从你的设备中选择 .csv 文件，或将它拖放到页面上。"
+              },
+              {
+                "@type": "HowToStep",
+                "name": "另存为 XLSX",
+                "text": "如需要可先设置单元格格式，然后选择「下载为 / 另存为」，并选中 XLSX。OnlyOffice x2t 引擎会在本地完成转换。"
+              },
+              {
+                "@type": "HowToStep",
+                "name": "保存文件",
+                "text": "XLSX 在你的设备上生成并下载——不会上传到任何服务器。"
               }
             ]
           },
@@ -170,15 +220,28 @@
       <a class="cta" href="/?locale=zh-CN&amp;new=docx"><r-button type="contrast">打开你的 CSV →</r-button></a>
 
       <h2>如何操作</h2>
-      <ul>
-        <li>在上方编辑器中打开你的 <strong>.csv</strong> 文件</li>
-        <li>如需要可先设置格式，然后选择<strong>下载为 / 另存为</strong>，并选中 <strong>XLSX</strong></li>
-        <li>XLSX 在你的设备上生成——文件留在本地</li>
-      </ul>
+      <ol>
+        <li>点击<strong>打开你的 CSV</strong>，在浏览器中启动编辑器。</li>
+        <li>从你的设备中选择 <strong>.csv</strong> 文件，或将它拖放到页面上。</li>
+        <li>如需要可先设置单元格格式，然后选择<strong>下载为 / 另存为</strong>，并选中 <strong>XLSX</strong>。</li>
+        <li>XLSX 在你的设备上生成并下载——文件留在本地。</li>
+      </ol>
 
       <p>
         CSV 会被 OnlyOffice 引擎解析成一个真正的表格，因此你的行和列保持完整，你可以在保存为 XLSX
         之前添加格式或公式。无需 Excel，无需账号，支持离线。
+      </p>
+
+      <p>
+        转换由编译为 WebAssembly 的 OnlyOffice x2t 引擎完成，它面向常见的办公和文本格式——Word、Excel 和
+        PowerPoint，外加 PDF、TXT、HTML 和 CSV。由于它在浏览器标签页内运行，没有上传队列，也没有服务器施加的大小上限，你的数据也不会经过网络。它默认使用逗号分隔值，导入步骤允许你在保存为
+        XLSX 之前选择不同的分隔符或文本编码，并标记数字、日期或文本列。
+      </p>
+
+      <p>
+        反方向同样常见：某个系统给你一份原始的 CSV
+        导出，而你想要一个整洁、带格式的工作簿来阅读或分享。在这里打开它，就能把这个扁平文件变成一个真正的表格——你可以加宽列、添加表头、应用数字和日期格式，甚至在保存为
+        XLSX 之前写入公式——而且全程不会把数据上传到任何地方。这是让机器生成的导出变得美观易读的快捷方式。
       </p>
 
       <r-card class="oss"
@@ -198,6 +261,12 @@
         <p>会。CSV 会被解析成一个真正的表格，因此行和列都会被保留。</p>
         <h3>我需要 Excel 或账号吗？</h3>
         <p>无需 Excel、无需订阅，也无需注册。</p>
+        <h3>数字和日期列会被识别吗？</h3>
+        <p>CSV 会变成一个真正的表格，因此你可以在保存为 XLSX 之前设置数字、日期和文本单元格格式。</p>
+        <h3>它期望什么分隔符和编码？</h3>
+        <p>默认使用标准的逗号分隔值；导入步骤允许你选择不同的分隔符或文本编码。</p>
+        <h3>这个转换器能离线使用吗？</h3>
+        <p>可以。加载后它就是一个可安装的 PWA，因此在没有网络时依然可用。</p>
       </div>
 
       <footer>

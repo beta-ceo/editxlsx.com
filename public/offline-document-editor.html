@@ -91,6 +91,56 @@
                   "@type": "Answer",
                   "text": "DOCX, XLSX, PPTX and CSV, powered by OnlyOffice."
                 }
+              },
+              {
+                "@type": "Question",
+                "name": "How do I install it as an app?",
+                "acceptedAnswer": {
+                  "@type": "Answer",
+                  "text": "In Chrome or Edge, use the install icon in the address bar or the browser menu. On a phone or tablet, choose Add to Home Screen."
+                }
+              },
+              {
+                "@type": "Question",
+                "name": "Do I need to be online the first time?",
+                "acceptedAnswer": {
+                  "@type": "Answer",
+                  "text": "Yes. Load the page once while connected so the app and the OnlyOffice engine are cached on your device. After that it runs offline."
+                }
+              },
+              {
+                "@type": "Question",
+                "name": "Where are my files saved when offline?",
+                "acceptedAnswer": {
+                  "@type": "Answer",
+                  "text": "Files are opened from and saved to your own device. There is no server involved, so nothing depends on a connection."
+                }
+              }
+            ]
+          },
+          {
+            "@type": "HowTo",
+            "name": "How to use the document editor offline",
+            "step": [
+              {
+                "@type": "HowToStep",
+                "name": "Load it once online",
+                "text": "Open the editor once while connected so the app and the OnlyOffice engine are cached on your device."
+              },
+              {
+                "@type": "HowToStep",
+                "name": "Install as an app",
+                "text": "Use your browser's install option, or Add to Home Screen on mobile, to install it as a PWA."
+              },
+              {
+                "@type": "HowToStep",
+                "name": "Launch offline",
+                "text": "With no connection, launch the installed app just like any other app on your device."
+              },
+              {
+                "@type": "HowToStep",
+                "name": "Open and edit",
+                "text": "Open a DOCX, XLSX, PPTX or CSV file from your device, edit it, and download it again — all offline."
               }
             ]
           },
@@ -181,6 +231,21 @@
         fully offline. Your files never leave your device.
       </p>
 
+      <p>
+        The first time you load the page, a service worker caches the app shell and the OnlyOffice engine on your
+        device. After that the editor starts straight from that cache, so it opens instantly and keeps working with no
+        connection — on a plane, on the subway, or anywhere with patchy Wi-Fi. Files are opened from and saved to your
+        own device, and you can edit DOCX, XLSX, PPTX and CSV and export to PDF, TXT, HTML or CSV, all without a network.
+      </p>
+
+      <h2>How it works</h2>
+      <ol>
+        <li>Open the editor once while connected, so the app and engine are cached on your device.</li>
+        <li>Install it as an app (PWA) — use your browser's install option, or Add to Home Screen on mobile.</li>
+        <li>With no connection, launch the installed app like any other app.</li>
+        <li>Open a DOCX, XLSX, PPTX or CSV file, edit it, and download it again — all offline.</li>
+      </ol>
+
       <h2>Why it works offline</h2>
       <ul>
         <li><strong>No server</strong> — the whole editor runs on your device, so no connection is required</li>
@@ -207,6 +272,12 @@
         <p>No. There is no server; files stay on your device and are never uploaded.</p>
         <h3>Which formats can I edit?</h3>
         <p>DOCX, XLSX, PPTX and CSV, powered by OnlyOffice.</p>
+        <h3>How do I install it as an app?</h3>
+        <p>Use the install icon in Chrome or Edge's address bar, or Add to Home Screen on a phone or tablet.</p>
+        <h3>Do I need to be online the first time?</h3>
+        <p>Yes. Load it once while connected so the app and engine are cached; after that it runs offline.</p>
+        <h3>Where are my files saved when offline?</h3>
+        <p>Files are opened from and saved to your own device — there is no server involved.</p>
       </div>
 
       <footer>

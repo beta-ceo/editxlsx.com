@@ -91,6 +91,56 @@
                   "@type": "Answer",
                   "text": "Yes. After opening the spreadsheet you can download it again as XLSX or CSV."
                 }
+              },
+              {
+                "@type": "Question",
+                "name": "Does it work with old .xls files?",
+                "acceptedAnswer": {
+                  "@type": "Answer",
+                  "text": "Yes. It opens the modern .xlsx format as well as the older .xls and plain .csv files with the same engine."
+                }
+              },
+              {
+                "@type": "Question",
+                "name": "Do my formulas recalculate?",
+                "acceptedAnswer": {
+                  "@type": "Answer",
+                  "text": "Yes. It is a real spreadsheet engine, so formulas recalculate as you edit — it is not a static snapshot of values."
+                }
+              },
+              {
+                "@type": "Question",
+                "name": "Are workbooks with multiple sheets supported?",
+                "acceptedAnswer": {
+                  "@type": "Answer",
+                  "text": "Yes. Workbooks with several tabs open with all of their sheets intact, and you can switch between them."
+                }
+              }
+            ]
+          },
+          {
+            "@type": "HowTo",
+            "name": "How to open an XLSX file without Excel",
+            "step": [
+              {
+                "@type": "HowToStep",
+                "name": "Open the editor",
+                "text": "Click Open your XLSX to launch the editor in your browser."
+              },
+              {
+                "@type": "HowToStep",
+                "name": "Pick your file",
+                "text": "Choose an .xlsx file from your device, or drag and drop it into the page."
+              },
+              {
+                "@type": "HowToStep",
+                "name": "View or edit",
+                "text": "It opens with the OnlyOffice engine, so cells, formulas and formatting are preserved and formulas recalculate as you edit."
+              },
+              {
+                "@type": "HowToStep",
+                "name": "Download again",
+                "text": "Save your changes by downloading the spreadsheet again as XLSX or CSV."
               }
             ]
           },
@@ -176,6 +226,22 @@
         locally with WebAssembly, so the file stays on your device.
       </p>
 
+      <p>
+        The OnlyOffice spreadsheet engine is compiled to WebAssembly and runs inside your browser tab. Your file is read
+        straight from disk into memory — there is no upload and no server — so private data never leaves your device.
+        Because it is a live calculation engine and not a static preview, formulas recalculate as you edit. It reads the
+        modern <strong>.xlsx</strong> format as well as older <strong>.xls</strong> and plain <strong>.csv</strong>, and
+        can export back to XLSX or CSV.
+      </p>
+
+      <h2>How it works</h2>
+      <ol>
+        <li>Click <strong>Open your XLSX</strong> to launch the editor in your browser.</li>
+        <li>Pick an <strong>.xlsx</strong> file from your device, or drag and drop it onto the page.</li>
+        <li>It opens with the OnlyOffice engine — view it, or edit cells and watch formulas recalculate.</li>
+        <li>Download it again as XLSX or CSV when you are done.</li>
+      </ol>
+
       <h2>What you can do</h2>
       <ul>
         <li>Open any <strong>.xlsx</strong> (and .xls, .csv) file with formulas preserved</li>
@@ -184,6 +250,13 @@
         <li>No upload — your spreadsheet never leaves your device</li>
         <li>Works offline as an installable app</li>
       </ul>
+
+      <p>
+        It is just as good for a quick read-only look as for real work: sort a column, fix a figure, add a row or a
+        formula, then hand the file back in the same format. This is handy when someone emails you a budget or a data
+        export and you do not want to install Excel, pay for 365, or trust a random web converter with numbers you would
+        rather keep private.
+      </p>
 
       <r-card class="oss"
         ><div class="card-body">
@@ -202,6 +275,12 @@
         <p>No. It runs locally with WebAssembly and never leaves your device.</p>
         <h3>Can I export it to CSV?</h3>
         <p>Yes. Open it and download again as XLSX or CSV.</p>
+        <h3>Does it work with old .xls files?</h3>
+        <p>Yes. It opens .xlsx, older .xls and plain .csv files with the same engine.</p>
+        <h3>Do my formulas recalculate?</h3>
+        <p>Yes. It is a real spreadsheet engine, so formulas recalculate as you edit — not a static snapshot.</p>
+        <h3>Are workbooks with multiple sheets supported?</h3>
+        <p>Yes. Workbooks with several tabs open with all their sheets intact.</p>
       </div>
 
       <footer>

@@ -91,6 +91,56 @@
                   "@type": "Answer",
                   "text": "Yes. You can edit slides and download the presentation again as PPTX or PDF."
                 }
+              },
+              {
+                "@type": "Question",
+                "name": "Does it work with old .ppt files?",
+                "acceptedAnswer": {
+                  "@type": "Answer",
+                  "text": "Yes. It opens the modern .pptx format as well as the older binary .ppt with the same OnlyOffice engine."
+                }
+              },
+              {
+                "@type": "Question",
+                "name": "Can I export the deck to PDF?",
+                "acceptedAnswer": {
+                  "@type": "Answer",
+                  "text": "Yes. Open the presentation, then choose Download as / Save as PDF. The PDF is produced on your device."
+                }
+              },
+              {
+                "@type": "Question",
+                "name": "Are images and fonts preserved?",
+                "acceptedAnswer": {
+                  "@type": "Answer",
+                  "text": "Yes. The OnlyOffice engine keeps images, shapes, fonts and slide layout, so the deck looks the way it was designed."
+                }
+              }
+            ]
+          },
+          {
+            "@type": "HowTo",
+            "name": "How to open a PPTX file without PowerPoint",
+            "step": [
+              {
+                "@type": "HowToStep",
+                "name": "Open the editor",
+                "text": "Click Open your PPTX to launch the editor in your browser."
+              },
+              {
+                "@type": "HowToStep",
+                "name": "Pick your file",
+                "text": "Choose a .pptx file from your device, or drag and drop it into the page."
+              },
+              {
+                "@type": "HowToStep",
+                "name": "View or edit",
+                "text": "The deck renders locally with the OnlyOffice engine, so slide layout, images and text are preserved as you view or edit."
+              },
+              {
+                "@type": "HowToStep",
+                "name": "Download again",
+                "text": "Save your changes by downloading the presentation again as PPTX or PDF."
               }
             ]
           },
@@ -176,6 +226,21 @@
         your device.
       </p>
 
+      <p>
+        The OnlyOffice presentation engine is compiled to WebAssembly and runs inside your browser tab. When you pick a
+        deck it is read straight from disk into memory — there is no upload and no server round-trip — so a confidential
+        pitch or internal deck never leaves your machine. It opens both the modern <strong>.pptx</strong> format and the
+        older binary <strong>.ppt</strong>, and can export your slides back to PPTX or PDF.
+      </p>
+
+      <h2>How it works</h2>
+      <ol>
+        <li>Click <strong>Open your PPTX</strong> to launch the editor in your browser.</li>
+        <li>Pick a <strong>.pptx</strong> file from your device, or drag and drop it onto the page.</li>
+        <li>It renders locally with the OnlyOffice engine — page through the slides or edit them in place.</li>
+        <li>Download it again as PPTX or PDF when you are done.</li>
+      </ol>
+
       <h2>What you can do</h2>
       <ul>
         <li>Open any <strong>.pptx</strong> (and .ppt) presentation with full layout</li>
@@ -184,6 +249,14 @@
         <li>No upload — your presentation never leaves your device</li>
         <li>Works offline as an installable app</li>
       </ul>
+
+      <p>
+        Whether a colleague sent you a deck to review, you need to pull a couple of slides for your own talk, or you
+        just want to read a <strong>.pptx</strong> on a machine without Office installed, opening it here takes a few
+        seconds. Because the render is produced by the same OnlyOffice engine used in its desktop apps, what you see
+        matches what a teammate on PowerPoint will see — so you can review or tweak a deck with confidence and hand it
+        straight back.
+      </p>
 
       <r-card class="oss"
         ><div class="card-body">
@@ -202,6 +275,12 @@
         <p>No. It runs locally with WebAssembly and never leaves your device.</p>
         <h3>Can I edit the slides, not just view?</h3>
         <p>Yes. Edit slides and download again as PPTX or PDF.</p>
+        <h3>Does it work with old .ppt files?</h3>
+        <p>Yes. It opens both the modern .pptx and the older binary .ppt with the same OnlyOffice engine.</p>
+        <h3>Can I export the deck to PDF?</h3>
+        <p>Yes. Open the presentation, then choose Download as / Save as PDF — the PDF is produced on your device.</p>
+        <h3>Are images and fonts preserved?</h3>
+        <p>Yes. OnlyOffice keeps images, shapes, fonts and slide layout, so the deck looks as designed.</p>
       </div>
 
       <footer>
