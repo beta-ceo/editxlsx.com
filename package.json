@@ -58,7 +58,7 @@
     "jsdom": "^29.1.1",
     "oxlint": "^1.73.0",
     "postcss": "^8.5.16",
-    "prettier": "^3.9.4",
+    "prettier": "^3.9.5",
     "tailwindcss": "^4.3.2",
     "typescript": "^7.0.2",
     "vite": "^8.1.4",
@@ -72,7 +72,7 @@
     "@ranuts/chat-ui": "workspace:*",
     "@ranuts/converter": "workspace:*",
     "@ranuts/shared": "workspace:*",
-    "ranui": "0.2.0-alpha.4",
+    "ranui": "0.2.0-alpha.5",
     "ranuts": "0.2.0-alpha.0"
   }
 }
