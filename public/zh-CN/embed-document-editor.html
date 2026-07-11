@@ -127,7 +127,12 @@
             "@type": "BreadcrumbList",
             "itemListElement": [
               { "@type": "ListItem", "position": 1, "name": "首页", "item": "https://edit.chaxus.com/zh-CN/" },
-              { "@type": "ListItem", "position": 2, "name": "嵌入文档编辑器", "item": "https://edit.chaxus.com/zh-CN/embed-document-editor" }
+              {
+                "@type": "ListItem",
+                "position": 2,
+                "name": "嵌入文档编辑器",
+                "item": "https://edit.chaxus.com/zh-CN/embed-document-editor"
+              }
             ]
           }
         ]
@@ -197,7 +202,8 @@
       <a class="cta" href="/embed-demo.html"><r-button type="contrast">打开在线 demo →</r-button></a>
 
       <p>
-        编辑器完全在浏览器里用 OnlyOffice WebAssembly 引擎运行，文档在客户端渲染和编辑——你不需要部署文档服务器。推荐模式保持清晰边界：
+        编辑器完全在浏览器里用 OnlyOffice WebAssembly
+        引擎运行，文档在客户端渲染和编辑——你不需要部署文档服务器。推荐模式保持清晰边界：
         <strong>父应用负责鉴权、拉取与保存；iframe 只负责编辑。</strong>token、cookie 和业务 API 都留在你的应用里。
       </p>
 
@@ -234,37 +240,58 @@ iframe.contentWindow.postMessage({ id, type: 'document:save', payload: { targetE
       <h2>工作原理</h2>
       <ol>
         <li>加入指向编辑器、带 <code>?embed=1</code> 的 iframe，按布局设尺寸。</li>
-        <li>等 <code>document:ready</code> 事件，再发送 <code>document:open-url</code>、<code>open-file</code> 或 <code>open-buffer</code>。</li>
+        <li>
+          等 <code>document:ready</code> 事件，再发送 <code>document:open-url</code>、<code>open-file</code> 或
+          <code>open-buffer</code>。
+        </li>
         <li>用户就地编辑；除非你的应用主动发送，文件不会离开浏览器。</li>
-        <li>发送 <code>document:save</code>，编辑器通过 <code>document:saved</code> 返回编辑后的文件，由你的应用用自己的鉴权上传。</li>
+        <li>
+          发送 <code>document:save</code>，编辑器通过
+          <code>document:saved</code> 返回编辑后的文件，由你的应用用自己的鉴权上传。
+        </li>
       </ol>
 
       <r-card class="oss"
         ><div class="card-body">
           <strong>开源且可自托管。</strong> 基于 AGPL-3.0——读源码、自托管一份、看清边界是怎么设计的：
           <a href="https://github.com/ranuts/document" rel="noopener">github.com/ranuts/document</a>。完整 API 参考：
-          <a href="https://github.com/ranuts/document/blob/main/docs/embed-api.zh.md" rel="noopener">docs/embed-api.zh.md</a>。
+          <a href="https://github.com/ranuts/document/blob/main/docs/embed-api.zh.md" rel="noopener"
+            >docs/embed-api.zh.md</a
+          >。
         </div></r-card
       >
 
       <h2 class="faq">常见问题</h2>
       <div class="faq">
         <h3>怎么嵌入这个文档编辑器？</h3>
-        <p>加入一个指向编辑器、带 <code>?embed=1</code> 的 iframe，再用 postMessage API 驱动它打开与保存文档。可运行 demo 在 <a href="/embed-demo.html">/embed-demo.html</a>。</p>
+        <p>
+          加入一个指向编辑器、带 <code>?embed=1</code> 的 iframe，再用 postMessage API 驱动它打开与保存文档。可运行 demo
+          在 <a href="/embed-demo.html">/embed-demo.html</a>。
+        </p>
         <h3>编辑器会看到我用户的鉴权 token 吗？</h3>
-        <p>不会。鉴权、文件拉取和上传都留在你的应用里——你的应用用自己的凭据拉取文件、把二进制传给编辑器，token 和 cookie 永远不会进入 iframe。</p>
+        <p>
+          不会。鉴权、文件拉取和上传都留在你的应用里——你的应用用自己的凭据拉取文件、把二进制传给编辑器，token 和 cookie
+          永远不会进入 iframe。
+        </p>
         <h3>嵌入的编辑器支持哪些文件格式？</h3>
-        <p>DOCX、XLSX、PPTX 和 CSV，用 OnlyOffice WebAssembly 引擎在客户端编辑。保存命令可导出为 XLSX、DOCX、PPTX 或 CSV。</p>
+        <p>
+          DOCX、XLSX、PPTX 和 CSV，用 OnlyOffice WebAssembly 引擎在客户端编辑。保存命令可导出为 XLSX、DOCX、PPTX 或
+          CSV。
+        </p>
         <h3>可以自托管或白标使用吗？</h3>
         <p>可以。它以 AGPL-3.0 开源、是纯静态文件，你可以自托管一份、在自己的域名下嵌入。</p>
         <h3>怎么限制哪个站点能和编辑器通信？</h3>
-        <p>在 iframe URL 上加 <code>embedOrigin</code> 把消息锁定到指定 origin，并在你自己的消息处理里校验 <code>event.origin</code>。</p>
+        <p>
+          在 iframe URL 上加 <code>embedOrigin</code> 把消息锁定到指定 origin，并在你自己的消息处理里校验
+          <code>event.origin</code>。
+        </p>
       </div>
 
       <footer>
         <a href="/zh-CN/">打开编辑器</a>
-        <a href="/embed-demo.html">在线 demo</a>
         <a href="/zh-CN/open/docx">打开 DOCX</a>
+        <a href="/zh-CN/open/xlsx">打开 XLSX</a>
+        <a href="/zh-CN/open/pptx">打开 PPTX</a>
         <a href="/zh-CN/private-document-editor">隐私编辑器</a>
         <a href="https://github.com/ranuts/document" rel="noopener">GitHub</a>
         <r-theme-switch class="theme-switch" label="主题"></r-theme-switch>
