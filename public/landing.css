@@ -1,5 +1,5 @@
 /* Shared styles for the SEO satellite pages (/offline-document-editor,
-   /no-signup-document-editor, /open/*, /convert/*, /vs/*, and their /zh-CN/
+   /no-signup-document-editor, /open/*, /convert/*, and their /zh-CN/
    mirrors). Utilitarian document layout, but on the same design system as the
    homepage: every value comes from the ranui token layer (/ran-tokens.css,
    loaded before this file), the chrome is real ranui components registered by
