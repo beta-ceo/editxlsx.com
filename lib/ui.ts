@@ -11,15 +11,23 @@ import { onCreateNew, onOpenDocument } from './document';
 // showControlPanel()/hideControlPanel() call can surface the legacy overlay on top
 // of the hero. body.landing-active also lets the page scroll and hides the legacy
 // overlay (see styles/base.css); in embed mode CSS force-hides the hero regardless.
+//
+// Unlike the panel/FAB singletons below, the hero is NOT built by this module,
+// so its absence can't be ruled out at the type level — the lookup is memoized
+// (safe: the hero is only ever toggled, never removed or replaced) but stays
+// nullable, and callers keep the guard.
+let landingHero: HTMLElement | null = null;
+const getLandingHero = (): HTMLElement | null => (landingHero ??= document.getElementById('landing-hero'));
+
 export const showLanding = (): void => {
   document.body.classList.add('landing-active');
-  const hero = document.getElementById('landing-hero');
+  const hero = getLandingHero();
   if (hero) hero.style.display = '';
 };
 
 export const hideLanding = (): void => {
   document.body.classList.remove('landing-active');
-  const hero = document.getElementById('landing-hero');
+  const hero = getLandingHero();
   if (hero) hero.style.display = 'none';
 };
 
