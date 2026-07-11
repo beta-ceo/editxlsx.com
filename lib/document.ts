@@ -61,6 +61,40 @@ export const onCreateNew = async (ext: string): Promise<void> => {
   }
 };
 
+// Open an already-picked local File (from the file input below, or handed off
+// by a static landing page via lib/pending-open.ts).
+export const openLocalFile = async (file: File): Promise<void> => {
+  const { removeLoading } = showLoading();
+  try {
+    if (hideControlPanelFn) {
+      hideControlPanelFn();
+    }
+    setDocmentObj({
+      fileName: file.name,
+      file: file,
+      url: await createObjectURL(file),
+    });
+    await initX2T();
+    const { fileName, file: fileBlob } = getDocmentObj();
+    await handleDocumentOperation({ file: fileBlob, fileName, isNew: !fileBlob });
+    // Show menu guide after document is loaded
+    if (showMenuGuideFn) {
+      setTimeout(() => {
+        showMenuGuideFn!();
+      }, 1000);
+    }
+  } catch (error) {
+    console.error('Error opening document:', error);
+    // Ensure control panel is shown on error
+    if (showControlPanelFn) {
+      showControlPanelFn();
+    }
+  } finally {
+    // Always remove loading, even if there's an error
+    removeLoading();
+  }
+};
+
 export const onOpenDocument = (): void => {
   // Clear previous event handler and value
   fileInput.onchange = null;
@@ -76,37 +110,9 @@ export const onOpenDocument = (): void => {
     // Only process if a file was actually selected
     // If user cancelled, onchange won't fire, nothing happens
     if (file) {
-      const { removeLoading } = showLoading();
-      try {
-        if (hideControlPanelFn) {
-          hideControlPanelFn();
-        }
-        setDocmentObj({
-          fileName: file.name,
-          file: file,
-          url: await createObjectURL(file),
-        });
-        await initX2T();
-        const { fileName, file: fileBlob } = getDocmentObj();
-        await handleDocumentOperation({ file: fileBlob, fileName, isNew: !fileBlob });
-        // Clear file selection so the same file can be selected again
-        fileInput.value = '';
-        // Show menu guide after document is loaded
-        if (showMenuGuideFn) {
-          setTimeout(() => {
-            showMenuGuideFn!();
-          }, 1000);
-        }
-      } catch (error) {
-        console.error('Error opening document:', error);
-        // Ensure control panel is shown on error
-        if (showControlPanelFn) {
-          showControlPanelFn();
-        }
-      } finally {
-        // Always remove loading, even if there's an error
-        removeLoading();
-      }
+      await openLocalFile(file);
+      // Clear file selection so the same file can be selected again
+      fileInput.value = '';
     }
     // If no file selected, nothing happens (user cancelled)
   };

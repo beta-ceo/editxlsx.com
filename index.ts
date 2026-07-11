@@ -2,7 +2,7 @@ import { getAllQueryString } from 'ranuts/utils';
 import { View } from 'ranui/builder';
 import { initEmbedApi } from './lib/embed-api';
 import { initEvents, setEventUICallbacks } from './lib/events';
-import { onCreateNew, onOpenDocument, openDocumentFromUrl, setUICallbacks } from './lib/document';
+import { onCreateNew, onOpenDocument, openDocumentFromUrl, openLocalFile, setUICallbacks } from './lib/document';
 import { parseReadonly } from '@ranuts/shared/document-utils';
 import { getDocmentObj } from '@ranuts/shared/store';
 import { initAnalytics } from './lib/analytics';
@@ -136,13 +136,16 @@ window.addEventListener('message', (event: MessageEvent) => {
 const newExtRaw = getAllQueryString()['new'];
 const newExt = typeof newExtRaw === 'string' ? newExtRaw.replace(/^\./, '').toLowerCase() : '';
 const createNewOnLoad = ['docx', 'xlsx', 'pptx'].includes(newExt) && !documentUrl;
+// `?open=local`: a static landing page (e.g. /zh-CN/) stashed a picked file in
+// IndexedDB via public/open-local.js — take it out and open it on boot.
+const openLocalOnLoad = getAllQueryString()['open'] === 'local' && !documentUrl && !createNewOnLoad;
 
 // Landing hero orchestration. Only the bare homepage (no ?file/?src/?new, not
 // embedded) shows the crawlable hero. If a document is about to load or be
 // created, or we're embedded, hide it immediately to avoid a flash before the
 // editor takes over.
 const isEmbedded = document.body.classList.contains('embed-mode');
-if (documentUrl || isEmbedded || createNewOnLoad) {
+if (documentUrl || isEmbedded || createNewOnLoad || openLocalOnLoad) {
   hideLanding();
 } else {
   showLanding();
@@ -161,6 +164,21 @@ if (documentUrl) {
   }
 } else if (createNewOnLoad && !isEmbedded) {
   void onCreateNew(`.${newExt}`);
+} else if (openLocalOnLoad && !isEmbedded) {
+  void import('./lib/pending-open').then(async ({ takePendingFile }) => {
+    const file = await takePendingFile();
+    // One-shot param: strip it so a reload lands on the plain homepage instead
+    // of hiding the hero again with nothing left to open.
+    const cleaned = new URL(window.location.href);
+    cleaned.searchParams.delete('open');
+    window.history.replaceState(null, '', cleaned);
+    if (file) {
+      await openLocalFile(file);
+    } else {
+      // Stale deep link (reload, bookmarked URL): nothing pending — show the hero.
+      showLanding();
+    }
+  });
 }
 
 // Register Service Worker for PWA

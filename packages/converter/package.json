@@ -23,7 +23,7 @@
   },
   "dependencies": {
     "@ranuts/shared": "workspace:*",
-    "ranui": "0.2.0-alpha.0",
+    "ranui": "0.2.0-alpha.5",
     "ranuts": "0.2.0-alpha.0"
   },
   "devDependencies": {

@@ -89,8 +89,8 @@ importers:
   packages/chat-ui:
     dependencies:
       ranui:
-        specifier: 0.2.0-alpha.0
-        version: 0.2.0-alpha.0
+        specifier: 0.2.0-alpha.5
+        version: 0.2.0-alpha.5
       ranuts:
         specifier: 0.2.0-alpha.0
         version: 0.2.0-alpha.0
@@ -105,8 +105,8 @@ importers:
         specifier: workspace:*
         version: link:../shared
       ranui:
-        specifier: 0.2.0-alpha.0
-        version: 0.2.0-alpha.0
+        specifier: 0.2.0-alpha.5
+        version: 0.2.0-alpha.5
       ranuts:
         specifier: 0.2.0-alpha.0
         version: 0.2.0-alpha.0
@@ -1095,10 +1095,6 @@ packages:
     resolution: {integrity: sha512-vYt7UD1U9Wg6138shLtLOvdAu+8DsC/ilFtEVHcH+wydcSpNE20AfSOduf6MkRFahL5FY7X1oU7nKVZFtfq8Fg==}
     engines: {node: '>=6'}
 
-  ranui@0.2.0-alpha.0:
-    resolution: {integrity: sha512-XD8WmFGYg+TRdDWCHTu0yhGRala7fOoNx3AO+LcPeTboXq0VrWgrwEmaEHIWshDQ3M1VwS9WYbhyhxd3b132cw==}
-    engines: {node: '>=20.19.0'}
-
   ranui@0.2.0-alpha.5:
     resolution: {integrity: sha512-phtTfqMTEQkxQ/+Q1xcNBmiyk9XXxLMoNsYFpy7JBH956m9lxjRA1vK39JSi535QKPvUZEG0m7dBLU5wdTcGRA==}
     engines: {node: '>=20.19.0'}
@@ -2059,10 +2055,6 @@ snapshots:
   prettier@3.9.5: {}
 
   punycode@2.3.1: {}
-
-  ranui@0.2.0-alpha.0:
-    dependencies:
-      ranuts: 0.2.0-alpha.0
 
   ranui@0.2.0-alpha.5:
     dependencies:
