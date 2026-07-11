@@ -245,37 +245,6 @@ h2.faq {
   border-bottom: 1px solid var(--rule);
 }
 
-/* ---------- comparison table (/vs/*) ---------- */
-.cmp {
-  width: 100%;
-  border-collapse: collapse;
-  margin: var(--ran-space-4) 0;
-  font-size: 14.5px;
-}
-.cmp th,
-.cmp td {
-  border: 1px solid var(--rule);
-  padding: var(--ran-space-3) var(--ran-space-3);
-  text-align: left;
-  vertical-align: top;
-}
-.cmp th {
-  background: var(--ran-color-bg-subtle);
-  font: 600 12px/1.5 var(--mono);
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-}
-.cmp th:nth-child(2) {
-  color: var(--ink);
-  font-weight: 700;
-}
-.cmp td:first-child {
-  color: var(--ink-2);
-}
-.scroll {
-  overflow-x: auto;
-}
-
 /* ---------- footer ---------- */
 footer {
   margin-top: var(--ran-space-16);
