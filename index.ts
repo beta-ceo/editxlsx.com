@@ -9,6 +9,8 @@ import {
 import { getAllQueryString } from 'ranuts/utils';
 import { View } from 'ranui/builder';
 import { initEmbedApi } from './lib/embed-api';
+import { isAppShellFrame } from './lib/embed-mode';
+import { postShellFailed, postShellReady } from './lib/shell-bridge';
 import { initEvents, setEventUICallbacks } from './lib/events';
 import { onCreateNew, onOpenDocument, openDocumentFromUrl, openLocalFile, setUICallbacks } from './lib/document';
 import { parseReadonly } from '@ranuts/shared/document-utils';
@@ -161,7 +163,10 @@ const savedParam = params['saved'] ?? '';
 // embedded) shows the crawlable hero. If a document is about to load or be
 // created, or we're embedded, hide it immediately to avoid a flash before the
 // editor takes over.
-const isEmbedded = document.body.classList.contains('embed-mode');
+// `embed-mode` is also set when /files iframes this page. That host is ours:
+// still open `?workbook=` and keep cloud save. A foreign embed stays a blank
+// surface until the parent posts a document.
+const isEmbedded = document.body.classList.contains('embed-mode') && !isAppShellFrame();
 if (documentUrl || isEmbedded || createNewOnLoad || openLocalOnLoad || savedParam || workbookParam) {
   hideLanding();
 } else {
@@ -193,14 +198,23 @@ void (async () => {
       bindCloudWorkbook(workbook);
       await openLocalFile(file, { skipHistory: true });
       beginCloudAutosave();
+      if (isAppShellFrame()) postShellReady(workbook.id);
       return;
     } catch (error) {
       console.error('Failed to open cloud workbook:', error);
       const { t } = await import('@ranuts/shared/i18n');
+      const detail = error instanceof Error ? error.message : String(error);
       (window as unknown as { message?: { error?: (msg: string) => void } }).message?.error?.(
-        `${t('cloudOpenFailed')}${error instanceof Error ? error.message : String(error)}`,
+        `${t('cloudOpenFailed')}${detail}`,
       );
-      window.location.replace('/files');
+      // Inside the /files shell, replacing this frame with /files would nest
+      // another library under the editor pane. Tell the shell so it can show
+      // the failure over the blank pane instead.
+      if (isAppShellFrame()) {
+        postShellFailed(workbookParam, detail);
+      } else {
+        window.location.replace('/files');
+      }
       return;
     }
   }

@@ -35,7 +35,6 @@ describe('page width scale', () => {
   const home = read('public/home.css');
   const landing = read('public/landing.css');
   const history = read('styles/history.css');
-  const files = read('styles/files.css');
 
   it('has exactly two widths, and every page that declares one uses them', () => {
     const wide = declaration(home, '#landing-hero', '--maxw');
@@ -47,7 +46,8 @@ describe('page width scale', () => {
     // dead space between a file name and the first figure), and it stops
     // being air once a rail is beside the list.
     expect(declaration(history, '.history-shell', 'max-width'), 'history frame').toBe(wide);
-    expect(declaration(files, '.files-shell', 'max-width'), 'files frame').toBe(wide);
+    // /files is a full-viewport application (sidebar + editor), same class as
+    // /editor. It does not use the 1152 content frame.
   });
 
   /** Frame 1152, reading column ~660, rail takes the rest. */
@@ -67,7 +67,6 @@ describe('page width scale', () => {
   it.each([
     ['content pages', 'landing.css', '.page'],
     ['/history', 'history.css', '.history-shell'],
-    ['/files', 'files.css', '.files-shell'],
   ])('%s: a rail beside the column, not a wider column', (_label, file, selector) => {
     // The wide viewport problem is not "the text is too narrow" -- 720px with
     // 56px gutters puts the measure at 66 characters, dead centre of the band.
@@ -75,7 +74,7 @@ describe('page width scale', () => {
     // is 1152 (the site's wide width), the reading column is 660 so the measure
     // lands at ~72, and the rail takes the rest. Widening the column to fill
     // the frame would push the measure to 77.
-    const css = file === 'landing.css' ? landing : file === 'files.css' ? files : history;
+    const css = file === 'landing.css' ? landing : history;
     const { frame, column } = railFrame(css, selector);
     expect(frame, 'frame is the wide width').toMatch(/max-width:\s*1152px/);
     expect(column, 'reading column').toBeLessThanOrEqual(680);
@@ -148,13 +147,25 @@ describe('page chrome', () => {
     expect(all.length).toBeGreaterThan(15);
   });
 
-  it.each(all.map((p) => [p.label, p.html]))('%s carries the site header', (_label, html) => {
-    // The homepage builds its own bar inside #landing-hero; everything else
-    // uses the shared one from landing.css. A page with neither is a page a
-    // visitor arrives at and cannot tell is still this site.
-    const hasSharedBar = /<header class="bar">/.test(html);
-    const hasHeroBar = /id="landing-hero"/.test(html) && /class="bar"/.test(html);
-    expect(hasSharedBar || hasHeroBar).toBe(true);
+  it.each(all.filter((page) => page.label !== 'files.html').map((p) => [p.label, p.html]))(
+    '%s carries the site header',
+    (_label, html) => {
+      // The homepage builds its own bar inside #landing-hero; everything else
+      // uses the shared one from landing.css. A page with neither is a page a
+      // visitor arrives at and cannot tell is still this site.
+      const hasSharedBar = /<header class="bar">/.test(html);
+      const hasHeroBar = /id="landing-hero"/.test(html) && /class="bar"/.test(html);
+      expect(hasSharedBar || hasHeroBar).toBe(true);
+    },
+  );
+
+  it('/files is a full-viewport application shell, not a marketing page', () => {
+    const html = read('files.html');
+    expect(html).not.toMatch(/<header class="bar">/);
+    expect(html).toMatch(/id="files-root"/);
+    const css = read('styles/files.css');
+    expect(css).toMatch(/\.vault-side\s*\{[^}]*width:\s*272px/);
+    expect(css).toMatch(/\.vault-body\s*\{[^}]*display:\s*flex/);
   });
 
   it('styles that header from a shared stylesheet, never from the page itself', () => {

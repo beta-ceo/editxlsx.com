@@ -159,4 +159,19 @@ export interface I18nMessages {
   cloudOpenFailed: string;
   cloudNotConfigured: string;
   cloudSignedInAs: string;
+  cloudOpenEditor: string;
+  cloudNavWorkspace: string;
+  cloudAllDocuments: string;
+  cloudNavDocuments: string;
+  cloudStorage: string;
+  /** `{size}` is a formatted byte count. */
+  cloudStorageUsed: string;
+  cloudExport: string;
+  /** `{when}` is a relative time, such as "2 hours ago". */
+  cloudSavedWhen: string;
+  cloudSelectWorkbook: string;
+  cloudWorkspaceMine: string;
+  cloudHelp: string;
+  cloudOpeningWorkbook: string;
+  cloudOpenFailedTitle: string;
 }
