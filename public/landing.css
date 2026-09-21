@@ -37,7 +37,6 @@ a:focus-visible {
 header.bar {
   display: flex;
   align-items: center;
-  justify-content: space-between;
   gap: var(--ran-space-4);
   padding: var(--ran-space-4) clamp(20px, 5vw, 56px);
   border-bottom: 1px solid var(--ran-color-border);
@@ -46,6 +45,7 @@ header.bar .brand {
   display: inline-flex;
   align-items: center;
   gap: var(--ran-space-2);
+  flex: none;
   font-weight: 700;
   font-size: 16px;
   letter-spacing: -0.01em;
@@ -64,12 +64,52 @@ header.bar .logo {
   font-size: 13px;
   font-weight: 700;
 }
-header.bar nav {
+header.bar .products {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--ran-space-1);
+  flex: 1 1 auto;
+  min-width: 0;
+}
+header.bar .products .product {
+  display: inline-flex;
+  align-items: center;
+  padding: var(--ran-space-2) var(--ran-space-3);
+  border-radius: var(--ran-radius-sm);
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 22px;
+  color: var(--ran-color-text);
+  text-decoration: none;
+  transition: 0.15s ease;
+}
+header.bar .products .product:hover {
+  background: var(--ran-color-bg-hover);
+}
+header.bar .products-sep {
+  width: 1px;
+  height: 14px;
+  background: var(--ran-color-border);
+  flex: none;
+}
+header.bar .utils {
   display: flex;
   align-items: center;
   gap: var(--ran-space-1);
+  flex: none;
+  margin-left: auto;
 }
-header.bar nav a {
+/* Legacy single <nav> (login / history / files) until those pages pick up
+   the products strip -- keep the old right-aligned utility row. */
+header.bar > nav:not(.products):not(.utils) {
+  display: flex;
+  align-items: center;
+  gap: var(--ran-space-1);
+  margin-left: auto;
+}
+header.bar .utils a,
+header.bar > nav:not(.products):not(.utils) a {
   display: inline-flex;
   align-items: center;
   gap: var(--ran-space-2);
@@ -85,7 +125,8 @@ header.bar nav a {
   text-decoration: none;
   transition: 0.15s ease;
 }
-header.bar nav a:hover {
+header.bar .utils a:hover,
+header.bar > nav:not(.products):not(.utils) a:hover {
   color: var(--ran-color-text);
   background: var(--ran-color-bg-hover);
 }
@@ -221,22 +262,9 @@ header.bar nav a:hover {
 }
 
 @media (max-width: 620px) {
-  /* Phone: the trigger keeps the globe and the caret and drops the language
-     name, which is the part that costs width. The globe is the international
-     sign for this control, and the panel names every language in full anyway.
-     GitHub can stay now -- it used to be dropped to make room for a trigger
-     wide enough to hold "Português". */
+  /* Phone: keep the globe + caret, drop the language name for width. Brand is
+     text-only now (no square mark), so the wordmark stays visible. */
   .lang-current {
-    display: none;
-  }
-  /* Phone: the bar keeps the mark and drops the wordmark. The two app surfaces
-     (/history, /embed-demo) put a third control in this row -- a theme switch,
-     which every other page keeps in a footer they do not have -- and at 390px
-     brand + links + switch ran 17px and 27px past the viewport: the whole page
-     scrolled sideways and a nav label broke onto two lines. The mark is the
-     same link home and still names the site; 137px of wordmark is what the row
-     could not afford. */
-  header.bar .wordmark {
     display: none;
   }
 }

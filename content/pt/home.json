@@ -1,258 +1,290 @@
 {
-  "title": "Abrir DOCX, XLSX e PPTX no navegador — visualizador e editor de documentos grátis",
-  "description": "Abra e veja arquivos do Word (DOCX), Excel (XLSX), PowerPoint (PPTX) e CSV direto no navegador — sem Office instalado, sem upload, sem cadastro. Também dá para editar e salvar. Grátis, com privacidade em primeiro lugar e funcionando offline. Com OnlyOffice.",
-  "ogDescription": "Abra, veja e edite DOCX, XLSX, PPTX e CSV no seu navegador — sem Office, sem upload, sem cadastro. Grátis e disponível offline.",
-  "chip": "Excel online · <b>entre para guardar</b>",
-  "h1": {
-    "plain": "Edite folhas Excel",
-    "accent": "no browser."
-  },
-  "sub": "Entre para guardar .xlsx na sua conta, abri-los em qualquer lado e gravar automaticamente enquanto trabalha. OnlyOffice no separador; ficheiros no Appwrite Storage.",
-  "cta": {
-    "signIn": "Entrar",
-    "files": "As minhas folhas",
-    "xlsx": "Novo Excel (local)",
-    "open": "Abrir ficheiro local"
-  },
-  "recent": {
-    "label": "Continuar a editar",
-    "note": "As folhas na nuvem sincronizam com a sua conta quando está autenticado. As cópias de recuperação locais ficam 7 dias neste browser.",
-    "all": "Histórico local",
-    "cloud": "Folhas na nuvem"
-  },
-  "trust": ["0 byte enviado", "sem conta", "funciona offline", ".docx .xlsx .pptx .csv"],
-  "docwin": {
-    "file": "report.docx",
-    "badge": "salvo localmente ✓",
-    "selected": "Tudo o que você digita fica neste dispositivo.",
-    "noteAuthor": "Você · agora mesmo",
-    "noteBody": "0 byte enviado — confira na aba de rede.",
-    "net": "network · 0 requisições · 0 byte enviado"
-  },
+  "title": "Editor Excel online — Edite pastas XLSX no navegador",
+  "description": "Editor de pastas Excel online com OnlyOffice. Entre para sincronizar .xlsx na sua conta, abra em qualquer lugar e salve automaticamente enquanto edita. Edição local ainda disponível sem conta.",
+  "ogDescription": "Edite pastas Excel online — entre para sincronizar .xlsx ou abra um arquivo local no navegador.",
   "nav": [
     {
-      "href": "/pt/offline-document-editor",
-      "label": "Offline"
+      "href": "#features",
+      "label": "Recursos"
     },
     {
-      "href": "/pt/no-signup-document-editor",
-      "label": "Sem cadastro"
+      "href": "#essentials",
+      "label": "Essenciais"
+    },
+    {
+      "href": "/help",
+      "label": "Ajuda"
+    },
+    {
+      "href": "/changelog",
+      "label": "Changelog"
     }
   ],
-  "sections": {
-    "formats": {
-      "eyebrow": "Abrir um arquivo",
-      "h2": "Sem Office instalado? Sem problema.",
-      "rows": [
-        {
-          "href": "/pt/open/docx",
-          "ext": ".docx",
-          "name": "Abrir DOCX",
-          "desc": "Documentos do Word com fontes, tabelas e imagens intactas."
-        },
-        {
-          "href": "/pt/open/xlsx",
-          "ext": ".xlsx",
-          "name": "Abrir XLSX",
-          "desc": "Fórmulas, gráficos e várias planilhas, exibidos por completo."
-        },
-        {
-          "href": "/pt/open/pptx",
-          "ext": ".pptx",
-          "name": "Abrir PPTX",
-          "desc": "Slides com layouts, temas e mídia preservados."
-        },
-        {
-          "href": "/pt/open/pdf",
-          "ext": ".pdf",
-          "name": "Abrir PDF",
-          "desc": "Leia, comente, anote e salve de volta."
-        },
-        {
-          "href": "/pt/open/odt",
-          "ext": ".odt .ods .odp",
-          "name": "Abrir OpenDocument",
-          "desc": "Formatos do LibreOffice — salve de volta como ODT, DOCX ou PDF."
-        },
-        {
-          "href": "/pt/convert/docx-to-pdf",
-          "ext": ".docx → .pdf",
-          "name": "Converter para PDF",
-          "desc": "Word, Excel e PowerPoint viram PDF no seu dispositivo."
-        },
-        {
-          "href": "/pt/convert/xlsx-to-csv",
-          "ext": ".xlsx → .csv",
-          "name": "Converter entre formatos",
-          "desc": "De planilhas para CSV e de volta, sem enviar um byte."
-        }
-      ]
-    },
-    "pillars": {
-      "eyebrow": "O que muda aqui",
-      "h2": "Privacidade por construção, não por promessa",
-      "items": [
-        {
-          "k": "100% no cliente",
-          "h3": "Os arquivos nunca saem do seu dispositivo",
-          "p": "Cada documento é aberto, editado e salvo localmente. Não existe servidor para onde enviar."
-        },
-        {
-          "k": "Sem conta",
-          "h3": "Não há nada para cadastrar",
-          "p": "Sem e-mail, sem muro de login. Abra a página e comece a editar."
-        },
-        {
-          "k": "PWA · offline",
-          "h3": "Instale e use até no avião",
-          "p": "Adicione à tela de início e ele continua funcionando sem conexão."
-        },
-        {
-          "k": "AGPL-3.0",
-          "h3": "Código aberto e auto-hospedável",
-          "p": "Audite exatamente o que roda, ou hospede a sua própria cópia. Com OnlyOffice."
-        }
-      ]
-    },
-    "steps": {
-      "eyebrow": "Processo",
-      "h2": "Como funciona",
-      "items": [
-        {
-          "n": "01",
-          "h3": "Abra um arquivo",
-          "p": "Arraste um DOCX, XLSX, PPTX ou CSV — ou comece em branco.",
-          "loc": "fica no dispositivo"
-        },
-        {
-          "n": "02",
-          "h3": "Edite de verdade",
-          "p": "Formatação completa, tabelas, gráficos e fórmulas com o OnlyOffice.",
-          "loc": "fica no dispositivo"
-        },
-        {
-          "n": "03",
-          "h3": "Salve de volta",
-          "p": "Exporte no mesmo formato. Nada foi enviado em momento algum.",
-          "loc": "fica no dispositivo"
-        }
-      ]
-    },
-    "faq": {
-      "eyebrow": "FAQ",
-      "h2": "Perguntas, respondidas",
-      "note": "As respostas mais longas — limites de tamanho, códigos de erro, auto-hospedagem — estão na <a href=\"/pt/help\">ajuda</a>.",
-      "items": [
-        {
-          "q": "Ele salva no meu próprio arquivo ou só baixa uma cópia?",
-          "a": "Ele salva no seu próprio arquivo. No primeiro salvamento você escolhe o arquivo; a partir daí cada salvamento escreve direto nele, sem diálogo e sem duplicata na pasta de downloads. Isso usa a File System Access API do navegador, então funciona no Chrome, no Edge e em outros navegadores Chromium; Safari e Firefox baixam uma cópia. De um jeito ou de outro o arquivo vai do navegador para o seu disco e nunca é enviado."
-        },
-        {
-          "q": "Meus arquivos são enviados para algum lugar?",
-          "a": "Não. Não há servidor. Os arquivos são abertos e salvos localmente no seu dispositivo e nunca são enviados — dá para conferir na aba de rede ou ler o código."
-        },
-        {
-          "q": "Quais formatos posso editar?",
-          "a": "Word (DOCX), Excel (XLSX), PowerPoint (PPTX) e CSV, com o OnlyOffice rodando em WebAssembly."
-        },
-        {
-          "q": "O que acontece se eu fechar a aba ou recarregar a página?",
-          "a": "Nada se perde. Suas edições são salvas neste navegador enquanto você trabalha, então ao reabrir o editor ele oferece o documento de volta e uma recarga retorna a ele. As cópias salvas ficam no seu dispositivo por 7 dias e depois são apagadas sozinhas; você também pode apagá-las quando quiser. Nada é enviado — as cópias existem apenas neste navegador."
-        },
-        {
-          "q": "Funciona offline?",
-          "a": "Sim. É um PWA instalável — depois de carregado ele continua funcionando sem internet, porque toda a edição acontece localmente no seu navegador."
-        },
-        {
-          "q": "Preciso de uma conta?",
-          "a": "Sem conta, sem cadastro, sem e-mail. Abra a página e edite."
-        }
-      ]
-    }
+  "navActions": {
+    "logIn": "Entrar",
+    "getStarted": "Começar grátis"
   },
-  "eco": {
-    "label": "Parte do ecossistema ran · tudo de código aberto",
-    "here": {
-      "name": "edit.chaxus.com",
-      "role": "Editor de Office"
-    },
-    "other": {
-      "href": "https://ran.chaxus.com",
-      "name": "ran.chaxus.com",
-      "role": "Componentes de UI"
-    }
+  "badge": "Pronto na hora · Sync na nuvem · Rota local",
+  "h1": {
+    "plain": "O espaço de trabalho leve e moderno para",
+    "accent": "docs e planilhas"
+  },
+  "sub": "Crie, edite e sincronize pastas Excel com OnlyOffice no navegador. Entre para a nuvem ou abra um arquivo local — sem instalar, sem excesso.",
+  "cta": {
+    "signIn": "Começar grátis",
+    "files": "Minhas pastas",
+    "xlsx": "Novo Excel (local)",
+    "open": "Abrir arquivo local"
+  },
+  "checks": [
+    "Sem cartão de crédito",
+    "Abrir local sem conta",
+    "Sync na nuvem ao entrar"
+  ],
+  "recent": {
+    "label": "Continuar editando",
+    "note": "Pastas na nuvem sincronizam com a conta quando você está conectado. Cópias de recuperação local ficam neste navegador por 7 dias — veja na página de histórico.",
+    "all": "Histórico local",
+    "cloud": "Pastas na nuvem"
+  },
+  "docwin": {
+    "file": "pasta_exemplo.xlsx",
+    "engine": "Motor OnlyOffice",
+    "encrypted": "Autosalvar na nuvem",
+    "saved": "Salvo na conta",
+    "share": "Compartilhar",
+    "export": "Exportar",
+    "cols": [
+      "Pedido",
+      "Cliente",
+      "Plano",
+      "Valor"
+    ],
+    "rows": [
+      [
+        "A-1042",
+        "Northwind",
+        "Enterprise",
+        "¥ 128,500"
+      ],
+      [
+        "A-1043",
+        "Contoso",
+        "Standard",
+        "¥ 42,000"
+      ],
+      [
+        "A-1044",
+        "Fabrikam",
+        "Ultimate",
+        "¥ 96,200"
+      ]
+    ],
+    "sheet": "Pedidos",
+    "meta": "Fórmulas · gráficos · várias planilhas",
+    "sync": "Autosalvar ligado"
+  },
+  "loved": {
+    "label": "Para criadores, startups e equipes que querem Excel no navegador",
+    "chips": [
+      "OnlyOffice",
+      "XLSX",
+      "DOCX",
+      "PPTX",
+      "PDF",
+      "AGPL-3.0"
+    ]
+  },
+  "features": {
+    "eyebrow": "Leve e eficiente",
+    "h2": "Adeus a suítes inchadas. Bem-vindo à produtividade focada.",
+    "p": "OnlyOffice na aba, pastas na nuvem ao entrar e um caminho local sem conta — edição limpa sem instalar o desktop.",
+    "items": [
+      {
+        "tone": "blue",
+        "h3": "Motor de planilhas no navegador",
+        "p": "Fórmulas, gráficos, planilhas e formatação via OnlyOffice WebAssembly — sem Office de desktop.",
+        "tag": "Edição .xlsx completa na aba"
+      },
+      {
+        "tone": "green",
+        "h3": "Sync na nuvem ao entrar",
+        "p": "Pastas da conta viajam com você. Comece em um dispositivo, continue em outro.",
+        "tag": "Minhas pastas · autosalvar"
+      },
+      {
+        "tone": "purple",
+        "h3": "Caminho local sempre disponível",
+        "p": "Abra um arquivo só neste dispositivo ou use o histórico de recuperação local — sem conta nesse caminho.",
+        "tag": "Funciona sem entrar"
+      }
+    ]
+  },
+  "essentials": {
+    "eyebrow": "Essenciais",
+    "h2": "Interface minimalista, máximo poder de edição",
+    "p": "O editor fica de lado: biblioteca na nuvem quando precisa, recuperação local quando não, e formatos além do Excel quando o trabalho pede.",
+    "items": [
+      {
+        "tone": "purple",
+        "label": "Biblioteca na nuvem",
+        "h3": "Minhas pastas, uma conta",
+        "p": "Entre uma vez. Navegue, abra e autosalve .xlsx na conta — depois continue em outro dispositivo.",
+        "snippet": "library"
+      },
+      {
+        "tone": "blue",
+        "label": "Organização",
+        "h3": "Excel primeiro, docs quando precisar",
+        "p": "Planilhas são o produto. O mesmo motor ainda abre Word, PowerPoint, PDF e OpenDocument.",
+        "snippet": "formats"
+      },
+      {
+        "tone": "green",
+        "label": "Acesso",
+        "h3": "Entre ou fique no local",
+        "p": "Sync na nuvem precisa de conta. Abrir local e cópias de 7 dias não — escolha o caminho do arquivo.",
+        "snippet": "access"
+      },
+      {
+        "tone": "blue",
+        "label": "Pronto offline",
+        "h3": "Trabalhe offline, sincronize depois",
+        "p": "Com os assets do editor em cache, continue editando um arquivo local sem rede. O salvamento na nuvem espera você online.",
+        "snippet": "offline"
+      }
+    ]
+  },
+  "band": {
+    "eyebrow": "Comece em segundos",
+    "h2": "Pronto para um fluxo de planilhas mais rápido e leve?",
+    "p": "Entre para sincronizar pastas ou abra um .xlsx local na aba — OnlyOffice, sem instalar.",
+    "primary": "Começar grátis",
+    "secondary": "Minhas pastas",
+    "checks": [
+      "Comece de graça",
+      "Sem instalação",
+      "Nuvem ou local — você escolhe"
+    ]
   },
   "foot": {
-    "copy": "© 2026 Document Editor · roda no seu dispositivo",
-    "links": [
+    "blurb": "O editor online leve de Excel e documentos para times modernos — sync na nuvem ao entrar, edição local se não.",
+    "columns": [
       {
-        "href": "/pt/help",
-        "label": "Ajuda"
+        "title": "Produto",
+        "links": [
+          {
+            "href": "/open/xlsx",
+            "label": "Planilhas"
+          },
+          {
+            "href": "/open/docx",
+            "label": "Editor de documentos"
+          },
+          {
+            "href": "/open/pptx",
+            "label": "Apresentações"
+          },
+          {
+            "href": "/open/pdf",
+            "label": "PDF"
+          },
+          {
+            "href": "/open/odt",
+            "label": "Texto OpenDocument"
+          },
+          {
+            "href": "/open/ods",
+            "label": "Planilha OpenDocument"
+          },
+          {
+            "href": "/open/odp",
+            "label": "Slides OpenDocument"
+          }
+        ]
       },
       {
-        "href": "/pt/changelog",
-        "label": "Novidades"
+        "title": "Recursos",
+        "links": [
+          {
+            "href": "/help",
+            "label": "Ajuda"
+          },
+          {
+            "href": "/changelog",
+            "label": "Changelog"
+          },
+          {
+            "href": "/convert/docx-to-pdf",
+            "label": "DOCX para PDF"
+          },
+          {
+            "href": "/convert/xlsx-to-csv",
+            "label": "XLSX para CSV"
+          }
+        ]
       },
       {
-        "href": "/pt/embed-document-editor",
-        "label": "Embed API"
-      },
-      {
-        "href": "/pt/webmcp-document-editor",
-        "label": "WebMCP"
-      },
-      {
-        "href": "/pt/private-document-editor",
-        "label": "Privacidade"
-      },
-      {
-        "href": "/pt/offline-document-editor",
-        "label": "Editor offline"
-      },
-      {
-        "href": "/pt/no-signup-document-editor",
-        "label": "Sem cadastro"
-      },
-      {
-        "href": "/pt/open/docx",
-        "label": "Abrir DOCX"
-      },
-      {
-        "href": "/pt/open/odt",
-        "label": "ODT"
-      },
-      {
-        "href": "/pt/open/ods",
-        "label": "ODS"
-      },
-      {
-        "href": "/pt/open/odp",
-        "label": "ODP"
-      },
-      {
-        "href": "/pt/convert/docx-to-pdf",
-        "label": "DOCX → PDF"
-      },
-      {
-        "href": "/pt/convert/xlsx-to-csv",
-        "label": "XLSX → CSV"
-      },
-      {
-        "href": "https://github.com/ranuts/document",
-        "label": "GitHub"
+        "title": "Empresa",
+        "links": [
+          {
+            "href": "/about",
+            "label": "Sobre"
+          },
+          {
+            "href": "/contact",
+            "label": "Contato"
+          },
+          {
+            "href": "/files",
+            "label": "Minhas pastas"
+          },
+          {
+            "href": "/editor?new=xlsx",
+            "label": "Novo Excel"
+          }
+        ]
       }
     ],
-    "license": "AGPL-3.0"
+    "copy": "© 2026 EditXLSX. Todos os direitos reservados.",
+    "meta": [
+      {
+        "href": "/about",
+        "label": "Sobre"
+      },
+      {
+        "href": "/contact",
+        "label": "Contato"
+      },
+      {
+        "href": "/help",
+        "label": "Ajuda"
+      }
+    ]
   },
+  "faqLd": [
+    {
+      "q": "O que acontece se eu fechar a aba?",
+      "a": "Pastas com sessão são gravadas de volta por salvar e autosalvar. Separadamente, cópias de recuperação local podem ficar 7 dias neste navegador — veja a página de histórico. Arquivos na nuvem permanecem na conta."
+    },
+    {
+      "q": "Preciso de uma conta?",
+      "a": "Entre para sincronizar pastas e usar Minhas pastas. Ainda pode abrir um .xlsx local sem conta; esse caminho fica neste dispositivo (mais cópias de recuperação opcionais no navegador)."
+    },
+    {
+      "q": "Quais formatos posso editar?",
+      "a": "Excel (.xlsx) é o produto principal. O mesmo editor também abre Word (DOCX), PowerPoint (PPTX), PDF e CSV, com OnlyOffice em WebAssembly."
+    }
+  ],
   "featureList": [
-    "Abrir e ver DOCX, XLSX, PPTX e CSV sem o Microsoft Office",
-    "Editar arquivos DOCX, XLSX, PPTX e CSV",
-    "100% no cliente — os arquivos nunca saem do seu dispositivo",
-    "Sem conta e sem cadastro",
-    "Abrir documentos a partir de uma URL com ?src= ou ?file=",
-    "PWA instalável com suporte offline",
-    "Incorporável pela API postMessage",
-    "Grátis e de código aberto (AGPL-3.0)"
+    "Editor de pastas Excel (.xlsx) online no navegador",
+    "Entre para sincronizar pastas na conta",
+    "Autosalvar para pastas na nuvem com sessão",
+    "Abrir local sem conta",
+    "Também abre DOCX, PPTX, PDF e CSV",
+    "PWA instalável com suporte offline para edição local",
+    "Embutível via API postMessage",
+    "Grátis e open source (AGPL-3.0)"
   ],
   "ecosystem": {
     "name": "ran ecosystem",

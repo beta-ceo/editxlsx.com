@@ -1,260 +1,288 @@
 {
-  "title": "Open DOCX, XLSX & PPTX in Your Browser — Free Document Viewer & Editor",
-  "description": "Open and view Word (DOCX), Excel (XLSX), PowerPoint (PPTX) and CSV files directly in your browser — no Office installed, no upload, no sign-up. Edit and save them too. Free, privacy-first, works offline. Powered by OnlyOffice.",
-  "ogDescription": "Open, view and edit DOCX, XLSX, PPTX and CSV in your browser — no Office, no upload, no sign-up. Free and offline-capable.",
-  "chip": "Online Excel · <b>sign in to save</b>",
-  "h1": {
-    "plain": "Edit Excel workbooks",
-    "accent": "in your browser."
+  "title": "Online Excel Editor — Edit XLSX Workbooks in Your Browser",
+  "description": "Online Excel workbook editor powered by OnlyOffice. Sign in to sync .xlsx files to your account, open them anywhere, and autosave as you work. Local editing still available without an account.",
+  "ogDescription": "Edit Excel workbooks online — sign in to sync .xlsx to your account, or open a file locally in the browser.",
+  "nav": [
+    {
+      "href": "#features",
+      "label": "Features"
+    },
+    {
+      "href": "#essentials",
+      "label": "Essentials"
+    },
+    {
+      "href": "/help",
+      "label": "Help"
+    },
+    {
+      "href": "/changelog",
+      "label": "Changelog"
+    }
+  ],
+  "navActions": {
+    "logIn": "Log in",
+    "getStarted": "Get Started Free"
   },
-  "sub": "Sign in to keep .xlsx files in your account, open them anywhere, and autosave as you work. Powered by OnlyOffice in the tab — your files live in Appwrite Storage.",
+  "badge": "Instant setup · Cloud sync · Local fallback",
+  "h1": {
+    "plain": "The lightweight, modern workspace for",
+    "accent": "docs & spreadsheets"
+  },
+  "sub": "Create, edit, and sync Excel workbooks with OnlyOffice in your browser. Sign in for cloud workbooks, or open a local file — no install, no bloat.",
   "cta": {
-    "signIn": "Sign in",
+    "signIn": "Start for free",
     "files": "My workbooks",
     "xlsx": "New Excel (local)",
     "open": "Open a local file"
   },
+  "checks": [
+    "No credit card required",
+    "Local open without an account",
+    "Cloud sync when signed in"
+  ],
   "recent": {
     "label": "Continue editing",
     "note": "Cloud workbooks sync to your account when you are signed in. Local recovery copies still stay in this browser for 7 days — inspect them on the history page.",
     "all": "Local history",
     "cloud": "Cloud workbooks"
   },
-  "trust": ["0 bytes uploaded", "no account", "works offline", ".docx .xlsx .pptx .csv"],
   "docwin": {
-    "file": "report.docx",
-    "badge": "saved locally ✓",
-    "selected": "Everything you type stays on this device.",
-    "noteAuthor": "You · just now",
-    "noteBody": "0 bytes uploaded — check the network tab.",
-    "net": "network · 0 requests · 0 bytes out"
+    "file": "sample_workbook.xlsx",
+    "engine": "OnlyOffice engine",
+    "encrypted": "Cloud autosave",
+    "saved": "Saved to account",
+    "share": "Share",
+    "export": "Export",
+    "cols": [
+      "Order",
+      "Customer",
+      "Plan",
+      "Amount"
+    ],
+    "rows": [
+      [
+        "A-1042",
+        "Northwind",
+        "Enterprise",
+        "¥ 128,500"
+      ],
+      [
+        "A-1043",
+        "Contoso",
+        "Standard",
+        "¥ 42,000"
+      ],
+      [
+        "A-1044",
+        "Fabrikam",
+        "Ultimate",
+        "¥ 96,200"
+      ]
+    ],
+    "sheet": "Orders",
+    "meta": "Formulas · charts · multiple sheets",
+    "sync": "Autosave on"
   },
-  "nav": [
-    {
-      "href": "/offline-document-editor",
-      "label": "Offline"
-    },
-    {
-      "href": "/no-signup-document-editor",
-      "label": "No sign-up"
-    }
-  ],
-  "sections": {
-    "formats": {
-      "eyebrow": "Open a file",
-      "h2": "No Office installed? No problem.",
-      "rows": [
-        {
-          "href": "/open/docx",
-          "ext": ".docx",
-          "name": "Open DOCX",
-          "desc": "Word documents with fonts, tables and images intact."
-        },
-        {
-          "href": "/open/xlsx",
-          "ext": ".xlsx",
-          "name": "Open XLSX",
-          "desc": "Formulas, charts and multiple sheets, fully rendered."
-        },
-        {
-          "href": "/open/pptx",
-          "ext": ".pptx",
-          "name": "Open PPTX",
-          "desc": "Slides with layouts, themes and media preserved."
-        },
-        {
-          "href": "/open/pdf",
-          "ext": ".pdf",
-          "name": "Open PDF",
-          "desc": "Read, comment and annotate, then save it back."
-        },
-        {
-          "href": "/open/odt",
-          "ext": ".odt .ods .odp",
-          "name": "Open OpenDocument",
-          "desc": "LibreOffice formats — save back as ODT, DOCX or PDF."
-        },
-        {
-          "href": "/convert/docx-to-pdf",
-          "ext": ".docx → .pdf",
-          "name": "Convert to PDF",
-          "desc": "Word, Excel and PowerPoint become PDFs on your device."
-        },
-        {
-          "href": "/convert/xlsx-to-csv",
-          "ext": ".xlsx → .csv",
-          "name": "Convert between formats",
-          "desc": "Spreadsheets to CSV and back, without uploading a byte."
-        }
-      ]
-    },
-    "pillars": {
-      "eyebrow": "Why it's different",
-      "h2": "Private by design, not by promise",
-      "items": [
-        {
-          "k": "100% client-side",
-          "h3": "Files never leave your device",
-          "p": "Every document is opened, edited and saved locally. There is no server to upload to."
-        },
-        {
-          "k": "No account",
-          "h3": "Nothing to sign up for",
-          "p": "No email, no login wall. Open the page and start editing immediately."
-        },
-        {
-          "k": "PWA · offline",
-          "h3": "Install it, use it on a plane",
-          "p": "Add it to your home screen and it keeps working with no internet connection."
-        },
-        {
-          "k": "AGPL-3.0",
-          "h3": "Open source & self-hostable",
-          "p": "Audit exactly what runs, or host your own copy. Powered by OnlyOffice."
-        }
-      ]
-    },
-    "steps": {
-      "eyebrow": "Process",
-      "h2": "How it works",
-      "items": [
-        {
-          "n": "01",
-          "h3": "Open a file",
-          "p": "Drop in a DOCX, XLSX, PPTX or CSV — or start a blank one.",
-          "loc": "stays on device"
-        },
-        {
-          "n": "02",
-          "h3": "Edit for real",
-          "p": "Full formatting, tables, charts and formulas via OnlyOffice.",
-          "loc": "stays on device"
-        },
-        {
-          "n": "03",
-          "h3": "Save it back",
-          "p": "Export to the same format. Nothing was ever uploaded.",
-          "loc": "stays on device"
-        }
-      ]
-    },
-    "faq": {
-      "eyebrow": "FAQ",
-      "h2": "Questions, answered",
-      "note": "Longer answers — file size limits, error codes, self-hosting — are in the <a href=\"/help\">help pages</a>.",
-      "items": [
-        {
-          "q": "Can it save back into my own file, or only download a copy?",
-          "a": "It saves back into your own file. The first save asks you to pick the file; every save after that writes straight into it, with no dialog and no duplicate in your downloads folder. This uses the browser's File System Access API, so it works in Chrome, Edge and other Chromium browsers; Safari and Firefox download a copy instead. Either way the file goes from the browser to your own disk and is never uploaded."
-        },
-        {
-          "q": "Are my files uploaded anywhere?",
-          "a": "No. There is no server. Files are opened and saved locally on your device and are never uploaded — you can verify it in the network tab, or read the source."
-        },
-        {
-          "q": "Which formats can I edit?",
-          "a": "Word (DOCX), Excel (XLSX), PowerPoint (PPTX) and CSV, powered by OnlyOffice running in WebAssembly."
-        },
-        {
-          "q": "What happens if I close the tab or refresh the page?",
-          "a": "Nothing is lost. Your edits are saved into this browser as you work, so reopening the editor offers the document back and a refresh returns to it. The saved copies stay on your device for 7 days and are then deleted automatically; you can also delete any of them yourself at any time. Nothing is uploaded — the copies exist only in this browser."
-        },
-        {
-          "q": "Does it work offline?",
-          "a": "Yes. It is an installable PWA — once loaded it keeps working with no internet, because all editing runs locally in your browser."
-        },
-        {
-          "q": "Do I need an account?",
-          "a": "No account, no sign-up, no email. Open the page and edit."
-        }
-      ]
-    }
+  "loved": {
+    "label": "Built for creators, startups, and teams who want Excel in the browser",
+    "chips": [
+      "OnlyOffice",
+      "XLSX",
+      "DOCX",
+      "PPTX",
+      "PDF",
+      "AGPL-3.0"
+    ]
   },
-  "eco": {
-    "label": "Part of the ran ecosystem · all open source",
-    "here": {
-      "name": "edit.chaxus.com",
-      "role": "Office editor"
-    },
-    "other": {
-      "href": "https://ran.chaxus.com",
-      "name": "ran.chaxus.com",
-      "role": "UI components"
-    }
+  "features": {
+    "eyebrow": "Lightweight & efficient",
+    "h2": "Say goodbye to bloated suites. Welcome to focused productivity.",
+    "p": "OnlyOffice in the tab, cloud workbooks when you sign in, and a local path that never needs an account — clean editing without the desktop install.",
+    "items": [
+      {
+        "tone": "blue",
+        "h3": "Browser spreadsheet engine",
+        "p": "Formulas, charts, sheets and formatting via OnlyOffice WebAssembly — no desktop Office required.",
+        "tag": "Full .xlsx editing in the tab"
+      },
+      {
+        "tone": "green",
+        "h3": "Cloud sync when signed in",
+        "p": "Workbooks in your account travel with you. Start on one device, continue on another.",
+        "tag": "My workbooks · autosave"
+      },
+      {
+        "tone": "purple",
+        "h3": "Local fallback, always",
+        "p": "Open a file on this device only, or use local recovery history — no account required for that path.",
+        "tag": "Works without signing in"
+      }
+    ]
+  },
+  "essentials": {
+    "eyebrow": "Core essentials",
+    "h2": "Minimalist interface, maximum editing power",
+    "p": "The editor stays out of the way: cloud library when you need it, local recovery when you do not, and formats beyond Excel when the job calls for them.",
+    "items": [
+      {
+        "tone": "purple",
+        "label": "Cloud library",
+        "h3": "My workbooks, one account",
+        "p": "Sign in once. Browse, open, and autosave .xlsx files stored in your account — then pick up on another device.",
+        "snippet": "library"
+      },
+      {
+        "tone": "blue",
+        "label": "Organization",
+        "h3": "Excel first, docs when needed",
+        "p": "Spreadsheets are the product. The same engine still opens Word, PowerPoint, PDF and OpenDocument when you need them.",
+        "snippet": "formats"
+      },
+      {
+        "tone": "green",
+        "label": "Access",
+        "h3": "Sign in or stay local",
+        "p": "Cloud sync needs an account. Local open and seven-day recovery copies do not — choose the path that fits the file.",
+        "snippet": "access"
+      },
+      {
+        "tone": "blue",
+        "label": "Offline ready",
+        "h3": "Work offline, sync later",
+        "p": "Once editor assets are cached, keep editing a local file without the network. Cloud save waits until you are online.",
+        "snippet": "offline"
+      }
+    ]
+  },
+  "band": {
+    "eyebrow": "Get started in seconds",
+    "h2": "Ready for a faster, lighter spreadsheet workflow?",
+    "p": "Sign in to sync workbooks to your account, or open a local .xlsx and start editing in the tab — OnlyOffice, no install.",
+    "primary": "Get Started Free",
+    "secondary": "My workbooks",
+    "checks": [
+      "Free to start",
+      "Zero install required",
+      "Cloud or local — your choice"
+    ]
   },
   "foot": {
-    "copy": "© 2026 Document Editor · runs on your device",
-    "links": [
+    "blurb": "The lightweight online Excel and document editor for modern teams — cloud sync when you sign in, local editing when you do not.",
+    "columns": [
+      {
+        "title": "Product",
+        "links": [
+          {
+            "href": "/open/xlsx",
+            "label": "Spreadsheets"
+          },
+          {
+            "href": "/open/docx",
+            "label": "Document editor"
+          },
+          {
+            "href": "/open/pptx",
+            "label": "Presentations"
+          },
+          {
+            "href": "/open/pdf",
+            "label": "PDF"
+          },
+          {
+            "href": "/open/odt",
+            "label": "OpenDocument text"
+          },
+          {
+            "href": "/open/ods",
+            "label": "OpenDocument sheet"
+          },
+          {
+            "href": "/open/odp",
+            "label": "OpenDocument slides"
+          }
+        ]
+      },
+      {
+        "title": "Resources",
+        "links": [
+          {
+            "href": "/help",
+            "label": "Help"
+          },
+          {
+            "href": "/changelog",
+            "label": "Changelog"
+          },
+          {
+            "href": "/convert/docx-to-pdf",
+            "label": "DOCX to PDF"
+          },
+          {
+            "href": "/convert/xlsx-to-csv",
+            "label": "XLSX to CSV"
+          }
+        ]
+      },
+      {
+        "title": "Company",
+        "links": [
+          {
+            "href": "/about",
+            "label": "About"
+          },
+          {
+            "href": "/contact",
+            "label": "Contact"
+          },
+          {
+            "href": "/files",
+            "label": "My workbooks"
+          },
+          {
+            "href": "/editor?new=xlsx",
+            "label": "New Excel"
+          }
+        ]
+      }
+    ],
+    "copy": "© 2026 EditXLSX. All rights reserved.",
+    "meta": [
+      {
+        "href": "/about",
+        "label": "About"
+      },
+      {
+        "href": "/contact",
+        "label": "Contact"
+      },
       {
         "href": "/help",
         "label": "Help"
-      },
-      {
-        "href": "/changelog",
-        "label": "Changelog"
-      },
-      {
-        "href": "/embed-document-editor",
-        "label": "Embed API"
-      },
-      {
-        "href": "/webmcp-document-editor",
-        "label": "WebMCP"
-      },
-      {
-        "href": "/private-document-editor",
-        "label": "Privacy"
-      },
-      {
-        "href": "/offline-document-editor",
-        "label": "Offline editor"
-      },
-      {
-        "href": "/no-signup-document-editor",
-        "label": "No sign-up"
-      },
-      {
-        "href": "/open/docx",
-        "label": "Open DOCX"
-      },
-      {
-        "href": "/open/odt",
-        "label": "ODT"
-      },
-      {
-        "href": "/open/ods",
-        "label": "ODS"
-      },
-      {
-        "href": "/open/odp",
-        "label": "ODP"
-      },
-      {
-        "href": "/convert/docx-to-pdf",
-        "label": "DOCX → PDF"
-      },
-      {
-        "href": "/convert/xlsx-to-csv",
-        "label": "XLSX → CSV"
-      },
-      {
-        "href": "/onlyoffice-online-free",
-        "label": "ONLYOFFICE online"
-      },
-      {
-        "href": "https://github.com/ranuts/document",
-        "label": "GitHub"
       }
-    ],
-    "license": "AGPL-3.0"
+    ]
   },
+  "faqLd": [
+    {
+      "q": "What happens if I close the tab?",
+      "a": "Signed-in workbooks are written back by save and autosave. Separately, local recovery copies can stay in this browser for 7 days — see the history page. Cloud files remain in your account."
+    },
+    {
+      "q": "Do I need an account?",
+      "a": "Sign in to sync workbooks to your account and use My workbooks. You can still open a local .xlsx without signing in; that path stays on this device (plus optional local recovery copies in this browser)."
+    },
+    {
+      "q": "Which formats can I edit?",
+      "a": "Excel (.xlsx) is the primary product. The same editor also opens Word (DOCX), PowerPoint (PPTX), PDF and CSV, powered by OnlyOffice in WebAssembly."
+    }
+  ],
   "featureList": [
-    "Open and view DOCX, XLSX, PPTX and CSV without Microsoft Office",
-    "Edit DOCX, XLSX, PPTX and CSV files",
-    "100% client-side — files never leave your device",
-    "No account or sign-up required",
-    "Open documents from a URL via ?src= or ?file=",
-    "Installable PWA with offline support",
+    "Online Excel (.xlsx) workbook editor in the browser",
+    "Sign in to sync workbooks to your account",
+    "Autosave for signed-in cloud workbooks",
+    "Local open without an account",
+    "Also open DOCX, PPTX, PDF and CSV",
+    "Installable PWA with offline support for local editing",
     "Embeddable via postMessage API",
     "Free and open source (AGPL-3.0)"
   ],

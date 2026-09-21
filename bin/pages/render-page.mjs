@@ -5,7 +5,7 @@
 import { ORIGIN, REPO } from './constants.mjs';
 import { ID, appEntity, appStub, siteEntities, sourceEntity } from './entities.mjs';
 import { DEFAULT_LOCALE, LOCALES } from './locales.mjs';
-import { GH_MARK, langMenu, routeFor } from './chrome.mjs';
+import { langMenu, routeFor } from './chrome.mjs';
 import { escapeHtml, renderInline } from './markdown.mjs';
 import { UI } from './ui.mjs';
 
@@ -197,17 +197,16 @@ ${jsonLd}
   </head>
 
   <body>
-    <svg width="0" height="0" style="position: absolute" aria-hidden="true">
-      <symbol id="gh-mark" viewBox="0 0 16 16"><path d="${GH_MARK}" /></symbol>
-    </svg>
-
     <header class="bar">
-      <a class="brand" href="${L.home}"><span class="logo">D</span><span class="wordmark">${ui.siteName}</span></a>
-      <nav>
-        <a href="${REPO}" rel="noopener" target="_blank">
-          <svg class="ghmark" aria-hidden="true"><use href="#gh-mark"></use></svg> GitHub
-        </a>
+      <a class="brand" href="${L.home}"><span class="wordmark">${ui.siteName}</span></a>
+      <nav class="products" aria-label="${escapeHtml(ui.productsAria)}">
+        <a class="product" href="/editor?${locale === DEFAULT_LOCALE ? '' : `locale=${locale}&`}new=xlsx">${escapeHtml(ui.productExcel)}</a>
+        <span class="products-sep" aria-hidden="true"></span>
+        <a class="product" href="/editor?${locale === DEFAULT_LOCALE ? '' : `locale=${locale}&`}new=docx">${escapeHtml(ui.productDocx)}</a>
+      </nav>
+      <nav class="utils">
 ${langMenu(locale, translations, ui, (l) => routeFor(l, page.slug))}
+        <r-theme-switch class="theme-switch" label="${ui.themeLabel}"></r-theme-switch>
       </nav>
     </header>
 
@@ -224,7 +223,6 @@ ${aside}    </div>
     <footer class="page-foot">
 ${footer}
       <a href="${REPO}" rel="noopener">GitHub</a>
-      <r-theme-switch class="theme-switch" label="${ui.themeLabel}"></r-theme-switch>
       <p class="tm">${escapeHtml(ui.trademark)}</p>
     </footer>
   </body>

@@ -28,8 +28,8 @@
     <meta name="mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black" />
 
-    <title>Open DOCX, XLSX &amp; PPTX in Your Browser — Free Document Viewer &amp; Editor</title>
-    <meta name="description" content="Open and view Word (DOCX), Excel (XLSX), PowerPoint (PPTX) and CSV files directly in your browser — no Office installed, no upload, no sign-up. Edit and save them too. Free, privacy-first, works offline. Powered by OnlyOffice." />
+    <title>Online Excel Editor — Edit XLSX Workbooks in Your Browser</title>
+    <meta name="description" content="Online Excel workbook editor powered by OnlyOffice. Sign in to sync .xlsx files to your account, open them anywhere, and autosave as you work. Local editing still available without an account." />
     <link rel="canonical" href="https://edit.chaxus.com/" />
     <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
     <link rel="alternate" hreflang="en" href="https://edit.chaxus.com/" />
@@ -40,8 +40,6 @@
     <link rel="alternate" hreflang="ko" href="https://edit.chaxus.com/ko/" />
     <link rel="alternate" hreflang="pt" href="https://edit.chaxus.com/pt/" />
     <link rel="alternate" hreflang="x-default" href="https://edit.chaxus.com/" />
-    <!-- No-flash theme restore: apply a forced light/dark before first paint so a
-         dark-mode visitor never sees a white flash. -->
     <script>
       try {
         var t = localStorage.getItem('ran-theme');
@@ -64,13 +62,13 @@
     <meta property="og:locale:alternate" content="es_ES" />
     <meta property="og:locale:alternate" content="ko_KR" />
     <meta property="og:locale:alternate" content="pt_BR" />
-    <meta property="og:title" content="Open DOCX, XLSX &amp; PPTX in Your Browser — Free Document Viewer &amp; Editor" />
-    <meta property="og:description" content="Open, view and edit DOCX, XLSX, PPTX and CSV in your browser — no Office, no upload, no sign-up. Free and offline-capable." />
+    <meta property="og:title" content="Online Excel Editor — Edit XLSX Workbooks in Your Browser" />
+    <meta property="og:description" content="Edit Excel workbooks online — sign in to sync .xlsx to your account, or open a file locally in the browser." />
     <meta property="og:url" content="https://edit.chaxus.com/" />
     <meta property="og:image" content="https://edit.chaxus.com/img/pwa-512.png" />
     <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:title" content="Open DOCX, XLSX &amp; PPTX in Your Browser — Free Document Viewer &amp; Editor" />
-    <meta name="twitter:description" content="Open, view and edit DOCX, XLSX, PPTX and CSV in your browser — no Office, no upload, no sign-up. Free and offline-capable." />
+    <meta name="twitter:title" content="Online Excel Editor — Edit XLSX Workbooks in Your Browser" />
+    <meta name="twitter:description" content="Edit Excel workbooks online — sign in to sync .xlsx to your account, or open a file locally in the browser." />
     <meta name="twitter:image" content="https://edit.chaxus.com/img/pwa-512.png" />
 
     <script type="application/ld+json">
@@ -146,14 +144,14 @@
                 "url": "https://ran.chaxus.com"
               }
             ],
-            "description": "Open and view Word (DOCX), Excel (XLSX), PowerPoint (PPTX) and CSV files directly in your browser — no Office installed, no upload, no sign-up. Edit and save them too. Free, privacy-first, works offline. Powered by OnlyOffice.",
+            "description": "Online Excel workbook editor powered by OnlyOffice. Sign in to sync .xlsx files to your account, open them anywhere, and autosave as you work. Local editing still available without an account.",
             "featureList": [
-              "Open and view DOCX, XLSX, PPTX and CSV without Microsoft Office",
-              "Edit DOCX, XLSX, PPTX and CSV files",
-              "100% client-side — files never leave your device",
-              "No account or sign-up required",
-              "Open documents from a URL via ?src= or ?file=",
-              "Installable PWA with offline support",
+              "Online Excel (.xlsx) workbook editor in the browser",
+              "Sign in to sync workbooks to your account",
+              "Autosave for signed-in cloud workbooks",
+              "Local open without an account",
+              "Also open DOCX, PPTX, PDF and CSV",
+              "Installable PWA with offline support for local editing",
               "Embeddable via postMessage API",
               "Free and open source (AGPL-3.0)"
             ]
@@ -162,8 +160,8 @@
             "@type": "WebPage",
             "@id": "https://edit.chaxus.com/#webpage",
             "url": "https://edit.chaxus.com/",
-            "name": "Open DOCX, XLSX & PPTX in Your Browser — Free Document Viewer & Editor",
-            "description": "Open and view Word (DOCX), Excel (XLSX), PowerPoint (PPTX) and CSV files directly in your browser — no Office installed, no upload, no sign-up. Edit and save them too. Free, privacy-first, works offline. Powered by OnlyOffice.",
+            "name": "Online Excel Editor — Edit XLSX Workbooks in Your Browser",
+            "description": "Online Excel workbook editor powered by OnlyOffice. Sign in to sync .xlsx files to your account, open them anywhere, and autosave as you work. Local editing still available without an account.",
             "inLanguage": "en",
             "isPartOf": {
               "@id": "https://edit.chaxus.com/#website"
@@ -180,42 +178,10 @@
             "mainEntity": [
               {
                 "@type": "Question",
-                "name": "Can it save back into my own file, or only download a copy?",
+                "name": "What happens if I close the tab?",
                 "acceptedAnswer": {
                   "@type": "Answer",
-                  "text": "It saves back into your own file. The first save asks you to pick the file; every save after that writes straight into it, with no dialog and no duplicate in your downloads folder. This uses the browser's File System Access API, so it works in Chrome, Edge and other Chromium browsers; Safari and Firefox download a copy instead. Either way the file goes from the browser to your own disk and is never uploaded."
-                }
-              },
-              {
-                "@type": "Question",
-                "name": "Are my files uploaded anywhere?",
-                "acceptedAnswer": {
-                  "@type": "Answer",
-                  "text": "No. There is no server. Files are opened and saved locally on your device and are never uploaded — you can verify it in the network tab, or read the source."
-                }
-              },
-              {
-                "@type": "Question",
-                "name": "Which formats can I edit?",
-                "acceptedAnswer": {
-                  "@type": "Answer",
-                  "text": "Word (DOCX), Excel (XLSX), PowerPoint (PPTX) and CSV, powered by OnlyOffice running in WebAssembly."
-                }
-              },
-              {
-                "@type": "Question",
-                "name": "What happens if I close the tab or refresh the page?",
-                "acceptedAnswer": {
-                  "@type": "Answer",
-                  "text": "Nothing is lost. Your edits are saved into this browser as you work, so reopening the editor offers the document back and a refresh returns to it. The saved copies stay on your device for 7 days and are then deleted automatically; you can also delete any of them yourself at any time. Nothing is uploaded — the copies exist only in this browser."
-                }
-              },
-              {
-                "@type": "Question",
-                "name": "Does it work offline?",
-                "acceptedAnswer": {
-                  "@type": "Answer",
-                  "text": "Yes. It is an installable PWA — once loaded it keeps working with no internet, because all editing runs locally in your browser."
+                  "text": "Signed-in workbooks are written back by save and autosave. Separately, local recovery copies can stay in this browser for 7 days — see the history page. Cloud files remain in your account."
                 }
               },
               {
@@ -223,7 +189,15 @@
                 "name": "Do I need an account?",
                 "acceptedAnswer": {
                   "@type": "Answer",
-                  "text": "No account, no sign-up, no email. Open the page and edit."
+                  "text": "Sign in to sync workbooks to your account and use My workbooks. You can still open a local .xlsx without signing in; that path stays on this device (plus optional local recovery copies in this browser)."
+                }
+              },
+              {
+                "@type": "Question",
+                "name": "Which formats can I edit?",
+                "acceptedAnswer": {
+                  "@type": "Answer",
+                  "text": "Excel (.xlsx) is the primary product. The same editor also opens Word (DOCX), PowerPoint (PPTX), PDF and CSV, powered by OnlyOffice in WebAssembly."
                 }
               }
             ]
@@ -254,280 +228,252 @@
   </head>
 
   <body>
-    <svg width="0" height="0" style="position: absolute" aria-hidden="true">
-      <symbol id="gh-mark" viewBox="0 0 16 16">
-        <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0 0 16 8c0-4.42-3.58-8-8-8z" />
-      </symbol>
-    </svg>
     <section id="landing-hero">
       <header class="bar">
         <div class="wrap">
-          <a class="brand" href="/"><span class="logo">X</span><span class="wordmark">editxlsx</span></a>
-          <nav>
-            <a class="navlink" href="/offline-document-editor">Offline</a>
-            <a class="navlink" href="/no-signup-document-editor">No sign-up</a>
-            <a class="navlink gh" href="https://github.com/ranuts/document" rel="noopener" target="_blank">
-              <svg class="ghmark" aria-hidden="true"><use href="#gh-mark"></use></svg> GitHub
-            </a>
+          <a class="brand" href="/"><span class="mark" aria-hidden="true"></span><span class="wordmark">EditXLSX</span></a>
+          <nav class="products" aria-label="Products">
+            <a class="navlink" href="#features">Features</a>
+            <a class="navlink" href="#essentials">Essentials</a>
+            <a class="navlink" href="/help">Help</a>
+            <a class="navlink" href="/changelog">Changelog</a>
+          </nav>
+          <nav class="utils">
 <r-popover class="lang-menu" placement="bottom" trigger="click" role="button" aria-label="Language"><span class="lang-trigger"><svg class="langmark" aria-hidden="true" viewBox="0 0 16 16"><circle cx="8" cy="8" r="6.25" fill="none" stroke="currentColor" stroke-width="1.5"></circle><path d="M1.75 8h12.5M8 1.75c1.7 1.8 2.6 3.9 2.6 6.25S9.7 12.45 8 14.25M8 1.75c-1.7 1.8-2.6 3.9-2.6 6.25s.9 4.45 2.6 6.25" fill="none" stroke="currentColor" stroke-width="1.2"></path></svg><span class="lang-current">English</span><svg class="lang-caret" aria-hidden="true" viewBox="0 0 12 12"><path d="M2.75 4.5 6 7.75 9.25 4.5" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"></path></svg></span><r-content><div class="lang-list"><a class="lang-option" href="/de/" lang="de" hreflang="de">Deutsch</a><a class="lang-option is-current" href="/" lang="en" hreflang="en" aria-current="page">English</a><a class="lang-option" href="/es/" lang="es" hreflang="es">Español</a><a class="lang-option" href="/pt/" lang="pt" hreflang="pt">Português</a><a class="lang-option" href="/zh-CN/" lang="zh-CN" hreflang="zh-CN">中文</a><a class="lang-option" href="/ja/" lang="ja" hreflang="ja">日本語</a><a class="lang-option" href="/ko/" lang="ko" hreflang="ko">한국어</a></div></r-content></r-popover>
+            <r-theme-switch class="theme-switch" label="Theme"></r-theme-switch>
+            <a class="nav-login" href="/login">Log in</a>
+            <a class="nav-cta" href="/login"><r-button type="primary">Get Started Free</r-button></a>
           </nav>
         </div>
       </header>
 
       <main>
       <div class="hero wrap">
-        <div class="hero-copy">
-          <span class="chip reveal d1"><span class="dot"></span>Online Excel · <b>sign in to save</b></span>
-          <h1 class="reveal d2">Edit Excel workbooks <span class="accent">in your browser.</span></h1>
-          <p class="sub reveal d3">Sign in to keep .xlsx files in your account, open them anywhere, and autosave as you work. Powered by OnlyOffice in the tab — your files live in Appwrite Storage.</p>
-          <div class="cta reveal d4">
-            <a href="/login"
-              ><r-button type="primary" id="hero-sign-in">Sign in</r-button></a
-            >
-            <a href="/files"
-              ><r-button id="hero-files">My workbooks</r-button></a
-            >
-            <a href="/editor?new=xlsx" data-prefetch="xlsx"
-              ><r-button id="hero-new-xlsx">New Excel (local)</r-button></a
-            >
-            <r-button id="hero-open" data-open-local="/editor?open=local">Open a local file</r-button>
-          </div>
-          <!-- Autosave is a promise about the user's data, so it is served HTML
-               rather than drawn by script: the retention window and the way to
-               inspect and delete what is kept are visible to a first-time
-               visitor, to a crawler, and with JavaScript off. -->
-          <div class="recent reveal d5">
-            <span data-recent-slot data-recent-label="Continue editing" hidden></span>
-            <span class="recent-note">Cloud workbooks sync to your account when you are signed in. Local recovery copies still stay in this browser for 7 days — inspect them on the history page.</span>
-            <a class="recent-all" href="/history"
-              >Local history</a
-            >
-            ·
-            <a class="recent-all" href="/files"
-              >Cloud workbooks</a
-            >
-          </div>
-          <div class="trust reveal d5"><span>0 bytes uploaded</span><span>no account</span><span>works offline</span><span>.docx .xlsx .pptx .csv</span></div>
+        <span class="hero-badge reveal d1">Instant setup · Cloud sync · Local fallback</span>
+        <h1 class="reveal d2">The lightweight, modern workspace for <span class="accent">docs &amp; spreadsheets</span></h1>
+        <p class="sub reveal d3">Create, edit, and sync Excel workbooks with OnlyOffice in your browser. Sign in for cloud workbooks, or open a local file — no install, no bloat.</p>
+        <div class="cta reveal d4">
+          <a href="/login"
+            ><r-button type="primary" id="hero-sign-in">Start for free</r-button></a
+          >
+          <a href="/files"
+            ><r-button id="hero-files">My workbooks</r-button></a
+          >
         </div>
+        <div class="checks reveal d5"><span class="check"><i aria-hidden="true"></i>No credit card required</span><span class="check"><i aria-hidden="true"></i>Local open without an account</span><span class="check"><i aria-hidden="true"></i>Cloud sync when signed in</span></div>
+        <div class="cta-local reveal d5">
+          <a class="cta-local-link" href="/editor?new=xlsx" data-prefetch="xlsx" id="hero-new-xlsx"
+            >New Excel (local)</a
+          >
+          <span class="cta-local-sep" aria-hidden="true">·</span>
+          <button type="button" class="cta-local-link" id="hero-open" data-open-local="/editor?open=local">
+            Open a local file
+          </button>
+        </div>
+        <div class="recent reveal d5">
+          <span data-recent-slot data-recent-label="Continue editing" hidden></span>
+          <span class="recent-note">Cloud workbooks sync to your account when you are signed in. Local recovery copies still stay in this browser for 7 days — inspect them on the history page.</span>
+          <a class="recent-all" href="/history">Local history</a>
+          ·
+          <a class="recent-all" href="/files">Cloud workbooks</a>
+        </div>
+      </div>
 
-        <!-- Decorative "document being edited locally" window -- pure CSS, no JS. -->
-        <div class="docwin reveal d3" aria-hidden="true">
+      <div class="preview wrap reveal d3">
+        <div class="docwin" aria-hidden="true">
           <div class="dw-bar">
             <span class="dw-dots"><i></i><i></i><i></i></span>
-            <span class="dw-file">report.docx</span>
-            <span class="dw-badge">saved locally ✓</span>
+            <span class="dw-file">sample_workbook.xlsx</span>
+            <span class="dw-pill eng">OnlyOffice engine</span>
+            <span class="dw-pill ok">Cloud autosave</span>
+            <span class="dw-pill mute">Saved to account</span>
+            <span class="dw-actions">
+              <span class="dw-btn share">Share</span>
+              <span class="dw-btn export">Export</span>
+            </span>
           </div>
-          <div class="dw-tabs"><span class="on">.docx</span><span>.xlsx</span><span>.pptx</span><span>.csv</span></div>
+          <div class="dw-ribbon">
+            <span class="on">Home</span><span>Insert</span><span>Formulas</span><span>Data</span><span>View</span>
+          </div>
           <div class="dw-body">
-            <div class="dw-sheet">
-              <span class="dl t"></span>
-              <span class="dl w92"></span>
-              <span class="dl w78"></span>
-              <p class="dw-text"><mark>Everything you type stays on this device.</mark><i class="caret"></i></p>
-              <span class="dl w85"></span>
-              <span class="dl w60"></span>
-              <span class="dl t2"></span>
-              <span class="dl w88"></span>
-              <span class="dl w92"></span>
-              <span class="dl w70"></span>
-            </div>
-            <aside class="dw-note">
-              <b>You · just now</b>
-              <span>0 bytes uploaded — check the network tab.</span>
-            </aside>
+            <table class="dw-table">
+              <thead><tr><th>Order</th><th>Customer</th><th>Plan</th><th>Amount</th></tr></thead>
+              <tbody>
+                <tr><td class="">A-1042</td><td class="">Northwind</td><td class="">Enterprise</td><td class="num">¥ 128,500</td></tr>
+                <tr><td class="">A-1043</td><td class="">Contoso</td><td class="">Standard</td><td class="num">¥ 42,000</td></tr>
+                <tr><td class="">A-1044</td><td class="">Fabrikam</td><td class="">Ultimate</td><td class="num">¥ 96,200</td></tr>
+              </tbody>
+            </table>
           </div>
-          <div class="dw-net"><i class="ok"></i>network · 0 requests · 0 bytes out</div>
-        </div>
-      </div>
-
-      <div class="section wrap">
-        <div class="section-head">
-          <span class="eyebrow">Open a file</span>
-          <h2>No Office installed? No problem.</h2>
-        </div>
-        <div class="index">
-          <a class="row" href="/open/docx">
-            <span class="ext">.docx</span>
-            <span class="name">Open DOCX</span>
-            <span class="desc">Word documents with fonts, tables and images intact.</span>
-            <span class="go" aria-hidden="true">&rarr;</span>
-          </a>
-          <a class="row" href="/open/xlsx">
-            <span class="ext">.xlsx</span>
-            <span class="name">Open XLSX</span>
-            <span class="desc">Formulas, charts and multiple sheets, fully rendered.</span>
-            <span class="go" aria-hidden="true">&rarr;</span>
-          </a>
-          <a class="row" href="/open/pptx">
-            <span class="ext">.pptx</span>
-            <span class="name">Open PPTX</span>
-            <span class="desc">Slides with layouts, themes and media preserved.</span>
-            <span class="go" aria-hidden="true">&rarr;</span>
-          </a>
-          <a class="row" href="/open/pdf">
-            <span class="ext">.pdf</span>
-            <span class="name">Open PDF</span>
-            <span class="desc">Read, comment and annotate, then save it back.</span>
-            <span class="go" aria-hidden="true">&rarr;</span>
-          </a>
-          <a class="row" href="/open/odt">
-            <span class="ext">.odt .ods .odp</span>
-            <span class="name">Open OpenDocument</span>
-            <span class="desc">LibreOffice formats — save back as ODT, DOCX or PDF.</span>
-            <span class="go" aria-hidden="true">&rarr;</span>
-          </a>
-          <a class="row" href="/convert/docx-to-pdf">
-            <span class="ext">.docx → .pdf</span>
-            <span class="name">Convert to PDF</span>
-            <span class="desc">Word, Excel and PowerPoint become PDFs on your device.</span>
-            <span class="go" aria-hidden="true">&rarr;</span>
-          </a>
-          <a class="row" href="/convert/xlsx-to-csv">
-            <span class="ext">.xlsx → .csv</span>
-            <span class="name">Convert between formats</span>
-            <span class="desc">Spreadsheets to CSV and back, without uploading a byte.</span>
-            <span class="go" aria-hidden="true">&rarr;</span>
-          </a>
-        </div>
-      </div>
-
-      <div class="section wrap">
-        <div class="section-head">
-          <span class="eyebrow">Why it's different</span>
-          <h2>Private by design, not by promise</h2>
-        </div>
-        <div class="pillars">
-          <div class="pillar">
-            <span class="k">100% client-side</span>
-            <h3>Files never leave your device</h3>
-            <p>Every document is opened, edited and saved locally. There is no server to upload to.</p>
-          </div>
-          <div class="pillar">
-            <span class="k">No account</span>
-            <h3>Nothing to sign up for</h3>
-            <p>No email, no login wall. Open the page and start editing immediately.</p>
-          </div>
-          <div class="pillar">
-            <span class="k">PWA · offline</span>
-            <h3>Install it, use it on a plane</h3>
-            <p>Add it to your home screen and it keeps working with no internet connection.</p>
-          </div>
-          <div class="pillar">
-            <span class="k">AGPL-3.0</span>
-            <h3>Open source &amp; self-hostable</h3>
-            <p>Audit exactly what runs, or host your own copy. Powered by OnlyOffice.</p>
+          <div class="dw-net">
+            <span class="dw-sheet">Orders</span>
+            <span>Formulas · charts · multiple sheets</span>
+            <span class="dw-sync"><i class="ok"></i>Autosave on</span>
           </div>
         </div>
       </div>
 
-      <div class="section wrap">
-        <div class="section-head">
-          <span class="eyebrow">Process</span>
-          <h2>How it works</h2>
+      <div class="loved wrap">
+        <p class="loved-label">Built for creators, startups, and teams who want Excel in the browser</p>
+        <div class="loved-chips"><span class="chip-logo">OnlyOffice</span><span class="chip-logo">XLSX</span><span class="chip-logo">DOCX</span><span class="chip-logo">PPTX</span><span class="chip-logo">PDF</span><span class="chip-logo">AGPL-3.0</span></div>
+      </div>
+
+      <div class="section features-sec wrap" id="features">
+        <div class="section-head center">
+          <span class="eyebrow">Lightweight &amp; efficient</span>
+          <h2>Say goodbye to bloated suites. Welcome to focused productivity.</h2>
+          <p class="head-note">OnlyOffice in the tab, cloud workbooks when you sign in, and a local path that never needs an account — clean editing without the desktop install.</p>
         </div>
-        <div class="steps">
-          <div class="step">
-            <div class="n">01</div>
-            <h3>Open a file</h3>
-            <p>Drop in a DOCX, XLSX, PPTX or CSV — or start a blank one.</p>
-            <span class="loc">stays on device</span>
-          </div>
-          <div class="step">
-            <div class="n">02</div>
-            <h3>Edit for real</h3>
-            <p>Full formatting, tables, charts and formulas via OnlyOffice.</p>
-            <span class="loc">stays on device</span>
-          </div>
-          <div class="step">
-            <div class="n">03</div>
-            <h3>Save it back</h3>
-            <p>Export to the same format. Nothing was ever uploaded.</p>
-            <span class="loc">stays on device</span>
-          </div>
+        <div class="feat-grid">
+          <article class="feat-card tone-blue">
+            <span class="feat-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z"/><path d="M12 3v2.2M12 18.8V21M4.9 4.9l1.6 1.6M17.5 17.5l1.6 1.6M3 12h2.2M18.8 12H21M4.9 19.1l1.6-1.6M17.5 6.5l1.6-1.6"/><path d="M12 12l3.2-3.2"/></svg></span>
+            <h3>Browser spreadsheet engine</h3>
+            <p>Formulas, charts, sheets and formatting via OnlyOffice WebAssembly — no desktop Office required.</p>
+            <span class="feat-tag"><span class="feat-tag-ico" aria-hidden="true"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M8.5 1.5 4 8h4l-.5 6.5L12 8H8l.5-6.5Z"/></svg></span>Full .xlsx editing in the tab</span>
+          </article>
+          <article class="feat-card tone-green">
+            <span class="feat-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M7.5 18h9a4.5 4.5 0 0 0 .4-9 6 6 0 0 0-11.5 1.6A3.8 3.8 0 0 0 7.5 18Z"/></svg></span>
+            <h3>Cloud sync when signed in</h3>
+            <p>Workbooks in your account travel with you. Start on one device, continue on another.</p>
+            <span class="feat-tag"><span class="feat-tag-ico" aria-hidden="true"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M2.5 8a5.5 5.5 0 0 1 9.7-3.5A3.5 3.5 0 0 1 13 11.5H4.2A2.8 2.8 0 0 1 2.5 8Z"/><path d="M8 6.5v5M6 9.5l2 2 2-2"/></svg></span>My workbooks · autosave</span>
+          </article>
+          <article class="feat-card tone-purple">
+            <span class="feat-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3"/><circle cx="16.5" cy="9.5" r="2.5"/><path d="M3.5 18.5c.6-2.8 2.7-4.5 5.5-4.5s4.9 1.7 5.5 4.5"/><path d="M14 18.5c.4-1.8 1.7-3 3.5-3 1.3 0 2.4.6 3 1.7"/></svg></span>
+            <h3>Local fallback, always</h3>
+            <p>Open a file on this device only, or use local recovery history — no account required for that path.</p>
+            <span class="feat-tag"><span class="feat-tag-ico" aria-hidden="true"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="5.5" r="2"/><circle cx="11" cy="6.5" r="1.6"/><path d="M2.5 13c.4-1.8 1.8-3 3.5-3s3.1 1.2 3.5 3"/><path d="M9.5 13c.3-1.2 1.2-2 2.3-2 .9 0 1.6.4 2 1.1"/></svg></span>Works without signing in</span>
+          </article>
         </div>
       </div>
 
-      <div class="section wrap faq-sec">
-        <div class="section-head">
-          <span class="eyebrow">FAQ</span>
-          <h2>Questions, answered</h2>
-          <p class="head-note">Longer answers — file size limits, error codes, self-hosting — are in the <a href="/help">help pages</a>.</p>
-        </div>
-        <div class="faq">
-          <div class="qa">
-            <details open>
-              <summary>Can it save back into my own file, or only download a copy?</summary>
-              <p class="a">It saves back into your own file. The first save asks you to pick the file; every save after that writes straight into it, with no dialog and no duplicate in your downloads folder. This uses the browser's File System Access API, so it works in Chrome, Edge and other Chromium browsers; Safari and Firefox download a copy instead. Either way the file goes from the browser to your own disk and is never uploaded.</p>
-            </details>
-            <details>
-              <summary>Are my files uploaded anywhere?</summary>
-              <p class="a">No. There is no server. Files are opened and saved locally on your device and are never uploaded — you can verify it in the network tab, or read the source.</p>
-            </details>
-            <details>
-              <summary>Which formats can I edit?</summary>
-              <p class="a">Word (DOCX), Excel (XLSX), PowerPoint (PPTX) and CSV, powered by OnlyOffice running in WebAssembly.</p>
-            </details>
-            <details>
-              <summary>What happens if I close the tab or refresh the page?</summary>
-              <p class="a">Nothing is lost. Your edits are saved into this browser as you work, so reopening the editor offers the document back and a refresh returns to it. The saved copies stay on your device for 7 days and are then deleted automatically; you can also delete any of them yourself at any time. Nothing is uploaded — the copies exist only in this browser.</p>
-            </details>
-            <details>
-              <summary>Does it work offline?</summary>
-              <p class="a">Yes. It is an installable PWA — once loaded it keeps working with no internet, because all editing runs locally in your browser.</p>
-            </details>
-            <details>
-              <summary>Do I need an account?</summary>
-              <p class="a">No account, no sign-up, no email. Open the page and edit.</p>
-            </details>
-          </div>
-        </div>
-      </div>
-
-      <div class="eco">
+      <div class="essentials" id="essentials">
         <div class="wrap">
-          <span class="eco-label">
-            <svg class="gitmark" aria-hidden="true"><use href="#gh-mark"></use></svg>
-            Part of the ran ecosystem · all open source
-          </span>
-          <nav>
-            <span class="here"><b>edit.chaxus.com</b> <small>Office editor</small></span>
-            <a href="https://ran.chaxus.com" rel="noopener" target="_blank">
-              <b>ran.chaxus.com</b> <small>UI components</small>
-            </a>
-          </nav>
+          <div class="section-head center">
+            <span class="eyebrow">Core essentials</span>
+            <h2>Minimalist interface, maximum editing power</h2>
+            <p class="head-note">The editor stays out of the way: cloud library when you need it, local recovery when you do not, and formats beyond Excel when the job calls for them.</p>
+          </div>
+          <div class="bento">
+          <article class="bento-card tone-purple snip-library">
+            <span class="bento-label">Cloud library</span>
+            <h3>My workbooks, one account</h3>
+            <p>Sign in once. Browse, open, and autosave .xlsx files stored in your account — then pick up on another device.</p>
+            <div class="snip">
+              <div class="snip-rows">
+                <div class="snip-row"><span class="snip-ico sync" aria-hidden="true"></span><span class="snip-main">sample_workbook.xlsx</span><span class="snip-side">just now</span></div>
+                <div class="snip-row"><span class="snip-ico sync" aria-hidden="true"></span><span class="snip-main">Q3_forecast.xlsx</span><span class="snip-side">synced</span></div>
+                <div class="snip-row"><span class="snip-ico sync" aria-hidden="true"></span><span class="snip-main">hiring_plan.xlsx</span><span class="snip-side">autosaved</span></div>
+              </div>
+            </div>
+          </article>
+          <article class="bento-card tone-blue snip-formats">
+            <span class="bento-label">Organization</span>
+            <h3>Excel first, docs when needed</h3>
+            <p>Spreadsheets are the product. The same engine still opens Word, PowerPoint, PDF and OpenDocument when you need them.</p>
+            <div class="snip">
+              <div class="snip-chips">
+                <span>.xlsx</span><span>.docx</span><span>.pptx</span><span>.pdf</span>
+              </div>
+            </div>
+          </article>
+          <article class="bento-card tone-green snip-access">
+            <span class="bento-label">Access</span>
+            <h3>Sign in or stay local</h3>
+            <p>Cloud sync needs an account. Local open and seven-day recovery copies do not — choose the path that fits the file.</p>
+            <div class="snip">
+              <div class="snip-rows">
+                <div class="snip-row"><span class="snip-main">Signed in</span><span class="snip-side accent">Cloud sync + autosave</span></div>
+                <div class="snip-row"><span class="snip-main">Local only</span><span class="snip-side ok">View &amp; edit on device</span></div>
+                <div class="snip-row"><span class="snip-main">Recovery</span><span class="snip-side">7-day local copies</span></div>
+              </div>
+            </div>
+          </article>
+          <article class="bento-card tone-blue snip-offline">
+            <span class="bento-label">Offline ready</span>
+            <h3>Work offline, sync later</h3>
+            <p>Once editor assets are cached, keep editing a local file without the network. Cloud save waits until you are online.</p>
+            <div class="snip">
+              <div class="snip-metrics">
+                <span><b>100%</b><em>local continuity</em></span>
+                <span><b>0</b><em>lost keystrokes*</em></span>
+                <span><b>&lt;1s</b><em>reopen path</em></span>
+              </div>
+            </div>
+          </article>
+          </div>
+        </div>
+      </div>
+
+      <div class="wrap band-wrap">
+        <div class="band">
+          <div class="band-inner">
+            <span class="band-eyebrow">Get started in seconds</span>
+            <h2>Ready for a faster, lighter spreadsheet workflow?</h2>
+            <p>Sign in to sync workbooks to your account, or open a local .xlsx and start editing in the tab — OnlyOffice, no install.</p>
+            <div class="band-cta">
+              <a class="band-primary" href="/login">Get Started Free</a>
+              <a class="band-secondary" href="/files">My workbooks</a>
+            </div>
+            <div class="checks band-checks"><span class="check"><i aria-hidden="true"></i>Free to start</span><span class="check"><i aria-hidden="true"></i>Zero install required</span><span class="check"><i aria-hidden="true"></i>Cloud or local — your choice</span></div>
+          </div>
         </div>
       </div>
 
       </main>
 
-      <footer class="foot wrap">
-        <span>© 2026 Document Editor · runs on your device</span>
-        <nav>
-          <a href="/help">Help</a>
-          <a href="/changelog">Changelog</a>
-          <a href="/embed-document-editor">Embed API</a>
-          <a href="/webmcp-document-editor">WebMCP</a>
-          <a href="/private-document-editor">Privacy</a>
-          <a href="/offline-document-editor">Offline editor</a>
-          <a href="/no-signup-document-editor">No sign-up</a>
-          <a href="/open/docx">Open DOCX</a>
-          <a href="/open/odt">ODT</a>
-          <a href="/open/ods">ODS</a>
-          <a href="/open/odp">ODP</a>
-          <a href="/convert/docx-to-pdf">DOCX → PDF</a>
-          <a href="/convert/xlsx-to-csv">XLSX → CSV</a>
-          <a href="/onlyoffice-online-free">ONLYOFFICE online</a>
-          <a href="https://github.com/ranuts/document">GitHub</a>
-        </nav>
-        <r-theme-switch class="theme-switch" label="Theme"></r-theme-switch>
-        <span class="lic">AGPL-3.0</span>
-        <p class="tm">ONLYOFFICE is a trademark of Ascensio System SIA. This site is not an official ONLYOFFICE product and is not affiliated with or endorsed by Ascensio System SIA.</p>
+      <footer class="foot">
+        <div class="wrap foot-inner">
+          <div class="foot-top">
+            <div class="foot-brand">
+              <a class="brand" href="/"><span class="mark" aria-hidden="true"></span><span class="wordmark">EditXLSX</span></a>
+              <p>The lightweight online Excel and document editor for modern teams — cloud sync when you sign in, local editing when you do not.</p>
+            </div>
+            <nav class="foot-cols" aria-label="Footer">
+              <div class="foot-col">
+                <h3>Product</h3>
+                <ul>
+                <li><a href="/open/xlsx">Spreadsheets</a></li>
+                <li><a href="/open/docx">Document editor</a></li>
+                <li><a href="/open/pptx">Presentations</a></li>
+                <li><a href="/open/pdf">PDF</a></li>
+                <li><a href="/open/odt">OpenDocument text</a></li>
+                <li><a href="/open/ods">OpenDocument sheet</a></li>
+                <li><a href="/open/odp">OpenDocument slides</a></li>
+                </ul>
+              </div>
+              <div class="foot-col">
+                <h3>Resources</h3>
+                <ul>
+                <li><a href="/help">Help</a></li>
+                <li><a href="/changelog">Changelog</a></li>
+                <li><a href="/convert/docx-to-pdf">DOCX to PDF</a></li>
+                <li><a href="/convert/xlsx-to-csv">XLSX to CSV</a></li>
+                </ul>
+              </div>
+              <div class="foot-col">
+                <h3>Company</h3>
+                <ul>
+                <li><a href="/about">About</a></li>
+                <li><a href="/contact">Contact</a></li>
+                <li><a href="/files">My workbooks</a></li>
+                <li><a href="/editor?new=xlsx">New Excel</a></li>
+                </ul>
+              </div>
+            </nav>
+          </div>
+          <div class="foot-bottom">
+            <p class="foot-copy">© 2026 EditXLSX. All rights reserved.</p>
+            <nav class="foot-meta" aria-label="Legal">
+              <a href="/about">About</a>
+              <a href="/contact">Contact</a>
+              <a href="/help">Help</a>
+            </nav>
+          </div>
+          <p class="tm"></p>
+        </div>
       </footer>
     </section>
 
-    <!-- Registers the service worker (so the landing works offline / installs as
-         an app) and promotes a waiting one, which is what makes a deploy reach a
-         returning visitor. See public/sw-register.js. -->
     <script src="/sw-register.js" defer></script>
   </body>
 </html>

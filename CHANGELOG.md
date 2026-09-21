@@ -7,6 +7,22 @@ notes. Entries describe what users experience, not internal refactors.
 
 ## [Unreleased]
 
+### Changed
+
+- **Homepage matches a marketing mock stack.** All seven languages now use a
+  centered hero, product preview window, capability strip, feature cards,
+  bento essentials, a dark CTA band, and a multi-column footer — still
+  EditXLSX copy (cloud sync + local fallback), no fabricated logos,
+  testimonials, or stat counters. Formats index, pillars, steps, and FAQ left
+  the homepage; help pages keep longer answers. Sign in / My workbooks / local
+  open / recent-history disclosure remain. The top bar links Features,
+  Essentials, Help, and Changelog (plus Log in / Get Started Free).
+- **Homepage is an online Excel product.** The landing page (all seven
+  languages) leads with cloud workbooks: sign in and My workbooks are the
+  primary actions, the hero mock is a spreadsheet, and marketing sections
+  match account sync instead of “never uploaded / no account.” Local open and
+  local history remain as secondary paths.
+
 ### Added
 
 - **Cloud Excel workbooks SaaS MVP.** Sign in with email and password

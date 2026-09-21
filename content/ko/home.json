@@ -1,258 +1,290 @@
 {
-  "title": "브라우저에서 DOCX, XLSX, PPTX 열기 — 무료 문서 뷰어 및 편집기",
-  "description": "Word(DOCX), Excel(XLSX), PowerPoint(PPTX), CSV 파일을 브라우저에서 바로 열고 볼 수 있습니다. Office 설치도, 업로드도, 가입도 필요 없습니다. 편집하고 저장하는 것도 가능합니다. 무료이고 프라이버시를 우선하며 오프라인에서도 동작합니다. OnlyOffice 기반.",
-  "ogDescription": "DOCX, XLSX, PPTX, CSV를 브라우저에서 열고 보고 편집하세요. Office 없이, 업로드 없이, 가입 없이. 무료이며 오프라인에서도 사용할 수 있습니다.",
-  "chip": "온라인 Excel · <b>로그인 후 저장</b>",
-  "h1": {
-    "plain": "브라우저에서",
-    "accent": "Excel 통합 문서를 편집하세요."
+  "title": "온라인 Excel 편집기 — 브라우저에서 XLSX 통합 문서 편집",
+  "description": "OnlyOffice 기반 온라인 Excel 통합 문서 편집기. 로그인하면 .xlsx를 계정에 동기화하고 어디서든 열며 편집 중 자동 저장합니다. 계정 없이도 로컬 편집이 가능합니다.",
+  "ogDescription": "Excel 통합 문서를 온라인으로 편집 — 로그인해 동기화하거나 브라우저에서 로컬로 엽니다.",
+  "nav": [
+    {
+      "href": "#features",
+      "label": "기능"
+    },
+    {
+      "href": "#essentials",
+      "label": "핵심"
+    },
+    {
+      "href": "/help",
+      "label": "도움말"
+    },
+    {
+      "href": "/changelog",
+      "label": "변경 로그"
+    }
+  ],
+  "navActions": {
+    "logIn": "로그인",
+    "getStarted": "무료로 시작"
   },
-  "sub": "로그인하면 .xlsx를 계정에 보관하고 어디서든 열며 작업 중 자동 저장합니다. 탭의 OnlyOffice와 Appwrite Storage를 사용합니다.",
+  "badge": "즉시 사용 · 클라우드 동기화 · 로컬 가능",
+  "h1": {
+    "plain": "가볍고 현대적인 작업 공간,",
+    "accent": "문서와 스프레드시트"
+  },
+  "sub": "브라우저의 OnlyOffice로 Excel 통합 문서를 만들고 편집·동기화하세요. 클라우드는 로그인 후, 로컬은 계정 없이 — 설치 없음, 군더더기 없음.",
   "cta": {
-    "signIn": "로그인",
+    "signIn": "무료로 시작",
     "files": "내 통합 문서",
     "xlsx": "새 Excel (로컬)",
     "open": "로컬 파일 열기"
   },
+  "checks": [
+    "신용카드 불필요",
+    "계정 없이 로컬 열기",
+    "로그인 후 클라우드 동기화"
+  ],
   "recent": {
     "label": "이어서 편집",
-    "note": "로그인한 동안 클라우드 통합 문서는 계정에 동기화됩니다. 이 브라우저의 복구 사본은 7일간 유지됩니다.",
+    "note": "로그인하면 클라우드 통합 문서가 계정에 동기화됩니다. 로컬 복구 복사본은 이 브라우저에 7일간 남습니다 — 기록 페이지에서 확인하세요.",
     "all": "로컬 기록",
     "cloud": "클라우드 통합 문서"
   },
-  "trust": ["업로드 0바이트", "계정 불필요", "오프라인 동작", ".docx .xlsx .pptx .csv"],
   "docwin": {
-    "file": "report.docx",
-    "badge": "로컬에 저장됨 ✓",
-    "selected": "입력한 내용은 모두 이 기기에 남습니다.",
-    "noteAuthor": "나 · 방금",
-    "noteBody": "업로드 0바이트 — 네트워크 탭에서 확인하세요.",
-    "net": "network · 요청 0건 · 0바이트 전송"
+    "file": "sample_workbook.xlsx",
+    "engine": "OnlyOffice 엔진",
+    "encrypted": "클라우드 자동 저장",
+    "saved": "계정에 저장됨",
+    "share": "공유",
+    "export": "내보내기",
+    "cols": [
+      "주문",
+      "고객",
+      "플랜",
+      "금액"
+    ],
+    "rows": [
+      [
+        "A-1042",
+        "Northwind",
+        "Enterprise",
+        "¥ 128,500"
+      ],
+      [
+        "A-1043",
+        "Contoso",
+        "Standard",
+        "¥ 42,000"
+      ],
+      [
+        "A-1044",
+        "Fabrikam",
+        "Ultimate",
+        "¥ 96,200"
+      ]
+    ],
+    "sheet": "주문",
+    "meta": "수식 · 차트 · 여러 시트",
+    "sync": "자동 저장 켜짐"
   },
-  "nav": [
-    {
-      "href": "/ko/offline-document-editor",
-      "label": "오프라인"
-    },
-    {
-      "href": "/ko/no-signup-document-editor",
-      "label": "가입 불필요"
-    }
-  ],
-  "sections": {
-    "formats": {
-      "eyebrow": "파일 열기",
-      "h2": "Office가 없나요? 괜찮습니다.",
-      "rows": [
-        {
-          "href": "/ko/open/docx",
-          "ext": ".docx",
-          "name": "DOCX 열기",
-          "desc": "글꼴, 표, 이미지를 그대로 유지한 Word 문서."
-        },
-        {
-          "href": "/ko/open/xlsx",
-          "ext": ".xlsx",
-          "name": "XLSX 열기",
-          "desc": "수식, 차트, 여러 시트를 완전하게 표시."
-        },
-        {
-          "href": "/ko/open/pptx",
-          "ext": ".pptx",
-          "name": "PPTX 열기",
-          "desc": "레이아웃, 테마, 미디어가 보존된 슬라이드."
-        },
-        {
-          "href": "/ko/open/pdf",
-          "ext": ".pdf",
-          "name": "PDF 열기",
-          "desc": "읽고 의견을 달고 주석을 단 뒤 그대로 저장."
-        },
-        {
-          "href": "/ko/open/odt",
-          "ext": ".odt .ods .odp",
-          "name": "OpenDocument 열기",
-          "desc": "LibreOffice 형식 — ODT, DOCX, PDF로 다시 저장."
-        },
-        {
-          "href": "/ko/convert/docx-to-pdf",
-          "ext": ".docx → .pdf",
-          "name": "PDF로 변환",
-          "desc": "Word, Excel, PowerPoint를 기기에서 PDF로."
-        },
-        {
-          "href": "/ko/convert/xlsx-to-csv",
-          "ext": ".xlsx → .csv",
-          "name": "형식 간 변환",
-          "desc": "스프레드시트와 CSV를 서로 변환 — 1바이트도 업로드하지 않습니다."
-        }
-      ]
-    },
-    "pillars": {
-      "eyebrow": "무엇이 다른가",
-      "h2": "프라이버시는 약속이 아니라 설계입니다",
-      "items": [
-        {
-          "k": "100% 클라이언트",
-          "h3": "파일은 기기를 벗어나지 않습니다",
-          "p": "모든 문서를 로컬에서 열고 편집하고 저장합니다. 업로드할 서버 자체가 없습니다."
-        },
-        {
-          "k": "계정 불필요",
-          "h3": "가입할 것이 없습니다",
-          "p": "이메일도, 로그인 장벽도 없습니다. 페이지를 열고 바로 편집하세요."
-        },
-        {
-          "k": "PWA · 오프라인",
-          "h3": "설치하면 비행기에서도",
-          "p": "홈 화면에 추가하면 인터넷 연결 없이도 계속 동작합니다."
-        },
-        {
-          "k": "AGPL-3.0",
-          "h3": "오픈 소스이며 직접 호스팅 가능",
-          "p": "실행되는 코드를 그대로 감사하거나 직접 운영할 수 있습니다. OnlyOffice 기반."
-        }
-      ]
-    },
-    "steps": {
-      "eyebrow": "과정",
-      "h2": "사용 방법",
-      "items": [
-        {
-          "n": "01",
-          "h3": "파일 열기",
-          "p": "DOCX, XLSX, PPTX, CSV를 끌어다 놓거나 빈 문서로 시작하세요.",
-          "loc": "기기에 남습니다"
-        },
-        {
-          "n": "02",
-          "h3": "제대로 편집",
-          "p": "OnlyOffice로 완전한 서식, 표, 차트, 수식을 사용합니다.",
-          "loc": "기기에 남습니다"
-        },
-        {
-          "n": "03",
-          "h3": "다시 저장",
-          "p": "같은 형식으로 내보냅니다. 한 번도 업로드되지 않았습니다.",
-          "loc": "기기에 남습니다"
-        }
-      ]
-    },
-    "faq": {
-      "eyebrow": "FAQ",
-      "h2": "자주 묻는 질문",
-      "note": "더 자세한 설명 — 파일 크기 제한, 오류 코드, 직접 호스팅 — 은 <a href=\"/ko/help\">도움말</a>에 있습니다.",
-      "items": [
-        {
-          "q": "내 파일에 바로 저장할 수 있나요, 아니면 사본만 내려받나요?",
-          "a": "내 파일에 바로 저장됩니다. 처음 저장할 때 파일을 고르면 이후에는 대화 상자도, 다운로드 폴더의 중복 파일도 없이 그 파일에 바로 기록됩니다. 브라우저의 File System Access API를 사용하므로 Chrome, Edge 등 Chromium 계열 브라우저에서 동작하며, Safari와 Firefox에서는 대신 사본이 내려받아집니다. 어느 쪽이든 파일은 브라우저에서 내 디스크로 가며 업로드되지 않습니다."
-        },
-        {
-          "q": "내 파일이 어딘가로 업로드되나요?",
-          "a": "아니요. 서버가 없습니다. 파일은 기기에서 로컬로 열리고 저장되며 업로드되지 않습니다 — 네트워크 탭에서 확인하거나 소스를 읽어볼 수 있습니다."
-        },
-        {
-          "q": "어떤 형식을 편집할 수 있나요?",
-          "a": "Word(DOCX), Excel(XLSX), PowerPoint(PPTX), CSV입니다. WebAssembly에서 동작하는 OnlyOffice를 사용합니다."
-        },
-        {
-          "q": "탭을 닫거나 페이지를 새로고침하면 어떻게 되나요?",
-          "a": "아무것도 잃지 않습니다. 작업하는 동안 편집 내용이 이 브라우저에 저장되므로, 편집기를 다시 열면 그 문서를 다시 제안하고 새로고침해도 그대로 돌아옵니다. 저장된 사본은 기기에 7일 동안 남았다가 자동으로 삭제되며, 언제든 직접 삭제할 수도 있습니다. 업로드는 전혀 없습니다 — 사본은 이 브라우저 안에만 존재합니다."
-        },
-        {
-          "q": "오프라인에서도 동작하나요?",
-          "a": "네. 설치할 수 있는 PWA입니다 — 한 번 불러오면 모든 편집이 브라우저 안에서 이루어지므로 인터넷 없이도 계속 동작합니다."
-        },
-        {
-          "q": "계정이 필요한가요?",
-          "a": "계정도, 가입도, 이메일도 필요 없습니다. 페이지를 열고 편집하세요."
-        }
-      ]
-    }
+  "loved": {
+    "label": "브라우저에서 Excel이 필요한 크리에이터, 스타트업, 팀을 위해",
+    "chips": [
+      "OnlyOffice",
+      "XLSX",
+      "DOCX",
+      "PPTX",
+      "PDF",
+      "AGPL-3.0"
+    ]
   },
-  "eco": {
-    "label": "ran 생태계의 일부 · 모두 오픈 소스",
-    "here": {
-      "name": "edit.chaxus.com",
-      "role": "Office 편집기"
-    },
-    "other": {
-      "href": "https://ran.chaxus.com",
-      "name": "ran.chaxus.com",
-      "role": "UI 컴포넌트"
-    }
+  "features": {
+    "eyebrow": "가볍고 효율적",
+    "h2": "무거운 제품군은 그만. 집중된 생산성을 맞이하세요.",
+    "p": "탭 안의 OnlyOffice, 로그인 시 클라우드 통합 문서, 계정 불필요한 로컬 경로 — 데스크톱 설치 없이 깔끔한 편집.",
+    "items": [
+      {
+        "tone": "blue",
+        "h3": "브라우저 스프레드시트 엔진",
+        "p": "수식·차트·시트·서식은 OnlyOffice WebAssembly — 데스크톱 Office 불필요.",
+        "tag": "탭에서 .xlsx 전체 편집"
+      },
+      {
+        "tone": "green",
+        "h3": "로그인 후 클라우드 동기화",
+        "p": "계정의 통합 문서가 따라다닙니다. 한 기기에서 시작하고 다른 기기에서 이어가세요.",
+        "tag": "내 통합 문서 · 자동 저장"
+      },
+      {
+        "tone": "purple",
+        "h3": "로컬 경로는 항상 가능",
+        "p": "이 기기에서만 열거나 로컬 복구 기록을 사용 — 그 경로에는 계정이 필요 없습니다.",
+        "tag": "로그인 없이도 동작"
+      }
+    ]
+  },
+  "essentials": {
+    "eyebrow": "핵심 기능",
+    "h2": "미니멀한 인터페이스, 최대의 편집력",
+    "p": "필요할 땐 클라우드 라이브러리, 아닐 땐 로컬 복구. Excel 밖의 형식도 같은 엔진으로.",
+    "items": [
+      {
+        "tone": "purple",
+        "label": "클라우드 라이브러리",
+        "h3": "내 통합 문서, 하나의 계정",
+        "p": "한 번 로그인. 계정의 .xlsx를 살펴보고 열고 자동 저장한 뒤 다른 기기에서 이어가세요.",
+        "snippet": "library"
+      },
+      {
+        "tone": "blue",
+        "label": "구성",
+        "h3": "Excel 우선, 필요하면 문서도",
+        "p": "스프레드시트가 제품의 중심입니다. 같은 엔진으로 Word, PowerPoint, PDF, OpenDocument도 엽니다.",
+        "snippet": "formats"
+      },
+      {
+        "tone": "green",
+        "label": "접근",
+        "h3": "로그인하거나 로컬로 유지",
+        "p": "클라우드 동기화에는 계정이 필요합니다. 로컬 열기와 7일 복구 복사본은 아닙니다 — 파일에 맞게 고르세요.",
+        "snippet": "access"
+      },
+      {
+        "tone": "blue",
+        "label": "오프라인 가능",
+        "h3": "오프라인으로 작업, 나중에 동기화",
+        "p": "편집기 자산이 캐시되면 네트워크 없이도 로컬 파일을 편집할 수 있습니다. 클라우드 저장은 다시 온라인일 때.",
+        "snippet": "offline"
+      }
+    ]
+  },
+  "band": {
+    "eyebrow": "몇 초면 시작",
+    "h2": "더 빠르고 가벼운 스프레드시트 워크플로가 필요하신가요?",
+    "p": "로그인해 통합 문서를 동기화하거나 로컬 .xlsx를 탭에서 여세요 — OnlyOffice, 설치 불필요.",
+    "primary": "무료로 시작",
+    "secondary": "내 통합 문서",
+    "checks": [
+      "무료로 시작",
+      "설치 불필요",
+      "클라우드 또는 로컬 — 선택"
+    ]
   },
   "foot": {
-    "copy": "© 2026 Document Editor · 기기에서 실행됩니다",
-    "links": [
+    "blurb": "현대 팀을 위한 가벼운 온라인 Excel·문서 편집기 — 로그인 시 클라우드 동기화, 아니면 로컬 편집.",
+    "columns": [
       {
-        "href": "/ko/help",
-        "label": "도움말"
+        "title": "제품",
+        "links": [
+          {
+            "href": "/open/xlsx",
+            "label": "스프레드시트"
+          },
+          {
+            "href": "/open/docx",
+            "label": "문서 편집기"
+          },
+          {
+            "href": "/open/pptx",
+            "label": "프레젠테이션"
+          },
+          {
+            "href": "/open/pdf",
+            "label": "PDF"
+          },
+          {
+            "href": "/open/odt",
+            "label": "OpenDocument 텍스트"
+          },
+          {
+            "href": "/open/ods",
+            "label": "OpenDocument 시트"
+          },
+          {
+            "href": "/open/odp",
+            "label": "OpenDocument 슬라이드"
+          }
+        ]
       },
       {
-        "href": "/ko/changelog",
-        "label": "변경 내역"
+        "title": "자료",
+        "links": [
+          {
+            "href": "/help",
+            "label": "도움말"
+          },
+          {
+            "href": "/changelog",
+            "label": "변경 로그"
+          },
+          {
+            "href": "/convert/docx-to-pdf",
+            "label": "DOCX → PDF"
+          },
+          {
+            "href": "/convert/xlsx-to-csv",
+            "label": "XLSX → CSV"
+          }
+        ]
       },
       {
-        "href": "/ko/embed-document-editor",
-        "label": "Embed API"
-      },
-      {
-        "href": "/ko/webmcp-document-editor",
-        "label": "WebMCP"
-      },
-      {
-        "href": "/ko/private-document-editor",
-        "label": "개인정보"
-      },
-      {
-        "href": "/ko/offline-document-editor",
-        "label": "오프라인 편집기"
-      },
-      {
-        "href": "/ko/no-signup-document-editor",
-        "label": "가입 불필요"
-      },
-      {
-        "href": "/ko/open/docx",
-        "label": "DOCX 열기"
-      },
-      {
-        "href": "/ko/open/odt",
-        "label": "ODT"
-      },
-      {
-        "href": "/ko/open/ods",
-        "label": "ODS"
-      },
-      {
-        "href": "/ko/open/odp",
-        "label": "ODP"
-      },
-      {
-        "href": "/ko/convert/docx-to-pdf",
-        "label": "DOCX → PDF"
-      },
-      {
-        "href": "/ko/convert/xlsx-to-csv",
-        "label": "XLSX → CSV"
-      },
-      {
-        "href": "https://github.com/ranuts/document",
-        "label": "GitHub"
+        "title": "회사",
+        "links": [
+          {
+            "href": "/about",
+            "label": "소개"
+          },
+          {
+            "href": "/contact",
+            "label": "문의"
+          },
+          {
+            "href": "/files",
+            "label": "내 통합 문서"
+          },
+          {
+            "href": "/editor?new=xlsx",
+            "label": "새 Excel"
+          }
+        ]
       }
     ],
-    "license": "AGPL-3.0"
+    "copy": "© 2026 EditXLSX. All rights reserved.",
+    "meta": [
+      {
+        "href": "/about",
+        "label": "소개"
+      },
+      {
+        "href": "/contact",
+        "label": "문의"
+      },
+      {
+        "href": "/help",
+        "label": "도움말"
+      }
+    ]
   },
+  "faqLd": [
+    {
+      "q": "탭을 닫으면 어떻게 되나요?",
+      "a": "로그인된 통합 문서는 저장과 자동 저장으로 계정에 다시 쓰입니다. 별도로 로컬 복구 복사본은 이 브라우저에 7일간 남을 수 있습니다 — 기록 페이지를 보세요. 클라우드 파일은 계정에 남습니다."
+    },
+    {
+      "q": "계정이 필요한가요?",
+      "a": "통합 문서를 계정에 동기화하고 내 통합 문서를 쓰려면 로그인하세요. 로컬 .xlsx는 계정 없이도 열 수 있으며 그 경로는 이 기기에 남습니다(브라우저의 선택적 복구 복사본 포함)."
+    },
+    {
+      "q": "어떤 형식을 편집할 수 있나요?",
+      "a": "Excel(.xlsx)이 주 제품입니다. 같은 편집기로 Word(DOCX), PowerPoint(PPTX), PDF, CSV도 열 수 있으며 OnlyOffice WebAssembly로 구동됩니다."
+    }
+  ],
   "featureList": [
-    "Microsoft Office 없이 DOCX, XLSX, PPTX, CSV 열기 및 보기",
-    "DOCX, XLSX, PPTX, CSV 편집",
-    "100% 클라이언트에서 실행 — 파일은 기기를 벗어나지 않습니다",
-    "계정과 가입이 필요 없음",
-    "?src= 또는 ?file=로 URL에서 문서 열기",
-    "PWA로 설치 가능하며 오프라인 지원",
+    "브라우저 내 온라인 Excel(.xlsx) 통합 문서 편집기",
+    "로그인하여 통합 문서를 계정에 동기화",
+    "로그인된 클라우드 통합 문서 자동 저장",
+    "계정 없이 로컬 열기",
+    "DOCX, PPTX, PDF, CSV도 열기",
+    "설치 가능한 PWA, 로컬 편집 오프라인 지원",
     "postMessage API로 임베드 가능",
-    "무료이며 오픈 소스(AGPL-3.0)"
+    "무료 오픈 소스(AGPL-3.0)"
   ],
   "ecosystem": {
     "name": "ran ecosystem",
