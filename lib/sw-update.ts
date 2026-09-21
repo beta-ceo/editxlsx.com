@@ -74,7 +74,7 @@ export const SKIP_WAITING_MESSAGE = { type: 'SKIP_WAITING' } as const;
  */
 export function documentIsExpected(search: string): boolean {
   const params = new URLSearchParams(search);
-  return ['new', 'file', 'src', 'open', 'saved', 'embed', 'embedded'].some((key) => params.has(key));
+  return ['new', 'file', 'src', 'open', 'saved', 'workbook', 'embed', 'embedded'].some((key) => params.has(key));
 }
 
 /** Tell a waiting worker to take over -- only if nothing is open. Returns whether it did. */

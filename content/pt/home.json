@@ -2,22 +2,23 @@
   "title": "Abrir DOCX, XLSX e PPTX no navegador — visualizador e editor de documentos grátis",
   "description": "Abra e veja arquivos do Word (DOCX), Excel (XLSX), PowerPoint (PPTX) e CSV direto no navegador — sem Office instalado, sem upload, sem cadastro. Também dá para editar e salvar. Grátis, com privacidade em primeiro lugar e funcionando offline. Com OnlyOffice.",
   "ogDescription": "Abra, veja e edite DOCX, XLSX, PPTX e CSV no seu navegador — sem Office, sem upload, sem cadastro. Grátis e disponível offline.",
-  "chip": "Local primeiro · <b>código aberto</b>",
+  "chip": "Excel online · <b>entre para guardar</b>",
   "h1": {
-    "plain": "Abra arquivos do Word, Excel e PowerPoint,",
-    "accent": "direto no navegador."
+    "plain": "Edite folhas Excel",
+    "accent": "no browser."
   },
-  "sub": "Sem Office instalado? Veja qualquer DOCX, XLSX ou PPTX na hora — e edite quando precisar. Tudo roda no seu dispositivo: sem upload, sem cadastro, funciona offline.",
+  "sub": "Entre para guardar .xlsx na sua conta, abri-los em qualquer lado e gravar automaticamente enquanto trabalha. OnlyOffice no separador; ficheiros no Appwrite Storage.",
   "cta": {
-    "open": "Abrir um arquivo",
-    "docx": "Novo Word",
-    "xlsx": "Novo Excel",
-    "pptx": "Novo PowerPoint"
+    "signIn": "Entrar",
+    "files": "As minhas folhas",
+    "xlsx": "Novo Excel (local)",
+    "open": "Abrir ficheiro local"
   },
   "recent": {
-    "label": "Continuar editando",
-    "note": "Fechou a aba sem querer e nada se perdeu: suas edições são salvas neste navegador enquanto você trabalha. As cópias salvas ficam por 7 dias e depois são apagadas sozinhas — ou você as apaga quando quiser.",
-    "all": "Documentos salvos"
+    "label": "Continuar a editar",
+    "note": "As folhas na nuvem sincronizam com a sua conta quando está autenticado. As cópias de recuperação locais ficam 7 dias neste browser.",
+    "all": "Histórico local",
+    "cloud": "Folhas na nuvem"
   },
   "trust": ["0 byte enviado", "sem conta", "funciona offline", ".docx .xlsx .pptx .csv"],
   "docwin": {

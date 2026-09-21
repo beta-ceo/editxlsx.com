@@ -35,6 +35,7 @@ describe('page width scale', () => {
   const home = read('public/home.css');
   const landing = read('public/landing.css');
   const history = read('styles/history.css');
+  const files = read('styles/files.css');
 
   it('has exactly two widths, and every page that declares one uses them', () => {
     const wide = declaration(home, '#landing-hero', '--maxw');
@@ -46,6 +47,7 @@ describe('page width scale', () => {
     // dead space between a file name and the first figure), and it stops
     // being air once a rail is beside the list.
     expect(declaration(history, '.history-shell', 'max-width'), 'history frame').toBe(wide);
+    expect(declaration(files, '.files-shell', 'max-width'), 'files frame').toBe(wide);
   });
 
   /** Frame 1152, reading column ~660, rail takes the rest. */
@@ -65,6 +67,7 @@ describe('page width scale', () => {
   it.each([
     ['content pages', 'landing.css', '.page'],
     ['/history', 'history.css', '.history-shell'],
+    ['/files', 'files.css', '.files-shell'],
   ])('%s: a rail beside the column, not a wider column', (_label, file, selector) => {
     // The wide viewport problem is not "the text is too narrow" -- 720px with
     // 56px gutters puts the measure at 66 characters, dead centre of the band.
@@ -72,7 +75,7 @@ describe('page width scale', () => {
     // is 1152 (the site's wide width), the reading column is 660 so the measure
     // lands at ~72, and the rail takes the rest. Widening the column to fill
     // the frame would push the measure to 77.
-    const css = file === 'landing.css' ? landing : history;
+    const css = file === 'landing.css' ? landing : file === 'files.css' ? files : history;
     const { frame, column } = railFrame(css, selector);
     expect(frame, 'frame is the wide width').toMatch(/max-width:\s*1152px/);
     expect(column, 'reading column').toBeLessThanOrEqual(680);
@@ -132,10 +135,12 @@ describe('page chrome', () => {
 
   /** Every user-facing page: the files on disk, plus the generated ones in memory. */
   const all = [
-    ...[...pages(PUBLIC), resolve(ROOT, 'history.html')].map((file) => ({
-      label: relative(ROOT, file),
-      html: readFileSync(file, 'utf8'),
-    })),
+    ...[...pages(PUBLIC), resolve(ROOT, 'history.html'), resolve(ROOT, 'login.html'), resolve(ROOT, 'files.html')].map(
+      (file) => ({
+        label: relative(ROOT, file),
+        html: readFileSync(file, 'utf8'),
+      }),
+    ),
     ...GENERATED.map((g) => ({ label: `${g.rel} (generated)`, html: g.html })),
   ];
 

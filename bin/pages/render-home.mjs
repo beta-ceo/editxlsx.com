@@ -141,7 +141,7 @@ export function renderHome({ locale, data, locales }) {
       (function () {
         try {
           var q = location.search;
-          var deep = /[?&](file|src|new|open|embed|embedded|readonly|agent)(=|&|$)/.test(q);
+          var deep = /[?&](file|src|new|open|workbook|embed|embedded|readonly|agent)(=|&|$)/.test(q);
           var framed = window.parent !== window;
           if (deep || framed) {
             location.replace('/editor' + (q || (framed ? '?embed=1' : '')) + location.hash);
@@ -211,7 +211,7 @@ ${jsonLd}
     <section id="landing-hero">
       <header class="bar">
         <div class="wrap">
-          <a class="brand" href="${home}"><span class="logo">D</span><span class="wordmark">${e(ui.siteName)}</span></a>
+          <a class="brand" href="${home}"><span class="logo">X</span><span class="wordmark">${e(ui.siteName)}</span></a>
           <nav>
 ${nav}
             <a class="navlink gh" href="${REPO}" rel="noopener" target="_blank">
@@ -229,10 +229,16 @@ ${langMenu(locale, locales, ui, (l) => LOCALES[l].home)}
           <h1 class="reveal d2">${e(data.h1.plain)} <span class="accent">${e(data.h1.accent)}</span></h1>
           <p class="sub reveal d3">${e(data.sub)}</p>
           <div class="cta reveal d4">
-            <r-button type="primary" id="hero-open" data-open-local="${editor('open=local')}">${e(data.cta.open)}</r-button>
-            <a href="${editor('new=docx')}" data-prefetch="docx"><r-button id="hero-new-docx">${e(data.cta.docx)}</r-button></a>
-            <a href="${editor('new=xlsx')}" data-prefetch="xlsx"><r-button id="hero-new-xlsx">${e(data.cta.xlsx)}</r-button></a>
-            <a href="${editor('new=pptx')}" data-prefetch="pptx"><r-button id="hero-new-pptx">${e(data.cta.pptx)}</r-button></a>
+            <a href="${locale === DEFAULT_LOCALE ? '/login' : `/login?locale=${locale}`}"
+              ><r-button type="primary" id="hero-sign-in">${e(data.cta.signIn)}</r-button></a
+            >
+            <a href="${locale === DEFAULT_LOCALE ? '/files' : `/files?locale=${locale}`}"
+              ><r-button id="hero-files">${e(data.cta.files)}</r-button></a
+            >
+            <a href="${editor('new=xlsx')}" data-prefetch="xlsx"
+              ><r-button id="hero-new-xlsx">${e(data.cta.xlsx)}</r-button></a
+            >
+            <r-button id="hero-open" data-open-local="${editor('open=local')}">${e(data.cta.open)}</r-button>
           </div>
           <!-- Autosave is a promise about the user's data, so it is served HTML
                rather than drawn by script: the retention window and the way to
@@ -243,6 +249,10 @@ ${langMenu(locale, locales, ui, (l) => LOCALES[l].home)}
             <span class="recent-note">${e(data.recent.note)}</span>
             <a class="recent-all" href="${locale === DEFAULT_LOCALE ? '/history' : `/history?locale=${locale}`}"
               >${e(data.recent.all)}</a
+            >
+            ·
+            <a class="recent-all" href="${locale === DEFAULT_LOCALE ? '/files' : `/files?locale=${locale}`}"
+              >${e(data.recent.cloud)}</a
             >
           </div>
           <div class="trust reveal d5">${trust}</div>

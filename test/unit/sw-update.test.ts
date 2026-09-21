@@ -108,7 +108,14 @@ describe('wireServiceWorkerUpdates', () => {
  */
 describe('documentIsExpected', () => {
   it('recognises every route that mounts a document', () => {
-    for (const search of ['?new=docx', '?file=https://x/a.docx', '?src=https://x/a.docx', '?open=local', '?saved=abc'])
+    for (const search of [
+      '?new=docx',
+      '?file=https://x/a.docx',
+      '?src=https://x/a.docx',
+      '?open=local',
+      '?saved=abc',
+      '?workbook=abc',
+    ])
       expect(documentIsExpected(search), search).toBe(true);
   });
 

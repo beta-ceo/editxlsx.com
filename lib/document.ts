@@ -69,6 +69,11 @@ export const openLocalFile = async (
   options?: {
     /** Continue an existing history row (the file came out of the history). */
     historyId?: string;
+    /**
+     * Skip the local IndexedDB autosave session. Cloud workbooks (`?workbook=`)
+     * own their own save target and must not also stamp `?saved=` into the URL.
+     */
+    skipHistory?: boolean;
   },
 ): Promise<void> => {
   const { removeLoading } = showLoading();
@@ -83,7 +88,9 @@ export const openLocalFile = async (
     });
     const { fileName, file: fileBlob } = getDocmentObj();
     await handleDocumentOperation({ file: fileBlob, fileName, isNew: !fileBlob });
-    startDocumentSession({ title: file.name, origin: 'local', docId: options?.historyId });
+    if (!options?.skipHistory) {
+      startDocumentSession({ title: file.name, origin: 'local', docId: options?.historyId });
+    }
   } catch (error) {
     console.error('Error opening document:', error);
     // Ensure control panel is shown on error
