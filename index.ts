@@ -89,8 +89,9 @@ window.showControlPanel = showControlPanel;
 // keeps "View/Edit Document / New Word / New Excel / New PowerPoint" off the
 // loading screen instead of racing to remove it afterwards.
 const params = getAllQueryString();
+const workbookParam = typeof params['workbook'] === 'string' ? params['workbook'] : '';
 const opensSomething = Boolean(
-  params['file'] || params['src'] || params['new'] || params['saved'] || params['open'] === 'local',
+  params['file'] || params['src'] || params['new'] || params['saved'] || params['open'] === 'local' || workbookParam,
 );
 if (opensSomething) document.body.classList.add('opening-document');
 
@@ -137,11 +138,11 @@ window.addEventListener('message', (event: MessageEvent) => {
 // boots the editor UI in Chinese and drops the user directly into editing.
 const newExtRaw = params['new'];
 const newExt = typeof newExtRaw === 'string' ? newExtRaw.replace(/^\./, '').toLowerCase() : '';
-const createNewOnLoad = ['docx', 'xlsx', 'pptx'].includes(newExt) && !documentUrl;
+const createNewOnLoad = ['docx', 'xlsx', 'pptx'].includes(newExt) && !documentUrl && !workbookParam;
 // `?open=local`: a static landing page (e.g. /zh-CN/) stashed a picked file in
 // IndexedDB via public/open-local.js — take it out and open it on boot.
 const openParam = params['open'];
-const openLocalOnLoad = openParam === 'local' && !documentUrl && !createNewOnLoad;
+const openLocalOnLoad = openParam === 'local' && !documentUrl && !createNewOnLoad && !workbookParam;
 // `?saved=<id>`: which of this browser's saved documents to open. Every
 // editing session stamps its own id here (see lib/history/session.ts), so a
 // reload comes back to the same document instead of a second blank one, and
@@ -161,7 +162,7 @@ const savedParam = params['saved'] ?? '';
 // created, or we're embedded, hide it immediately to avoid a flash before the
 // editor takes over.
 const isEmbedded = document.body.classList.contains('embed-mode');
-if (documentUrl || isEmbedded || createNewOnLoad || openLocalOnLoad || savedParam) {
+if (documentUrl || isEmbedded || createNewOnLoad || openLocalOnLoad || savedParam || workbookParam) {
   hideLanding();
 } else {
   // Bare /editor with nothing to open: the landing lives at / now.
@@ -169,6 +170,41 @@ if (documentUrl || isEmbedded || createNewOnLoad || openLocalOnLoad || savedPara
 }
 
 void (async () => {
+  // Cloud workbook (`?workbook=<id>`): download from Appwrite and bind Save to
+  // the account. Wins over local `?saved=` -- the cloud row is the source of
+  // truth once the user opened it from /files.
+  if (workbookParam && !isEmbedded) {
+    try {
+      const [{ getCurrentUser }, { getWorkbook, downloadWorkbookFile }, { bindCloudWorkbook, beginCloudAutosave }] =
+        await Promise.all([
+          import('./lib/appwrite/auth'),
+          import('./lib/appwrite/workbooks'),
+          import('./lib/cloud-workbook'),
+        ]);
+      const user = await getCurrentUser();
+      if (!user) {
+        const locale = params['locale'];
+        const login = locale ? `/login?locale=${encodeURIComponent(String(locale))}` : '/login';
+        window.location.replace(login);
+        return;
+      }
+      const workbook = await getWorkbook(workbookParam);
+      const file = await downloadWorkbookFile(workbook.fileId, workbook.title);
+      bindCloudWorkbook(workbook);
+      await openLocalFile(file, { skipHistory: true });
+      beginCloudAutosave();
+      return;
+    } catch (error) {
+      console.error('Failed to open cloud workbook:', error);
+      const { t } = await import('@ranuts/shared/i18n');
+      (window as unknown as { message?: { error?: (msg: string) => void } }).message?.error?.(
+        `${t('cloudOpenFailed')}${error instanceof Error ? error.message : String(error)}`,
+      );
+      window.location.replace('/files');
+      return;
+    }
+  }
+
   // A stored snapshot wins over every other way of opening: it is strictly
   // newer than the file on disk or the blank document the other parameters
   // would produce, and it is the copy nobody else has.

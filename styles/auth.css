@@ -1,0 +1,46 @@
+/* /login -- centered auth form. Reading-column width; shared bar from landing.css. */
+.auth-shell {
+  max-width: 420px;
+  margin: 0 auto;
+  padding: var(--ran-space-10) clamp(20px, 5vw, 56px) var(--ran-space-24);
+}
+
+.auth-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ran-space-5);
+}
+
+.auth-title {
+  margin: 0;
+  font-family: var(--ran-font-display, var(--ran-font-sans));
+  font-size: var(--ran-font-size-7);
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  color: var(--ran-color-text);
+}
+
+.auth-field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ran-space-2);
+}
+
+.auth-label {
+  font-size: var(--ran-font-size-2);
+  color: var(--ran-color-text-secondary);
+}
+
+.auth-hint {
+  margin: 0;
+  font-size: var(--ran-font-size-2);
+  color: var(--ran-color-text-tertiary, var(--ran-color-text-secondary));
+}
+
+.auth-submit {
+  align-self: stretch;
+}
+
+.auth-toggle {
+  align-self: center;
+}

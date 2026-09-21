@@ -122,4 +122,41 @@ export interface I18nMessages {
   historyOpenFile: string;
   historyRailSettings: string;
   historyRailRetention: string;
+
+  // Cloud Excel SaaS (Appwrite auth + workbooks)
+  cloudSignIn: string;
+  cloudSignUp: string;
+  cloudSignOut: string;
+  cloudEmail: string;
+  cloudPassword: string;
+  cloudNameOptional: string;
+  cloudPasswordHint: string;
+  cloudHaveAccount: string;
+  cloudNeedAccount: string;
+  cloudAuthFailed: string;
+  cloudFilesTitle: string;
+  cloudFilesIntro: string;
+  cloudNewWorkbook: string;
+  cloudUploadWorkbook: string;
+  cloudEmptyTitle: string;
+  cloudEmpty: string;
+  cloudEmptySearchTitle: string;
+  cloudEmptySearch: string;
+  cloudOpen: string;
+  cloudDelete: string;
+  cloudDeleteTitle: string;
+  /** `{title}` is the workbook name. */
+  cloudDeleteConfirm: string;
+  cloudCancel: string;
+  cloudSearchPlaceholder: string;
+  cloudColDocument: string;
+  cloudColEdited: string;
+  cloudColSize: string;
+  cloudBack: string;
+  cloudSaved: string;
+  cloudSaveFailed: string;
+  cloudAutosaveStopped: string;
+  cloudOpenFailed: string;
+  cloudNotConfigured: string;
+  cloudSignedInAs: string;
 }

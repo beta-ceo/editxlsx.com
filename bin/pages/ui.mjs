@@ -7,7 +7,7 @@ import { REPO } from './constants.mjs';
 
 export const UI = {
   en: {
-    siteName: 'Document Editor',
+    siteName: 'editxlsx',
     langAria: 'Language',
     themeLabel: 'Theme',
     home: 'Home',
@@ -39,7 +39,7 @@ export const UI = {
     trademark: `ONLYOFFICE is a trademark of Ascensio System SIA. This site is not an official ONLYOFFICE product and is not affiliated with or endorsed by Ascensio System SIA.`,
   },
   'zh-CN': {
-    siteName: 'Document Editor',
+    siteName: 'editxlsx',
     langAria: '语言',
     themeLabel: '主题',
     home: '首页',
@@ -71,7 +71,7 @@ export const UI = {
     trademark: `ONLYOFFICE 是 Ascensio System SIA 的商标。本站并非官方 ONLYOFFICE 产品，与 Ascensio System SIA 无隶属关系，也未获其背书。`,
   },
   ja: {
-    siteName: 'Document Editor',
+    siteName: 'editxlsx',
     langAria: '言語',
     themeLabel: 'テーマ',
     home: 'ホーム',
@@ -102,7 +102,7 @@ export const UI = {
     trademark: `ONLYOFFICE は Ascensio System SIA の商標です。本サイトは公式の ONLYOFFICE 製品ではなく、Ascensio System SIA との提携も推奨関係もありません。`,
   },
   de: {
-    siteName: 'Document Editor',
+    siteName: 'editxlsx',
     langAria: 'Sprache',
     themeLabel: 'Design',
     home: 'Startseite',
@@ -133,7 +133,7 @@ export const UI = {
     trademark: `ONLYOFFICE ist eine Marke von Ascensio System SIA. Diese Website ist kein offizielles ONLYOFFICE-Produkt und steht in keiner Verbindung zu Ascensio System SIA.`,
   },
   es: {
-    siteName: 'Document Editor',
+    siteName: 'editxlsx',
     langAria: 'Idioma',
     themeLabel: 'Tema',
     home: 'Inicio',
@@ -164,7 +164,7 @@ export const UI = {
     trademark: `ONLYOFFICE es una marca de Ascensio System SIA. Este sitio no es un producto oficial de ONLYOFFICE ni está afiliado a Ascensio System SIA ni respaldado por ella.`,
   },
   ko: {
-    siteName: 'Document Editor',
+    siteName: 'editxlsx',
     langAria: '언어',
     themeLabel: '테마',
     home: '홈',
@@ -195,7 +195,7 @@ export const UI = {
     trademark: `ONLYOFFICE는 Ascensio System SIA의 상표입니다. 이 사이트는 공식 ONLYOFFICE 제품이 아니며 Ascensio System SIA와 제휴하거나 후원받지 않았습니다.`,
   },
   pt: {
-    siteName: 'Document Editor',
+    siteName: 'editxlsx',
     langAria: 'Idioma',
     themeLabel: 'Tema',
     home: 'Início',

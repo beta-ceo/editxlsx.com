@@ -2,22 +2,23 @@
   "title": "Abrir DOCX, XLSX y PPTX en el navegador — visor y editor de documentos gratis",
   "description": "Abre y consulta archivos de Word (DOCX), Excel (XLSX), PowerPoint (PPTX) y CSV directamente en el navegador: sin Office instalado, sin subidas, sin registro. También puedes editarlos y guardarlos. Gratis, con privacidad por diseño y sin conexión. Con OnlyOffice.",
   "ogDescription": "Abre, consulta y edita DOCX, XLSX, PPTX y CSV en tu navegador: sin Office, sin subidas, sin registro. Gratis y disponible sin conexión.",
-  "chip": "Local primero · <b>código abierto</b>",
+  "chip": "Excel en línea · <b>inicia sesión para guardar</b>",
   "h1": {
-    "plain": "Abre archivos de Word, Excel y PowerPoint,",
-    "accent": "en tu propio navegador."
+    "plain": "Edita libros Excel",
+    "accent": "en el navegador."
   },
-  "sub": "¿Sin Office instalado? Consulta cualquier DOCX, XLSX o PPTX al instante, y edítalo cuando lo necesites. Todo se ejecuta en tu dispositivo: sin subidas, sin registro, funciona sin conexión.",
+  "sub": "Inicia sesión para guardar .xlsx en tu cuenta, abrirlos donde sea y autoguardar mientras trabajas. OnlyOffice en la pestaña; los archivos en Appwrite Storage.",
   "cta": {
-    "open": "Abrir un archivo",
-    "docx": "Nuevo Word",
-    "xlsx": "Nuevo Excel",
-    "pptx": "Nuevo PowerPoint"
+    "signIn": "Iniciar sesión",
+    "files": "Mis libros",
+    "xlsx": "Nuevo Excel (local)",
+    "open": "Abrir un archivo local"
   },
   "recent": {
     "label": "Seguir editando",
-    "note": "Cierra la pestaña sin querer y no pierdes nada: tus cambios se guardan en este navegador mientras trabajas. Las copias guardadas duran 7 días y luego se borran solas, o puedes borrarlas tú en cualquier momento.",
-    "all": "Documentos guardados"
+    "note": "Los libros en la nube se sincronizan con tu cuenta al iniciar sesión. Las copias de recuperación locales siguen 7 días en este navegador.",
+    "all": "Historial local",
+    "cloud": "Libros en la nube"
   },
   "trust": ["0 bytes subidos", "sin cuenta", "funciona sin conexión", ".docx .xlsx .pptx .csv"],
   "docwin": {

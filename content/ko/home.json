@@ -2,22 +2,23 @@
   "title": "브라우저에서 DOCX, XLSX, PPTX 열기 — 무료 문서 뷰어 및 편집기",
   "description": "Word(DOCX), Excel(XLSX), PowerPoint(PPTX), CSV 파일을 브라우저에서 바로 열고 볼 수 있습니다. Office 설치도, 업로드도, 가입도 필요 없습니다. 편집하고 저장하는 것도 가능합니다. 무료이고 프라이버시를 우선하며 오프라인에서도 동작합니다. OnlyOffice 기반.",
   "ogDescription": "DOCX, XLSX, PPTX, CSV를 브라우저에서 열고 보고 편집하세요. Office 없이, 업로드 없이, 가입 없이. 무료이며 오프라인에서도 사용할 수 있습니다.",
-  "chip": "로컬 우선 · <b>오픈 소스</b>",
+  "chip": "온라인 Excel · <b>로그인 후 저장</b>",
   "h1": {
-    "plain": "Word, Excel, PowerPoint 파일을",
-    "accent": "브라우저에서 바로."
+    "plain": "브라우저에서",
+    "accent": "Excel 통합 문서를 편집하세요."
   },
-  "sub": "Office가 설치되어 있지 않나요? DOCX, XLSX, PPTX를 즉시 볼 수 있고, 필요할 때 편집할 수도 있습니다. 모든 처리는 기기에서 이루어집니다. 업로드 없음, 가입 불필요, 오프라인에서도 동작합니다.",
+  "sub": "로그인하면 .xlsx를 계정에 보관하고 어디서든 열며 작업 중 자동 저장합니다. 탭의 OnlyOffice와 Appwrite Storage를 사용합니다.",
   "cta": {
-    "open": "파일 열기",
-    "docx": "새 Word",
-    "xlsx": "새 Excel",
-    "pptx": "새 PowerPoint"
+    "signIn": "로그인",
+    "files": "내 통합 문서",
+    "xlsx": "새 Excel (로컬)",
+    "open": "로컬 파일 열기"
   },
   "recent": {
     "label": "이어서 편집",
-    "note": "실수로 탭을 닫아도 잃어버리지 않습니다. 작업하는 동안 편집 내용이 이 브라우저에 저장됩니다. 저장된 사본은 7일 동안 유지된 뒤 자동으로 삭제되며, 언제든 직접 삭제할 수도 있습니다.",
-    "all": "저장된 문서"
+    "note": "로그인한 동안 클라우드 통합 문서는 계정에 동기화됩니다. 이 브라우저의 복구 사본은 7일간 유지됩니다.",
+    "all": "로컬 기록",
+    "cloud": "클라우드 통합 문서"
   },
   "trust": ["업로드 0바이트", "계정 불필요", "오프라인 동작", ".docx .xlsx .pptx .csv"],
   "docwin": {

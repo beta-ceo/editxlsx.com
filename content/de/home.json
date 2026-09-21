@@ -2,22 +2,23 @@
   "title": "DOCX, XLSX & PPTX im Browser öffnen — kostenloser Dokumentenbetrachter und -editor",
   "description": "Word- (DOCX), Excel- (XLSX), PowerPoint- (PPTX) und CSV-Dateien direkt im Browser öffnen und ansehen — ohne installiertes Office, ohne Upload, ohne Anmeldung. Bearbeiten und speichern geht auch. Kostenlos, datenschutzfreundlich, offlinefähig. Mit OnlyOffice.",
   "ogDescription": "DOCX, XLSX, PPTX und CSV im Browser öffnen, ansehen und bearbeiten — ohne Office, ohne Upload, ohne Anmeldung. Kostenlos und offlinefähig.",
-  "chip": "Local-first · <b>Open Source</b>",
+  "chip": "Online-Excel · <b>anmelden zum Speichern</b>",
   "h1": {
-    "plain": "Word-, Excel- und PowerPoint-Dateien öffnen,",
-    "accent": "direkt im Browser."
+    "plain": "Excel-Arbeitsmappen",
+    "accent": "im Browser bearbeiten."
   },
-  "sub": "Kein Office installiert? Sehen Sie sich jede DOCX, XLSX oder PPTX sofort an — und bearbeiten Sie sie, wenn nötig. Alles läuft auf Ihrem Gerät: kein Upload, keine Anmeldung, funktioniert offline.",
+  "sub": "Melden Sie sich an, um .xlsx-Dateien in Ihrem Konto zu behalten, überall zu öffnen und während der Arbeit automatisch zu speichern. OnlyOffice im Tab, Dateien in Appwrite Storage.",
   "cta": {
-    "open": "Datei öffnen",
-    "docx": "Neues Word",
-    "xlsx": "Neues Excel",
-    "pptx": "Neues PowerPoint"
+    "signIn": "Anmelden",
+    "files": "Meine Arbeitsmappen",
+    "xlsx": "Neues Excel (lokal)",
+    "open": "Lokale Datei öffnen"
   },
   "recent": {
     "label": "Weiterbearbeiten",
-    "note": "Versehentlich den Tab geschlossen und nichts ist verloren: Ihre Änderungen werden während der Arbeit in diesem Browser gesichert. Gesicherte Kopien bleiben 7 Tage und werden dann automatisch gelöscht — oder Sie löschen sie jederzeit selbst.",
-    "all": "Gesicherte Dokumente"
+    "note": "Cloud-Arbeitsmappen synchronisieren sich mit Ihrem Konto, wenn Sie angemeldet sind. Lokale Wiederherstellungskopien bleiben 7 Tage in diesem Browser.",
+    "all": "Lokale Historie",
+    "cloud": "Cloud-Arbeitsmappen"
   },
   "trust": ["0 Byte hochgeladen", "kein Konto", "funktioniert offline", ".docx .xlsx .pptx .csv"],
   "docwin": {

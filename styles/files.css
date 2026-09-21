@@ -1,0 +1,128 @@
+/* /files -- cloud workbook library. Same frame as /history (wide + rail). */
+.files-shell {
+  max-width: 1152px;
+  margin: 0 auto;
+  padding: var(--ran-space-10) clamp(20px, 5vw, 56px) var(--ran-space-24);
+  display: grid;
+  gap: var(--ran-space-10);
+}
+
+.files-page {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--ran-space-8);
+}
+
+@media (min-width: 1081px) {
+  .files-shell {
+    grid-template-columns: minmax(0, 660px) minmax(0, 284px);
+    justify-content: center;
+    gap: clamp(40px, 5vw, 96px);
+  }
+}
+
+.files-title-page {
+  margin: 0;
+  font-family: var(--ran-font-display, var(--ran-font-sans));
+  font-size: var(--ran-font-size-7);
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  color: var(--ran-color-text);
+}
+
+.files-intro {
+  margin: 0;
+  max-width: 36ch;
+  font-size: var(--ran-font-size-3);
+  line-height: 1.5;
+  color: var(--ran-color-text-secondary);
+}
+
+.files-signed-in {
+  margin: 0;
+  font-size: var(--ran-font-size-2);
+  color: var(--ran-color-text-secondary);
+  word-break: break-all;
+}
+
+.files-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--ran-space-3);
+  align-items: center;
+}
+
+.files-search {
+  flex: 1 1 180px;
+  min-width: 160px;
+}
+
+.files-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ran-space-3);
+}
+
+.files-head {
+  display: none;
+}
+
+.files-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--ran-space-3);
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--ran-space-4) 0;
+  border-bottom: 1px solid var(--ran-color-border, rgba(0, 0, 0, 0.08));
+}
+
+.files-row-main {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ran-space-1);
+  min-width: 0;
+  flex: 1 1 200px;
+}
+
+.files-title {
+  font-weight: 500;
+  color: var(--ran-color-text);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.files-meta {
+  font-size: var(--ran-font-size-2);
+  color: var(--ran-color-text-secondary);
+}
+
+.files-row-actions {
+  display: flex;
+  gap: var(--ran-space-2);
+  align-items: center;
+}
+
+.files-open {
+  text-decoration: none;
+}
+
+.files-empty-title {
+  margin: var(--ran-space-8) 0 var(--ran-space-2);
+  font-size: var(--ran-font-size-5);
+  font-weight: 600;
+}
+
+.files-empty {
+  margin: 0;
+  color: var(--ran-color-text-secondary);
+  max-width: 42ch;
+}
+
+.files-rail {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ran-space-4);
+}

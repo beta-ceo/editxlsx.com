@@ -2,22 +2,23 @@
   "title": "Open DOCX, XLSX & PPTX in Your Browser — Free Document Viewer & Editor",
   "description": "Open and view Word (DOCX), Excel (XLSX), PowerPoint (PPTX) and CSV files directly in your browser — no Office installed, no upload, no sign-up. Edit and save them too. Free, privacy-first, works offline. Powered by OnlyOffice.",
   "ogDescription": "Open, view and edit DOCX, XLSX, PPTX and CSV in your browser — no Office, no upload, no sign-up. Free and offline-capable.",
-  "chip": "Local-first · <b>open source</b>",
+  "chip": "Online Excel · <b>sign in to save</b>",
   "h1": {
-    "plain": "Open Word, Excel & PowerPoint files,",
-    "accent": "right in your browser."
+    "plain": "Edit Excel workbooks",
+    "accent": "in your browser."
   },
-  "sub": "No Office installed? View any DOCX, XLSX or PPTX instantly — and edit it when you need to. Everything runs on your device: no upload, no sign-up, works offline.",
+  "sub": "Sign in to keep .xlsx files in your account, open them anywhere, and autosave as you work. Powered by OnlyOffice in the tab — your files live in Appwrite Storage.",
   "cta": {
-    "open": "Open a file",
-    "docx": "New Word",
-    "xlsx": "New Excel",
-    "pptx": "New PowerPoint"
+    "signIn": "Sign in",
+    "files": "My workbooks",
+    "xlsx": "New Excel (local)",
+    "open": "Open a local file"
   },
   "recent": {
     "label": "Continue editing",
-    "note": "Close the tab by accident and nothing is lost: your edits are saved into this browser as you work. Saved copies stay for 7 days and are then deleted automatically — or delete them yourself at any time.",
-    "all": "Saved documents"
+    "note": "Cloud workbooks sync to your account when you are signed in. Local recovery copies still stay in this browser for 7 days — inspect them on the history page.",
+    "all": "Local history",
+    "cloud": "Cloud workbooks"
   },
   "trust": ["0 bytes uploaded", "no account", "works offline", ".docx .xlsx .pptx .csv"],
   "docwin": {

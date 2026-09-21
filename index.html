@@ -15,7 +15,7 @@
       (function () {
         try {
           var q = location.search;
-          var deep = /[?&](file|src|new|open|embed|embedded|readonly|agent)(=|&|$)/.test(q);
+          var deep = /[?&](file|src|new|open|workbook|embed|embedded|readonly|agent)(=|&|$)/.test(q);
           var framed = window.parent !== window;
           if (deep || framed) {
             location.replace('/editor' + (q || (framed ? '?embed=1' : '')) + location.hash);
@@ -262,7 +262,7 @@
     <section id="landing-hero">
       <header class="bar">
         <div class="wrap">
-          <a class="brand" href="/"><span class="logo">D</span><span class="wordmark">Document Editor</span></a>
+          <a class="brand" href="/"><span class="logo">X</span><span class="wordmark">editxlsx</span></a>
           <nav>
             <a class="navlink" href="/offline-document-editor">Offline</a>
             <a class="navlink" href="/no-signup-document-editor">No sign-up</a>
@@ -277,14 +277,20 @@
       <main>
       <div class="hero wrap">
         <div class="hero-copy">
-          <span class="chip reveal d1"><span class="dot"></span>Local-first · <b>open source</b></span>
-          <h1 class="reveal d2">Open Word, Excel &amp; PowerPoint files, <span class="accent">right in your browser.</span></h1>
-          <p class="sub reveal d3">No Office installed? View any DOCX, XLSX or PPTX instantly — and edit it when you need to. Everything runs on your device: no upload, no sign-up, works offline.</p>
+          <span class="chip reveal d1"><span class="dot"></span>Online Excel · <b>sign in to save</b></span>
+          <h1 class="reveal d2">Edit Excel workbooks <span class="accent">in your browser.</span></h1>
+          <p class="sub reveal d3">Sign in to keep .xlsx files in your account, open them anywhere, and autosave as you work. Powered by OnlyOffice in the tab — your files live in Appwrite Storage.</p>
           <div class="cta reveal d4">
-            <r-button type="primary" id="hero-open" data-open-local="/editor?open=local">Open a file</r-button>
-            <a href="/editor?new=docx" data-prefetch="docx"><r-button id="hero-new-docx">New Word</r-button></a>
-            <a href="/editor?new=xlsx" data-prefetch="xlsx"><r-button id="hero-new-xlsx">New Excel</r-button></a>
-            <a href="/editor?new=pptx" data-prefetch="pptx"><r-button id="hero-new-pptx">New PowerPoint</r-button></a>
+            <a href="/login"
+              ><r-button type="primary" id="hero-sign-in">Sign in</r-button></a
+            >
+            <a href="/files"
+              ><r-button id="hero-files">My workbooks</r-button></a
+            >
+            <a href="/editor?new=xlsx" data-prefetch="xlsx"
+              ><r-button id="hero-new-xlsx">New Excel (local)</r-button></a
+            >
+            <r-button id="hero-open" data-open-local="/editor?open=local">Open a local file</r-button>
           </div>
           <!-- Autosave is a promise about the user's data, so it is served HTML
                rather than drawn by script: the retention window and the way to
@@ -292,9 +298,13 @@
                visitor, to a crawler, and with JavaScript off. -->
           <div class="recent reveal d5">
             <span data-recent-slot data-recent-label="Continue editing" hidden></span>
-            <span class="recent-note">Close the tab by accident and nothing is lost: your edits are saved into this browser as you work. Saved copies stay for 7 days and are then deleted automatically — or delete them yourself at any time.</span>
+            <span class="recent-note">Cloud workbooks sync to your account when you are signed in. Local recovery copies still stay in this browser for 7 days — inspect them on the history page.</span>
             <a class="recent-all" href="/history"
-              >Saved documents</a
+              >Local history</a
+            >
+            ·
+            <a class="recent-all" href="/files"
+              >Cloud workbooks</a
             >
           </div>
           <div class="trust reveal d5"><span>0 bytes uploaded</span><span>no account</span><span>works offline</span><span>.docx .xlsx .pptx .csv</span></div>

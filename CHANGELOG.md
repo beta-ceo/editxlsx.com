@@ -9,6 +9,11 @@ notes. Entries describe what users experience, not internal refactors.
 
 ### Added
 
+- **Cloud Excel workbooks SaaS MVP.** Sign in with email and password
+  (Appwrite Auth), browse your account's `.xlsx` files at `/files`, open one in
+  the OnlyOffice editor (`/editor?workbook=<id>`), and Save / autosave write
+  back to Appwrite Storage. Local-only editing and `/history` recovery remain
+  available; Stripe billing is not part of this release.
 - **Saving now writes back into your own file.** Pick the file once and every
   save after that goes straight into it -- no "save as" dialog each time, and
   no "a file with that name already exists" prompt. The document ends up where
@@ -30,12 +35,18 @@ notes. Entries describe what users experience, not internal refactors.
   open it, automatically, whether or not you visit the page. The rule is stated
   on the homepage and on that page, and every row shows how long it has left.
   Autosave can also be switched off entirely.
-- **Closing a tab with unsaved edits now asks first.** It never did, so a
+- **Closing a tab by accident with unsaved edits now asks first.** It never did, so a
   mistaken Cmd+W or Ctrl+R silently threw the session away.
 - **A reload comes back to the same document.** The address bar carries the
   document's identity (`?saved=<id>`), so refreshing an unsaved document reopens
   it instead of starting a blank one, and two files sharing a name stay
   separate.
+
+### Changed
+
+- **The homepage CTA leads with Sign in / My workbooks** for the cloud Excel
+  path. Opening a local file or starting a local blank workbook is still one
+  click away.
 
 ### Changed
 
