@@ -1129,9 +1129,22 @@ body {
   padding: 32px;
   text-align: center;
   min-height: 0;
+  position: relative;
 }
 
 .vault-stage-empty.is-browser {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  justify-content: flex-start;
+  place-items: stretch;
+  gap: 0;
+  padding: 0;
+  text-align: start;
+  background: var(--ran-color-bg);
+}
+
+.vault-stage-empty.is-skeleton {
   display: flex;
   flex-direction: column;
   align-items: stretch;
@@ -1331,8 +1344,10 @@ body {
   border-bottom: 0;
 }
 
-.vault-stage-browser-row:hover {
-  background: var(--ran-gray-100, #f2f2f2);
+.vault-stage-browser-row.is-file-drop {
+  background: color-mix(in srgb, var(--ran-blue-700, #006bff) 12%, transparent);
+  outline: 1px solid color-mix(in srgb, var(--ran-blue-700, #006bff) 45%, transparent);
+  outline-offset: -1px;
 }
 
 .vault-stage-browser-name {
@@ -1404,6 +1419,206 @@ body {
   height: 1px;
   opacity: 0;
   pointer-events: none;
+}
+
+.vault-upload-progress {
+  position: absolute;
+  z-index: 6;
+  inset-inline: 24px;
+  top: 12px;
+  display: grid;
+  gap: 8px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  border: 1px solid var(--ran-color-border, rgba(0, 0, 0, 0.08));
+  background: color-mix(in srgb, var(--ran-color-bg) 92%, var(--ran-gray-100, #f2f2f2));
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+}
+
+.vault-upload-progress[hidden] {
+  display: none;
+}
+
+.vault-upload-progress-label {
+  margin: 0;
+  font-size: 12.5px;
+  font-weight: 550;
+  color: var(--ran-color-text);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.vault-upload-progress-track {
+  height: 6px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--ran-gray-200, #e8e8e8) 90%, transparent);
+  overflow: hidden;
+}
+
+.vault-upload-progress-fill {
+  height: 100%;
+  width: 0%;
+  border-radius: inherit;
+  background: var(--ran-blue-700, #006bff);
+  transition: width 0.2s ease;
+}
+
+.vault-stage-empty:has(#workspace-upload-progress:not([hidden])) .vault-stage-browser,
+.vault-stage-empty:has(#workspace-upload-progress:not([hidden])).is-empty {
+  padding-top: 72px;
+}
+
+.vault-stage-empty:has(#workspace-upload-progress:not([hidden])).is-empty {
+  align-content: start;
+}
+
+.vault-stage-action:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.vault-bone {
+  display: block;
+  border-radius: 6px;
+  background: linear-gradient(
+    90deg,
+    color-mix(in srgb, var(--ran-gray-200, #e8e8e8) 88%, transparent) 0%,
+    color-mix(in srgb, var(--ran-gray-100, #f2f2f2) 95%, #fff) 45%,
+    color-mix(in srgb, var(--ran-gray-200, #e8e8e8) 88%, transparent) 100%
+  );
+  background-size: 200% 100%;
+  animation: vault-bone-shimmer 1.25s ease-in-out infinite;
+}
+
+@keyframes vault-bone-shimmer {
+  0% {
+    background-position: 100% 0;
+  }
+  100% {
+    background-position: -100% 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .vault-bone {
+    animation: none;
+  }
+}
+
+.vault-docs-skeleton {
+  display: grid;
+  gap: 4px;
+  padding: 4px 2px;
+}
+
+.vault-docs-skeleton-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 30px;
+  padding-inline-start: calc(4px + var(--vault-depth, 0) * 12px);
+}
+
+.vault-bone-twist {
+  width: 14px;
+  height: 14px;
+  flex: none;
+  border-radius: 4px;
+}
+
+.vault-bone-icon {
+  width: 16px;
+  height: 16px;
+  flex: none;
+  border-radius: 4px;
+}
+
+.vault-bone-label {
+  height: 12px;
+  width: 58%;
+  max-width: 160px;
+}
+
+.vault-docs-skeleton-row:nth-child(3n) .vault-bone-label {
+  width: 42%;
+}
+
+.vault-docs-skeleton-row:nth-child(3n + 1) .vault-bone-label {
+  width: 70%;
+}
+
+.vault-stage-skeleton {
+  flex: 1 1 auto;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  padding: 20px 24px 24px;
+}
+
+.vault-stage-skeleton[hidden] {
+  display: none;
+}
+
+.vault-stage-skeleton-head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+.vault-stage-skeleton-head .vault-bone-title {
+  flex: 1 1 auto;
+  height: 18px;
+  max-width: 220px;
+}
+
+.vault-stage-skeleton-head .vault-bone-action {
+  width: 72px;
+  height: 32px;
+  flex: none;
+  border-radius: 10px;
+}
+
+.vault-stage-skeleton-list {
+  flex: 1 1 auto;
+  min-height: 0;
+  border: 1px solid var(--ran-color-border, rgba(0, 0, 0, 0.08));
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.vault-stage-skeleton-row {
+  display: grid;
+  grid-template-columns: 18px minmax(0, 1fr) 72px 120px;
+  align-items: center;
+  gap: 12px;
+  padding: 14px;
+  border-bottom: 1px solid color-mix(in srgb, var(--ran-color-border, rgba(0, 0, 0, 0.08)) 80%, transparent);
+}
+
+.vault-stage-skeleton-row:last-child {
+  border-bottom: 0;
+}
+
+.vault-stage-skeleton-row .vault-bone-name {
+  height: 12px;
+  width: 55%;
+}
+
+.vault-stage-skeleton-row:nth-child(even) .vault-bone-name {
+  width: 40%;
+}
+
+.vault-stage-skeleton-row .vault-bone-meta {
+  height: 10px;
+  width: 100%;
+}
+
+.vault-stage-skeleton-row .vault-bone-meta-sm {
+  height: 10px;
+  width: 70%;
+  justify-self: end;
 }
 
 .vault-lang {

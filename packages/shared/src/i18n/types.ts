@@ -153,6 +153,9 @@ export interface I18nMessages {
   /** Generic upload label (xlsx / docx / pptx). */
   cloudUpload: string;
   cloudUploadTypeError: string;
+  /** Progress while uploading: "Uploading 2 of 5 · report.xlsx". */
+  cloudUploadProgress: string;
+  cloudUploadDone: string;
   /** Empty folder stage hint (create or upload into currentFolderId). */
   cloudFolderEmptyHint: string;
   /** Drop zone hint under empty-stage actions. */

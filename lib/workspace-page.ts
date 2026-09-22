@@ -508,33 +508,253 @@ function pickUploadFiles(): void {
   input.click();
 }
 
+type DroppedUpload = { file: File; relativeDir: string };
+
+type FileSystemEntryLike = {
+  isFile: boolean;
+  isDirectory: boolean;
+  name: string;
+  file: (ok: (file: File) => void, err?: (error: DOMException) => void) => void;
+  createReader: () => {
+    readEntries: (
+      ok: (entries: FileSystemEntryLike[]) => void,
+      err?: (error: DOMException) => void,
+    ) => void;
+  };
+};
+
+function readEntryFile(entry: FileSystemEntryLike): Promise<File> {
+  return new Promise((resolve, reject) => {
+    entry.file(resolve, reject);
+  });
+}
+
+function readDirectoryEntries(
+  reader: ReturnType<FileSystemEntryLike['createReader']>,
+): Promise<FileSystemEntryLike[]> {
+  return new Promise((resolve, reject) => {
+    const all: FileSystemEntryLike[] = [];
+    const pump = (): void => {
+      reader.readEntries(
+        (batch) => {
+          if (batch.length === 0) {
+            resolve(all);
+            return;
+          }
+          all.push(...batch);
+          pump();
+        },
+        reject,
+      );
+    };
+    pump();
+  });
+}
+
+async function collectFromFileEntry(
+  entry: FileSystemEntryLike,
+  relativeDir: string,
+): Promise<DroppedUpload[]> {
+  if (entry.isFile) {
+    const file = await readEntryFile(entry);
+    return [{ file, relativeDir }];
+  }
+  if (!entry.isDirectory) return [];
+  const childDir = relativeDir ? `${relativeDir}/${entry.name}` : entry.name;
+  const kids = await readDirectoryEntries(entry.createReader());
+  const out: DroppedUpload[] = [];
+  for (const kid of kids) {
+    // Skip dotted junk (.DS_Store, __MACOSX, …) at every level.
+    if (kid.name.startsWith('.')) continue;
+    out.push(...(await collectFromFileEntry(kid, childDir)));
+  }
+  return out;
+}
+
+/** Flatten OS file/folder drops (File System Access entry API when available). */
+async function collectDroppedUploads(dataTransfer: DataTransfer): Promise<DroppedUpload[]> {
+  const items = [...dataTransfer.items].filter((item) => item.kind === 'file');
+  const getEntry = (item: DataTransferItem): FileSystemEntryLike | null => {
+    const asEntry = (
+      item as DataTransferItem & { webkitGetAsEntry?: () => FileSystemEntryLike | null }
+    ).webkitGetAsEntry;
+    return typeof asEntry === 'function' ? asEntry.call(item) : null;
+  };
+
+  if (items.some((item) => getEntry(item))) {
+    const out: DroppedUpload[] = [];
+    for (const item of items) {
+      const entry = getEntry(item);
+      if (!entry || entry.name.startsWith('.')) continue;
+      out.push(...(await collectFromFileEntry(entry, '')));
+    }
+    return out;
+  }
+
+  return [...dataTransfer.files].map((file) => {
+    const relative = (file as File & { webkitRelativePath?: string }).webkitRelativePath || '';
+    const parts = relative.split('/').filter(Boolean);
+    if (parts.length > 1) parts.pop();
+    else parts.length = 0;
+    return { file, relativeDir: parts.join('/') };
+  });
+}
+
+async function ensureFolderPath(parentId: string, segments: string[]): Promise<string> {
+  let cursor = parentId;
+  for (const raw of segments) {
+    const name = raw.trim();
+    if (!name) continue;
+    let folder = rows.find(
+      (row) => row.kind === 'folder' && (row.parentId || '') === cursor && row.title === name,
+    );
+    if (!folder) {
+      const sortOrder = nextSortOrder(childrenOf(cursor));
+      folder = await createFolder(name, cursor, sortOrder);
+      rows = [folder, ...rows.filter((row) => row.id !== folder!.id)];
+    }
+    if (cursor) expandedFolderIds.add(cursor);
+    expandedFolderIds.add(folder.id);
+    cursor = folder.id;
+  }
+  return cursor;
+}
+
+let uploadBusy = false;
+/** Live upload progress for the stage progress bar (`null` = hidden). */
+let uploadProgress: { current: number; total: number; name: string } | null = null;
+let uploadDoneTimer = 0;
+
+function setUploadButtonsDisabled(disabled: boolean): void {
+  const uploadBtn = document.getElementById('workspace-stage-upload') as HTMLButtonElement | null;
+  if (uploadBtn) uploadBtn.disabled = disabled;
+}
+
+function paintUploadProgress(): void {
+  const bar = document.getElementById('workspace-upload-progress');
+  const label = document.getElementById('workspace-upload-progress-label');
+  const fill = document.getElementById('workspace-upload-progress-fill');
+  if (!bar || !label || !fill) return;
+  if (!uploadProgress) {
+    bar.hidden = true;
+    bar.dataset.state = '';
+    label.textContent = '';
+    fill.style.width = '0%';
+    return;
+  }
+  bar.hidden = false;
+  const { current, total, name } = uploadProgress;
+  const done = current >= total && total > 0 && !uploadBusy;
+  bar.dataset.state = done ? 'done' : 'active';
+  label.textContent = done
+    ? t('cloudUploadDone', { count: String(total) })
+    : t('cloudUploadProgress', {
+        current: String(Math.min(current, total)),
+        total: String(total),
+        name,
+      });
+  const ratio = total <= 0 ? 0 : Math.min(1, current / total);
+  fill.style.width = `${Math.round(ratio * 1000) / 10}%`;
+}
+
 async function onUploadFiles(fileList: FileList | null): Promise<void> {
   if (!fileList || fileList.length === 0) return;
-  const files = [...fileList];
-  let lastId = '';
+  await uploadOfficeItems([...fileList].map((file) => ({ file, relativeDir: '' })), currentFolderId);
+}
+
+async function onDropUpload(
+  dataTransfer: DataTransfer | null,
+  parentId = currentFolderId,
+): Promise<void> {
+  if (!dataTransfer) return;
+  const items = await collectDroppedUploads(dataTransfer);
+  await uploadOfficeItems(items, parentId);
+}
+
+async function uploadOfficeItems(items: DroppedUpload[], baseParentId: string): Promise<void> {
+  if (uploadBusy || items.length === 0) return;
+  const queue = items.filter((item) => formatFromTitle(item.file.name));
+  const skipped = items.length - queue.length;
+  if (queue.length === 0) {
+    if (skipped > 0) notifyError(t('cloudUploadTypeError'));
+    return;
+  }
+
+  uploadBusy = true;
+  setUploadButtonsDisabled(true);
+  if (uploadDoneTimer) {
+    window.clearTimeout(uploadDoneTimer);
+    uploadDoneTimer = 0;
+  }
+  uploadProgress = { current: 0, total: queue.length, name: queue[0]?.file.name || '' };
+  paintUploadProgress();
+
+  let uploaded = 0;
   try {
-    for (const file of files) {
-      if (!formatFromTitle(file.name)) {
-        notifyError(t('cloudUploadTypeError'));
-        continue;
-      }
-      const sortOrder = nextSortOrder(childrenOf(currentFolderId));
-      const workbook = await createWorkbookFromFile(file, file.name, currentFolderId, sortOrder);
-      rows = [workbook, ...rows.filter((row) => row.id !== workbook.id)];
-      lastId = workbook.id;
-    }
-    if (!lastId) return;
-    stageStatus = 'loading';
+    // Stay on the folder browser; never auto-open an uploaded file.
+    selectedId = '';
+    openWorkbook = null;
+    stageStatus = 'idle';
     stageError = '';
-    selectedId = lastId;
-    if (currentFolderId) expandedFolderIds.add(currentFolderId);
+    clearOpenWatchers();
+    currentFolderId = baseParentId;
+    if (baseParentId) expandedFolderIds.add(baseParentId);
+    syncUrl();
+    paint();
+    paintUploadProgress();
+
+    for (const { file, relativeDir } of queue) {
+      uploadProgress = {
+        current: uploaded,
+        total: queue.length,
+        name: file.name,
+      };
+      paintUploadProgress();
+      const segments = relativeDir.split('/').filter(Boolean);
+      const parentId = await ensureFolderPath(baseParentId, segments);
+      const sortOrder = nextSortOrder(childrenOf(parentId));
+      const workbook = await createWorkbookFromFile(file, file.name, parentId, sortOrder);
+      rows = [workbook, ...rows.filter((row) => row.id !== workbook.id)];
+      uploaded += 1;
+      uploadProgress = { current: uploaded, total: queue.length, name: file.name };
+      paintUploadProgress();
+      paintDocs();
+      paintStorage();
+      if (!selectedWorkbook()) paintStage();
+      paintUploadProgress();
+    }
+
     revealTreeSelection();
     syncUrl();
     paint();
+    uploadProgress = { current: uploaded, total: uploaded, name: '' };
+    paintUploadProgress();
+    uploadDoneTimer = window.setTimeout(() => {
+      uploadProgress = null;
+      paintUploadProgress();
+      uploadDoneTimer = 0;
+    }, 2_400);
   } catch (error) {
+    uploadProgress = null;
+    paintUploadProgress();
     const message = error instanceof Error ? error.message : String(error);
     notifyError(message);
+    paint();
+  } finally {
+    uploadBusy = false;
+    setUploadButtonsDisabled(false);
   }
+}
+
+function isExternalFileDrag(event: DragEvent): boolean {
+  if (dragId || uploadBusy) return false;
+  return Boolean(event.dataTransfer?.types.includes('Files'));
+}
+
+function dropTargetFolderId(event: DragEvent, fallback: string): string {
+  const row = (event.target as Element | null)?.closest?.('.vault-stage-browser-row[data-kind="folder"]');
+  const id = row instanceof HTMLElement ? row.dataset.id : '';
+  return id || fallback;
 }
 
 function startRename(id: string): void {
@@ -916,6 +1136,27 @@ function button(label: string, onClick: () => void, options: { type?: string; id
   return builder.build();
 }
 
+function bone(kind: string): HTMLElement {
+  const el = document.createElement('span');
+  el.className = `vault-bone vault-bone-${kind}`;
+  el.setAttribute('aria-hidden', 'true');
+  return el;
+}
+
+function mountDocsSkeleton(host: HTMLElement): void {
+  const wrap = document.createElement('div');
+  wrap.className = 'vault-docs-skeleton';
+  wrap.setAttribute('aria-busy', 'true');
+  for (let i = 0; i < 7; i += 1) {
+    const row = document.createElement('div');
+    row.className = 'vault-docs-skeleton-row';
+    row.style.setProperty('--vault-depth', String(i % 3 === 0 ? 0 : 1));
+    row.append(bone('twist'), bone('icon'), bone('label'));
+    wrap.append(row);
+  }
+  host.append(wrap);
+}
+
 function mountShell(): void {
   if (shellReady || !user) return;
   shellReady = true;
@@ -1226,6 +1467,46 @@ function mountShell(): void {
             browser.append(head, list);
             return browser;
           })(),
+          (() => {
+            const progress = document.createElement('div');
+            progress.className = 'vault-upload-progress';
+            progress.id = 'workspace-upload-progress';
+            progress.hidden = true;
+            progress.setAttribute('role', 'status');
+            progress.setAttribute('aria-live', 'polite');
+            const label = document.createElement('p');
+            label.className = 'vault-upload-progress-label';
+            label.id = 'workspace-upload-progress-label';
+            const track = document.createElement('div');
+            track.className = 'vault-upload-progress-track';
+            const fill = document.createElement('div');
+            fill.className = 'vault-upload-progress-fill';
+            fill.id = 'workspace-upload-progress-fill';
+            track.append(fill);
+            progress.append(label, track);
+            return progress;
+          })(),
+          (() => {
+            const skeleton = document.createElement('div');
+            skeleton.className = 'vault-stage-skeleton';
+            skeleton.id = 'workspace-stage-skeleton';
+            skeleton.hidden = true;
+            skeleton.setAttribute('aria-busy', 'true');
+            skeleton.setAttribute('aria-label', '…');
+            const head = document.createElement('div');
+            head.className = 'vault-stage-skeleton-head';
+            head.append(bone('title'), bone('action'), bone('action'));
+            const list = document.createElement('div');
+            list.className = 'vault-stage-skeleton-list';
+            for (let i = 0; i < 6; i += 1) {
+              const row = document.createElement('div');
+              row.className = 'vault-stage-skeleton-row';
+              row.append(bone('icon'), bone('name'), bone('meta'), bone('meta-sm'));
+              list.append(row);
+            }
+            skeleton.append(head, list);
+            return skeleton;
+          })(),
         )
         .build(),
       Div()
@@ -1259,20 +1540,37 @@ function mountShell(): void {
   const emptyStage = stage.querySelector('#workspace-stage-empty');
   if (emptyStage instanceof HTMLElement) {
     emptyStage.addEventListener('dragover', (event) => {
-      if (!event.dataTransfer?.types.includes('Files')) return;
+      if (!isExternalFileDrag(event)) return;
       event.preventDefault();
-      event.dataTransfer.dropEffect = 'copy';
+      event.stopPropagation();
+      if (event.dataTransfer) event.dataTransfer.dropEffect = 'copy';
       emptyStage.classList.add('is-drop-target');
+      const folderRow = (event.target as Element | null)?.closest?.(
+        '.vault-stage-browser-row[data-kind="folder"]',
+      );
+      emptyStage.querySelectorAll('.vault-stage-browser-row.is-file-drop').forEach((el) => {
+        el.classList.remove('is-file-drop');
+      });
+      if (folderRow instanceof HTMLElement) folderRow.classList.add('is-file-drop');
     });
     emptyStage.addEventListener('dragleave', (event) => {
       const related = event.relatedTarget as Node | null;
       if (related && emptyStage.contains(related)) return;
       emptyStage.classList.remove('is-drop-target');
+      emptyStage.querySelectorAll('.vault-stage-browser-row.is-file-drop').forEach((el) => {
+        el.classList.remove('is-file-drop');
+      });
     });
     emptyStage.addEventListener('drop', (event) => {
+      if (!isExternalFileDrag(event)) return;
       event.preventDefault();
+      event.stopPropagation();
       emptyStage.classList.remove('is-drop-target');
-      void onUploadFiles(event.dataTransfer?.files ?? null);
+      emptyStage.querySelectorAll('.vault-stage-browser-row.is-file-drop').forEach((el) => {
+        el.classList.remove('is-file-drop');
+      });
+      const parentId = dropTargetFolderId(event, currentFolderId);
+      void onDropUpload(event.dataTransfer, parentId);
     });
   }
 
@@ -1527,10 +1825,7 @@ function paintDocs(): void {
   closeContextMenu();
   host.replaceChildren();
   if (loading) {
-    const pending = document.createElement('p');
-    pending.className = 'vault-empty';
-    pending.textContent = '…';
-    host.append(pending);
+    mountDocsSkeleton(host);
     return;
   }
   if (query.trim()) {
@@ -1817,6 +2112,7 @@ function paintStage(): void {
     const copy = document.getElementById('workspace-stage-empty-copy');
     const cta = document.getElementById('workspace-stage-empty-cta');
     const browser = document.getElementById('workspace-stage-browser');
+    const skeleton = document.getElementById('workspace-stage-skeleton');
     const heading = document.getElementById('workspace-stage-empty-title');
     const body = document.getElementById('workspace-stage-empty-body');
     const dropHint = document.getElementById('workspace-stage-drop-hint');
@@ -1826,6 +2122,20 @@ function paintStage(): void {
     const folderEmpty = !searching && children.length === 0;
 
     if (browser) browser.hidden = true;
+    if (loading) {
+      empty.classList.remove('is-browser', 'is-empty');
+      empty.classList.add('is-skeleton');
+      if (copy) copy.hidden = true;
+      if (cta) cta.hidden = true;
+      if (dropHint) dropHint.hidden = true;
+      if (skeleton) skeleton.hidden = false;
+      document.title = t('cloudFilesTitle');
+      paintOverlay();
+      return;
+    }
+
+    empty.classList.remove('is-skeleton');
+    if (skeleton) skeleton.hidden = true;
     empty.classList.toggle('is-browser', !searching && !folderEmpty);
     empty.classList.toggle('is-empty', searching || folderEmpty);
 
@@ -1858,7 +2168,9 @@ function paintStage(): void {
   }
 
   empty.hidden = true;
-  empty.classList.remove('is-browser', 'is-empty');
+  empty.classList.remove('is-browser', 'is-empty', 'is-skeleton');
+  const skeleton = document.getElementById('workspace-stage-skeleton');
+  if (skeleton) skeleton.hidden = true;
   wrap.hidden = false;
   frame.hidden = false;
   document.title = workbook.title;
