@@ -6,7 +6,7 @@
  * points the row at it. Folders (`kind: folder`) are metadata-only
  * (`fileId` empty, `format` none) and nest via `parentId` ('' = root).
  */
-import { ID, Permission, Query, Role, type Models } from 'appwrite';
+import { ID, Permission, Query, Role, type Models, type UploadProgress } from 'appwrite';
 import { requireUser } from './auth';
 import { getClient, getDatabases, getStorage } from './client';
 import { buildEmptyOfficeFile } from './empty-office';
@@ -240,7 +240,13 @@ export async function getWorkbook(id: string): Promise<Workbook> {
   return asWorkbook(await getVaultItem(id));
 }
 
-async function uploadFile(fileId: string, file: File, userId: string, format: VaultFormat): Promise<void> {
+async function uploadFile(
+  fileId: string,
+  file: File,
+  userId: string,
+  format: VaultFormat,
+  onProgress?: (progress: UploadProgress) => void,
+): Promise<void> {
   assertCloudOfficeFile(file, format);
   const named = new File([file], ensureFormatName(file.name, format), { type: mimeForFormat(format) });
   await getStorage().createFile({
@@ -248,6 +254,7 @@ async function uploadFile(fileId: string, file: File, userId: string, format: Va
     fileId,
     file: named,
     permissions: ownerPermissions(userId),
+    onProgress,
   });
 }
 
@@ -340,12 +347,19 @@ export async function createWorkbookFromFile(
   title?: string,
   parentId = '',
   sortOrder = 0,
+  onProgress?: (progress: UploadProgress) => void,
 ): Promise<Workbook> {
   const user = await requireUser();
   const format = assertCloudOfficeFile(file);
   const id = ID.unique();
   const finalTitle = ensureFormatName(title || file.name || `Untitled.${format}`, format);
-  await uploadFile(id, new File([file], finalTitle, { type: mimeForFormat(format) }), user.$id, format);
+  await uploadFile(
+    id,
+    new File([file], finalTitle, { type: mimeForFormat(format) }),
+    user.$id,
+    format,
+    onProgress,
+  );
   const doc = await getDatabases().createDocument<VaultDoc>({
     databaseId: DATABASE_ID,
     collectionId: COLLECTION_WORKBOOKS,

@@ -1057,6 +1057,7 @@ body {
   display: flex;
   flex-direction: column;
   background: var(--ran-background-200, #fafafa);
+  position: relative;
 }
 
 .vault-frame-wrap {
@@ -1606,53 +1607,242 @@ body {
 .vault-upload-progress {
   position: absolute;
   z-index: 6;
-  inset-inline: 24px;
-  top: 12px;
+  inset-inline-end: 20px;
+  top: 16px;
+  width: min(420px, calc(100% - 40px));
   display: grid;
-  gap: 8px;
-  padding: 10px 12px;
-  border-radius: 12px;
+  gap: 10px;
+  padding: 14px;
+  border-radius: 16px;
   border: 1px solid var(--ran-color-border, rgba(0, 0, 0, 0.08));
-  background: color-mix(in srgb, var(--ran-color-bg) 92%, var(--ran-gray-100, #f2f2f2));
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+  background: var(--ran-color-bg, #fff);
+  box-shadow: 0 12px 36px rgba(15, 23, 42, 0.12);
+  max-height: min(70vh, 560px);
+  overflow: auto;
 }
 
 .vault-upload-progress[hidden] {
   display: none;
 }
 
-.vault-upload-progress-label {
+.vault-upload-queue-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+
+.vault-upload-queue-title {
   margin: 0;
-  font-size: 12.5px;
-  font-weight: 550;
+  font-size: 15px;
+  font-weight: 700;
   color: var(--ran-color-text);
+}
+
+.vault-upload-queue-badge {
+  display: inline-flex;
+  align-items: center;
+  min-height: 22px;
+  padding: 0 8px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--ran-blue-700, #006bff) 12%, #fff);
+  color: var(--ran-blue-700, #006bff);
+  font-size: 11.5px;
+  font-weight: 650;
+  letter-spacing: 0.01em;
+}
+
+.vault-upload-queue-list {
+  display: grid;
+  gap: 8px;
+}
+
+.vault-upload-queue-card {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  gap: 10px;
+  align-items: start;
+  padding: 10px 12px;
+  border-radius: 12px;
+  background: color-mix(in srgb, var(--ran-blue-700, #006bff) 5%, #f7f9fc);
+}
+
+.vault-upload-queue-icon {
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  background: #fff;
+  border: 1px solid var(--ran-color-border, rgba(0, 0, 0, 0.06));
+  color: #16884a;
+}
+
+.vault-upload-queue-card[data-format='docx'] .vault-upload-queue-icon {
+  color: #2b579a;
+}
+
+.vault-upload-queue-card[data-format='pptx'] .vault-upload-queue-icon {
+  color: #c43e1c;
+}
+
+.vault-upload-queue-file-icon {
+  width: 18px;
+  height: 18px;
+}
+
+.vault-upload-queue-body {
+  display: grid;
+  gap: 4px;
+  min-width: 0;
+  padding-top: 1px;
+}
+
+.vault-upload-queue-title-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+}
+
+.vault-upload-queue-name {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 13.5px;
+  font-weight: 650;
+  color: var(--ran-color-text);
+}
+
+.vault-upload-queue-check {
+  flex: none;
+  width: 14px;
+  height: 14px;
+  color: #16884a;
+}
+
+.vault-upload-queue-meta {
+  margin: 0;
+  font-size: 12px;
+  color: var(--ran-color-text-secondary);
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
-.vault-upload-progress-track {
+.vault-upload-queue-dest {
+  color: var(--ran-blue-700, #006bff);
+  font-weight: 550;
+}
+
+.vault-upload-queue-ready {
+  color: #16884a;
+  font-weight: 550;
+}
+
+.vault-upload-queue-queued {
+  color: var(--ran-color-text-secondary);
+}
+
+.vault-upload-queue-card.is-error .vault-upload-queue-meta {
+  color: #b42318;
+}
+
+.vault-upload-queue-track {
   height: 6px;
+  margin-top: 4px;
   border-radius: 999px;
   background: color-mix(in srgb, var(--ran-gray-200, #e8e8e8) 90%, transparent);
   overflow: hidden;
 }
 
-.vault-upload-progress-fill {
+.vault-upload-queue-track.is-done {
+  height: 3px;
+  background: transparent;
+}
+
+.vault-upload-queue-fill {
   height: 100%;
   width: 0%;
   border-radius: inherit;
   background: var(--ran-blue-700, #006bff);
-  transition: width 0.2s ease;
+  transition:
+    width 0.55s cubic-bezier(0.22, 1, 0.36, 1),
+    background 0.35s ease;
 }
 
-.vault-stage-empty:has(#workspace-upload-progress:not([hidden])) .vault-stage-browser,
-.vault-stage-empty:has(#workspace-upload-progress:not([hidden])).is-empty {
-  padding-top: 72px;
+.vault-upload-queue-track.is-done .vault-upload-queue-fill {
+  background: #16884a;
 }
 
-.vault-stage-empty:has(#workspace-upload-progress:not([hidden])).is-empty {
-  align-content: start;
+@media (prefers-reduced-motion: reduce) {
+  .vault-upload-queue-fill {
+    transition: none;
+  }
+}
+
+.vault-upload-queue-detail {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  font-size: 11.5px;
+  color: var(--ran-color-text-secondary);
+}
+
+.vault-upload-queue-actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex: none;
+  padding-top: 2px;
+}
+
+.vault-upload-queue-dismiss {
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 999px;
+  border: 1px solid var(--ran-color-border, rgba(0, 0, 0, 0.08));
+  background: #fff;
+  color: var(--ran-color-text-secondary);
+  cursor: pointer;
+}
+
+.vault-upload-queue-dismiss:hover {
+  color: var(--ran-color-text);
+  background: var(--ran-gray-100, #f2f2f2);
+}
+
+.vault-upload-queue-dismiss .vault-icon {
+  width: 12px;
+  height: 12px;
+}
+
+.vault-upload-queue-foot {
+  display: flex;
+  align-items: center;
+  min-height: 20px;
+}
+
+.vault-upload-queue-clear {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--ran-color-text-secondary);
+  font: inherit;
+  font-size: 12.5px;
+  cursor: pointer;
+}
+
+.vault-upload-queue-clear:hover {
+  color: var(--ran-color-text);
+}
+
+.vault-upload-queue-clear[hidden] {
+  display: none;
 }
 
 .vault-stage-action:disabled {

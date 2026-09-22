@@ -688,40 +688,281 @@ async function ensureFolderPath(parentId: string, segments: string[]): Promise<s
 }
 
 let uploadBusy = false;
-/** Live upload progress for the stage progress bar (`null` = hidden). */
-let uploadProgress: { current: number; total: number; name: string } | null = null;
-let uploadDoneTimer = 0;
+/** Per-file upload queue shown in the stage panel (`[]` = hidden). */
+type UploadQueueState = 'queued' | 'uploading' | 'done' | 'error';
+type UploadQueueItem = {
+  key: string;
+  file: File;
+  relativeDir: string;
+  format: VaultFormat;
+  folderLabel: string;
+  state: UploadQueueState;
+  progress: number;
+  sizeUploaded: number;
+  workbookId?: string;
+  error?: string;
+};
+let uploadQueue: UploadQueueItem[] = [];
+let uploadQueueKey = 0;
 
 function setUploadButtonsDisabled(disabled: boolean): void {
   const uploadBtn = document.getElementById('workspace-stage-upload') as HTMLButtonElement | null;
   if (uploadBtn) uploadBtn.disabled = disabled;
 }
 
+function folderLabelFor(parentId: string, relativeDir: string): string {
+  const leaf = relativeDir.split('/').filter(Boolean).at(-1);
+  if (leaf) return leaf;
+  if (!parentId) return t('cloudAllDocuments');
+  return rows.find((row) => row.id === parentId)?.title || t('cloudFilesTitle');
+}
+
+function formatIcon(format: VaultFormat): SVGElement {
+  if (format === 'docx') {
+    return svgIcon(
+      'M7 3h7l5 5v13a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1zM14 3v5h5M9 13h6M9 17h4',
+      'vault-icon vault-upload-queue-file-icon',
+    );
+  }
+  if (format === 'pptx') {
+    return svgIcon('M3 5h18v12H3zM8 21h8M12 17v4', 'vault-icon vault-upload-queue-file-icon');
+  }
+  return svgIcon('M4 4h16v16H4zM4 10h16M10 4v16', 'vault-icon vault-upload-queue-file-icon');
+}
+
+function dismissUploadItem(key: string): void {
+  const item = uploadQueue.find((row) => row.key === key);
+  if (!item || item.state === 'uploading') return;
+  uploadQueue = uploadQueue.filter((row) => row.key !== key);
+  paintUploadProgress();
+}
+
+function clearCompletedUploads(): void {
+  uploadQueue = uploadQueue.filter((row) => row.state !== 'done' && row.state !== 'error');
+  paintUploadProgress();
+}
+
 function paintUploadProgress(): void {
-  const bar = document.getElementById('workspace-upload-progress');
-  const label = document.getElementById('workspace-upload-progress-label');
-  const fill = document.getElementById('workspace-upload-progress-fill');
-  if (!bar || !label || !fill) return;
-  if (!uploadProgress) {
-    bar.hidden = true;
-    bar.dataset.state = '';
-    label.textContent = '';
-    fill.style.width = '0%';
+  const panel = document.getElementById('workspace-upload-progress');
+  const badge = document.getElementById('workspace-upload-queue-badge');
+  const list = document.getElementById('workspace-upload-queue-list');
+  const clearBtn = document.getElementById('workspace-upload-queue-clear') as HTMLButtonElement | null;
+  if (!panel || !badge || !list) return;
+
+  if (uploadQueue.length === 0) {
+    panel.hidden = true;
+    list.replaceChildren();
+    badge.textContent = '';
+    if (clearBtn) {
+      clearBtn.hidden = true;
+      clearBtn.textContent = '';
+    }
     return;
   }
-  bar.hidden = false;
-  const { current, total, name } = uploadProgress;
-  const done = current >= total && total > 0 && !uploadBusy;
-  bar.dataset.state = done ? 'done' : 'active';
-  label.textContent = done
-    ? t('cloudUploadDone', { count: String(total) })
-    : t('cloudUploadProgress', {
-        current: String(Math.min(current, total)),
-        total: String(total),
-        name,
+
+  panel.hidden = false;
+  badge.textContent = t('cloudUploadQueueItems', { count: String(uploadQueue.length) });
+
+  const completed = uploadQueue.filter((row) => row.state === 'done' || row.state === 'error').length;
+  if (clearBtn) {
+    clearBtn.hidden = completed === 0;
+    clearBtn.textContent = t('cloudUploadClearCompleted', { count: String(completed) });
+  }
+
+  const existing = new Map<string, HTMLElement>();
+  for (const child of [...list.children]) {
+    if (!(child instanceof HTMLElement)) continue;
+    const key = child.dataset.key;
+    if (key) existing.set(key, child);
+  }
+
+  const nextCards: HTMLElement[] = [];
+  for (const item of uploadQueue) {
+    let card = existing.get(item.key);
+    if (card) {
+      existing.delete(item.key);
+      syncUploadQueueCard(card, item);
+    } else {
+      card = buildUploadQueueCard(item);
+    }
+    nextCards.push(card);
+  }
+  for (const orphan of existing.values()) orphan.remove();
+  // Keep order without wiping nodes (preserves fill width for CSS transitions).
+  for (let i = 0; i < nextCards.length; i += 1) {
+    const card = nextCards[i]!;
+    if (list.children[i] !== card) list.insertBefore(card, list.children[i] || null);
+  }
+}
+
+function animateFillWidth(fill: HTMLElement, pct: number): void {
+  const next = `${Math.max(0, Math.min(100, Math.round(pct)))}%`;
+  if (fill.style.width === next) return;
+  // Ensure the browser commits the current width before transitioning.
+  void fill.offsetWidth;
+  fill.style.width = next;
+}
+
+function ensureQueueTrack(body: HTMLElement): { track: HTMLElement; fill: HTMLElement } {
+  let track = body.querySelector('.vault-upload-queue-track') as HTMLElement | null;
+  let fill = track?.querySelector('.vault-upload-queue-fill') as HTMLElement | null;
+  if (!track || !fill) {
+    track = document.createElement('div');
+    track.className = 'vault-upload-queue-track';
+    fill = document.createElement('div');
+    fill.className = 'vault-upload-queue-fill';
+    fill.style.width = '0%';
+    track.append(fill);
+    // Insert before detail if present, else append.
+    const detail = body.querySelector('.vault-upload-queue-detail');
+    if (detail) body.insertBefore(track, detail);
+    else body.append(track);
+  }
+  return { track, fill };
+}
+
+function syncUploadQueueCard(card: HTMLElement, item: UploadQueueItem): void {
+  card.className = `vault-upload-queue-card is-${item.state}`;
+  card.dataset.format = item.format;
+  card.dataset.key = item.key;
+  card.dataset.state = item.state;
+
+  const body = card.querySelector('.vault-upload-queue-body') as HTMLElement | null;
+  if (!body) return;
+
+  const titleRow = body.querySelector('.vault-upload-queue-title-row');
+  if (titleRow) {
+    let check = titleRow.querySelector('.vault-upload-queue-check');
+    if (item.state === 'done') {
+      if (!check) {
+        titleRow.append(svgIcon('M20 6 9 17l-5-5', 'vault-icon vault-upload-queue-check'));
+      }
+    } else if (check) {
+      check.remove();
+    }
+  }
+
+  const meta = body.querySelector('.vault-upload-queue-meta');
+  if (meta) {
+    const sizeLabel = formatBytes(item.file.size);
+    meta.replaceChildren();
+    if (item.state === 'uploading') {
+      meta.append(document.createTextNode(`${sizeLabel} · `));
+      const dest = document.createElement('span');
+      dest.className = 'vault-upload-queue-dest';
+      dest.textContent = item.folderLabel;
+      meta.append(dest);
+    } else if (item.state === 'done') {
+      meta.append(document.createTextNode(`${sizeLabel} · `));
+      const ready = document.createElement('span');
+      ready.className = 'vault-upload-queue-ready';
+      ready.textContent = t('cloudUploadReady');
+      meta.append(ready);
+    } else if (item.state === 'error') {
+      meta.textContent = `${sizeLabel} · ${item.error || t('cloudUploadFailed')}`;
+    } else {
+      meta.append(document.createTextNode(`${sizeLabel} · `));
+      const queued = document.createElement('span');
+      queued.className = 'vault-upload-queue-queued';
+      queued.textContent = t('cloudUploadQueued');
+      meta.append(queued);
+    }
+  }
+
+  const detail = body.querySelector('.vault-upload-queue-detail') as HTMLElement | null;
+  if (item.state === 'uploading') {
+    const { track, fill } = ensureQueueTrack(body);
+    track.classList.remove('is-done');
+    animateFillWidth(fill, item.progress);
+    const pct = Math.max(0, Math.min(100, Math.round(item.progress)));
+    if (detail) {
+      detail.hidden = false;
+      detail.textContent = t('cloudUploadProgressDetail', {
+        percent: String(pct),
+        loaded: formatBytes(item.sizeUploaded),
+        total: formatBytes(item.file.size),
       });
-  const ratio = total <= 0 ? 0 : Math.min(1, current / total);
-  fill.style.width = `${Math.round(ratio * 1000) / 10}%`;
+    } else {
+      const nextDetail = document.createElement('div');
+      nextDetail.className = 'vault-upload-queue-detail';
+      nextDetail.textContent = t('cloudUploadProgressDetail', {
+        percent: String(pct),
+        loaded: formatBytes(item.sizeUploaded),
+        total: formatBytes(item.file.size),
+      });
+      body.append(nextDetail);
+    }
+  } else if (item.state === 'done') {
+    const { track, fill } = ensureQueueTrack(body);
+    animateFillWidth(fill, 100);
+    track.classList.add('is-done');
+    if (detail) detail.remove();
+  } else {
+    body.querySelector('.vault-upload-queue-track')?.remove();
+    detail?.remove();
+  }
+
+  const actions = card.querySelector('.vault-upload-queue-actions');
+  if (actions) {
+    const dismiss = actions.querySelector('.vault-upload-queue-dismiss') as HTMLButtonElement | null;
+    if (item.state === 'uploading') {
+      dismiss?.remove();
+    } else if (!dismiss) {
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'vault-upload-queue-dismiss';
+      btn.setAttribute('aria-label', t('cloudCancel'));
+      btn.append(svgIcon('M6 6l12 12M18 6 6 18'));
+      btn.addEventListener('click', () => dismissUploadItem(item.key));
+      actions.append(btn);
+    }
+  }
+}
+
+function buildUploadQueueCard(item: UploadQueueItem): HTMLElement {
+  const card = document.createElement('div');
+  card.className = `vault-upload-queue-card is-${item.state}`;
+  card.dataset.format = item.format;
+  card.dataset.key = item.key;
+  card.dataset.state = item.state;
+
+  const iconWrap = document.createElement('div');
+  iconWrap.className = 'vault-upload-queue-icon';
+  iconWrap.append(formatIcon(item.format));
+
+  const body = document.createElement('div');
+  body.className = 'vault-upload-queue-body';
+
+  const titleRow = document.createElement('div');
+  titleRow.className = 'vault-upload-queue-title-row';
+  const name = document.createElement('span');
+  name.className = 'vault-upload-queue-name';
+  name.textContent = item.file.name;
+  name.title = item.file.name;
+  titleRow.append(name);
+
+  const meta = document.createElement('p');
+  meta.className = 'vault-upload-queue-meta';
+
+  body.append(titleRow, meta);
+
+  const actions = document.createElement('div');
+  actions.className = 'vault-upload-queue-actions';
+
+  card.append(iconWrap, body, actions);
+  // Populate dynamic bits (fill starts at 0%, then sync animates to target).
+  syncUploadQueueCard(card, item);
+  if (item.state === 'done' || item.state === 'uploading') {
+    const fill = card.querySelector('.vault-upload-queue-fill') as HTMLElement | null;
+    if (fill) {
+      const target = item.state === 'done' ? 100 : item.progress;
+      fill.style.width = '0%';
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => animateFillWidth(fill, target));
+      });
+    }
+  }
+  return card;
 }
 
 async function onUploadFiles(fileList: FileList | null): Promise<void> {
@@ -741,23 +982,31 @@ async function onDropUpload(
 
 async function uploadOfficeItems(items: DroppedUpload[], baseParentId: string): Promise<void> {
   if (uploadBusy || items.length === 0) return;
-  const queue = items.filter((item) => formatFromTitle(item.file.name));
-  const skipped = items.length - queue.length;
-  if (queue.length === 0) {
+  const accepted = items.filter((item) => formatFromTitle(item.file.name));
+  const skipped = items.length - accepted.length;
+  if (accepted.length === 0) {
     if (skipped > 0) notifyError(t('cloudUploadTypeError'));
     return;
   }
 
   uploadBusy = true;
   setUploadButtonsDisabled(true);
-  if (uploadDoneTimer) {
-    window.clearTimeout(uploadDoneTimer);
-    uploadDoneTimer = 0;
-  }
-  uploadProgress = { current: 0, total: queue.length, name: queue[0]?.file.name || '' };
+  uploadQueue = accepted.map((item) => {
+    uploadQueueKey += 1;
+    const format = formatFromTitle(item.file.name)!;
+    return {
+      key: `up-${uploadQueueKey}`,
+      file: item.file,
+      relativeDir: item.relativeDir,
+      format,
+      folderLabel: folderLabelFor(baseParentId, item.relativeDir),
+      state: 'queued' as const,
+      progress: 0,
+      sizeUploaded: 0,
+    };
+  });
   paintUploadProgress();
 
-  let uploaded = 0;
   try {
     // Stay on the folder browser; never auto-open an uploaded file.
     selectedId = '';
@@ -771,46 +1020,61 @@ async function uploadOfficeItems(items: DroppedUpload[], baseParentId: string): 
     paint();
     paintUploadProgress();
 
-    for (const { file, relativeDir } of queue) {
-      uploadProgress = {
-        current: uploaded,
-        total: queue.length,
-        name: file.name,
-      };
+    const keys = uploadQueue.map((row) => row.key);
+    for (const key of keys) {
+      const item = uploadQueue.find((row) => row.key === key);
+      if (!item || item.state !== 'queued') continue;
+      item.state = 'uploading';
+      item.progress = 0;
+      item.sizeUploaded = 0;
+      item.folderLabel = folderLabelFor(baseParentId, item.relativeDir);
       paintUploadProgress();
-      const segments = relativeDir.split('/').filter(Boolean);
-      const parentId = await ensureFolderPath(baseParentId, segments);
-      const sortOrder = nextSortOrder(childrenOf(parentId));
-      const workbook = await createWorkbookFromFile(file, file.name, parentId, sortOrder);
-      rows = [workbook, ...rows.filter((row) => row.id !== workbook.id)];
-      uploaded += 1;
-      uploadProgress = { current: uploaded, total: queue.length, name: file.name };
-      paintUploadProgress();
-      paintDocs();
-      paintStorage();
-      if (!selectedWorkbook()) paintStage();
-      paintUploadProgress();
+      try {
+        const segments = item.relativeDir.split('/').filter(Boolean);
+        const parentId = await ensureFolderPath(baseParentId, segments);
+        item.folderLabel = folderLabelFor(parentId, '');
+        const sortOrder = nextSortOrder(childrenOf(parentId));
+        const workbook = await createWorkbookFromFile(
+          item.file,
+          item.file.name,
+          parentId,
+          sortOrder,
+          (progress) => {
+            item.progress = progress.progress;
+            item.sizeUploaded = progress.sizeUploaded;
+            paintUploadProgress();
+          },
+        );
+        rows = [workbook, ...rows.filter((row) => row.id !== workbook.id)];
+        item.state = 'done';
+        item.progress = 100;
+        item.sizeUploaded = item.file.size;
+        item.workbookId = workbook.id;
+        paintDocs();
+        paintStorage();
+        if (!selectedWorkbook()) paintStage();
+        paintUploadProgress();
+      } catch (error) {
+        item.state = 'error';
+        item.error = error instanceof Error ? error.message : String(error);
+        paintUploadProgress();
+        notifyError(item.error);
+      }
     }
 
     revealTreeSelection();
     syncUrl();
     paint();
-    uploadProgress = { current: uploaded, total: uploaded, name: '' };
     paintUploadProgress();
-    uploadDoneTimer = window.setTimeout(() => {
-      uploadProgress = null;
-      paintUploadProgress();
-      uploadDoneTimer = 0;
-    }, 2_400);
   } catch (error) {
-    uploadProgress = null;
-    paintUploadProgress();
     const message = error instanceof Error ? error.message : String(error);
     notifyError(message);
     paint();
+    paintUploadProgress();
   } finally {
     uploadBusy = false;
     setUploadButtonsDisabled(false);
+    paintUploadProgress();
   }
 }
 
@@ -1576,25 +1840,6 @@ function mountShell(): void {
             return browser;
           })(),
           (() => {
-            const progress = document.createElement('div');
-            progress.className = 'vault-upload-progress';
-            progress.id = 'workspace-upload-progress';
-            progress.hidden = true;
-            progress.setAttribute('role', 'status');
-            progress.setAttribute('aria-live', 'polite');
-            const label = document.createElement('p');
-            label.className = 'vault-upload-progress-label';
-            label.id = 'workspace-upload-progress-label';
-            const track = document.createElement('div');
-            track.className = 'vault-upload-progress-track';
-            const fill = document.createElement('div');
-            fill.className = 'vault-upload-progress-fill';
-            fill.id = 'workspace-upload-progress-fill';
-            track.append(fill);
-            progress.append(label, track);
-            return progress;
-          })(),
-          (() => {
             const skeleton = document.createElement('div');
             skeleton.className = 'vault-stage-skeleton';
             skeleton.id = 'workspace-stage-skeleton';
@@ -1642,6 +1887,41 @@ function mountShell(): void {
           })(),
         )
         .build(),
+      (() => {
+        const panel = document.createElement('div');
+        panel.className = 'vault-upload-progress';
+        panel.id = 'workspace-upload-progress';
+        panel.hidden = true;
+        panel.setAttribute('role', 'status');
+        panel.setAttribute('aria-live', 'polite');
+
+        const head = document.createElement('div');
+        head.className = 'vault-upload-queue-head';
+        const title = document.createElement('h3');
+        title.className = 'vault-upload-queue-title';
+        title.textContent = t('cloudUploadQueue');
+        const badge = document.createElement('span');
+        badge.className = 'vault-upload-queue-badge';
+        badge.id = 'workspace-upload-queue-badge';
+        head.append(title, badge);
+
+        const list = document.createElement('div');
+        list.className = 'vault-upload-queue-list';
+        list.id = 'workspace-upload-queue-list';
+
+        const foot = document.createElement('div');
+        foot.className = 'vault-upload-queue-foot';
+        const clearBtn = document.createElement('button');
+        clearBtn.type = 'button';
+        clearBtn.className = 'vault-upload-queue-clear';
+        clearBtn.id = 'workspace-upload-queue-clear';
+        clearBtn.hidden = true;
+        clearBtn.addEventListener('click', () => clearCompletedUploads());
+        foot.append(clearBtn);
+
+        panel.append(head, list, foot);
+        return panel;
+      })(),
     )
     .build();
 

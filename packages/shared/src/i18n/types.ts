@@ -156,6 +156,20 @@ export interface I18nMessages {
   /** Progress while uploading: "Uploading 2 of 5 · report.xlsx". */
   cloudUploadProgress: string;
   cloudUploadDone: string;
+  /** Upload queue panel title. */
+  cloudUploadQueue: string;
+  /** Badge: "{count} items". */
+  cloudUploadQueueItems: string;
+  /** Queued item status line. */
+  cloudUploadQueued: string;
+  /** Active upload detail: "{percent}% · {loaded} of {total}". */
+  cloudUploadProgressDetail: string;
+  /** Completed item ready status. */
+  cloudUploadReady: string;
+  /** Footer: clear finished rows. */
+  cloudUploadClearCompleted: string;
+  /** Single-item upload failure label. */
+  cloudUploadFailed: string;
   /** Empty folder stage hint (create or upload into currentFolderId). */
   cloudFolderEmptyHint: string;
   /** Drop zone hint under empty-stage actions. */
