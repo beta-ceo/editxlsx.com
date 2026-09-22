@@ -1774,15 +1774,15 @@ function paintStageBrowser(items: VaultItem[]): void {
     name.className = 'vault-stage-browser-name';
     name.append(itemIcon(item), document.createTextNode(item.title));
 
-    const edited = document.createElement('span');
-    edited.className = 'vault-stage-browser-edited';
-    edited.textContent = formatEditedWhen(item.updatedAt);
-
     const size = document.createElement('span');
     size.className = 'vault-stage-browser-size';
     size.textContent = item.kind === 'file' ? formatBytes(item.sizeBytes) : '—';
 
-    row.append(name, edited, size);
+    const edited = document.createElement('span');
+    edited.className = 'vault-stage-browser-edited';
+    edited.textContent = formatEditedWhen(item.updatedAt);
+
+    row.append(name, size, edited);
     row.addEventListener('click', () => {
       if (item.kind === 'folder') openFolder(item.id);
       else selectWorkbook(item.id);

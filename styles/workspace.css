@@ -1313,7 +1313,7 @@ body {
   box-sizing: border-box;
   width: 100%;
   display: grid;
-  grid-template-columns: minmax(0, 1fr) 160px 88px;
+  grid-template-columns: minmax(0, 1fr) 88px 160px;
   align-items: center;
   gap: 12px;
   margin: 0;
@@ -1382,6 +1382,10 @@ body {
 .vault-stage-browser-size {
   text-align: end;
   font-variant-numeric: tabular-nums;
+}
+
+.vault-stage-browser-edited {
+  text-align: end;
 }
 
 @media (max-width: 720px) {
