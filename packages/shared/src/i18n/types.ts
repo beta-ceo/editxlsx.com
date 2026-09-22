@@ -160,6 +160,8 @@ export interface I18nMessages {
   cloudNotConfigured: string;
   cloudSignedInAs: string;
   cloudOpenEditor: string;
+  cloudNavHome: string;
+  cloudNavDirectory: string;
   cloudNavWorkspace: string;
   cloudAllDocuments: string;
   cloudNavDocuments: string;
@@ -171,6 +173,7 @@ export interface I18nMessages {
   cloudSavedWhen: string;
   cloudSelectWorkbook: string;
   cloudWorkspaceMine: string;
+  cloudNew: string;
   cloudHelp: string;
   cloudOpeningWorkbook: string;
   cloudOpenFailedTitle: string;

@@ -18,11 +18,12 @@ notes. Entries describe what users experience, not internal refactors.
   open / recent-history disclosure remain. The top bar links Features,
   Essentials, Help, and Changelog (plus Log in / Get Started Free).
 - **My workbooks is an editor shell.** `/files` is a full-height workspace:
-  account and search across the top, workbooks down the left, and the open
-  spreadsheet in the pane on the right. Creating, uploading, exporting, and
-  deleting stay on that page. Save still writes back to the account. Opening
-  shows a loading state over the pane; a failed open surfaces the error there
-  instead of leaving a blank editor.
+  a knowledge-base-style left sidebar (workspace header, New, Home, workbook
+  directory tree, storage), search and account tools across the top of the
+  right pane, and the open spreadsheet filling the rest of that pane. New
+  workbooks start from the sidebar; Save still writes back to the account.
+  Opening shows a loading state over the pane; a failed open surfaces the
+  error there instead of leaving a blank editor.
 - **Homepage is an online Excel product.** The landing page (all seven
   languages) leads with cloud workbooks: sign in and My workbooks are the
   primary actions, the hero mock is a spreadsheet, and marketing sections

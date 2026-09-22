@@ -164,8 +164,12 @@ describe('page chrome', () => {
     expect(html).not.toMatch(/<header class="bar">/);
     expect(html).toMatch(/id="files-root"/);
     const css = read('styles/files.css');
-    expect(css).toMatch(/\.vault-side\s*\{[^}]*width:\s*272px/);
-    expect(css).toMatch(/\.vault-body\s*\{[^}]*display:\s*flex/);
+    expect(css).toMatch(/\.vault-side\s*\{[^}]*width:\s*280px/);
+    // Sidebar is the full-height left column; search/account chrome sits only
+    // in the right column above the editor (left-right split, not a top bar
+    // spanning the viewport).
+    expect(css).toMatch(/\.vault\s*\{[^}]*flex-direction:\s*row/);
+    expect(css).toMatch(/\.vault-body\s*\{[^}]*flex-direction:\s*column/);
   });
 
   it('styles that header from a shared stylesheet, never from the page itself', () => {

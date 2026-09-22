@@ -139,8 +139,8 @@ test.describe('cloud auth pages', () => {
     await expect(page.locator('.vault')).toBeVisible();
     await expect(page.locator('.vault-side')).toBeVisible();
     await expect(page.locator('#files-new')).toBeVisible();
-    await expect(page.locator('.vault-doc-title')).toHaveText('sample_data_3000x20.xlsx');
-    await expect(page.locator('.vault-filename')).toHaveText('sample_data_3000x20.xlsx');
+    await expect(page.locator('#files-home')).toBeVisible();
+    await expect(page.locator('.vault-tree-title').first()).toHaveText('sample_data_3000x20.xlsx');
     await expect(page.locator('#files-editor-frame')).toHaveAttribute('src', /\/editor\?workbook=wb1.*shell=1/);
     await expect(page.locator('#files-stage-overlay')).toBeVisible({ timeout: 30_000 });
     await expect(page.locator('#files-stage-overlay')).toHaveAttribute('data-state', 'error');
@@ -155,7 +155,7 @@ test.describe('cloud auth pages', () => {
     await mockAppwrite(page, { download: 'xlsx' });
     await page.goto('/files');
 
-    await expect(page.locator('.vault-filename')).toHaveText('sample_data_3000x20.xlsx');
+    await expect(page.locator('.vault-tree-title').first()).toHaveText('sample_data_3000x20.xlsx');
     await expect(page.locator('#files-editor-frame')).toHaveAttribute('src', /shell=1/);
     // shell:workbook-ready clears the overlay; that is the contract. The
     // OnlyOffice ribbon lives in a nested iframe, so we do not probe Asc here.

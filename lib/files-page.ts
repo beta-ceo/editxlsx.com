@@ -9,20 +9,11 @@ import 'ranui/button';
 import 'ranui/input';
 import 'ranui/message';
 import { Div, View } from 'ranui/builder';
-import { saveFileToDisk } from 'ranuts/utils';
+import { getTheme, initTheme, setTheme, type RanThemeName } from 'ranui/theme';
 import '../styles/files.css';
 import { applyDocumentLanguage, getLanguage, t, withLocale } from '@ranuts/shared/i18n';
 import { getCurrentUser, signOut, type AuthUser } from './appwrite/auth';
-import {
-  createBlankWorkbook,
-  createWorkbookFromFile,
-  deleteWorkbook,
-  downloadWorkbookFile,
-  listWorkbooks,
-  type Workbook,
-} from './appwrite/workbooks';
-import { confirmDialog } from './confirm-dialog';
-import { formatRelativeTime } from './history/recovery';
+import { createBlankWorkbook, listWorkbooks, type Workbook } from './appwrite/workbooks';
 import { isShellBridgeMessage, SHELL_FAILED, SHELL_READY } from './shell-bridge';
 
 const SEARCH_DEBOUNCE_MS = 200;
@@ -46,6 +37,8 @@ let rows: Workbook[] = [];
 let loading = true;
 let selectedId = '';
 let openWorkbook: Workbook | null = null;
+/** When true, do not auto-open the newest workbook (Home is showing). */
+let preferHome = false;
 let shellReady = false;
 /** Editor pane while a framed workbook is opening. */
 let stageStatus: 'idle' | 'loading' | 'ready' | 'error' = 'idle';
@@ -63,10 +56,6 @@ function loginUrl(): string {
 
 function editorFrameUrl(workbookId: string): string {
   return withLocale(`/editor?workbook=${encodeURIComponent(workbookId)}&shell=1`, getLanguage());
-}
-
-function appPath(path: string): string {
-  return withLocale(path, getLanguage());
 }
 
 function formatBytes(size: number): string {
@@ -139,6 +128,33 @@ function iconSlot(path: string, className?: string): HTMLElement {
   return slot;
 }
 
+const THEME_OPTIONS: Array<{ id: RanThemeName; label: string; icon: string }> = [
+  {
+    id: 'system',
+    label: 'System',
+    icon: 'M4 5h16v10a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V5zM8 19h8M12 16v3',
+  },
+  {
+    id: 'light',
+    label: 'Light',
+    icon: 'M12 3v2M12 19v2M5.6 5.6l1.4 1.4M17 17l1.4 1.4M3 12h2M19 12h2M5.6 18.4l1.4-1.4M17 7l1.4-1.4M12 8a4 4 0 1 0 0 8 4 4 0 0 0 0-8z',
+  },
+  {
+    id: 'dark',
+    label: 'Dark',
+    icon: 'M21 14.3A8.5 8.5 0 1 1 9.7 3a7 7 0 0 0 11.3 11.3z',
+  },
+];
+
+function currentTheme(): RanThemeName {
+  const stored = getTheme();
+  return stored === 'light' || stored === 'dark' || stored === 'system' ? stored : 'system';
+}
+
+function themeIconPath(theme: RanThemeName): string {
+  return THEME_OPTIONS.find((item) => item.id === theme)?.icon ?? THEME_OPTIONS[0].icon;
+}
+
 function initials(account: AuthUser): string {
   const source = account.name?.trim() || account.email || '?';
   const parts = source.split(/[\s@._-]+/).filter(Boolean);
@@ -168,7 +184,7 @@ async function refresh(): Promise<void> {
       stageStatus = 'idle';
       stageError = '';
     }
-    if (!selectedId && !query && rows[0]) {
+    if (!selectedId && !query && rows[0] && !preferHome) {
       selectedId = rows[0].id;
       stageStatus = 'loading';
       stageError = '';
@@ -179,6 +195,7 @@ async function refresh(): Promise<void> {
 }
 
 function selectWorkbook(id: string): void {
+  preferHome = false;
   if (selectedId !== id) {
     stageStatus = 'loading';
     stageError = '';
@@ -188,8 +205,19 @@ function selectWorkbook(id: string): void {
   paint();
 }
 
+function showHome(): void {
+  preferHome = true;
+  selectedId = '';
+  openWorkbook = null;
+  stageStatus = 'idle';
+  stageError = '';
+  syncUrl();
+  paint();
+}
+
 async function onNew(): Promise<void> {
   try {
+    preferHome = false;
     const workbook = await createBlankWorkbook();
     rows = [workbook, ...rows.filter((row) => row.id !== workbook.id)];
     stageStatus = 'loading';
@@ -197,72 +225,6 @@ async function onNew(): Promise<void> {
     selectedId = workbook.id;
     syncUrl();
     paint();
-  } catch (error) {
-    const message = error instanceof Error ? error.message : String(error);
-    notifyError(message);
-  }
-}
-
-function onUpload(): void {
-  const input = document.createElement('input');
-  input.type = 'file';
-  input.accept = '.xlsx,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
-  input.style.display = 'none';
-  input.addEventListener('change', () => {
-    const file = input.files?.[0];
-    input.remove();
-    if (!file) return;
-    void (async () => {
-      try {
-        const workbook = await createWorkbookFromFile(file);
-        rows = [workbook, ...rows.filter((row) => row.id !== workbook.id)];
-        stageStatus = 'loading';
-        stageError = '';
-        selectedId = workbook.id;
-        syncUrl();
-        paint();
-      } catch (error) {
-        const message = error instanceof Error ? error.message : String(error);
-        notifyError(message);
-      }
-    })();
-  });
-  document.body.appendChild(input);
-  input.click();
-}
-
-async function onDelete(): Promise<void> {
-  const workbook = selectedWorkbook();
-  if (!workbook) return;
-  const ok = await confirmDialog({
-    title: t('cloudDeleteTitle'),
-    body: t('cloudDeleteConfirm', { title: workbook.title }),
-    confirmLabel: t('cloudDelete'),
-    cancelLabel: t('cloudCancel'),
-    danger: true,
-  });
-  if (!ok) return;
-  try {
-    await deleteWorkbook(workbook.id);
-    if (selectedId === workbook.id) {
-      selectedId = '';
-      openWorkbook = null;
-      stageStatus = 'idle';
-      stageError = '';
-    }
-    await refresh();
-  } catch (error) {
-    const message = error instanceof Error ? error.message : String(error);
-    notifyError(message);
-  }
-}
-
-async function onExport(): Promise<void> {
-  const workbook = selectedWorkbook();
-  if (!workbook) return;
-  try {
-    const file = await downloadWorkbookFile(workbook.fileId, workbook.title);
-    await saveFileToDisk(file, file.name);
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);
     notifyError(message);
@@ -284,6 +246,7 @@ function button(label: string, onClick: () => void, options: { type?: string; id
 function mountShell(): void {
   if (shellReady || !user) return;
   shellReady = true;
+  initTheme();
   const account = user;
   const lang = getLanguage();
 
@@ -318,22 +281,18 @@ function mountShell(): void {
   });
 
   const langMenu = View('r-popover')
-    .class('lang-menu')
-    .attr('placement', 'bottom')
+    .class('lang-menu vault-tool')
+    .attr('placement', 'bottom-end')
     .attr('trigger', 'click')
     .attr('role', 'button')
     .attr('aria-label', 'Language')
     .children(
       View('span')
-        .class('lang-trigger')
+        .class('lang-trigger vault-tool-btn')
         .children(
           iconSlot(
             'M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18zM3.5 12h17M12 3c2.2 2.4 3.3 5.2 3.3 9s-1.1 6.6-3.3 9c-2.2-2.4-3.3-5.2-3.3-9s1.1-6.6 3.3-9z',
           ),
-          View('span')
-            .class('lang-current')
-            .text(LOCALES.find((item) => item.code === lang)?.label ?? 'English')
-            .build(),
         )
         .build(),
       View('r-content')
@@ -346,6 +305,49 @@ function mountShell(): void {
         .build(),
     )
     .build();
+
+  const themeMenu = document.createElement('details');
+  themeMenu.className = 'vault-theme vault-tool';
+  const themeSummary = document.createElement('summary');
+  themeSummary.className = 'vault-tool-btn';
+  themeSummary.setAttribute('aria-label', 'Theme');
+  const themeIconHost = document.createElement('span');
+  themeIconHost.className = 'vault-theme-icon';
+  const paintThemeIcon = (): void => {
+    themeIconHost.replaceChildren(svgIcon(themeIconPath(currentTheme())));
+  };
+  paintThemeIcon();
+  themeSummary.append(themeIconHost);
+  const themePanel = document.createElement('div');
+  themePanel.className = 'vault-theme-menu';
+  const themeButtons = THEME_OPTIONS.map((option) => {
+    const item = document.createElement('button');
+    item.type = 'button';
+    item.className = 'vault-theme-option';
+    item.dataset.theme = option.id;
+    item.append(svgIcon(option.icon), document.createTextNode(option.label));
+    item.addEventListener('click', () => {
+      setTheme(option.id);
+      paintThemeIcon();
+      for (const button of themeButtons) {
+        button.classList.toggle('is-current', button.dataset.theme === option.id);
+      }
+      themeMenu.open = false;
+    });
+    return item;
+  });
+  for (const button of themeButtons) {
+    button.classList.toggle('is-current', button.dataset.theme === currentTheme());
+  }
+  themePanel.append(...themeButtons);
+  themeMenu.append(themeSummary, themePanel);
+  window.addEventListener('storage', (event) => {
+    if (event.key !== 'ran-theme') return;
+    paintThemeIcon();
+    for (const button of themeButtons) {
+      button.classList.toggle('is-current', button.dataset.theme === currentTheme());
+    }
+  });
 
   const userMenu = document.createElement('details');
   userMenu.className = 'vault-user';
@@ -368,21 +370,11 @@ function mountShell(): void {
   menu.append(button(t('cloudSignOut'), () => void onSignOut(), { type: 'text', id: 'files-sign-out' }));
   userMenu.append(summary, menu);
 
+  // Sidebar is full-height (left column). Search + account tools sit only on
+  // the right, above the editor stage -- not across the whole viewport.
   const top = Div()
     .class('vault-top')
     .children(
-      View('a')
-        .class('vault-brand')
-        .attr('href', appPath('/'))
-        .children(
-          iconSlot('M7 3h7l5 5v13a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1zM14 3v5h5', 'vault-mark'),
-          View('span').text('EditXLSX').build(),
-        )
-        .build(),
-      View('div')
-        .class('vault-workspace')
-        .children(View('span').text(displayName(account)).build())
-        .build(),
       Div()
         .class('vault-search-wrap')
         .children(
@@ -391,63 +383,92 @@ function mountShell(): void {
         .build(),
       Div()
         .class('vault-tools')
-        .children(
-          View('a')
-            .class('vault-icon-btn')
-            .attr('href', appPath('/history'))
-            .attr('aria-label', t('cloudColEdited'))
-            .children(iconSlot('M12 7v5l3 2M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18z'))
-            .build(),
-          View('a')
-            .class('vault-icon-btn')
-            .attr('href', appPath('/help'))
-            .attr('aria-label', t('cloudHelp'))
-            .children(
-              iconSlot(
-                'M9.5 9a2.5 2.5 0 1 1 3.2 2.4c-.8.3-1.2.8-1.2 1.6V14M12 17h.01M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18z',
-              ),
-            )
-            .build(),
-          langMenu,
-          View('r-theme-switch').class('theme-switch').attr('label', 'Theme').build(),
-          userMenu,
-        )
+        .children(langMenu, themeMenu, userMenu)
         .build(),
     )
     .build();
+
+  const newMenu = document.createElement('details');
+  newMenu.className = 'vault-new';
+  const newSummary = document.createElement('summary');
+  newSummary.id = 'files-new';
+  const newChevron = svgIcon('M6 9l6 6 6-6');
+  newChevron.classList.add('vault-new-chevron');
+  newSummary.append(
+    svgIcon('M12 5v14M5 12h14'),
+    document.createTextNode(t('cloudNew')),
+    newChevron,
+  );
+  const newPanel = document.createElement('div');
+  newPanel.className = 'vault-new-menu';
+  const newWorkbook = document.createElement('button');
+  newWorkbook.type = 'button';
+  newWorkbook.className = 'vault-new-option';
+  newWorkbook.append(
+    svgIcon('M7 3h7l5 5v13a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1zM14 3v5h5'),
+    document.createTextNode(t('cloudNewWorkbook')),
+  );
+  newWorkbook.addEventListener('click', () => {
+    newMenu.open = false;
+    void onNew();
+  });
+  newPanel.append(newWorkbook);
+  newMenu.append(newSummary, newPanel);
+
+  const homeBtn = document.createElement('button');
+  homeBtn.type = 'button';
+  homeBtn.className = 'vault-tree-item';
+  homeBtn.id = 'files-home';
+  homeBtn.append(
+    svgIcon('M4 4h6v6H4zM14 4h6v6h-6zM4 14h6v6H4zM14 14h6v6h-6z'),
+    document.createTextNode(t('cloudNavHome')),
+  );
+  homeBtn.addEventListener('click', () => showHome());
 
   const side = Div()
     .class('vault-side')
     .children(
       Div()
-        .class('vault-actions')
+        .class('vault-space')
         .children(
-          button(t('cloudOpenEditor'), () => void onNew(), { type: 'primary', id: 'files-new' }),
-          button(t('cloudUploadWorkbook'), () => onUpload(), { id: 'files-upload' }),
+          View('span').class('vault-space-avatar').text(initials(account)).build(),
+          Div()
+            .class('vault-space-text')
+            .children(
+              View('div').class('vault-space-name').text(t('cloudWorkspaceMine')).build(),
+              View('div').class('vault-space-meta').text(`EditXLSX / ${t('cloudFilesTitle')}`).build(),
+            )
+            .build(),
         )
         .build(),
-      View('div').class('vault-section-label').text(t('cloudNavWorkspace')).build(),
-      (() => {
-        const all = document.createElement('button');
-        all.type = 'button';
-        all.className = 'vault-nav-btn';
-        all.id = 'files-all';
-        all.append(svgIcon('M4 6h16M4 12h16M4 18h16'), document.createTextNode(t('cloudAllDocuments')));
-        all.addEventListener('click', () => {
-          query = '';
-          const field = root().querySelector('r-input.files-search') as HTMLElement & { value?: string };
-          if (field) field.value = '';
-          syncUrl();
-          void refresh();
-        });
-        return all;
-      })(),
-      View('div').class('vault-section-label').text(t('cloudNavDocuments')).build(),
+      newMenu,
+      homeBtn,
+      Div()
+        .class('vault-dir-head')
+        .children(
+          Div()
+            .class('vault-dir-label')
+            .children(
+              iconSlot('M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01'),
+              View('span').text(t('cloudNavDirectory')).build(),
+            )
+            .build(),
+        )
+        .build(),
       Div().class('vault-docs').id('files-docs').build(),
       Div()
         .class('vault-storage')
         .children(
-          View('div').class('vault-storage-label').text(t('cloudStorage')).build(),
+          Div()
+            .class('vault-storage-head')
+            .children(
+              iconSlot(
+                'M6 18a4 4 0 0 1 .4-7.9A6 6 0 0 1 18 9a4.5 4.5 0 0 1 .2 9H6z',
+                'vault-storage-icon',
+              ),
+              View('div').class('vault-storage-label').text(t('cloudStorage')).build(),
+            )
+            .build(),
           Div()
             .class('vault-storage-track')
             .children(Div().class('vault-storage-fill').id('files-storage-fill').build())
@@ -461,13 +482,15 @@ function mountShell(): void {
   const stage = Div()
     .class('vault-stage')
     .children(
-      Div().class('vault-docbar').id('files-docbar').build(),
       Div()
         .class('vault-stage-empty')
         .id('files-stage-empty')
         .children(
           Div()
-            .children(View('h2').text(t('cloudEmptyTitle')).build(), View('p').text(t('cloudSelectWorkbook')).build())
+            .children(
+              View('h2').text(t('cloudEmptyTitle')).build(),
+              View('p').text(t('cloudEmpty')).build(),
+            )
             .build(),
         )
         .build(),
@@ -499,7 +522,7 @@ function mountShell(): void {
     )
     .build();
 
-  root().append(Div().class('vault').children(top, Div().class('vault-body').children(side, stage).build()).build());
+  root().append(Div().class('vault').children(side, Div().class('vault-body').children(top, stage).build()).build());
 
   window.addEventListener('keydown', (event) => {
     if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === 'k') {
@@ -529,9 +552,9 @@ function mountShell(): void {
 
 function paintDocs(): void {
   const host = document.getElementById('files-docs');
-  const all = document.getElementById('files-all');
-  if (!host || !all) return;
-  all.classList.toggle('is-current', !query && !selectedId);
+  const home = document.getElementById('files-home');
+  if (!host) return;
+  home?.classList.toggle('is-current', preferHome || !selectedId);
   host.replaceChildren();
   if (loading) {
     const pending = document.createElement('p');
@@ -541,30 +564,21 @@ function paintDocs(): void {
     return;
   }
   if (rows.length === 0) {
-    const title = document.createElement('p');
-    title.className = 'vault-empty';
-    title.textContent = query ? t('cloudEmptySearchTitle') : t('cloudEmptyTitle');
-    const body = document.createElement('p');
-    body.className = 'vault-empty';
-    body.textContent = query ? t('cloudEmptySearch') : t('cloudEmpty');
-    host.append(title, body);
+    const empty = document.createElement('p');
+    empty.className = 'vault-empty';
+    empty.textContent = query ? t('cloudEmptySearch') : t('cloudEmpty');
+    host.append(empty);
     return;
   }
   for (const workbook of rows) {
     const item = document.createElement('button');
     item.type = 'button';
-    item.className = workbook.id === selectedId ? 'vault-doc is-current' : 'vault-doc';
+    item.className = workbook.id === selectedId ? 'vault-tree-item is-current' : 'vault-tree-item';
     if (workbook.id === selectedId) item.setAttribute('aria-current', 'true');
-    const main = document.createElement('span');
-    main.className = 'vault-doc-main';
     const title = document.createElement('span');
-    title.className = 'vault-doc-title';
+    title.className = 'vault-tree-title';
     title.textContent = workbook.title;
-    const meta = document.createElement('span');
-    meta.className = 'vault-doc-meta';
-    meta.textContent = formatBytes(workbook.sizeBytes);
-    main.append(title, meta);
-    item.append(svgIcon('M7 3h7l5 5v13a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1z'), main);
+    item.append(svgIcon('M7 3h7l5 5v13a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1zM14 3v5h5'), title);
     item.addEventListener('click', () => selectWorkbook(workbook.id));
     host.append(item);
   }
@@ -606,14 +620,12 @@ function paintOverlay(): void {
 }
 
 function paintStage(): void {
-  const bar = document.getElementById('files-docbar');
   const empty = document.getElementById('files-stage-empty');
   const wrap = document.getElementById('files-frame-wrap');
   const frame = document.getElementById('files-editor-frame') as HTMLIFrameElement | null;
-  if (!bar || !empty || !wrap || !frame) return;
+  if (!empty || !wrap || !frame) return;
   const workbook = selectedWorkbook();
   if (!workbook && loading && frame.dataset.workbook) return;
-  bar.replaceChildren();
   if (!workbook) {
     empty.hidden = false;
     wrap.hidden = true;
@@ -637,25 +649,6 @@ function paintStage(): void {
   wrap.hidden = false;
   frame.hidden = false;
   document.title = workbook.title;
-
-  const icon = svgIcon('M4 4h16v16H4zM4 9h16M9 9v11');
-  icon.classList.add('vault-sheet-icon');
-  const main = document.createElement('div');
-  main.className = 'vault-docbar-main';
-  const title = document.createElement('h1');
-  title.className = 'vault-filename';
-  title.textContent = workbook.title;
-  const status = document.createElement('p');
-  status.className = 'vault-doc-status';
-  status.textContent = `${t('cloudSavedWhen', { when: formatRelativeTime(Date.parse(workbook.updatedAt)) })} · ${formatBytes(workbook.sizeBytes)}`;
-  main.append(title, status);
-  const actions = document.createElement('div');
-  actions.className = 'vault-docbar-actions';
-  actions.append(
-    button(t('cloudDelete'), () => void onDelete(), { type: 'text' }),
-    button(t('cloudExport'), () => void onExport(), { type: 'primary', id: 'files-export' }),
-  );
-  bar.append(icon, main, actions);
 
   if (frame.dataset.workbook === workbook.id) {
     paintOverlay();
