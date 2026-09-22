@@ -571,26 +571,17 @@ async function collectFromFileEntry(
   return out;
 }
 
-/** Flatten OS file/folder drops (File System Access entry API when available). */
-async function collectDroppedUploads(dataTransfer: DataTransfer): Promise<DroppedUpload[]> {
-  const items = [...dataTransfer.items].filter((item) => item.kind === 'file');
-  const getEntry = (item: DataTransferItem): FileSystemEntryLike | null => {
-    const asEntry = (
-      item as DataTransferItem & { webkitGetAsEntry?: () => FileSystemEntryLike | null }
-    ).webkitGetAsEntry;
-    return typeof asEntry === 'function' ? asEntry.call(item) : null;
-  };
-
-  if (items.some((item) => getEntry(item))) {
-    const out: DroppedUpload[] = [];
-    for (const item of items) {
-      const entry = getEntry(item);
-      if (!entry || entry.name.startsWith('.')) continue;
-      out.push(...(await collectFromFileEntry(entry, '')));
-    }
-    return out;
+/** Flatten OS file/folder drops. Entries must be snapshotted sync in the drop handler. */
+async function expandDroppedEntries(entries: FileSystemEntryLike[]): Promise<DroppedUpload[]> {
+  const out: DroppedUpload[] = [];
+  for (const entry of entries) {
+    if (entry.name.startsWith('.')) continue;
+    out.push(...(await collectFromFileEntry(entry, '')));
   }
+  return out;
+}
 
+function filesFromDataTransfer(dataTransfer: DataTransfer): DroppedUpload[] {
   return [...dataTransfer.files].map((file) => {
     const relative = (file as File & { webkitRelativePath?: string }).webkitRelativePath || '';
     const parts = relative.split('/').filter(Boolean);
@@ -598,6 +589,29 @@ async function collectDroppedUploads(dataTransfer: DataTransfer): Promise<Droppe
     else parts.length = 0;
     return { file, relativeDir: parts.join('/') };
   });
+}
+
+/**
+ * Capture drop payload synchronously during the `drop` event.
+ * `webkitGetAsEntry()` returns null for later items if called after any await.
+ */
+function captureDropPayload(dataTransfer: DataTransfer): {
+  entries: FileSystemEntryLike[];
+  files: DroppedUpload[];
+} {
+  const entries: FileSystemEntryLike[] = [];
+  for (const item of dataTransfer.items) {
+    if (item.kind !== 'file') continue;
+    const asEntry = (
+      item as DataTransferItem & { webkitGetAsEntry?: () => FileSystemEntryLike | null }
+    ).webkitGetAsEntry;
+    const entry = typeof asEntry === 'function' ? asEntry.call(item) : null;
+    if (entry) entries.push(entry);
+  }
+  return {
+    entries,
+    files: filesFromDataTransfer(dataTransfer),
+  };
 }
 
 async function ensureFolderPath(parentId: string, segments: string[]): Promise<string> {
@@ -663,11 +677,12 @@ async function onUploadFiles(fileList: FileList | null): Promise<void> {
 }
 
 async function onDropUpload(
-  dataTransfer: DataTransfer | null,
+  payload: { entries: FileSystemEntryLike[]; files: DroppedUpload[] } | null,
   parentId = currentFolderId,
 ): Promise<void> {
-  if (!dataTransfer) return;
-  const items = await collectDroppedUploads(dataTransfer);
+  if (!payload) return;
+  const items =
+    payload.entries.length > 0 ? await expandDroppedEntries(payload.entries) : payload.files;
   await uploadOfficeItems(items, parentId);
 }
 
@@ -755,6 +770,21 @@ function dropTargetFolderId(event: DragEvent, fallback: string): string {
   const row = (event.target as Element | null)?.closest?.('.vault-stage-browser-row[data-kind="folder"]');
   const id = row instanceof HTMLElement ? row.dataset.id : '';
   return id || fallback;
+}
+
+function setStageFileDropActive(active: boolean, folderRow: HTMLElement | null = null): void {
+  const emptyStage = document.getElementById('workspace-stage-empty');
+  const overlay = document.getElementById('workspace-stage-drop-overlay');
+  if (!emptyStage) return;
+  emptyStage.classList.toggle('is-drop-target', active);
+  if (overlay) {
+    overlay.hidden = !active;
+    overlay.setAttribute('aria-hidden', active ? 'false' : 'true');
+  }
+  emptyStage.querySelectorAll('.vault-stage-browser-row.is-file-drop').forEach((el) => {
+    el.classList.remove('is-file-drop');
+  });
+  if (active && folderRow) folderRow.classList.add('is-file-drop');
 }
 
 function startRename(id: string): void {
@@ -1388,6 +1418,21 @@ function mountShell(): void {
         .class('vault-stage-empty')
         .id('workspace-stage-empty')
         .children(
+          (() => {
+            const dropOverlay = document.createElement('div');
+            dropOverlay.className = 'vault-stage-drop-overlay';
+            dropOverlay.id = 'workspace-stage-drop-overlay';
+            dropOverlay.hidden = true;
+            dropOverlay.setAttribute('aria-hidden', 'true');
+            const banner = document.createElement('div');
+            banner.className = 'vault-stage-drop-banner';
+            banner.append(
+              svgIcon('M12 3v12M8 7l4-4 4 4M5 15v3a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-3'),
+              document.createTextNode(t('cloudDropOffice')),
+            );
+            dropOverlay.append(banner);
+            return dropOverlay;
+          })(),
           Div()
             .class('vault-stage-empty-copy')
             .id('workspace-stage-empty-copy')
@@ -1544,33 +1589,25 @@ function mountShell(): void {
       event.preventDefault();
       event.stopPropagation();
       if (event.dataTransfer) event.dataTransfer.dropEffect = 'copy';
-      emptyStage.classList.add('is-drop-target');
       const folderRow = (event.target as Element | null)?.closest?.(
         '.vault-stage-browser-row[data-kind="folder"]',
       );
-      emptyStage.querySelectorAll('.vault-stage-browser-row.is-file-drop').forEach((el) => {
-        el.classList.remove('is-file-drop');
-      });
-      if (folderRow instanceof HTMLElement) folderRow.classList.add('is-file-drop');
+      setStageFileDropActive(true, folderRow instanceof HTMLElement ? folderRow : null);
     });
     emptyStage.addEventListener('dragleave', (event) => {
       const related = event.relatedTarget as Node | null;
       if (related && emptyStage.contains(related)) return;
-      emptyStage.classList.remove('is-drop-target');
-      emptyStage.querySelectorAll('.vault-stage-browser-row.is-file-drop').forEach((el) => {
-        el.classList.remove('is-file-drop');
-      });
+      setStageFileDropActive(false);
     });
     emptyStage.addEventListener('drop', (event) => {
       if (!isExternalFileDrag(event)) return;
       event.preventDefault();
       event.stopPropagation();
-      emptyStage.classList.remove('is-drop-target');
-      emptyStage.querySelectorAll('.vault-stage-browser-row.is-file-drop').forEach((el) => {
-        el.classList.remove('is-file-drop');
-      });
+      setStageFileDropActive(false);
       const parentId = dropTargetFolderId(event, currentFolderId);
-      void onDropUpload(event.dataTransfer, parentId);
+      // Snapshot entries before any await — required for multi-file drops.
+      const payload = event.dataTransfer ? captureDropPayload(event.dataTransfer) : null;
+      void onDropUpload(payload, parentId);
     });
   }
 

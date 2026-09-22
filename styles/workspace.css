@@ -1202,16 +1202,48 @@ body {
   color: color-mix(in srgb, var(--ran-color-text-secondary) 88%, transparent);
 }
 
-.vault-stage-empty.is-drop-target {
-  background: color-mix(in srgb, var(--ran-blue-700, #006bff) 6%, transparent);
-  outline: 1px dashed color-mix(in srgb, var(--ran-blue-700, #006bff) 45%, transparent);
-  outline-offset: -12px;
-  border-radius: 16px;
+.vault-stage-drop-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 20;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 16px 20px;
+  pointer-events: none;
+  background: color-mix(in srgb, var(--ran-blue-700, #006bff) 8%, transparent);
+  border: 2px dashed color-mix(in srgb, var(--ran-blue-700, #006bff) 55%, transparent);
+  border-radius: 0;
+  box-sizing: border-box;
 }
 
-.vault-stage-empty.is-browser.is-drop-target {
-  outline-offset: -8px;
-  border-radius: 0;
+.vault-stage-drop-overlay[hidden] {
+  display: none;
+}
+
+.vault-stage-drop-banner {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  max-width: min(520px, 100%);
+  margin-top: 8px;
+  padding: 12px 18px;
+  border-radius: 12px;
+  border: 1px solid color-mix(in srgb, var(--ran-blue-700, #006bff) 28%, transparent);
+  background: var(--ran-color-bg);
+  color: var(--ran-color-text);
+  font-size: 14px;
+  font-weight: 600;
+  box-shadow:
+    0 4px 6px rgba(0, 0, 0, 0.04),
+    0 12px 28px rgba(0, 0, 0, 0.12);
+}
+
+.vault-stage-drop-banner .vault-icon {
+  width: 18px;
+  height: 18px;
+  flex: none;
+  color: var(--ran-blue-700, #006bff);
 }
 
 .vault-stage-empty-actions[hidden] {
