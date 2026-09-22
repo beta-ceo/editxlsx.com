@@ -16,6 +16,7 @@ import { installHintFallbackGuard } from './guards/hint-fallback';
 import { installAboutSourceNotice } from './guards/about-source';
 import { installBadImageUrlGuard } from './guards/bad-image-url';
 import { installX2tWorkerProxy } from './guards/x2t-worker';
+import { installPrintDelivery } from './guards/print-delivery';
 
 /**
  * Same-origin preparation of the editor iframe, applied from onAppReady and
@@ -62,6 +63,7 @@ export function prepareEditorIframe(): boolean {
       installBadImageUrlGuard(win);
       const x2tWorkerProxied = installX2tWorkerProxy(win);
       installAboutSourceNotice(doc);
+      installPrintDelivery(win);
       const wasmBinaryHandled = releaseWasmBinary(win);
 
       if (
