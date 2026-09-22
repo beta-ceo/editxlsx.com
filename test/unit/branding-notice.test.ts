@@ -34,6 +34,12 @@ describe('ONLYOFFICE product logo (AGPL-3.0 Section 7(b))', () => {
     expect(guard).toContain('data-tab="file"');
     expect(guard).toContain('#header-logo');
     expect(guard).toContain('#box-document-title');
+    // Print opens the File menu panel; its left nav is chrome we do not want.
+    expect(guard).toContain('#file-menu-panel .panel-menu');
+    expect(guard).toContain('padding-left: 0');
+    expect(guard).toContain('left: -10000px');
+    expect(guard).toContain('position: fixed');
+    expect(guard).toContain('#oo-print-close');
   });
 
   it('is not removed with the About pane by the DocEditor config', () => {

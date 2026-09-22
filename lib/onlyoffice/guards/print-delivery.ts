@@ -1,5 +1,6 @@
 /**
- * Guard 18: deliver Print-panel PDF to the user.
+ * Guard 18: deliver Print-panel PDF to the user, and present Print as a
+ * full-page overlay with an explicit Close control.
  *
  * The offline vendor build renders a real PDF blob for Print
  * (`_localPrintUrl` via `ToRendererPart`), then `onPrintUrl` loads it into an
@@ -13,11 +14,13 @@
  * PDF in that same frame (blob URLs are origin+document scoped) and try print
  * from an off-screen but non-display:none iframe. Clicks on `#print-btn-save*`
  * then trigger the same PDF path after the vendor has saved page options,
- * download-only (no print dialog).
+ * download-only (no print dialog). A top-right Close (×) button clicks the
+ * vendor Back entry so the overlay can leave without the File left rail.
  */
 import { getDocmentObj } from '@ranuts/shared/store';
 
 const PRINT_URL_EVENT = 'asc_onPrintUrl';
+const CLOSE_ID = 'oo-print-close';
 
 /** When true, the next print-URL delivery downloads only (Save on the print panel). */
 let downloadOnly = false;
@@ -113,6 +116,64 @@ function installSaveAsPdfClick(doc: Document, win: Window): void {
   );
 }
 
+/** Close the print overlay by activating the vendor Back control (or Escape). */
+export function closePrintOverlay(doc: Document): void {
+  // Prefer the anchor: `#fm-btn-return` alone matches the <li> first in tree order.
+  const back =
+    (doc.querySelector('#fm-btn-return a') as HTMLElement | null) ||
+    (doc.querySelector('#fm-btn-return') as HTMLElement | null);
+  if (back) {
+    back.click();
+    return;
+  }
+  doc.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', keyCode: 27, bubbles: true }));
+}
+
+function ensurePrintCloseButton(doc: Document): void {
+  const panel = doc.getElementById('file-menu-panel');
+  if (!panel) return;
+  const print = doc.getElementById('panel-print');
+  const printVisible =
+    getComputedStyle(panel).display !== 'none' && !!print && getComputedStyle(print).display !== 'none';
+
+  let btn = doc.getElementById(CLOSE_ID) as HTMLButtonElement | null;
+  if (!printVisible) {
+    btn?.remove();
+    return;
+  }
+  if (btn) return;
+
+  btn = doc.createElement('button');
+  btn.id = CLOSE_ID;
+  btn.type = 'button';
+  btn.setAttribute('aria-label', 'Close');
+  btn.title = 'Close';
+  btn.textContent = '×';
+  btn.addEventListener('click', (event) => {
+    event.preventDefault();
+    event.stopPropagation();
+    closePrintOverlay(doc);
+  });
+  panel.appendChild(btn);
+}
+
+function installPrintCloseButton(doc: Document, win: Window): void {
+  const flagged = doc.documentElement as HTMLElement & { __ooPrintCloseHook?: boolean };
+  if (flagged.__ooPrintCloseHook) return;
+  flagged.__ooPrintCloseHook = true;
+
+  ensurePrintCloseButton(doc);
+  const panel = doc.getElementById('file-menu-panel');
+  if (panel && win.MutationObserver) {
+    new win.MutationObserver(() => ensurePrintCloseButton(doc)).observe(panel, {
+      attributes: true,
+      attributeFilter: ['style', 'class'],
+      childList: true,
+      subtree: true,
+    });
+  }
+}
+
 export function installPrintDelivery(win: Window): boolean {
   const printWin = win as unknown as {
     Asc?: {
@@ -146,5 +207,6 @@ export function installPrintDelivery(win: Window): boolean {
   }
 
   installSaveAsPdfClick(doc, win);
+  installPrintCloseButton(doc, win);
   return true;
 }

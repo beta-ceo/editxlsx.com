@@ -1,9 +1,9 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { deliverPrintPdf } from '../../lib/onlyoffice/guards/print-delivery';
+import { closePrintOverlay, deliverPrintPdf } from '../../lib/onlyoffice/guards/print-delivery';
 
 /**
  * Guard 18: Print-panel PDF must leave the tab (download), and print() must
- * not target a display:none iframe.
+ * not target a display:none iframe. Close uses the vendor Back control.
  */
 describe('print delivery (guard 18)', () => {
   afterEach(() => {
@@ -41,5 +41,13 @@ describe('print delivery (guard 18)', () => {
     expect(frame!.style.display).not.toBe('none');
     expect(frame!.style.opacity).toBe('0');
     expect(frame!.src).toContain('blob:');
+  });
+
+  it('closes via the vendor Back control when present', () => {
+    document.body.innerHTML = '<li id="fm-btn-return"><a href="#">Back</a></li>';
+    const back = document.querySelector('#fm-btn-return a') as HTMLAnchorElement;
+    const spy = vi.spyOn(back, 'click').mockImplementation(() => undefined);
+    closePrintOverlay(document);
+    expect(spy).toHaveBeenCalledTimes(1);
   });
 });
