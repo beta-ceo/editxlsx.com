@@ -15,7 +15,7 @@ import { applyDocumentLanguage, getLanguage, t, withLocale } from '@ranuts/share
 import { getCurrentUser, signOut, type AuthUser } from './appwrite/auth';
 import { createBlankFile, createFolder, createWorkbookFromFile, deleteVaultItem, ensureFormatName, isUnderFolder, listVaultItems, placeVaultItem, renameVaultItem, reorderVaultSiblings, compareVaultOrder, nextSortOrder, type VaultItem, type Workbook } from './appwrite/workbooks';
 import type { VaultFormat } from './appwrite/ids';
-import { formatFromTitle } from './appwrite/ids';
+import { formatFromTitle, MAX_WORKBOOK_BYTES } from './appwrite/ids';
 import { confirmDialog } from './confirm-dialog';
 import { isShellBridgeMessage, SHELL_FAILED, SHELL_READY, SHELL_SAVE_STATE } from './shell-bridge';
 import type { ShellSaveState } from './shell-bridge';
@@ -267,34 +267,57 @@ function svgIcon(path: string, className = 'vault-icon'): SVGElement {
   return svg;
 }
 
-/** Animated drop-to-upload illustration for the empty stage. */
+/** Soft cloud upload plate for the empty-stage hero (reference-style). */
 function buildEmptyDropArt(): HTMLElement {
   const art = document.createElement('div');
   art.className = 'vault-stage-drop-art';
   art.setAttribute('aria-hidden', 'true');
 
-  const file = document.createElement('div');
-  file.className = 'vault-stage-drop-art-file';
-  file.append(
-    svgIcon(
-      'M7 3h7l5 5v13a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1zM14 3v5h5',
-      'vault-icon vault-stage-drop-art-doc',
-    ),
-  );
+  const plate = document.createElement('div');
+  plate.className = 'vault-stage-drop-art-plate';
 
-  const arrow = document.createElement('div');
-  arrow.className = 'vault-stage-drop-art-arrow';
-  arrow.append(svgIcon('M12 5v10M8 11l4 4 4-4', 'vault-icon'));
+  const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+  svg.setAttribute('viewBox', '0 0 24 24');
+  svg.setAttribute('aria-hidden', 'true');
+  svg.setAttribute('class', 'vault-icon vault-stage-drop-art-cloud');
 
-  const tray = document.createElement('div');
-  tray.className = 'vault-stage-drop-art-tray';
-  tray.append(svgIcon('M4 14h16v4a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-4zM8 14V10h8v4', 'vault-icon'));
+  const cloud = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+  cloud.setAttribute('d', 'M7 18h9.5a3.5 3.5 0 0 0 .5-6.97 5 5 0 0 0-9.7-1.53A3.5 3.5 0 0 0 7 18z');
+  cloud.setAttribute('fill', 'currentColor');
+  cloud.setAttribute('stroke', 'none');
 
-  const ring = document.createElement('div');
-  ring.className = 'vault-stage-drop-art-ring';
+  const arrow = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+  arrow.setAttribute('d', 'M12 16V10M9.5 12.5 12 10l2.5 2.5');
+  arrow.setAttribute('fill', 'none');
+  arrow.setAttribute('stroke', '#fff');
+  arrow.setAttribute('stroke-width', '1.8');
+  arrow.setAttribute('stroke-linecap', 'round');
+  arrow.setAttribute('stroke-linejoin', 'round');
 
-  art.append(ring, file, arrow, tray);
+  svg.append(cloud, arrow);
+  plate.append(svg);
+  art.append(plate);
   return art;
+}
+
+function buildDropFormatsLine(): HTMLElement {
+  const line = document.createElement('p');
+  line.className = 'vault-stage-drop-formats';
+  line.id = 'workspace-stage-drop-formats';
+  const size = `${Math.floor(MAX_WORKBOOK_BYTES / 1_000_000)} MB`;
+  const raw = t('cloudDropFormats', { size });
+  // Bold the Office extensions in the sentence.
+  const parts = raw.split(/(\.xlsx|\.docx|\.pptx)/gi);
+  for (const part of parts) {
+    if (/^\.(xlsx|docx|pptx)$/i.test(part)) {
+      const strong = document.createElement('strong');
+      strong.textContent = part.toUpperCase();
+      line.append(strong);
+    } else {
+      line.append(document.createTextNode(part));
+    }
+  }
+  return line;
 }
 
 /** Multi-path stroke icon (sync chip). Same visual language as `svgIcon`. */
@@ -1471,28 +1494,36 @@ function mountShell(): void {
             const title = document.createElement('h2');
             title.className = 'vault-stage-browser-title';
             title.id = 'workspace-stage-empty-title';
-            const tools = document.createElement('div');
-            tools.className = 'vault-stage-browser-tools';
-            tools.id = 'workspace-stage-empty-tools';
-            head.append(title, tools);
+            head.append(title);
             return head;
           })(),
-          Div()
-            .class('vault-stage-empty-copy')
-            .id('workspace-stage-empty-copy')
-            .children(
-              buildEmptyDropArt(),
-              View('p').id('workspace-stage-search-empty').attr('hidden', 'true').text('').build(),
-            )
-            .build(),
           (() => {
+            const copy = document.createElement('div');
+            copy.className = 'vault-stage-empty-copy';
+            copy.id = 'workspace-stage-empty-copy';
+
+            const headline = document.createElement('h2');
+            headline.className = 'vault-stage-drop-headline';
+            headline.id = 'workspace-stage-drop-headline';
+            headline.textContent = t('cloudDropHeadline');
+
             const actions = document.createElement('div');
             actions.className = 'vault-stage-empty-actions';
             actions.id = 'workspace-stage-empty-actions';
 
+            const uploadBtn = document.createElement('button');
+            uploadBtn.type = 'button';
+            uploadBtn.className = 'vault-stage-action vault-stage-action-primary';
+            uploadBtn.id = 'workspace-stage-upload';
+            uploadBtn.append(
+              svgIcon('M12 3v12M8 7l4-4 4 4M5 15v3a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-3'),
+              document.createTextNode(t('cloudBrowseLocal')),
+            );
+            uploadBtn.addEventListener('click', () => pickUploadFiles());
+
             const newBtn = document.createElement('button');
             newBtn.type = 'button';
-            newBtn.className = 'vault-stage-action vault-stage-action-primary';
+            newBtn.className = 'vault-stage-action vault-stage-action-secondary';
             newBtn.id = 'workspace-stage-new';
             newBtn.setAttribute('aria-haspopup', 'menu');
             newBtn.setAttribute('aria-expanded', 'false');
@@ -1501,16 +1532,6 @@ function mountShell(): void {
             newBtn.addEventListener('click', () => {
               openNewMenuAt(newBtn, { key: 'workspace-stage-new' });
             });
-
-            const uploadBtn = document.createElement('button');
-            uploadBtn.type = 'button';
-            uploadBtn.className = 'vault-stage-action';
-            uploadBtn.id = 'workspace-stage-upload';
-            uploadBtn.append(
-              svgIcon('M12 3v12M8 7l4-4 4 4M5 15v3a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-3'),
-              document.createTextNode(t('cloudUpload')),
-            );
-            uploadBtn.addEventListener('click', () => pickUploadFiles());
 
             const fileInput = document.createElement('input');
             fileInput.type = 'file';
@@ -1524,13 +1545,14 @@ function mountShell(): void {
               void onUploadFiles(fileInput.files);
             });
 
-            actions.append(newBtn, uploadBtn, fileInput);
-            const wrap = document.createElement('div');
-            wrap.className = 'vault-stage-empty-cta';
-            wrap.id = 'workspace-stage-empty-cta';
-            wrap.hidden = true;
-            wrap.append(actions);
-            return wrap;
+            actions.append(uploadBtn, newBtn, fileInput);
+
+            const searchEmpty = document.createElement('p');
+            searchEmpty.id = 'workspace-stage-search-empty';
+            searchEmpty.hidden = true;
+
+            copy.append(buildEmptyDropArt(), headline, buildDropFormatsLine(), actions, searchEmpty);
+            return copy;
           })(),
           (() => {
             const browser = document.createElement('div');
@@ -2148,6 +2170,17 @@ function paintStageBrowser(items: VaultItem[]): void {
   if (tools && actions && actions.parentElement !== tools) {
     tools.replaceChildren(actions);
   }
+  // Compact header actions: New first, then Upload label.
+  const newBtn = document.getElementById('workspace-stage-new');
+  const uploadBtn = document.getElementById('workspace-stage-upload');
+  if (newBtn && uploadBtn && actions) {
+    newBtn.classList.remove('vault-stage-action-secondary');
+    newBtn.classList.add('vault-stage-action-primary');
+    uploadBtn.classList.remove('vault-stage-action-primary');
+    const uploadLabel = uploadBtn.childNodes[uploadBtn.childNodes.length - 1];
+    if (uploadLabel?.nodeType === Node.TEXT_NODE) uploadLabel.textContent = t('cloudUpload');
+    actions.prepend(newBtn);
+  }
   list.replaceChildren();
   for (const item of items) {
     const row = document.createElement('button');
@@ -2184,6 +2217,29 @@ function paintStageBrowser(items: VaultItem[]): void {
   browser.hidden = false;
 }
 
+function restoreEmptyHeroActions(): void {
+  const copy = document.getElementById('workspace-stage-empty-copy');
+  const actions = document.getElementById('workspace-stage-empty-actions');
+  const searchEmpty = document.getElementById('workspace-stage-search-empty');
+  const newBtn = document.getElementById('workspace-stage-new');
+  const uploadBtn = document.getElementById('workspace-stage-upload');
+  const fileInput = document.getElementById('workspace-upload-input');
+  if (!copy || !actions) return;
+  if (uploadBtn && newBtn) {
+    uploadBtn.classList.add('vault-stage-action-primary');
+    newBtn.classList.remove('vault-stage-action-primary');
+    newBtn.classList.add('vault-stage-action-secondary');
+    const uploadLabel = uploadBtn.childNodes[uploadBtn.childNodes.length - 1];
+    if (uploadLabel?.nodeType === Node.TEXT_NODE) uploadLabel.textContent = t('cloudBrowseLocal');
+    actions.replaceChildren(uploadBtn, newBtn);
+    if (fileInput) actions.append(fileInput);
+  }
+  if (actions.parentElement !== copy) {
+    if (searchEmpty) copy.insertBefore(actions, searchEmpty);
+    else copy.append(actions);
+  }
+}
+
 function paintStage(): void {
   const empty = document.getElementById('workspace-stage-empty');
   const wrap = document.getElementById('workspace-frame-wrap');
@@ -2203,14 +2259,14 @@ function paintStage(): void {
       frame.removeAttribute('src');
     }
     const copy = document.getElementById('workspace-stage-empty-copy');
-    const cta = document.getElementById('workspace-stage-empty-cta');
     const emptyHead = document.getElementById('workspace-stage-empty-head');
     const emptyTitle = document.getElementById('workspace-stage-empty-title');
-    const emptyTools = document.getElementById('workspace-stage-empty-tools');
     const browser = document.getElementById('workspace-stage-browser');
     const skeleton = document.getElementById('workspace-stage-skeleton');
     const searchEmpty = document.getElementById('workspace-stage-search-empty');
     const dropArt = copy?.querySelector('.vault-stage-drop-art') as HTMLElement | null;
+    const headline = document.getElementById('workspace-stage-drop-headline');
+    const formats = document.getElementById('workspace-stage-drop-formats');
     const actions = document.getElementById('workspace-stage-empty-actions');
     const searching = Boolean(query.trim());
     const children = searching ? [] : childrenOf(currentFolderId);
@@ -2221,7 +2277,6 @@ function paintStage(): void {
       empty.classList.remove('is-browser', 'is-empty');
       empty.classList.add('is-skeleton');
       if (copy) copy.hidden = true;
-      if (cta) cta.hidden = true;
       if (emptyHead) emptyHead.hidden = true;
       if (skeleton) skeleton.hidden = false;
       document.title = t('cloudFilesTitle');
@@ -2236,18 +2291,17 @@ function paintStage(): void {
 
     if (!searching && !folderEmpty) {
       if (copy) copy.hidden = true;
-      if (cta) cta.hidden = true;
       if (emptyHead) emptyHead.hidden = true;
       paintStageBrowser(children);
     } else {
       if (copy) copy.hidden = false;
-      if (cta) cta.hidden = true;
       if (emptyHead) emptyHead.hidden = searching;
       if (emptyTitle && !searching) paintFolderTitle(emptyTitle);
-      if (!searching && emptyTools && actions && actions.parentElement !== emptyTools) {
-        emptyTools.replaceChildren(actions);
-      }
+      restoreEmptyHeroActions();
       if (dropArt) dropArt.hidden = searching;
+      if (headline) headline.hidden = searching;
+      if (formats) formats.hidden = searching;
+      if (actions) actions.hidden = searching;
       if (searchEmpty) {
         searchEmpty.hidden = !searching;
         searchEmpty.textContent = searching ? t('cloudEmptySearch') : '';

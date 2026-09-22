@@ -160,6 +160,12 @@ export interface I18nMessages {
   cloudFolderEmptyHint: string;
   /** Drop zone hint under empty-stage actions. */
   cloudDropOffice: string;
+  /** Empty-stage hero: drag-and-drop headline. */
+  cloudDropHeadline: string;
+  /** Empty-stage hero: supported formats line (`{size}` e.g. 50 MB). */
+  cloudDropFormats: string;
+  /** Empty-stage primary button: open OS file picker. */
+  cloudBrowseLocal: string;
   cloudEmptyTitle: string;
   cloudEmpty: string;
   cloudEmptySearchTitle: string;

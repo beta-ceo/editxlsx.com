@@ -1197,14 +1197,14 @@ body {
   display: grid;
   place-items: center;
   align-content: center;
-  gap: 8px;
-  padding: 32px;
+  gap: 16px;
+  padding: 40px 32px 48px;
   text-align: center;
 }
 
 .vault-stage-empty-copy {
   display: grid;
-  gap: 8px;
+  gap: 16px;
   justify-items: center;
 }
 
@@ -1213,126 +1213,72 @@ body {
 }
 
 .vault-stage-drop-art {
-  position: relative;
-  width: 96px;
-  height: 96px;
-  margin: 0 0 12px;
   display: grid;
   place-items: center;
+  margin: 0 0 4px;
 }
 
-.vault-stage-drop-art-ring {
-  position: absolute;
-  inset: 8px;
-  border-radius: 50%;
-  border: 1.5px dashed color-mix(in srgb, var(--ran-blue-700, #006bff) 35%, transparent);
-  animation: vault-drop-ring 2.4s ease-in-out infinite;
-}
-
-.vault-stage-drop-art-file {
-  position: absolute;
-  top: 10px;
+.vault-stage-drop-art-plate {
   display: grid;
   place-items: center;
-  width: 40px;
-  height: 40px;
-  border-radius: 10px;
-  background: var(--ran-color-bg);
-  border: 1px solid color-mix(in srgb, var(--ran-blue-700, #006bff) 22%, var(--ran-color-border, rgba(0, 0, 0, 0.1)));
-  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.06);
+  width: 72px;
+  height: 72px;
+  border-radius: 18px;
+  background: color-mix(in srgb, var(--ran-blue-700, #006bff) 10%, #fff);
   color: var(--ran-blue-700, #006bff);
-  animation: vault-drop-file 2.4s ease-in-out infinite;
+  transition:
+    background 0.18s ease,
+    transform 0.18s ease;
 }
 
-.vault-stage-drop-art-doc {
-  width: 22px;
-  height: 22px;
+.vault-stage-drop-art-cloud {
+  width: 36px;
+  height: 36px;
 }
 
-.vault-stage-drop-art-arrow {
-  position: absolute;
-  top: 48px;
-  color: color-mix(in srgb, var(--ran-blue-700, #006bff) 70%, transparent);
-  animation: vault-drop-arrow 2.4s ease-in-out infinite;
-}
-
-.vault-stage-drop-art-arrow .vault-icon {
-  width: 18px;
-  height: 18px;
-}
-
-.vault-stage-drop-art-tray {
-  position: absolute;
-  bottom: 8px;
-  display: grid;
-  place-items: center;
-  width: 52px;
-  height: 28px;
-  color: color-mix(in srgb, var(--ran-color-text-secondary) 85%, transparent);
-}
-
-.vault-stage-drop-art-tray .vault-icon {
-  width: 28px;
-  height: 28px;
-}
-
-@keyframes vault-drop-file {
-  0%,
-  100% {
-    transform: translateY(0);
-  }
-  50% {
-    transform: translateY(10px);
-  }
-}
-
-@keyframes vault-drop-arrow {
-  0%,
-  100% {
-    opacity: 0.35;
-    transform: translateY(-2px);
-  }
-  50% {
-    opacity: 1;
-    transform: translateY(4px);
-  }
-}
-
-@keyframes vault-drop-ring {
-  0%,
-  100% {
-    transform: scale(0.96);
-    opacity: 0.55;
-  }
-  50% {
-    transform: scale(1.04);
-    opacity: 1;
-  }
-}
-
-.vault-stage-empty.is-drop-target .vault-stage-drop-art-file {
-  animation-duration: 1.1s;
-  border-color: color-mix(in srgb, var(--ran-blue-700, #006bff) 45%, transparent);
-  color: var(--ran-blue-700, #006bff);
-}
-
-.vault-stage-empty.is-drop-target .vault-stage-drop-art-ring {
-  border-color: color-mix(in srgb, var(--ran-blue-700, #006bff) 65%, transparent);
-  animation-duration: 1.1s;
+.vault-stage-empty.is-drop-target .vault-stage-drop-art-plate {
+  background: color-mix(in srgb, var(--ran-blue-700, #006bff) 16%, #fff);
+  transform: scale(1.04);
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .vault-stage-drop-art-file,
-  .vault-stage-drop-art-arrow,
-  .vault-stage-drop-art-ring {
-    animation: none;
+  .vault-stage-drop-art-plate {
+    transition: none;
   }
+}
+
+.vault-stage-drop-headline {
+  margin: 0;
+  max-width: 28ch;
+  font-size: 22px;
+  font-weight: 700;
+  line-height: 1.25;
+  letter-spacing: -0.02em;
+  color: var(--ran-color-text);
+}
+
+.vault-stage-drop-formats {
+  margin: 0;
+  max-width: 44ch;
+  font-size: 13.5px;
+  line-height: 1.45;
+  color: var(--ran-color-text-secondary);
+}
+
+.vault-stage-drop-formats strong {
+  font-weight: 650;
+  color: var(--ran-color-text);
 }
 
 .vault-stage-empty h2 {
   margin: 0;
   font-size: 20px;
   font-weight: 600;
+}
+
+.vault-stage-empty h2.vault-stage-drop-headline {
+  font-size: 22px;
+  font-weight: 700;
 }
 
 .vault-stage-empty p {
@@ -1347,6 +1293,7 @@ body {
   align-items: center;
   justify-content: center;
   gap: 10px;
+  margin-top: 4px;
 }
 
 .vault-stage-empty-cta {
@@ -1460,6 +1407,17 @@ body {
   background: color-mix(in srgb, var(--ran-blue-700, #006bff) 88%, #000);
   border-color: color-mix(in srgb, var(--ran-blue-700, #006bff) 88%, #000);
   color: #fff;
+}
+
+.vault-stage-action-secondary {
+  background: color-mix(in srgb, var(--ran-blue-700, #006bff) 8%, #f4f7fb);
+  border-color: transparent;
+  color: var(--ran-color-text);
+}
+
+.vault-stage-action-secondary:hover {
+  background: color-mix(in srgb, var(--ran-blue-700, #006bff) 14%, #f4f7fb);
+  border-color: transparent;
 }
 
 .vault-stage-action[aria-expanded='true'] {
