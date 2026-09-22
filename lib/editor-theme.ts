@@ -47,6 +47,17 @@ function storageSet(key: string, value: string): void {
 
 /** Effective site appearance right now. */
 export function isSiteDark(): boolean {
+  // Prefer the shell's effective theme when we are framed in /workspace
+  // (the iframe's own data-ran-theme is only set at boot and goes stale).
+  try {
+    if (window.parent && window.parent !== window) {
+      const parentAttr = window.parent.document.documentElement.getAttribute(SITE_THEME_ATTR);
+      if (parentAttr === 'dark') return true;
+      if (parentAttr === 'light') return false;
+    }
+  } catch {
+    // cross-origin parent
+  }
   const attr = document.documentElement.getAttribute(SITE_THEME_ATTR);
   if (attr === 'dark') return true;
   if (attr === 'light') return false;
@@ -111,14 +122,23 @@ function editorThemeApis(root: Window): ThemesApi[] {
   return out;
 }
 
-/** Push the site-derived theme into every live editor frame (no-op when the user overrode it). */
-export function applySiteThemeToEditor(lightDefault: string, root: Window = window): string | null {
-  if (hasUserPickedEditorTheme()) return null;
+/** Push the site-derived theme into every live editor frame. */
+export function applySiteThemeToEditor(
+  lightDefault: string,
+  root: Window = window,
+  options: { force?: boolean } = {},
+): string | null {
+  if (!options.force && hasUserPickedEditorTheme()) return null;
   const theme = uiThemeForSite(lightDefault);
   const apis = editorThemeApis(root);
   // Record before calling setTheme: the editor persists ui-theme-id inside
   // setTheme, and the marker must already match when it does.
   storageSet(SITE_DRIVEN_THEME_STORAGE_KEY, theme);
+  if (options.force) {
+    // Align the editor preference with the shell so a prior in-editor pick
+    // does not keep blocking later non-forced follows.
+    storageSet(EDITOR_THEME_STORAGE_KEY, theme);
+  }
   for (const api of apis) {
     try {
       if (api.currentThemeId?.() === theme) continue;
@@ -132,8 +152,9 @@ export function applySiteThemeToEditor(lightDefault: string, root: Window = wind
 
 /**
  * Keep the editor following the site theme for the page's lifetime:
- * observes ranui's <html data-ran-theme> flips and, for "system" mode
- * before ranui has resolved it, the OS media query. Returns a disposer.
+ * observes ranui's <html data-ran-theme> flips, localStorage `ran-theme`
+ * writes from a parent shell, and (for "system" mode) the OS media query.
+ * Returns a disposer.
  */
 export function installEditorThemeFollow(lightDefault: string): () => void {
   const apply = () => {
@@ -144,6 +165,12 @@ export function installEditorThemeFollow(lightDefault: string): () => void {
   });
   observer.observe(document.documentElement, { attributes: true, attributeFilter: [SITE_THEME_ATTR] });
 
+  // Parent /workspace setTheme writes localStorage; this frame gets `storage`.
+  const onStorage = (event: StorageEvent): void => {
+    if (event.key === SITE_THEME_STORAGE_KEY || event.key === null) apply();
+  };
+  window.addEventListener('storage', onStorage);
+
   let mq: MediaQueryList | null = null;
   try {
     mq = window.matchMedia?.(DARK_MQ) ?? null;
@@ -153,6 +180,7 @@ export function installEditorThemeFollow(lightDefault: string): () => void {
   }
   return () => {
     observer.disconnect();
+    window.removeEventListener('storage', onStorage);
     try {
       mq?.removeEventListener?.('change', apply);
     } catch {

@@ -17,6 +17,8 @@ import { createBlankFile, createFolder, createWorkbookFromFile, deleteVaultItem,
 import type { VaultFormat } from './appwrite/ids';
 import { formatFromTitle, MAX_WORKBOOK_BYTES } from './appwrite/ids';
 import { confirmDialog } from './confirm-dialog';
+import { applySiteThemeToEditor } from './editor-theme';
+import { DEFAULT_UI_THEME } from './onlyoffice/ui-theme';
 import { isShellBridgeMessage, SHELL_FAILED, SHELL_READY, SHELL_SAVE_STATE } from './shell-bridge';
 import type { ShellSaveState } from './shell-bridge';
 
@@ -704,10 +706,34 @@ type UploadQueueItem = {
 };
 let uploadQueue: UploadQueueItem[] = [];
 let uploadQueueKey = 0;
+/** Auto-hide the queue panel after the batch finishes. */
+let uploadQueueHideTimer = 0;
 
 function setUploadButtonsDisabled(disabled: boolean): void {
   const uploadBtn = document.getElementById('workspace-stage-upload') as HTMLButtonElement | null;
   if (uploadBtn) uploadBtn.disabled = disabled;
+}
+
+function cancelUploadQueueHide(): void {
+  if (!uploadQueueHideTimer) return;
+  window.clearTimeout(uploadQueueHideTimer);
+  uploadQueueHideTimer = 0;
+}
+
+/** Hide the panel once every row is finished (done/error) and nothing is uploading. */
+function scheduleUploadQueueHideIfIdle(): void {
+  cancelUploadQueueHide();
+  if (uploadBusy || uploadQueue.length === 0) return;
+  const allFinished = uploadQueue.every((row) => row.state === 'done' || row.state === 'error');
+  if (!allFinished) return;
+  // Let the fill ease to 100% and the "ready" chip read before dismissing.
+  uploadQueueHideTimer = window.setTimeout(() => {
+    uploadQueueHideTimer = 0;
+    if (uploadBusy) return;
+    if (!uploadQueue.every((row) => row.state === 'done' || row.state === 'error')) return;
+    uploadQueue = [];
+    paintUploadProgress();
+  }, 1_400);
 }
 
 function folderLabelFor(parentId: string, relativeDir: string): string {
@@ -991,6 +1017,7 @@ async function uploadOfficeItems(items: DroppedUpload[], baseParentId: string): 
 
   uploadBusy = true;
   setUploadButtonsDisabled(true);
+  cancelUploadQueueHide();
   uploadQueue = accepted.map((item) => {
     uploadQueueKey += 1;
     const format = formatFromTitle(item.file.name)!;
@@ -1075,6 +1102,7 @@ async function uploadOfficeItems(items: DroppedUpload[], baseParentId: string): 
     uploadBusy = false;
     setUploadButtonsDisabled(false);
     paintUploadProgress();
+    scheduleUploadQueueHideIfIdle();
   }
 }
 
@@ -1594,6 +1622,9 @@ function mountShell(): void {
         button.classList.toggle('is-current', button.dataset.theme === option.id);
       }
       themeMenu.open = false;
+      // Same-tab: storage events do not fire in the writer. Push the shell
+      // theme into the embedded OnlyOffice frames (force past an in-editor pick).
+      applySiteThemeToEditor(DEFAULT_UI_THEME, window, { force: true });
     });
     return item;
   });
@@ -1608,6 +1639,7 @@ function mountShell(): void {
     for (const button of themeButtons) {
       button.classList.toggle('is-current', button.dataset.theme === currentTheme());
     }
+    applySiteThemeToEditor(DEFAULT_UI_THEME, window, { force: true });
   });
 
   const userMenu = document.createElement('details');
@@ -1978,6 +2010,8 @@ function mountShell(): void {
         stageStatus = 'ready';
         stageError = '';
         paintOverlay();
+        // Themes API is only ready after the frame boots — sync shell appearance.
+        applySiteThemeToEditor(DEFAULT_UI_THEME, window, { force: true });
       } else if (event.data.type === SHELL_FAILED) {
         clearOpenWatchers();
         stageStatus = 'error';

@@ -91,6 +91,15 @@ describe('applySiteThemeToEditor / installEditorThemeFollow', () => {
     expect(setTheme).not.toHaveBeenCalled();
   });
 
+  it('force pushes past an in-editor theme pick', () => {
+    const { root, setTheme } = fakeEditorRoot();
+    window.localStorage.setItem('ui-theme-id', 'theme-night');
+    html.setAttribute('data-ran-theme', 'dark');
+    expect(applySiteThemeToEditor(LIGHT, root, { force: true })).toBe('theme-dark');
+    expect(setTheme).toHaveBeenCalledWith('theme-dark');
+    expect(window.localStorage.getItem('ui-theme-id')).toBe('theme-dark');
+  });
+
   it('reacts to <html data-ran-theme> flips until disposed', async () => {
     const setTheme = vi.fn();
     const frame = { Common: { UI: { Themes: { setTheme, currentThemeId: () => LIGHT } } }, frames: [] };
