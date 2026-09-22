@@ -1,5 +1,5 @@
 /**
- * /files -- cloud workbook shell: sidebar library and the editor beside it.
+ * /workspace -- cloud workbook shell: sidebar library and the editor beside it.
  *
  * Requires a signed-in session; anonymous visitors are sent to /login.
  * The editor runs in a same-origin iframe (`?shell=1`) so Save still writes
@@ -10,7 +10,7 @@ import 'ranui/input';
 import 'ranui/message';
 import { Div, View } from 'ranui/builder';
 import { getTheme, initTheme, setTheme, type RanThemeName } from 'ranui/theme';
-import '../styles/files.css';
+import '../styles/workspace.css';
 import { applyDocumentLanguage, getLanguage, t, withLocale } from '@ranuts/shared/i18n';
 import { getCurrentUser, signOut, type AuthUser } from './appwrite/auth';
 import { createBlankWorkbook, listWorkbooks, type Workbook } from './appwrite/workbooks';
@@ -46,7 +46,7 @@ let stageError = '';
 let bridgeListening = false;
 
 function root(): HTMLElement {
-  return document.getElementById('files-root') as HTMLElement;
+  return document.getElementById('workspace-root') as HTMLElement;
 }
 
 function loginUrl(): string {
@@ -253,7 +253,7 @@ function mountShell(): void {
   const search = View('r-input')
     .attr('placeholder', t('cloudSearchPlaceholder'))
     .attr('value', query)
-    .class('files-search')
+    .class('workspace-search')
     .on('change', (event) => {
       const value = (event as CustomEvent<{ value?: string }>).detail?.value ?? '';
       window.clearTimeout(searchTimer);
@@ -266,7 +266,7 @@ function mountShell(): void {
     .build();
 
   const langLinks = LOCALES.map((locale) => {
-    const href = new URL('/files', window.location.origin);
+    const href = new URL('/workspace', window.location.origin);
     href.searchParams.set('locale', locale.code);
     const link = View('a')
       .class(locale.code === lang ? 'lang-option is-current' : 'lang-option')
@@ -367,7 +367,7 @@ function mountShell(): void {
   summary.append(avatar, text, svgIcon('M6 9l6 6 6-6'));
   const menu = document.createElement('div');
   menu.className = 'vault-menu';
-  menu.append(button(t('cloudSignOut'), () => void onSignOut(), { type: 'text', id: 'files-sign-out' }));
+  menu.append(button(t('cloudSignOut'), () => void onSignOut(), { type: 'text', id: 'workspace-sign-out' }));
   userMenu.append(summary, menu);
 
   // Sidebar is full-height (left column). Search + account tools sit only on
@@ -391,7 +391,7 @@ function mountShell(): void {
   const newMenu = document.createElement('details');
   newMenu.className = 'vault-new';
   const newSummary = document.createElement('summary');
-  newSummary.id = 'files-new';
+  newSummary.id = 'workspace-new';
   const newChevron = svgIcon('M6 9l6 6 6-6');
   newChevron.classList.add('vault-new-chevron');
   newSummary.append(
@@ -418,7 +418,7 @@ function mountShell(): void {
   const homeBtn = document.createElement('button');
   homeBtn.type = 'button';
   homeBtn.className = 'vault-tree-item';
-  homeBtn.id = 'files-home';
+  homeBtn.id = 'workspace-home';
   homeBtn.append(
     svgIcon('M4 4h6v6H4zM14 4h6v6h-6zM4 14h6v6H4zM14 14h6v6h-6z'),
     document.createTextNode(t('cloudNavHome')),
@@ -455,7 +455,7 @@ function mountShell(): void {
             .build(),
         )
         .build(),
-      Div().class('vault-docs').id('files-docs').build(),
+      Div().class('vault-docs').id('workspace-docs').build(),
       Div()
         .class('vault-storage')
         .children(
@@ -471,9 +471,9 @@ function mountShell(): void {
             .build(),
           Div()
             .class('vault-storage-track')
-            .children(Div().class('vault-storage-fill').id('files-storage-fill').build())
+            .children(Div().class('vault-storage-fill').id('workspace-storage-fill').build())
             .build(),
-          View('p').class('vault-storage-used').id('files-storage-used').text('').build(),
+          View('p').class('vault-storage-used').id('workspace-storage-used').text('').build(),
         )
         .build(),
     )
@@ -484,7 +484,7 @@ function mountShell(): void {
     .children(
       Div()
         .class('vault-stage-empty')
-        .id('files-stage-empty')
+        .id('workspace-stage-empty')
         .children(
           Div()
             .children(
@@ -496,11 +496,11 @@ function mountShell(): void {
         .build(),
       Div()
         .class('vault-frame-wrap')
-        .id('files-frame-wrap')
+        .id('workspace-frame-wrap')
         .children(
           (() => {
             const frame = document.createElement('iframe');
-            frame.id = 'files-editor-frame';
+            frame.id = 'workspace-editor-frame';
             frame.title = t('cloudOpenEditor');
             frame.hidden = true;
             return frame;
@@ -508,10 +508,10 @@ function mountShell(): void {
           (() => {
             const overlay = Div()
               .class('vault-stage-overlay')
-              .id('files-stage-overlay')
+              .id('workspace-stage-overlay')
               .children(
-                View('p').class('vault-stage-overlay-title').id('files-stage-overlay-title').text('').build(),
-                View('p').class('vault-stage-overlay-body').id('files-stage-overlay-body').text('').build(),
+                View('p').class('vault-stage-overlay-title').id('workspace-stage-overlay-title').text('').build(),
+                View('p').class('vault-stage-overlay-body').id('workspace-stage-overlay-body').text('').build(),
               )
               .build();
             overlay.hidden = true;
@@ -527,7 +527,7 @@ function mountShell(): void {
   window.addEventListener('keydown', (event) => {
     if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === 'k') {
       event.preventDefault();
-      root().querySelector<HTMLElement>('r-input.files-search')?.focus();
+      root().querySelector<HTMLElement>('r-input.workspace-search')?.focus();
     }
   });
 
@@ -551,8 +551,8 @@ function mountShell(): void {
 }
 
 function paintDocs(): void {
-  const host = document.getElementById('files-docs');
-  const home = document.getElementById('files-home');
+  const host = document.getElementById('workspace-docs');
+  const home = document.getElementById('workspace-home');
   if (!host) return;
   home?.classList.toggle('is-current', preferHome || !selectedId);
   host.replaceChildren();
@@ -585,8 +585,8 @@ function paintDocs(): void {
 }
 
 function paintStorage(): void {
-  const used = document.getElementById('files-storage-used');
-  const fill = document.getElementById('files-storage-fill');
+  const used = document.getElementById('workspace-storage-used');
+  const fill = document.getElementById('workspace-storage-fill');
   if (!used || !fill) return;
   const bytes = rows.reduce((sum, row) => sum + row.sizeBytes, 0);
   used.textContent = t('cloudStorageUsed', { size: formatBytes(bytes) });
@@ -595,9 +595,9 @@ function paintStorage(): void {
 }
 
 function paintOverlay(): void {
-  const overlay = document.getElementById('files-stage-overlay');
-  const title = document.getElementById('files-stage-overlay-title');
-  const body = document.getElementById('files-stage-overlay-body');
+  const overlay = document.getElementById('workspace-stage-overlay');
+  const title = document.getElementById('workspace-stage-overlay-title');
+  const body = document.getElementById('workspace-stage-overlay-body');
   if (!overlay || !title || !body) return;
   if (stageStatus === 'loading') {
     overlay.hidden = false;
@@ -620,9 +620,9 @@ function paintOverlay(): void {
 }
 
 function paintStage(): void {
-  const empty = document.getElementById('files-stage-empty');
-  const wrap = document.getElementById('files-frame-wrap');
-  const frame = document.getElementById('files-editor-frame') as HTMLIFrameElement | null;
+  const empty = document.getElementById('workspace-stage-empty');
+  const wrap = document.getElementById('workspace-frame-wrap');
+  const frame = document.getElementById('workspace-editor-frame') as HTMLIFrameElement | null;
   if (!empty || !wrap || !frame) return;
   const workbook = selectedWorkbook();
   if (!workbook && loading && frame.dataset.workbook) return;

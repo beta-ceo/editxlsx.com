@@ -1,7 +1,7 @@
 /**
  * /login -- email/password sign-in and sign-up against Appwrite Auth.
  *
- * Already-authenticated visitors are sent to /files. After a successful
+ * Already-authenticated visitors are sent to /workspace. After a successful
  * sign-in or sign-up the same redirect happens. Locale follows ?locale= the
  * same way /history does.
  */
@@ -27,9 +27,9 @@ function root(): HTMLElement {
   return document.getElementById('auth-root') as HTMLElement;
 }
 
-function filesUrl(): string {
+function workspaceUrl(): string {
   const locale = new URLSearchParams(window.location.search).get('locale');
-  return locale ? `/files?locale=${encodeURIComponent(locale)}` : '/files';
+  return locale ? `/workspace?locale=${encodeURIComponent(locale)}` : '/workspace';
 }
 
 function notifyError(message: string): void {
@@ -141,7 +141,7 @@ async function onSubmit(): Promise<void> {
   try {
     if (mode === 'signup') await signUp(trimmedEmail, password, name.trim() || undefined);
     else await signIn(trimmedEmail, password);
-    window.location.replace(filesUrl());
+    window.location.replace(workspaceUrl());
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);
     notifyError(`${t('cloudAuthFailed')}${message}`);
@@ -153,7 +153,7 @@ async function onSubmit(): Promise<void> {
 void (async () => {
   const user = await getCurrentUser();
   if (user) {
-    window.location.replace(filesUrl());
+    window.location.replace(workspaceUrl());
     return;
   }
   document.title = t('cloudSignIn');

@@ -171,6 +171,10 @@ describe('public/_redirects', () => {
     // the BCP-47 tag the hreflang set and the sitemap use.
     expect(read('public/_redirects')).toMatch(/^\/zh\/\*\s+\/zh-CN\/:splat\s+301/m);
   });
+
+  it('keeps the retired /files path pointing at /workspace', () => {
+    expect(read('public/_redirects')).toMatch(/^\/files\s+\/workspace\s+301/m);
+  });
 });
 
 describe('index.html -> directory normalization awareness', () => {

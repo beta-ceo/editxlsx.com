@@ -1,7 +1,7 @@
 /**
  * A minimal blank .xlsx that OnlyOffice will open.
  *
- * Built with ranuts `createZip` (ecosystem first) so /files can mint a new
+ * Built with ranuts `createZip` (ecosystem first) so /workspace can mint a new
  * workbook without booting the editor first. One empty sheet named Sheet1.
  */
 import { createZip } from 'ranuts/utils';

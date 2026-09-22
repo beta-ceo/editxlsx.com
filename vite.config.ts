@@ -127,14 +127,14 @@ export default defineConfig(() => {
     build: {
       outDir: 'dist',
       // HTML entries: / (static landing), /editor (app), /history (local
-      // IndexedDB library), /login and /files (Appwrite cloud Excel SaaS).
+      // IndexedDB library), /login and /workspace (Appwrite cloud Excel SaaS).
       rollupOptions: {
         input: {
           main: resolve(__dirname, 'index.html'),
           editor: resolve(__dirname, 'editor.html'),
           history: resolve(__dirname, 'history.html'),
           login: resolve(__dirname, 'login.html'),
-          files: resolve(__dirname, 'files.html'),
+          workspace: resolve(__dirname, 'workspace.html'),
         },
       },
     },

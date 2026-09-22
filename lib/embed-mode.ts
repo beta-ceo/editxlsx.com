@@ -7,13 +7,13 @@
  * cheap, side-effect-free predicate the rest of the app reads to stay out of
  * the host's way: local save routing, the unsaved-changes guard and the
  * autosave history all have to be silent when the document on screen belongs
- * to someone else's page. The /files shell is the exception (`isAppShellFrame`):
+ * to someone else's page. The /workspace shell is the exception (`isAppShellFrame`):
  * that iframe is this site, and cloud save stays on.
  */
 const EMBED_QUERY_KEYS = ['embed', 'embedded'];
 
 /**
- * /files hosts the editor in a same-origin iframe (`/editor?workbook=&shell=1`).
+ * /workspace hosts the editor in a same-origin iframe (`/editor?workbook=&shell=1`).
  * That frame is not a third-party embed: Save and cloud autosave must still
  * reach the signed-in account. A cross-origin parent cannot read
  * `parent.location`, so it cannot opt into this.

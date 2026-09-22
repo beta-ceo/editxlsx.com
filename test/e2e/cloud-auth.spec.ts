@@ -1,8 +1,8 @@
 /**
- * Cloud SaaS surfaces: /login and /files.
+ * Cloud SaaS surfaces: /login and /workspace.
  *
  * These pages talk to Appwrite when a session exists. Default CI has no
- * credentials, so the suite mocks Appwrite for the signed-in /files shell and
+ * credentials, so the suite mocks Appwrite for the signed-in /workspace shell and
  * only hits the live project for the anonymous redirect. Full round-trips to
  * a real account stay manual / env-gated.
  */
@@ -112,8 +112,8 @@ test.describe('cloud auth pages', () => {
     await expect(page.locator('.auth-submit')).toBeVisible();
   });
 
-  test('anonymous /files redirects to /login', async ({ page }) => {
-    await page.goto('/files');
+  test('anonymous /workspace redirects to /login', async ({ page }) => {
+    await page.goto('/workspace');
     await page.waitForURL(/\/login/);
     expect(page.url()).toMatch(/\/login/);
   });
@@ -121,10 +121,10 @@ test.describe('cloud auth pages', () => {
   test('homepage primary CTA points at sign-in', async ({ page }) => {
     await page.goto('/');
     await expect(page.locator('#hero-sign-in')).toBeVisible();
-    await expect(page.locator('#hero-files')).toBeVisible();
+    await expect(page.locator('#hero-workspace')).toBeVisible();
   });
 
-  test('signed-in /files is a sidebar + editor shell', async ({ page, l0 }) => {
+  test('signed-in /workspace is a sidebar + editor shell', async ({ page, l0 }) => {
     // The framed editor will complain when the download fails; that is the
     // branch under test. Asc errors and console noise from the failed open
     // are expected and must not fail the case.
@@ -134,32 +134,32 @@ test.describe('cloud auth pages', () => {
 
     await page.goto('/login');
     await mockAppwrite(page, { download: 'fail' });
-    await page.goto('/files');
+    await page.goto('/workspace');
 
     await expect(page.locator('.vault')).toBeVisible();
     await expect(page.locator('.vault-side')).toBeVisible();
-    await expect(page.locator('#files-new')).toBeVisible();
-    await expect(page.locator('#files-home')).toBeVisible();
+    await expect(page.locator('#workspace-new')).toBeVisible();
+    await expect(page.locator('#workspace-home')).toBeVisible();
     await expect(page.locator('.vault-tree-title').first()).toHaveText('sample_data_3000x20.xlsx');
-    await expect(page.locator('#files-editor-frame')).toHaveAttribute('src', /\/editor\?workbook=wb1.*shell=1/);
-    await expect(page.locator('#files-stage-overlay')).toBeVisible({ timeout: 30_000 });
-    await expect(page.locator('#files-stage-overlay')).toHaveAttribute('data-state', 'error');
-    await expect(page.locator('#files-stage-overlay-title')).not.toHaveText('');
+    await expect(page.locator('#workspace-editor-frame')).toHaveAttribute('src', /\/editor\?workbook=wb1.*shell=1/);
+    await expect(page.locator('#workspace-stage-overlay')).toBeVisible({ timeout: 30_000 });
+    await expect(page.locator('#workspace-stage-overlay')).toHaveAttribute('data-state', 'error');
+    await expect(page.locator('#workspace-stage-overlay-title')).not.toHaveText('');
   });
 
-  test('signed-in /files opens a workbook in the editor pane', async ({ page, l0 }) => {
+  test('signed-in /workspace opens a workbook in the editor pane', async ({ page, l0 }) => {
     test.setTimeout(120_000);
     l0.allowConsole(/Failed to load resource|net::ERR_/i);
 
     await page.goto('/login');
     await mockAppwrite(page, { download: 'xlsx' });
-    await page.goto('/files');
+    await page.goto('/workspace');
 
     await expect(page.locator('.vault-tree-title').first()).toHaveText('sample_data_3000x20.xlsx');
-    await expect(page.locator('#files-editor-frame')).toHaveAttribute('src', /shell=1/);
+    await expect(page.locator('#workspace-editor-frame')).toHaveAttribute('src', /shell=1/);
     // shell:workbook-ready clears the overlay; that is the contract. The
     // OnlyOffice ribbon lives in a nested iframe, so we do not probe Asc here.
-    await expect(page.locator('#files-stage-overlay')).toBeHidden({ timeout: 90_000 });
-    await expect(page.locator('#files-stage-overlay')).not.toHaveAttribute('data-state', 'error');
+    await expect(page.locator('#workspace-stage-overlay')).toBeHidden({ timeout: 90_000 });
+    await expect(page.locator('#workspace-stage-overlay')).not.toHaveAttribute('data-state', 'error');
   });
 });

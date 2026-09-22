@@ -14,7 +14,7 @@ homepage).
 - Brand stays **EditXLSX** (not DocuVault).
 - No third-party logo row, no invented testimonials, no fake uptime / “10M+”
   metrics, and no homepage stat counters.
-- `#hero-sign-in`, `.recent` / `data-recent-slot`, `#landing-hero`, and
+- `#hero-sign-in`, `#hero-workspace`, `.recent` / `data-recent-slot`, `#landing-hero`, and
   `#landing-hero .foot .tm` stay for E2E and branding contracts.
 - Homepage footer is brand + three link columns + copyright/meta row (matches
   the marketing mock); `.tm` stays under the meta row for AGPL §7(e).
@@ -29,4 +29,4 @@ homepage).
 - `test/unit/branding-notice.test.ts`: remove `#landing-hero .foot .tm` from
   CSS → branding style assertion fails.
 - `test/e2e/cloud-auth.spec.ts`: remove `#hero-sign-in` → sign-in visibility
-  fails.
+  fails; remove `#hero-workspace` → My workbooks CTA visibility fails.

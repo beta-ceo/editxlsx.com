@@ -1,5 +1,5 @@
 /**
- * Same-origin bridge between `/files` and the editor iframe it hosts
+ * Same-origin bridge between `/workspace` and the editor iframe it hosts
  * (`?shell=1`). The frame posts when a cloud workbook finished opening or
  * failed; the shell paints loading / error chrome over an otherwise blank pane.
  */

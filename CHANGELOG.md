@@ -17,13 +17,13 @@ notes. Entries describe what users experience, not internal refactors.
   the homepage; help pages keep longer answers. Sign in / My workbooks / local
   open / recent-history disclosure remain. The top bar links Features,
   Essentials, Help, and Changelog (plus Log in / Get Started Free).
-- **My workbooks is an editor shell.** `/files` is a full-height workspace:
-  a knowledge-base-style left sidebar (workspace header, New, Home, workbook
-  directory tree, storage), search and account tools across the top of the
-  right pane, and the open spreadsheet filling the rest of that pane. New
-  workbooks start from the sidebar; Save still writes back to the account.
-  Opening shows a loading state over the pane; a failed open surfaces the
-  error there instead of leaving a blank editor.
+- **My workbooks lives at `/workspace`.** The cloud editor shell moved from
+  `/files` to `/workspace` (old `/files` URLs redirect). The page is still a
+  full-height workspace: knowledge-base-style left sidebar, search and account
+  tools across the top of the right pane, and the open spreadsheet filling the
+  rest. New workbooks start from the sidebar; Save still writes back to the
+  account. Opening shows a loading state over the pane; a failed open surfaces
+  the error there instead of leaving a blank editor.
 - **Homepage is an online Excel product.** The landing page (all seven
   languages) leads with cloud workbooks: sign in and My workbooks are the
   primary actions, the hero mock is a spreadsheet, and marketing sections
@@ -33,7 +33,7 @@ notes. Entries describe what users experience, not internal refactors.
 ### Added
 
 - **Cloud Excel workbooks SaaS MVP.** Sign in with email and password
-  (Appwrite Auth), browse your account's `.xlsx` files at `/files`, open one in
+  (Appwrite Auth), browse your account's `.xlsx` files at `/workspace`, open one in
   the OnlyOffice editor (`/editor?workbook=<id>`), and Save / autosave write
   back to Appwrite Storage. Local-only editing and `/history` recovery remain
   available; Stripe billing is not part of this release.

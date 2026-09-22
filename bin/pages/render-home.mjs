@@ -48,7 +48,7 @@ export function renderHome({ locale, data, locales }) {
       const q = href.includes('?') ? href.slice(href.indexOf('?') + 1) : '';
       return editor(q || 'new=xlsx');
     }
-    if (href === '/login' || href === '/files' || href === '/history') return appPath(href);
+    if (href === '/login' || href === '/workspace' || href === '/history') return appPath(href);
     if (prefix && href.startsWith('/') && !href.startsWith(prefix + '/') && href !== prefix + '/') {
       return prefix + href;
     }
@@ -308,8 +308,8 @@ ${langMenu(locale, locales, ui, (l) => LOCALES[l].home)}
           <a href="${e(appPath('/login'))}"
             ><r-button type="primary" id="hero-sign-in">${e(data.cta.signIn)}</r-button></a
           >
-          <a href="${e(appPath('/files'))}"
-            ><r-button id="hero-files">${e(data.cta.files)}</r-button></a
+          <a href="${e(appPath('/workspace'))}"
+            ><r-button id="hero-workspace">${e(data.cta.files)}</r-button></a
           >
         </div>
         <div class="checks reveal d5">${checks}</div>
@@ -327,7 +327,7 @@ ${langMenu(locale, locales, ui, (l) => LOCALES[l].home)}
           <span class="recent-note">${e(data.recent.note)}</span>
           <a class="recent-all" href="${e(appPath('/history'))}">${e(data.recent.all)}</a>
           ·
-          <a class="recent-all" href="${e(appPath('/files'))}">${e(data.recent.cloud)}</a>
+          <a class="recent-all" href="${e(appPath('/workspace'))}">${e(data.recent.cloud)}</a>
         </div>
       </div>
 
@@ -400,7 +400,7 @@ ${bentoCards}
             <p>${e(data.band.p)}</p>
             <div class="band-cta">
               <a class="band-primary" href="${e(appPath('/login'))}">${e(data.band.primary)}</a>
-              <a class="band-secondary" href="${e(appPath('/files'))}">${e(data.band.secondary)}</a>
+              <a class="band-secondary" href="${e(appPath('/workspace'))}">${e(data.band.secondary)}</a>
             </div>
             <div class="checks band-checks">${bandChecks}</div>
           </div>

@@ -24,7 +24,7 @@ describe('app shell frame', () => {
     expect(isAppShellFrame()).toBe(false);
   });
 
-  it('recognizes a same-origin /files host', () => {
+  it('recognizes a same-origin /workspace host', () => {
     expect(isAppShellFrame(frame('?workbook=abc&shell=1', 'https://edit.example'))).toBe(true);
   });
 

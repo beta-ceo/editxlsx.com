@@ -163,7 +163,7 @@ const savedParam = params['saved'] ?? '';
 // embedded) shows the crawlable hero. If a document is about to load or be
 // created, or we're embedded, hide it immediately to avoid a flash before the
 // editor takes over.
-// `embed-mode` is also set when /files iframes this page. That host is ours:
+// `embed-mode` is also set when /workspace iframes this page. That host is ours:
 // still open `?workbook=` and keep cloud save. A foreign embed stays a blank
 // surface until the parent posts a document.
 const isEmbedded = document.body.classList.contains('embed-mode') && !isAppShellFrame();
@@ -177,7 +177,7 @@ if (documentUrl || isEmbedded || createNewOnLoad || openLocalOnLoad || savedPara
 void (async () => {
   // Cloud workbook (`?workbook=<id>`): download from Appwrite and bind Save to
   // the account. Wins over local `?saved=` -- the cloud row is the source of
-  // truth once the user opened it from /files.
+  // truth once the user opened it from /workspace.
   if (workbookParam && !isEmbedded) {
     try {
       const [{ getCurrentUser }, { getWorkbook, downloadWorkbookFile }, { bindCloudWorkbook, beginCloudAutosave }] =
@@ -207,13 +207,13 @@ void (async () => {
       (window as unknown as { message?: { error?: (msg: string) => void } }).message?.error?.(
         `${t('cloudOpenFailed')}${detail}`,
       );
-      // Inside the /files shell, replacing this frame with /files would nest
+      // Inside the /workspace shell, replacing this frame with /workspace would nest
       // another library under the editor pane. Tell the shell so it can show
       // the failure over the blank pane instead.
       if (isAppShellFrame()) {
         postShellFailed(workbookParam, detail);
       } else {
-        window.location.replace('/files');
+        window.location.replace('/workspace');
       }
       return;
     }

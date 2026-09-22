@@ -46,7 +46,7 @@ describe('page width scale', () => {
     // dead space between a file name and the first figure), and it stops
     // being air once a rail is beside the list.
     expect(declaration(history, '.history-shell', 'max-width'), 'history frame').toBe(wide);
-    // /files is a full-viewport application (sidebar + editor), same class as
+    // /workspace is a full-viewport application (sidebar + editor), same class as
     // /editor. It does not use the 1152 content frame.
   });
 
@@ -134,7 +134,7 @@ describe('page chrome', () => {
 
   /** Every user-facing page: the files on disk, plus the generated ones in memory. */
   const all = [
-    ...[...pages(PUBLIC), resolve(ROOT, 'history.html'), resolve(ROOT, 'login.html'), resolve(ROOT, 'files.html')].map(
+    ...[...pages(PUBLIC), resolve(ROOT, 'history.html'), resolve(ROOT, 'login.html'), resolve(ROOT, 'workspace.html')].map(
       (file) => ({
         label: relative(ROOT, file),
         html: readFileSync(file, 'utf8'),
@@ -147,7 +147,7 @@ describe('page chrome', () => {
     expect(all.length).toBeGreaterThan(15);
   });
 
-  it.each(all.filter((page) => page.label !== 'files.html').map((p) => [p.label, p.html]))(
+  it.each(all.filter((page) => page.label !== 'workspace.html').map((p) => [p.label, p.html]))(
     '%s carries the site header',
     (_label, html) => {
       // The homepage builds its own bar inside #landing-hero; everything else
@@ -159,11 +159,11 @@ describe('page chrome', () => {
     },
   );
 
-  it('/files is a full-viewport application shell, not a marketing page', () => {
-    const html = read('files.html');
+  it('/workspace is a full-viewport application shell, not a marketing page', () => {
+    const html = read('workspace.html');
     expect(html).not.toMatch(/<header class="bar">/);
-    expect(html).toMatch(/id="files-root"/);
-    const css = read('styles/files.css');
+    expect(html).toMatch(/id="workspace-root"/);
+    const css = read('styles/workspace.css');
     expect(css).toMatch(/\.vault-side\s*\{[^}]*width:\s*280px/);
     // Sidebar is the full-height left column; search/account chrome sits only
     // in the right column above the editor (left-right split, not a top bar

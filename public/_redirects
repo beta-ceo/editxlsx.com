@@ -13,3 +13,7 @@
 # The comparison pages are gone (no "vs X" positioning) — send old links home.
 /vs/google-docs / 301
 /zh-CN/vs/google-docs /zh-CN/ 301
+
+# Old cloud library path (renamed to /workspace).
+/files /workspace 301
+/files/ /workspace 301

@@ -1,8 +1,8 @@
-/* /files -- full-viewport application: sidebar + editor. Not the 1152 content frame. */
+/* /workspace -- full-viewport application: sidebar + editor. Not the 1152 content frame. */
 
 html,
 body,
-#files-root {
+#workspace-root {
   height: 100%;
 }
 
