@@ -210,6 +210,9 @@ test.describe('cloud auth pages', () => {
     await expect(page.locator('.vault-side')).toBeVisible();
     await expect(page.locator('#workspace-new')).toBeVisible();
     await expect(page.locator('.vault-tree-title').first()).toHaveText('sample_data_3000x20.xlsx');
+    await expect(page.locator('#workspace-stage-browser')).toBeVisible();
+    await expect(page.locator('.vault-stage-browser-row[data-id="wb1"]')).toBeVisible();
+    await page.locator('.vault-stage-browser-row[data-id="wb1"]').click();
     await expect(page.locator('#workspace-editor-frame')).toHaveAttribute('src', /\/editor\?workbook=wb1.*shell=1/);
     await expect(page.locator('#workspace-stage-overlay')).toBeVisible({ timeout: 30_000 });
     await expect(page.locator('#workspace-stage-overlay')).toHaveAttribute('data-state', 'error');
@@ -345,6 +348,7 @@ test.describe('cloud auth pages', () => {
     await page.goto('/workspace');
 
     await expect(page.locator('.vault-tree-title').first()).toHaveText('sample_data_3000x20.xlsx');
+    await page.locator('.vault-stage-browser-row[data-id="wb1"]').click();
     await expect(page.locator('#workspace-editor-frame')).toHaveAttribute('src', /shell=1/);
     // shell:workbook-ready clears the overlay; that is the contract. The
     // OnlyOffice ribbon lives in a nested iframe, so we do not probe Asc here.
@@ -379,6 +383,7 @@ test.describe('cloud auth pages', () => {
     await page.goto('/workspace');
 
     await expect(page.locator('.vault-tree-title').first()).toHaveText('sample_data_3000x20.xlsx');
+    await page.locator('.vault-stage-browser-row[data-id="wb1"]').click();
     await expect(page.locator('#workspace-stage-overlay')).toBeHidden({ timeout: 120_000 });
     expect(blankServed).toBeGreaterThanOrEqual(1);
   });

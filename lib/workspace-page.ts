@@ -105,6 +105,23 @@ function formatBytes(size: number): string {
   return `${value >= 10 ? Math.round(value) : value.toFixed(1)} ${units[unit]}`;
 }
 
+function formatEditedWhen(iso: string): string {
+  const date = new Date(iso);
+  if (Number.isNaN(date.getTime())) return '';
+  return date.toLocaleString(getLanguage(), {
+    year: 'numeric',
+    month: 'short',
+    day: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+  });
+}
+
+function currentFolderTitle(): string {
+  if (!currentFolderId) return t('cloudAllDocuments');
+  return rows.find((row) => row.id === currentFolderId)?.title || t('cloudFilesTitle');
+}
+
 function notifyError(message: string): void {
   (window as unknown as { message?: { error?: (msg: string) => void } }).message?.error?.(message);
 }
@@ -378,12 +395,6 @@ async function refresh(): Promise<void> {
       } else if (!query) {
         currentFolderId = selected.parentId || '';
       }
-    }
-    const rootFiles = childrenOf('').filter((row) => row.kind === 'file');
-    if (!selectedId && !query && rootFiles[0] && !currentFolderId) {
-      selectedId = rootFiles[0].id;
-      stageStatus = 'loading';
-      stageError = '';
     }
     revealTreeSelection();
     syncUrl();
@@ -1138,6 +1149,7 @@ function mountShell(): void {
         .children(
           Div()
             .class('vault-stage-empty-copy')
+            .id('workspace-stage-empty-copy')
             .children(
               View('h2').id('workspace-stage-empty-title').text(t('cloudEmptyTitle')).build(),
               View('p').id('workspace-stage-empty-body').text(t('cloudEmpty')).build(),
@@ -1174,7 +1186,8 @@ function mountShell(): void {
             fileInput.type = 'file';
             fileInput.id = 'workspace-upload-input';
             fileInput.className = 'vault-upload-input';
-            fileInput.accept = '.xlsx,.docx,.pptx,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/vnd.openxmlformats-officedocument.presentationml.presentation';
+            fileInput.accept =
+              '.xlsx,.docx,.pptx,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/vnd.openxmlformats-officedocument.presentationml.presentation';
             fileInput.multiple = true;
             fileInput.hidden = true;
             fileInput.addEventListener('change', () => {
@@ -1188,8 +1201,30 @@ function mountShell(): void {
             dropHint.textContent = t('cloudDropOffice');
             const wrap = document.createElement('div');
             wrap.className = 'vault-stage-empty-cta';
+            wrap.id = 'workspace-stage-empty-cta';
             wrap.append(actions, dropHint);
             return wrap;
+          })(),
+          (() => {
+            const browser = document.createElement('div');
+            browser.className = 'vault-stage-browser';
+            browser.id = 'workspace-stage-browser';
+            browser.hidden = true;
+            const head = document.createElement('div');
+            head.className = 'vault-stage-browser-head';
+            const title = document.createElement('h2');
+            title.className = 'vault-stage-browser-title';
+            title.id = 'workspace-stage-browser-title';
+            const tools = document.createElement('div');
+            tools.className = 'vault-stage-browser-tools';
+            tools.id = 'workspace-stage-browser-tools';
+            head.append(title, tools);
+            const list = document.createElement('div');
+            list.className = 'vault-stage-browser-list';
+            list.id = 'workspace-stage-browser-list';
+            list.setAttribute('role', 'list');
+            browser.append(head, list);
+            return browser;
           })(),
         )
         .build(),
@@ -1713,6 +1748,54 @@ function paintOverlay(): void {
   body.textContent = '';
 }
 
+function paintStageBrowser(items: VaultItem[]): void {
+  const browser = document.getElementById('workspace-stage-browser');
+  const title = document.getElementById('workspace-stage-browser-title');
+  const list = document.getElementById('workspace-stage-browser-list');
+  const tools = document.getElementById('workspace-stage-browser-tools');
+  const actions = document.getElementById('workspace-stage-empty-actions');
+  if (!browser || !title || !list) return;
+
+  title.textContent = currentFolderTitle();
+  if (tools && actions && actions.parentElement !== tools) {
+    tools.replaceChildren(actions);
+  }
+  list.replaceChildren();
+  for (const item of items) {
+    const row = document.createElement('button');
+    row.type = 'button';
+    row.className = 'vault-stage-browser-row';
+    row.dataset.kind = item.kind;
+    row.dataset.id = item.id;
+    if (item.format) row.dataset.format = item.format;
+    row.setAttribute('role', 'listitem');
+
+    const name = document.createElement('span');
+    name.className = 'vault-stage-browser-name';
+    name.append(itemIcon(item), document.createTextNode(item.title));
+
+    const edited = document.createElement('span');
+    edited.className = 'vault-stage-browser-edited';
+    edited.textContent = formatEditedWhen(item.updatedAt);
+
+    const size = document.createElement('span');
+    size.className = 'vault-stage-browser-size';
+    size.textContent = item.kind === 'file' ? formatBytes(item.sizeBytes) : '—';
+
+    row.append(name, edited, size);
+    row.addEventListener('click', () => {
+      if (item.kind === 'folder') openFolder(item.id);
+      else selectWorkbook(item.id);
+    });
+    row.addEventListener('contextmenu', (event) => {
+      event.preventDefault();
+      openContextMenu(item, event.clientX, event.clientY);
+    });
+    list.append(row);
+  }
+  browser.hidden = false;
+}
+
 function paintStage(): void {
   const empty = document.getElementById('workspace-stage-empty');
   const wrap = document.getElementById('workspace-frame-wrap');
@@ -1731,30 +1814,51 @@ function paintStage(): void {
       frame.dataset.workbook = '';
       frame.removeAttribute('src');
     }
+    const copy = document.getElementById('workspace-stage-empty-copy');
+    const cta = document.getElementById('workspace-stage-empty-cta');
+    const browser = document.getElementById('workspace-stage-browser');
     const heading = document.getElementById('workspace-stage-empty-title');
-    const copy = document.getElementById('workspace-stage-empty-body');
-    const cta = empty.querySelector('.vault-stage-empty-cta') as HTMLElement | null;
+    const body = document.getElementById('workspace-stage-empty-body');
+    const dropHint = document.getElementById('workspace-stage-drop-hint');
+    const actions = document.getElementById('workspace-stage-empty-actions');
     const searching = Boolean(query.trim());
-    const folderEmpty = !searching && childrenOf(currentFolderId).length === 0;
-    if (heading) {
-      heading.textContent = searching ? t('cloudEmptySearchTitle') : folderEmpty ? t('cloudEmptyTitle') : t('cloudFilesTitle');
-    }
-    if (copy) {
-      copy.textContent = searching
-        ? t('cloudEmptySearch')
-        : folderEmpty
-          ? currentFolderId
+    const children = searching ? [] : childrenOf(currentFolderId);
+    const folderEmpty = !searching && children.length === 0;
+
+    if (browser) browser.hidden = true;
+    empty.classList.toggle('is-browser', !searching && !folderEmpty);
+    empty.classList.toggle('is-empty', searching || folderEmpty);
+
+    if (!searching && !folderEmpty) {
+      if (copy) copy.hidden = true;
+      if (cta) cta.hidden = true;
+      if (dropHint) dropHint.hidden = true;
+      paintStageBrowser(children);
+    } else {
+      if (copy) copy.hidden = false;
+      if (cta) {
+        cta.hidden = searching;
+        if (actions && cta !== actions.parentElement) cta.insertBefore(actions, dropHint);
+      }
+      if (dropHint) dropHint.hidden = searching;
+      if (heading) {
+        heading.textContent = searching ? t('cloudEmptySearchTitle') : t('cloudEmptyTitle');
+      }
+      if (body) {
+        body.textContent = searching
+          ? t('cloudEmptySearch')
+          : currentFolderId
             ? t('cloudFolderEmptyHint')
-            : t('cloudEmpty')
-          : t('cloudSelectWorkbook');
+            : t('cloudEmpty');
+      }
     }
-    if (cta) cta.hidden = searching;
     document.title = t('cloudFilesTitle');
     paintOverlay();
     return;
   }
 
   empty.hidden = true;
+  empty.classList.remove('is-browser', 'is-empty');
   wrap.hidden = false;
   frame.hidden = false;
   document.title = workbook.title;
