@@ -15,7 +15,7 @@ OnlyOffice 通常是要装的：编辑器只是前端，背后是 ONLYOFFICE Doc
 
 本站是另一种形态。同一套编辑器、同一个 `x2t` 转换引擎，被编译成 WebAssembly 加载进页面——你的浏览器就是那台文档服务器。所以没有上传、不用账号，断网之后也照样能用。
 
-本站是 OnlyOffice 编辑器的修改版本，以同样的 AGPL-3.0 协议发布。它不是官方 OnlyOffice 产品，与 Ascensio System SIA 没有隶属关系，也未获其背书。
+本站是 OnlyOffice 编辑器的修改版本，基于 ONLYOFFICE 编辑器（AGPL-3.0）；应用代码为 MIT。它不是官方 OnlyOffice 产品，与 Ascensio System SIA 没有隶属关系，也未获其背书。
 
 ## 你能得到什么
 
@@ -23,7 +23,7 @@ OnlyOffice 通常是要装的：编辑器只是前端，背后是 ONLYOFFICE Doc
 - **真正的转换引擎**——`x2t`，与 ONLYOFFICE Docs 用的是同一个，编译成了 WebAssembly。可读 DOCX、XLSX、PPTX、ODT、ODS、ODP、CSV、PDF；可存回 DOCX、XLSX、PPTX、PDF、TXT、HTML、CSV。
 - **不用服务器、不用账号、不上传**——文件从你的磁盘读进标签页，再写回磁盘。
 - **可离线**——可安装为 PWA，第一次访问之后引擎就在本地缓存里，断网也能打开。
-- **开源**——AGPL-3.0，产物是一堆静态文件，你可以部署在任何 Web 服务器上自己用。
+- **开源**——MIT，产物是一堆静态文件，你可以部署在任何 Web 服务器上自己用。
 
 ## 和 ONLYOFFICE Docs 有什么不同
 
@@ -46,11 +46,11 @@ OnlyOffice 通常是要装的：编辑器只是前端，背后是 ONLYOFFICE Doc
 
 ### 这是官方的 OnlyOffice 吗？
 
-不是。这是一个独立的开源项目，基于以 AGPL-3.0 发布的 OnlyOffice 编辑器构建。它与 Ascensio System SIA 没有隶属关系，也未获其背书；OnlyOffice 是该公司的商标。官方产品请访问 onlyoffice.com。
+不是。这是一个独立的开源项目，基于以 MIT 发布的 OnlyOffice 编辑器构建。它与 Ascensio System SIA 没有隶属关系，也未获其背书；OnlyOffice 是该公司的商标。官方产品请访问 onlyoffice.com。
 
 ### 真的免费吗？
 
-真的，而且没有需要付费解锁的高级版。源码在 GitHub 上以 AGPL-3.0 发布，站点本身就是一堆静态文件，你可以自己部署。
+真的，而且没有需要付费解锁的高级版。源码在 GitHub 上以 MIT 发布，站点本身就是一堆静态文件，你可以自己部署。
 
 ### 需要先装 ONLYOFFICE Docs 或 Document Server 吗？
 
@@ -70,4 +70,4 @@ OnlyOffice 9.3，配 9.4 版的 `x2t` 转换器。确切版本以及我们对上
 
 ### 可以嵌进我自己的系统吗？
 
-可以——它通过 `postMessage` 提供一套 iframe API；而且是 AGPL-3.0，你也可以把整个站点部署到自己的域名下。
+可以——它通过 `postMessage` 提供一套 iframe API；而且是 MIT，你也可以把整个站点部署到自己的域名下。

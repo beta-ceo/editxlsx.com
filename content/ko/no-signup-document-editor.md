@@ -1,6 +1,6 @@
 ---
 title: 문서 편집기 — 가입 없이, 업로드 없이 · 무료이며 오픈 소스
-description: Word(DOCX), Excel(XLSX), PowerPoint(PPTX), CSV 를 가입도, 로그인도, 업로드도 없이 브라우저에서 편집하세요. 무료, 오픈 소스 (AGPL-3.0), 오프라인 동작 — 파일은 기기를 벗어나지 않습니다.
+description: Word(DOCX), Excel(XLSX), PowerPoint(PPTX), CSV 를 가입도, 로그인도, 업로드도 없이 브라우저에서 편집하세요. 무료, 오픈 소스 (MIT), 오프라인 동작 — 파일은 기기를 벗어나지 않습니다.
 eyebrow: 계정 불필요 · 가입 불필요
 h1: 무료 온라인 문서 편집기 — 가입 없이, 업로드 없이
 lead: Word(DOCX), Excel(XLSX), PowerPoint(PPTX), CSV 파일을 브라우저에서 바로 편집하세요. 계정도, 로그인도, 구독도 없습니다 — 그리고 파일이 어딘가로 업로드되지도 않습니다.
@@ -43,7 +43,7 @@ appDescription: 가입, 로그인, 업로드 없이 브라우저에서 DOCX·XLS
 
 ### 정말 무료인가요?
 
-네. AGPL-3.0 라이선스의 무료 오픈 소스입니다. [GitHub 의 소스 코드](https://github.com/ranuts/document)로 직접 운영할 수도 있습니다.
+네. MIT 라이선스의 무료 오픈 소스입니다. [GitHub 의 소스 코드](https://github.com/ranuts/document)로 직접 운영할 수도 있습니다.
 
 ### 오프라인으로 쓸 수 있나요?
 
@@ -55,7 +55,7 @@ DOCX·XLSX·PPTX·CSV 입니다. OnlyOffice 를 사용하며 PDF·TXT·HTML·CSV
 
 ### 유료 결제나 프리미엄 같은 함정이 있나요?
 
-없습니다. AGPL-3.0 의 진짜 무료 오픈 소스이며 결제 장벽도, 상위 요금제도 없습니다.
+없습니다. MIT 의 진짜 무료 오픈 소스이며 결제 장벽도, 상위 요금제도 없습니다.
 
 ### 휴대폰에서도 쓸 수 있나요?
 

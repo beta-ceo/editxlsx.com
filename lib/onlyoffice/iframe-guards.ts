@@ -1,5 +1,6 @@
 import { installOpenFailureGuard } from './open-failure';
 import { injectLocalChromeCss } from './guards/chrome';
+import { installHomeQuickActions } from './guards/home-quick-actions';
 import { shadowSharedWorker } from './guards/shared-worker';
 import { installFetchFontsGuard } from './guards/fetch-fonts';
 import { installServerlessImagePipeline } from './guards/image-pipeline';
@@ -44,6 +45,7 @@ export function prepareEditorIframe(): boolean {
 
       installOpenFailureGuard(win);
       injectLocalChromeCss(doc);
+      installHomeQuickActions(doc);
 
       const sharedWorkerShadowed = shadowSharedWorker(win);
       const fetchFontsGuarded = installFetchFontsGuard(win);

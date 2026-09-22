@@ -1,6 +1,6 @@
 ---
 title: Integrar un editor de documentos en tu web — iframe + API postMessage
-description: Integra un editor de DOCX, XLSX, PPTX y CSV en tu aplicación web con un iframe y una API postMessage. La autenticación y los archivos se quedan en tu app: el editor nunca ve tus tokens. Código abierto (AGPL-3.0), autoalojable, marca blanca.
+description: Integra un editor de DOCX, XLSX, PPTX y CSV en tu aplicación web con un iframe y una API postMessage. La autenticación y los archivos se quedan en tu app: el editor nunca ve tus tokens. Código abierto (MIT), autoalojable, marca blanca.
 eyebrow: Desarrolladores · Integración
 h1: Integrar un editor de documentos en tu aplicación web
 lead: 'Añade a tu producto un editor de **DOCX, XLSX, PPTX y CSV** con un solo iframe y una API **postMessage**. Tu aplicación conserva la autenticación, el acceso a los archivos y la subida; el editor solo edita, y nunca ve los tokens de tus usuarios.'
@@ -45,7 +45,7 @@ iframe.contentWindow.postMessage({ id, type: 'document:save', payload: { targetE
 - Guardar de vuelta a **XLSX, DOCX, PPTX o CSV**, devuelto como un `File` para que tu app lo suba
 - Modo de solo lectura, bloqueo de origen por mensaje (`embedOrigin`) y una consulta de estado
 - Ningún servidor de documentos que operar: la edición es 100% WebAssembly en el cliente
-- Código abierto (AGPL-3.0) y autoalojable: intégralo bajo tu propio dominio
+- Código abierto (MIT) y autoalojable: intégralo bajo tu propio dominio
 
 ## Cómo funciona
 
@@ -80,7 +80,7 @@ DOCX, XLSX, PPTX y CSV, editados en el cliente con el motor WebAssembly de OnlyO
 
 ### ¿Puedo autoalojarlo o usarlo en marca blanca?
 
-Sí. Es código abierto bajo AGPL-3.0 y se distribuye como archivos estáticos, así que puedes alojar tu propia copia e integrarlo bajo tu dominio.
+Sí. Es código abierto bajo MIT y se distribuye como archivos estáticos, así que puedes alojar tu propia copia e integrarlo bajo tu dominio.
 
 ### ¿Cómo restrinjo qué sitio puede hablar con el editor?
 

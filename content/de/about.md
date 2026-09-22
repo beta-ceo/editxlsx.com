@@ -1,6 +1,6 @@
 ---
 title: Über diesen Editor — wer ihn baut und warum
-description: Wer hinter edit.chaxus.com steht, was der Editor tatsächlich tut, wie er gebaut ist und wo der Quellcode liegt. Ein quelloffener (AGPL-3.0) Editor im Browser für Word-, Excel-, PowerPoint-, CSV- und PDF-Dateien, der Ihre Dokumente nie hochlädt.
+description: Wer hinter edit.chaxus.com steht, was der Editor tatsächlich tut, wie er gebaut ist und wo der Quellcode liegt. Ein quelloffener (MIT) Editor im Browser für Word-, Excel-, PowerPoint-, CSV- und PDF-Dateien, der Ihre Dokumente nie hochlädt.
 eyebrow: Über uns
 breadcrumb: Über diesen Editor
 h1: Über diesen Editor
@@ -25,7 +25,7 @@ Es ist ein persönliches Open-Source-Projekt, kein Firmenprodukt. Dahinter stehe
 
 Behauptungen über Datenschutz sind billig. So können Sie sie selbst nachprüfen:
 
-- **Lesen Sie den Quellcode.** Alles ist quelloffen unter **AGPL-3.0** auf [github.com/ranuts/document](https://github.com/ranuts/document). Die Lizenz verlangt, dass auch eine gehostete Abwandlung ihren Quellcode veröffentlicht.
+- **Lesen Sie den Quellcode.** Alles ist quelloffen unter **MIT** auf [github.com/ranuts/document](https://github.com/ranuts/document). Anwendungscode steht unter MIT; die eingebetteten ONLYOFFICE-Editoren bleiben AGPL-3.0 — siehe NOTICE.
 - **Schauen Sie in den Netzwerk-Tab.** Öffnen Sie die Entwicklerwerkzeuge, laden Sie ein Dokument, bearbeiten Sie es und sehen Sie sich die Anfragen an. Sie werden Ihre Datei nirgendwohin gehen sehen.
 - **Trennen Sie die Verbindung.** Laden Sie die Seite einmal, gehen Sie offline, öffnen und bearbeiten Sie dann eine Datei. Es funktioniert weiter — was nur möglich ist, weil lokal gerechnet wird.
 - **Hosten Sie es selbst.** Das Repository enthält, was Sie für eine eigene Instanz brauchen.

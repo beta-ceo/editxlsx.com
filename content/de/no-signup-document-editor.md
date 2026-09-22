@@ -1,6 +1,6 @@
 ---
 title: Dokumenteneditor — ohne Anmeldung, ohne Upload · kostenlos und quelloffen
-description: Word (DOCX), Excel (XLSX), PowerPoint (PPTX) und CSV im Browser bearbeiten — ohne Anmeldung, ohne Login, ohne Upload. Kostenlos, quelloffen (AGPL-3.0) und offlinefähig — Ihre Dateien verlassen Ihr Gerät nie.
+description: Word (DOCX), Excel (XLSX), PowerPoint (PPTX) und CSV im Browser bearbeiten — ohne Anmeldung, ohne Login, ohne Upload. Kostenlos, quelloffen (MIT) und offlinefähig — Ihre Dateien verlassen Ihr Gerät nie.
 eyebrow: Kein Konto · keine Anmeldung
 h1: Kostenloser Online-Dokumenteneditor — ohne Anmeldung, ohne Upload
 lead: Bearbeiten Sie Word- (DOCX), Excel- (XLSX), PowerPoint- (PPTX) und CSV-Dateien direkt im Browser. Kein Konto, kein Login, kein Abo — und Ihre Dateien werden nirgendwohin hochgeladen.
@@ -43,7 +43,7 @@ Nein. Das Bearbeiten passiert vollständig lokal im Browser mit WebAssembly. Ihr
 
 ### Ist es wirklich kostenlos?
 
-Ja. Kostenlos und quelloffen unter der AGPL-3.0. Sie können ihn auch selbst betreiben, aus dem [Quellcode auf GitHub](https://github.com/ranuts/document).
+Ja. Kostenlos und quelloffen unter der MIT. Sie können ihn auch selbst betreiben, aus dem [Quellcode auf GitHub](https://github.com/ranuts/document).
 
 ### Kann ich ihn offline nutzen?
 
@@ -55,7 +55,7 @@ DOCX, XLSX, PPTX und CSV, mit OnlyOffice. Exportieren können Sie außerdem nach
 
 ### Gibt es einen Haken — eine Paywall oder eine Premium-Stufe?
 
-Nein. Es ist tatsächlich kostenlos und quelloffen unter AGPL-3.0, ohne Paywall und ohne Premium-Stufe.
+Nein. Es ist tatsächlich kostenlos und quelloffen unter MIT, ohne Paywall und ohne Premium-Stufe.
 
 ### Kann ich ihn auf dem Handy nutzen?
 

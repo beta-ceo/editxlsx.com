@@ -25,7 +25,7 @@ Useful to include:
 Both are supported and documented:
 
 - **Embedding** — see the [Embed API reference](/help/embed-api) for the iframe and `postMessage` interface.
-- **Self-hosting** — the [repository](https://github.com/ranuts/document) contains what you need to run your own copy. It is AGPL-3.0, so a modified hosted version must publish its source.
+- **Self-hosting** — the [repository](https://github.com/ranuts/document) contains what you need to run your own copy. Application code is MIT; the embedded ONLYOFFICE editors remain AGPL-3.0 (see NOTICE).
 
 For questions that are not bug reports, [GitHub Discussions or an issue](https://github.com/ranuts/document/issues) still works and has the advantage that the answer helps the next person with the same question.
 

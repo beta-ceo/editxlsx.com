@@ -1,6 +1,6 @@
 ---
 title: 关于 — 这个文档编辑器是谁做的、为什么这么做
-description: edit.chaxus.com 背后是谁、它到底做什么、怎么实现的、源码在哪。一个开源（AGPL-3.0）的浏览器内 Word / Excel / PowerPoint / CSV / PDF 编辑器，文件全程不上传。
+description: edit.chaxus.com 背后是谁、它到底做什么、怎么实现的、源码在哪。一个开源（MIT）的浏览器内 Word / Excel / PowerPoint / CSV / PDF 编辑器，文件全程不上传。
 eyebrow: 关于
 breadcrumb: 关于
 h1: 关于这个编辑器
@@ -25,7 +25,7 @@ lead: 谁在做、它实际能做什么，以及这两件事你都可以自己�
 
 关于隐私的承诺很廉价。下面是你可以自己动手核实的方式：
 
-- **看源码。** 全部开源，协议是 **AGPL-3.0**，在 [github.com/ranuts/document](https://github.com/ranuts/document)。这个协议意味着：任何人改了它再拿去部署，也必须公开自己的源码。
+- **看源码。** 全部开源，协议是 **MIT**，在 [github.com/ranuts/document](https://github.com/ranuts/document)。应用代码为 MIT；内嵌的 ONLYOFFICE 编辑器仍为 AGPL-3.0——详见 NOTICE。
 - **看网络面板。** 打开浏览器开发者工具，加载一个文档、改几笔，看网络请求——你不会看到文件被发往任何地方。
 - **直接断网。** 先正常打开一次站点，然后断开网络，再打开文件编辑。它照样能用——而这只有在本地完成编辑时才可能做到。
 - **自己部署一份。** 仓库里有自建所需的东西。

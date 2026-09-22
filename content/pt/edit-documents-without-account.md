@@ -1,6 +1,6 @@
 ---
 title: Editar documentos sem conta — sem cadastro, é só começar
-description: Edite arquivos do Word (DOCX), Excel (XLSX), PowerPoint (PPTX) e CSV sem conta, sem cadastro e sem login. Abra o editor e comece na hora, no navegador. Grátis, de código aberto (AGPL-3.0), nada é enviado, funciona offline.
+description: Edite arquivos do Word (DOCX), Excel (XLSX), PowerPoint (PPTX) e CSV sem conta, sem cadastro e sem login. Abra o editor e comece na hora, no navegador. Grátis, de código aberto (MIT), nada é enviado, funciona offline.
 eyebrow: Sem conta · é só começar
 h1: Quer editar documentos sem conta?
 lead: Edite arquivos do Word (DOCX), Excel (XLSX), PowerPoint (PPTX) e CSV sem se cadastrar em nada. Não há conta, login nem e-mail para entregar — você abre o editor e começa a digitar.
@@ -21,7 +21,7 @@ E é um editor completo, não uma prévia reduzida: com o motor do OnlyOffice, s
 - **Edite os formatos comuns** — DOCX, XLSX, PPTX e CSV, com a formatação completa preservada.
 - **Arquivos ficam no dispositivo** — 100% no cliente; seus documentos nunca são enviados.
 - **Trabalhe offline** — instalável como PWA e utilizável sem conexão.
-- **Continue grátis** — código aberto sob AGPL-3.0, sem muro de pagamento para destravar.
+- **Continue grátis** — código aberto sob MIT, sem muro de pagamento para destravar.
 
 ## Como funciona
 
@@ -46,7 +46,7 @@ Seus arquivos ficam no seu próprio dispositivo. A edição acontece localmente 
 
 ### É grátis sem conta?
 
-Sim. É grátis e de código aberto sob a licença AGPL-3.0, sem muro de pagamento e sem conta necessária para destravar recursos.
+Sim. É grátis e de código aberto sob a licença MIT, sem muro de pagamento e sem conta necessária para destravar recursos.
 
 ### Dá para usar offline sem fazer login?
 

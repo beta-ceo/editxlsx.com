@@ -93,7 +93,7 @@ El sitio se actualiza solo en la siguiente visita. Si una página parece atascad
 
 ### ¿Mis documentos se suben a algún sitio?
 
-No. El documento se lee desde tu disco a la pestaña del navegador y se procesa ahí con WebAssembly. En este sitio no hay ningún punto final de subida. Puedes comprobarlo en el panel de red del navegador mientras abres y guardas un documento, y el código es abierto bajo AGPL-3.0.
+No. El documento se lee desde tu disco a la pestaña del navegador y se procesa ahí con WebAssembly. En este sitio no hay ningún punto final de subida. Puedes comprobarlo en el panel de red del navegador mientras abres y guardas un documento, y el código es abierto bajo MIT.
 
 ### ¿Qué carga la página desde la red?
 

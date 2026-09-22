@@ -1,6 +1,6 @@
 ---
 title: Einen Dokumenteneditor in die eigene Website einbetten — iframe + postMessage-API
-description: Einen Editor für DOCX, XLSX, PPTX und CSV mit einem iframe und einer postMessage-API in Ihre Web-App einbetten. Auth und Dateien bleiben in Ihrer App — der Editor sieht Ihre Tokens nie. Quelloffen (AGPL-3.0), selbst hostbar, White-Label.
+description: Einen Editor für DOCX, XLSX, PPTX und CSV mit einem iframe und einer postMessage-API in Ihre Web-App einbetten. Auth und Dateien bleiben in Ihrer App — der Editor sieht Ihre Tokens nie. Quelloffen (MIT), selbst hostbar, White-Label.
 eyebrow: Für Entwickler · Einbetten
 h1: Einen Dokumenteneditor in Ihre Web-App einbetten
 lead: 'Ergänzen Sie Ihr Produkt um einen Editor für **DOCX, XLSX, PPTX und CSV** — mit einem einzigen iframe und einer **postMessage**-API. Ihre App behält Auth, Dateizugriff und Upload; der Editor bearbeitet nur und sieht die Tokens Ihrer Nutzer nie.'
@@ -45,7 +45,7 @@ iframe.contentWindow.postMessage({ id, type: 'document:save', payload: { targetE
 - Zurückspeichern nach **XLSX, DOCX, PPTX oder CSV**, zurückgegeben als `File`, das Ihre App hochlädt
 - Schreibgeschützter Modus, Origin-Sperre pro Nachricht (`embedOrigin`) und eine Statusabfrage
 - Kein Dokumentenserver zu betreiben — bearbeitet wird zu 100% clientseitig mit WebAssembly
-- Quelloffen (AGPL-3.0) und selbst hostbar — betten Sie ihn unter Ihrer eigenen Domain ein
+- Quelloffen (MIT) und selbst hostbar — betten Sie ihn unter Ihrer eigenen Domain ein
 
 ## So funktioniert es
 
@@ -80,7 +80,7 @@ DOCX, XLSX, PPTX und CSV, clientseitig bearbeitet mit der WebAssembly-Engine von
 
 ### Kann ich ihn selbst hosten oder als White-Label nutzen?
 
-Ja. Er ist quelloffen unter AGPL-3.0 und wird als statische Dateien ausgeliefert, Sie können also eine eigene Kopie hosten und unter Ihrer Domain einbetten.
+Ja. Er ist quelloffen unter MIT und wird als statische Dateien ausgeliefert, Sie können also eine eigene Kopie hosten und unter Ihrer Domain einbetten.
 
 ### Wie beschränke ich, welche Seite mit dem Editor sprechen darf?
 

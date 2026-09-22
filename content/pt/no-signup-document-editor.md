@@ -1,6 +1,6 @@
 ---
 title: Editor de documentos — sem cadastro, sem upload · grátis e de código aberto
-description: Edite Word (DOCX), Excel (XLSX), PowerPoint (PPTX) e CSV no navegador sem cadastro, sem login e sem upload. Grátis, de código aberto (AGPL-3.0) e funciona offline — seus arquivos nunca saem do dispositivo.
+description: Edite Word (DOCX), Excel (XLSX), PowerPoint (PPTX) e CSV no navegador sem cadastro, sem login e sem upload. Grátis, de código aberto (MIT) e funciona offline — seus arquivos nunca saem do dispositivo.
 eyebrow: Sem conta · sem cadastro
 h1: Editor de documentos online grátis — sem cadastro, sem upload
 lead: Edite arquivos do Word (DOCX), Excel (XLSX), PowerPoint (PPTX) e CSV direto no navegador. Sem conta, sem login, sem assinatura — e seus arquivos nunca são enviados para lugar nenhum.
@@ -43,7 +43,7 @@ Não. Toda a edição acontece localmente no seu navegador com WebAssembly. Seus
 
 ### É realmente grátis?
 
-Sim. É grátis e de código aberto sob a licença AGPL-3.0. Você também pode hospedar a sua cópia a partir do [código no GitHub](https://github.com/ranuts/document).
+Sim. É grátis e de código aberto sob a licença MIT. Você também pode hospedar a sua cópia a partir do [código no GitHub](https://github.com/ranuts/document).
 
 ### Dá para usar offline?
 
@@ -55,7 +55,7 @@ DOCX, XLSX, PPTX e CSV, com o OnlyOffice. Também dá para exportar para PDF, TX
 
 ### Tem pegadinha — algum muro de pagamento ou plano premium?
 
-Não. É realmente grátis e de código aberto sob a AGPL-3.0, sem muro de pagamento e sem plano premium.
+Não. É realmente grátis e de código aberto sob a MIT, sem muro de pagamento e sem plano premium.
 
 ### Dá para usar no celular?
 

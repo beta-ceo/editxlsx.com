@@ -93,7 +93,7 @@ Die Seite aktualisiert sich beim nächsten Besuch selbst. Wenn eine Seite auf ei
 
 ### Werden meine Dokumente irgendwohin hochgeladen?
 
-Nein. Das Dokument wird von Ihrer Festplatte in den Browser-Tab gelesen und dort mit WebAssembly verarbeitet. Auf dieser Website gibt es keinen Upload-Endpunkt. Sie können das im Netzwerk-Panel des Browsers beim Öffnen und Speichern überprüfen — und der Quellcode ist unter AGPL-3.0 offen.
+Nein. Das Dokument wird von Ihrer Festplatte in den Browser-Tab gelesen und dort mit WebAssembly verarbeitet. Auf dieser Website gibt es keinen Upload-Endpunkt. Sie können das im Netzwerk-Panel des Browsers beim Öffnen und Speichern überprüfen — und der Quellcode ist unter MIT offen.
 
 ### Was lädt die Seite aus dem Netz?
 

@@ -93,7 +93,7 @@ The site updates itself on the next visit. If a page seems stuck on an old build
 
 ### Are my documents uploaded anywhere?
 
-No. The document is read from your disk into the browser tab and processed there with WebAssembly. There is no upload endpoint on this site. You can verify this in the browser's network panel while opening and saving a document — and the source is open under AGPL-3.0.
+No. The document is read from your disk into the browser tab and processed there with WebAssembly. There is no upload endpoint on this site. You can verify this in the browser's network panel while opening and saving a document — and the source is open under MIT.
 
 ### What does the page load from the network?
 

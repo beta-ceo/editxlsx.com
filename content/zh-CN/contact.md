@@ -25,7 +25,7 @@ lead: 下面每条路径都是公开可追溯的，你能看到自己的反馈�
 两者都支持，也都有文档：
 
 - **嵌入** —— 见 [Embed API 参考](/zh-CN/help/embed-api)，包含 iframe 与 `postMessage` 接口。
-- **自建** —— [仓库](https://github.com/ranuts/document)里有自建所需的东西。协议是 AGPL-3.0，所以改过之后再部署，需要公开源码。
+- **自建** —— [仓库](https://github.com/ranuts/document)里有自建所需的东西。应用代码为 MIT；内嵌 ONLYOFFICE 编辑器仍为 AGPL-3.0（见 NOTICE）。
 
 不属于 bug 的问题，同样可以[开 issue 或用 GitHub Discussions](https://github.com/ranuts/document/issues)——好处是答案会留给下一个遇到同样问题的人。
 

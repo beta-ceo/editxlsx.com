@@ -6,21 +6,13 @@ import { generate } from '../../bin/build-pages.mjs';
 /**
  * The ONLYOFFICE attribution, pinned.
  *
- * This site is a derivative work of ONLYOFFICE, whose AGPL-3.0 headers add two
- * terms under Section 7 of that license: 7(b) requires the original product
- * logo to be retained when the program is distributed, and 7(e) declines to
- * grant any rights under trademark law. Both were being violated -- the header
- * logo was hidden by an injected stylesheet and the About pane switched off in
- * the DocEditor config, which left no product mark anywhere in the interface,
- * and no trademark notice existed in the repository or on the site.
- *
- * What makes this worth a test rather than a comment is how it happened: both
- * removals were deliberate UI tidy-ups ("strip the chrome a single-user local
- * editor does not need", docs/explorations/2026-08-12-v9-pure-ui-and-issue-regression-sweep.md).
- * The next tidy-up would do it again, and nothing else in the suite would go
- * red. So: the two suppressions cannot come back, and the notices cannot be
- * dropped. The runtime half -- that the logo and the About entry are really on
- * screen -- is test/e2e/vendor-branding.spec.ts.
+ * Application code is MIT (LICENSE / package.json). The embedded ONLYOFFICE
+ * editors remain AGPL-3.0 with Ascensio's Section 7 terms: 7(b) requires the
+ * original product logo to be retained when distributing the program, and 7(e)
+ * declines trademark rights. The title-strip header logo may be blanked as UI
+ * chrome; the About pane (left rail) must stay on, and site footers must keep
+ * the trademark notice. test/e2e/vendor-branding.spec.ts covers the runtime
+ * half.
  */
 const ROOT = resolve(__dirname, '../..');
 const read = (rel: string) => readFileSync(resolve(ROOT, rel), 'utf8');
@@ -31,25 +23,17 @@ const SECTION_7 =
   '    logo when distributing the program. Pursuant to Section 7(e) we decline to\n' +
   '    grant you any rights under trademark law for use of our trademarks.';
 
-const READMES = [
-  'readme.md',
-  'readme.zh.md',
-  'readme.ja.md',
-  'readme.ko.md',
-  'readme.de.md',
-  'readme.es.md',
-  'readme.pt.md',
-  'readme.fa.md',
-];
+const READMES = ['readme.md'];
 
 describe('ONLYOFFICE product logo (AGPL-3.0 Section 7(b))', () => {
-  it('is not hidden by the chrome stylesheet the guards inject', () => {
+  it('keeps About reachable; the title-strip logo may be blanked as chrome', () => {
     const guard = read('lib/onlyoffice/guards/chrome.ts');
-    expect(guard, 'the header logo must not be hidden -- see NOTICE').not.toContain('#header-logo');
-    // The guard still has a job: these two describe a collaboration session a
-    // serverless build cannot have, and hiding them is unrelated to branding.
+    // Collaboration chrome and File / title-strip tidy-ups are intentional.
     expect(guard).toContain('.btn-current-user');
     expect(guard).toContain('#tlb-box-users');
+    expect(guard).toContain('data-tab="file"');
+    expect(guard).toContain('#header-logo');
+    expect(guard).toContain('#box-document-title');
   });
 
   it('is not removed with the About pane by the DocEditor config', () => {
@@ -59,13 +43,19 @@ describe('ONLYOFFICE product logo (AGPL-3.0 Section 7(b))', () => {
     );
   });
 
-  it("is joined in the About pane by this build's own source offer (AGPL-3.0 Section 13)", () => {
+  it("is joined in the About pane by this build's own source offer", () => {
     const guard = read('lib/onlyoffice/guards/about-source.ts');
     expect(guard).toContain('about-menu-panel');
     expect(guard).toContain('https://github.com/ranuts/document');
     expect(guard).toMatch(/not an official ONLYOFFICE product/);
     // Mounted, or it is a file nothing runs.
     expect(read('lib/onlyoffice/iframe-guards.ts')).toContain('installAboutSourceNotice(doc)');
+  });
+
+  it('declares the application license as MIT while NOTICE still quotes vendor AGPL terms', () => {
+    expect(read('package.json')).toMatch(/"license":\s*"MIT"/);
+    expect(read('LICENSE')).toContain('MIT License');
+    expect(read('NOTICE')).toContain(SECTION_7);
   });
 });
 

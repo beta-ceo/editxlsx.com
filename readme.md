@@ -1,75 +1,56 @@
-# Online Document Editor
+# editxlsx
 
-<p align="center">
-  <a href="https://github.com/ranuts/document/actions/workflows/ci.yml">
-    <img src="https://github.com/ranuts/document/actions/workflows/ci.yml/badge.svg" alt="CI Status">
-  </a>
-  <a href="https://github.com/ranuts/document/blob/main/LICENSE">
-    <img src="https://img.shields.io/github/license/ranuts/document" alt="License">
-  </a>
-  <a href="https://github.com/ranuts/document/releases">
-    <img src="https://img.shields.io/github/v/release/ranuts/document" alt="Version">
-  </a>
-  <a href="https://edit.chaxus.com/">
-    <img src="https://img.shields.io/badge/Live-edit.chaxus.com-brightgreen" alt="Live site">
-  </a>
-</p>
+Online Excel and document editor powered by OnlyOffice. Sign in to sync `.xlsx`
+workbooks to your account, or open a local file in the browser with no account.
 
-<p align="center">
-  <b>English</b> |
-  <a href="readme.zh.md">简体中文</a> |
-  <a href="readme.ja.md">日本語</a> |
-  <a href="readme.ko.md">한국어</a> |
-  <a href="readme.de.md">Deutsch</a> |
-  <a href="readme.es.md">Español</a> |
-  <a href="readme.pt.md">Português</a> |
-  <a href="readme.fa.md">فارسی</a>
-</p>
+Editing and conversion still run in the tab (OnlyOffice + WASM). Cloud storage
+uses [Appwrite](https://appwrite.io) Auth, Databases, and Storage.
 
-Open and edit Word, Excel and PowerPoint files in a browser tab. There is no
-server: the OnlyOffice engine and its WASM converter run on the visitor's own
-device, so documents are never uploaded, and no account is involved.
-
-**Live site: [edit.chaxus.com](https://edit.chaxus.com/)**
+**Live:** [editxlsx.com](https://editxlsx.com)
 
 ---
 
-## ✨ Features
+## Features
 
-- 🔒 **Nothing is uploaded** — every conversion, edit and export happens in the tab
-- 📝 **Real editing, not preview** — DOCX, XLSX, PPTX and CSV, plus ODF, RTF, TXT and the legacy binary formats; PDFs open and can be annotated
-- 💾 **Saves into your own file** — pick it once, every save after writes back to it (Chromium; elsewhere it downloads as before)
-- 🕓 **Nothing is lost if you close the tab** — edits autosave into your own browser, kept for 7 days, deletable any time ([details](#-your-data-stays-on-your-device))
-- 📴 **Works offline** — installable as a PWA; after the first visit no network is needed
-- 🌍 **Multi-language** — 7 languages end to end (English, 中文, 日本語, Deutsch, Español, 한국어, Português): the pages, the app UI and the editor all follow the one you pick; the editor itself ships 45
-- 🧩 **Embeddable** — full postMessage API for iframe integration
-- 🤖 **Agent-ready** — exposes WebMCP tools so a browser AI agent can open, convert and read documents
-- 🚀 **Deploy anywhere** — a static build; a directory of files behind any web server
+- **Cloud workbooks** — sign in, browse `/workspace`, Save / Ctrl+S and autosave
+  sync `.xlsx` to your account (local-first: bytes land on device first, then
+  flush to the cloud)
+- **Local path stays** — open or create a file without an account; Chromium can
+  write back to the file you picked; recovery copies stay in this browser for
+  7 days ([details](#data))
+- **Real editing** — DOCX, XLSX, PPTX, CSV, ODF, RTF, TXT, legacy binaries; PDF
+  annotate / fill / export
+- **Offline-capable** — installable PWA; local editing works after the first visit
+- **7 languages** — English, 中文, 日本語, Deutsch, Español, 한국어, Português
+  (editor UI also ships 45 vendor locales)
+- **Embeddable** — postMessage API for iframe hosts
+- **Static deploy** — `dist/` behind any web server; Docker image available
 
 ---
 
-## 🚀 Quick start
+## Quick start
 
-**Use it:** [edit.chaxus.com](https://edit.chaxus.com/) — nothing to install.
+```bash
+git clone https://github.com/ranuts/document.git
+cd document
+cp .env.example .env.local   # optional: point at your Appwrite project
+pnpm install
+pnpm run dev
+```
 
-**Self-host with Docker:**
+Without Appwrite env, the editor and local open still work; `/login` and
+`/workspace` need a project (defaults in code already target the editxlsx Cloud
+project — see `.env.example`).
+
+**Docker (static site only):**
 
 ```bash
 docker run -d --name document -p 8080:80 ghcr.io/ranuts/document:latest
 ```
 
-**Run from source:**
-
-```bash
-git clone https://github.com/ranuts/document.git
-cd document
-pnpm install
-pnpm run dev
-```
-
 ---
 
-## 📄 Formats
+## Formats
 
 | Kind          | Edit                   | Also opens                  |
 | ------------- | ---------------------- | --------------------------- |
@@ -78,60 +59,58 @@ pnpm run dev
 | Presentations | `.pptx`                | `.ppt` `.odp`               |
 | PDF           | annotate, fill, export | `.pdf`                      |
 
-Any of them can be exported to PDF. CSV keeps its encoding on the way back out
-(UTF-8, GB18030 and Latin-1 are sniffed on open).
+Any of them can export to PDF. CSV encoding is sniffed on open (UTF-8, GB18030,
+Latin-1) and kept on the way back out.
+
+Cloud sync today is **`.xlsx` workbooks** only.
 
 ---
 
-## 🔗 Routes and URL parameters
+## Routes
 
-| Route                 | What it is                                                         |
-| --------------------- | ------------------------------------------------------------------ |
-| `/`                   | Landing page. No editor bundle is loaded until you open something. |
-| `/editor`             | The editor.                                                        |
-| `/history`            | Documents this browser is holding (see below).                     |
-| `/help`, `/changelog` | Generated from the markdown under `content/`.                      |
+| Route                 | What it is                                      |
+| --------------------- | ----------------------------------------------- |
+| `/`                   | Landing page (no editor bundle)                 |
+| `/login`              | Sign in / sign up (Appwrite email + password)   |
+| `/workspace`          | Cloud workbook library (redirects if anonymous) |
+| `/editor`             | The editor                                      |
+| `/history`            | Local recovery copies in this browser           |
+| `/help`, `/changelog` | Generated from `content/`                       |
 
-Parameters on `/editor`:
+### `/editor` parameters
 
-| Parameter      | Description                                                                                                              |
-| -------------- | ------------------------------------------------------------------------------------------------------------------------ |
-| `src=<url>`    | Open a document from a URL (the URL must allow CORS)                                                                     |
-| `file=<url>`   | Same, legacy spelling; wins if both are present                                                                          |
-| `new=docx`     | Start a blank document (`docx`, `xlsx`, `pptx`)                                                                          |
-| `saved=<id>`   | Reopen one of this browser's saved documents — the editor puts its own id here, so a reload returns to the same document |
-| `readonly=1`   | Open for viewing: editing and export are disabled                                                                        |
-| `embed=1`      | Embed mode; the host page drives the editor over postMessage                                                             |
-| `locale=zh-CN` | Interface language                                                                                                       |
-
----
-
-## 🔐 Your data stays on your device
-
-Documents are never sent anywhere. Where the browser allows it, saving writes
-straight back into the file you picked, so the document lives in your own file
-system and not in a downloads folder. Two things are kept in the browser
-itself, and both are yours to remove:
-
-- **Copies of what you edited.** While you work, the editor saves the document
-  into this browser (IndexedDB) so a refresh, a closed tab or a crash does not
-  cost you the work. Reopening the editor offers it back. These copies exist so
-  you can pick up where you left off — they are not a backup, so keep exporting
-  anything you want to keep.
-- **Seven days, then gone.** Each document is deleted automatically seven days
-  after you last edited or opened it, whether or not you come back.
-
-[`/history`](https://edit.chaxus.com/history) lists what is stored, with a
-delete on every row, a delete-all, and a switch to turn autosave off entirely.
-Deleting there takes effect immediately. On a shared machine, that is the page
-to visit.
+| Parameter        | Description                                                                 |
+| ---------------- | --------------------------------------------------------------------------- |
+| `workbook=<id>`  | Open a cloud workbook; binds Save and cloud autosave                        |
+| `shell=1`        | Embedded by `/workspace` (shell ↔ editor handshake)                         |
+| `src=` / `file=` | Open from a CORS-enabled URL (`file=` wins if both are set)                 |
+| `new=xlsx`       | Blank document (`docx` / `xlsx` / `pptx`)                                   |
+| `saved=<id>`     | Reopen a local recovery row (this browser only)                             |
+| `open=local`     | Hand off a file picked on the landing page                                  |
+| `readonly=1`     | View only                                                                   |
+| `embed=1`        | Host drives the editor over postMessage                                     |
+| `locale=zh-CN`   | Interface language                                                          |
 
 ---
 
-## 🧩 Embedding via iframe
+## Data
 
-Embed the editor and drive it over postMessage. The usual split is: your system
-handles auth and storage, the iframe handles editing.
+Two paths — do not mix them up:
+
+**Signed-in cloud workbooks** live in your Appwrite account (metadata + Storage
+object). Save is local-first: the latest bytes go into this browser immediately,
+then sync in the background. A mid-upload reload prefers the newer local pending
+copy when it is fresher than the cloud.
+
+**Local / anonymous editing** never requires an account. Where the browser
+allows it, Save writes back into the file you picked. Separately, AutoRecover
+snapshots can sit in IndexedDB for **7 days** (not a backup — export anything
+you want to keep). Manage them at [`/history`](https://editxlsx.com/history).
+Embed mode does not write local history.
+
+---
+
+## Embedding
 
 ```html
 <iframe
@@ -142,76 +121,39 @@ handles auth and storage, the iframe handles editing.
 ```
 
 ```js
-// Open a document
 iframe.contentWindow.postMessage(
   { id: '1', type: 'document:open-url', payload: { url: 'https://example.com/doc.xlsx' } },
   'https://your-deployment',
 );
 
-// Listen for the result
 window.addEventListener('message', (e) => {
   if (e.data?.type === 'document:opened') console.log('Ready to edit');
   if (e.data?.type === 'document:saved') uploadFile(e.data.payload.file);
 });
 ```
 
-Embedded editors keep no local history — the document belongs to the host page.
+→ **[Embed API](docs/embed-api.md)**
 
-→ **[Full API reference](docs/embed-api.md)** — every message type, the origin
-allowlist, read-only mode and the save flow.
-
-Also available as a component: this project powers the document preview in
-[@ranui/preview](https://www.npmjs.com/package/@ranui/preview)
-([docs](https://chaxus.github.io/ran/src/ranui/preview/)).
+Also powers document preview in
+[@ranui/preview](https://www.npmjs.com/package/@ranui/preview).
 
 ---
 
-## 🤖 Browser AI agents (WebMCP)
-
-Where the browser supports it, the page registers tools an in-browser agent can
-call directly instead of driving the UI: `open_document_url`,
-`open_document_buffer`, `create_document`, `save_document`, `get_document_text`,
-`set_readonly`, `get_document_state`. Documents still never leave the device —
-the browser fetches and converts them itself. Where the API is absent, this is
-a no-op.
-
----
-
-## 🚀 Deployment
-
-A static build — no runtime, no database.
+## Deploy
 
 ```bash
-pnpm build   # outputs to dist/
+pnpm build   # → dist/
 ```
 
-### Static hosting (Cloudflare Pages, Nginx, Vercel, Netlify…)
+Upload `dist/` to Cloudflare Pages, Nginx, Vercel, Netlify, etc.
+`public/_headers` is the caching contract (hashed assets immutable; SW never
+cached). For Nginx, fall back to `index.html` for unknown routes.
 
-Upload `dist/`. `public/_headers` carries the caching contract the site expects
-(hashed assets immutable, service worker never cached); hosts that ignore it
-still work, they just revalidate more.
+GitHub Pages: `.github/workflows/pages-build-site.yml` on push to `main`.
 
-For Nginx, serve `index.html` as the fallback for unknown routes:
-
-```nginx
-location / {
-  root /var/www/document;
-  try_files $uri $uri/ /index.html;
-}
-```
-
-### GitHub Pages
-
-`.github/workflows/pages-build-site.yml` builds and deploys on push to `main`.
-Enable Pages in the repository settings with **GitHub Actions** as the source.
-
-### Docker
+Docker with TLS / basic auth:
 
 ```bash
-# Basic
-docker run -d --name document -p 8080:80 ghcr.io/ranuts/document:latest
-
-# With HTTPS and basic auth
 docker run -d --name document -p 443:443 \
   -v /path/to/certs:/ssl \
   -e SERVER_BASIC_AUTH='user:$2y$...' \
@@ -221,62 +163,32 @@ docker run -d --name document -p 443:443 \
   ghcr.io/ranuts/document:latest
 ```
 
-`SERVER_BASIC_AUTH` takes a BCrypt hash; double the `$` characters for shell
-escaping. Caching for the image is configured in `sws.toml`.
+`SERVER_BASIC_AUTH` is a BCrypt hash (double `$` in the shell). Image caching:
+`sws.toml`. The image serves the static build; cloud login needs your own
+Appwrite project and matching `VITE_APPWRITE_*` at build time.
 
 ---
 
-## 🔤 Fonts
-
-The vendored OnlyOffice build ships its font library in `public/fonts/`, indexed
-by `public/sdkjs/common/AllFonts.js`. Fonts are fetched on demand — a document
-only pulls the ones it actually uses.
-
-→ **[Font management guide](docs/fonts.md)** — the indexed catalog's wire
-format, the registries, and adding fonts with `bin/font-catalog.mjs`.
-
----
-
-## 🛠 Development
+## Development
 
 ```bash
 pnpm install --frozen-lockfile
-pnpm run dev            # dev server
-pnpm run build          # production build (bin/build.sh)
-pnpm run lint           # oxlint + tsc + docker config
-pnpm run test           # unit tests (Vitest)
-pnpm run test:e2e       # end-to-end tests (Playwright, real editor + real WASM)
+pnpm run dev
+pnpm run build
+pnpm run lint
+pnpm run test
+pnpm run test:e2e
 ```
 
-The end-to-end suite drives the real editor and the real converter rather than
-mocks, including document round trips, the embed protocol and the recovery
-flow. `docs/explorations/` records why each non-obvious piece is the way it is —
-worth a look before changing the editor integration.
+E2E drives the real editor and WASM converter. Agent-facing notes for this repo
+live in `CLAUDE.md`. Font catalog: [docs/fonts.md](docs/fonts.md). Design
+history for non-obvious choices: `docs/explorations/`.
 
 ---
 
-## 📚 Built on
+## License
 
-- [sdkjs](https://github.com/ONLYOFFICE/sdkjs) and [web-apps](https://github.com/ONLYOFFICE/web-apps) — the OnlyOffice editors
-- [onlyoffice-x2t-wasm](https://github.com/cryptpad/onlyoffice-x2t-wasm) — the WASM document converter
-- [ranui / ranuts](https://github.com/chaxus/ran) — the design system and utilities this site is built with
-- [se-office](https://github.com/Qihoo360/se-office), [onlyoffice-web-local](https://github.com/sweetwisdom/onlyoffice-web-local) — prior art for running OnlyOffice without a document server
-
-## 🤝 Contributing
-
-Issues and pull requests are welcome. `main` is protected: work on a branch and
-open a PR, which runs lint, unit tests and three end-to-end suites (dev server,
-Cloudflare Pages semantics, and the production Docker image).
-
-## 📄 License
-
-[AGPL-3.0](LICENSE).
-
-This is a derivative work of ONLYOFFICE (sdkjs and web-apps, (c) Ascensio System SIA),
-distributed under the AGPL with additional terms under its Section 7: the original
-product logo must be retained, and no rights under trademark law are granted. The
-editor therefore keeps the ONLYOFFICE logo in its header and its About pane. See
-[NOTICE](NOTICE) for the full text, the vendor version and every change made to it.
-
-ONLYOFFICE is a trademark of Ascensio System SIA. This project is not an official
-ONLYOFFICE product and is not affiliated with or endorsed by Ascensio System SIA.
+Application code is [MIT](LICENSE). The embedded ONLYOFFICE editors remain
+AGPL-3.0 with Ascensio System SIA's Section 7 terms — see [NOTICE](NOTICE).
+ONLYOFFICE is a trademark of Ascensio System SIA; this project is not an
+official ONLYOFFICE product and is not affiliated with Ascensio System SIA.

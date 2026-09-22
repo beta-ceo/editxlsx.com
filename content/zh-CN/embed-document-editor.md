@@ -1,6 +1,6 @@
 ---
 title: 在你的网站里嵌入文档编辑器 —— iframe + postMessage API
-description: 用一个 iframe 加 postMessage API，把 DOCX、XLSX、PPTX、CSV 编辑器嵌入你的 Web 应用。鉴权与文件都留在你的应用里——编辑器看不到你的 token。开源（AGPL-3.0）、可自托管、可白标。
+description: 用一个 iframe 加 postMessage API，把 DOCX、XLSX、PPTX、CSV 编辑器嵌入你的 Web 应用。鉴权与文件都留在你的应用里——编辑器看不到你的 token。开源（MIT）、可自托管、可白标。
 eyebrow: 开发者 · 嵌入
 h1: 把文档编辑器嵌入你的 Web 应用
 lead: 用一个 iframe 加 **postMessage** API，把 **DOCX、XLSX、PPTX、CSV** 编辑器加进你的产品。鉴权、文件访问和上传都留在你的应用里——编辑器只负责编辑，永远看不到用户的 token。
@@ -45,7 +45,7 @@ iframe.contentWindow.postMessage({ id, type: 'document:save', payload: { targetE
 - 保存回 **XLSX、DOCX、PPTX 或 CSV**，以 `File` 返回给你的应用上传
 - 只读模式、按消息锁定 origin（`embedOrigin`）、状态查询
 - 无需部署文档服务器——编辑 100% 是客户端 WebAssembly
-- 开源（AGPL-3.0）、可自托管——在你自己的域名下嵌入
+- 开源（MIT）、可自托管——在你自己的域名下嵌入
 
 ## 工作原理
 
@@ -80,7 +80,7 @@ DOCX、XLSX、PPTX 和 CSV，用 OnlyOffice WebAssembly 引擎在客户端编辑
 
 ### 可以自托管或白标使用吗？
 
-可以。它以 AGPL-3.0 开源、是纯静态文件，你可以自托管一份、在自己的域名下嵌入。
+可以。它以 MIT 开源、是纯静态文件，你可以自托管一份、在自己的域名下嵌入。
 
 ### 怎么限制哪个站点能和编辑器通信？
 

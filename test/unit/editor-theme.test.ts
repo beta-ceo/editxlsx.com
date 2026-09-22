@@ -7,7 +7,7 @@ import {
   resolveEditorUiTheme,
 } from '../../lib/editor-theme';
 
-const LIGHT = 'theme-classic-light';
+const LIGHT = 'theme-white';
 const html = document.documentElement;
 
 afterEach(() => {
@@ -40,16 +40,16 @@ describe('resolveEditorUiTheme', () => {
     expect(hasUserPickedEditorTheme()).toBe(false);
   });
 
-  it('a light site gets the classic default', () => {
+  it('a light site gets the Modern Light default', () => {
     html.setAttribute('data-ran-theme', 'light');
     expect(resolveEditorUiTheme(LIGHT)).toBe(LIGHT);
   });
 
   it('a theme the user picked inside the editor wins over the site', () => {
     html.setAttribute('data-ran-theme', 'dark');
-    window.localStorage.setItem('ui-theme-id', 'theme-white');
+    window.localStorage.setItem('ui-theme-id', 'theme-classic-light');
     expect(hasUserPickedEditorTheme()).toBe(true);
-    expect(resolveEditorUiTheme(LIGHT)).toBe('theme-white');
+    expect(resolveEditorUiTheme(LIGHT)).toBe('theme-classic-light');
   });
 
   it('an editor-persisted copy of the driven theme is not a user choice', () => {

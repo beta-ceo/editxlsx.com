@@ -1,13 +1,16 @@
 NOTICE
 ======
 
-This product is a derivative work of ONLYOFFICE.
+This product embeds the ONLYOFFICE document editors.
 
-The site (https://edit.chaxus.com/, https://github.com/ranuts/document) is
-licensed under the GNU Affero General Public License version 3 -- see LICENSE.
-It embeds the ONLYOFFICE document editors, which are distributed under the same
-license with the additional terms permitted by Section 7 of the GNU AGPL. Those
-terms are reproduced verbatim below and apply to this work as well.
+The application code in this repository (everything outside the vendor trees
+under public/sdkjs/ and public/web-apps/, and outside third-party fonts) is
+licensed under the MIT License -- see LICENSE and package.json.
+
+The embedded ONLYOFFICE editors remain under the GNU Affero General Public
+License version 3 with the additional terms Ascensio System SIA attaches under
+Section 7 of that license. Those terms are reproduced verbatim below and still
+apply to the vendor code this site ships.
 
 
 1. ONLYOFFICE editors (sdkjs, web-apps)
@@ -60,14 +63,12 @@ The notice carried by the upstream source files, reproduced in full:
 How this work complies with those terms
 ---------------------------------------
 
-Section 7(b) -- product logo. The ONLYOFFICE logo is shown in the editor
-header, and the About pane (product logo, version, Ascensio System SIA
-copyright, onlyoffice.com link) is reachable from the left rail. Neither is
-suppressed. lib/onlyoffice/guards/chrome.ts hides only the current-user and
-co-users widgets, which describe a collaboration session this serverless build
-cannot have, and lib/onlyoffice-editor.ts leaves `customization.about` at its
-default. test/unit/branding-notice.test.ts and
-test/e2e/vendor-branding.spec.ts keep both from being "cleaned up" again.
+Section 7(b) -- product logo. The ONLYOFFICE product logo, version and Ascensio
+System SIA copyright remain in the editor About pane, reachable from the left
+rail (`#left-btn-about`). The document-title strip (including the header logo
+slot) is blanked as UI chrome; that does not remove the About entry or set
+`customization.about: false`. test/unit/branding-notice.test.ts and
+test/e2e/vendor-branding.spec.ts keep the About path from being switched off.
 
 Section 7(e) -- trademarks. ONLYOFFICE and the ONLYOFFICE logo are trademarks
 of Ascensio System SIA. No rights under trademark law are granted by the

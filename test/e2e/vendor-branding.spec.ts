@@ -2,18 +2,15 @@ import { expect, test } from './lib/l0';
 import type { Frame, Page } from '@playwright/test';
 
 /**
- * The ONLYOFFICE attribution, on screen.
+ * ONLYOFFICE attribution on screen.
  *
- * Section 7(b) of the vendor's AGPL terms requires a derivative work to retain
- * the original product logo. This build used to hide it: an injected stylesheet
- * took out `#header-logo` and the DocEditor config set `customization.about`
- * to false, which between them left no product mark anywhere in the interface.
- * The unit half of this (test/unit/branding-notice.test.ts) pins the two source
- * changes; this is the half that proves the result is actually visible, which
- * is the only claim the license cares about.
+ * Application code is MIT; the embedded editors remain AGPL with Ascensio's
+ * Section 7 terms. The title strip (including `#header-logo`) may be blanked
+ * as chrome. The About pane on the left rail must stay reachable and still
+ * carry the vendor copyright plus this build's source offer. Site footers keep
+ * the trademark notice (Section 7(e)).
  *
- * Reverse-verified: re-adding `#header-logo` to guards/chrome.ts fails the
- * first case, and setting `about: false` back fails the second and third.
+ * Reverse-verified: setting `about: false` fails the About cases.
  */
 const editorFrame = (page: Page) => page.frames().find((f) => /documenteditor/.test(f.url()));
 
@@ -45,30 +42,22 @@ async function openAbout(frame: Frame): Promise<string> {
   return text();
 }
 
-test.describe('ONLYOFFICE branding (AGPL-3.0 Section 7(b))', () => {
-  test('the product logo is visible in the editor header', async ({ page }) => {
+test.describe('ONLYOFFICE branding (vendor About)', () => {
+  test('the document title strip is blank (logo / filename / hedset hidden)', async ({ page }) => {
     const frame = await openBlankDocument(page);
-    await expect
-      .poll(() => frame.evaluate(() => !!document.querySelector('#header-logo')), { timeout: 30_000 })
-      .toBe(true);
-
-    const logo = await frame.evaluate(() => {
-      const el = document.querySelector('#header-logo') as HTMLElement;
-      const mark = (el.querySelector('i') as HTMLElement) || el;
-      const box = mark.getBoundingClientRect();
+    const blank = await frame.evaluate(() => {
+      const title = document.getElementById('box-document-title') as HTMLElement | null;
+      const logo = document.getElementById('header-logo') as HTMLElement | null;
       return {
-        hidden: getComputedStyle(el).display === 'none' || getComputedStyle(el).visibility === 'hidden',
-        image: getComputedStyle(mark).backgroundImage,
-        width: box.width,
-        height: box.height,
+        titleHidden: !title || getComputedStyle(title).visibility === 'hidden',
+        logoHidden: !logo || getComputedStyle(logo).visibility === 'hidden',
+        titleHeight: (document.getElementById('app-title') as HTMLElement | null)?.getBoundingClientRect().height ?? 0,
       };
     });
-
-    expect(logo.hidden, 'the ONLYOFFICE header logo must not be hidden -- see NOTICE').toBe(false);
-    // Painted, not a zero-sized element that merely exists in the DOM.
-    expect(logo.image).toContain('header-logo');
-    expect(logo.width).toBeGreaterThan(20);
-    expect(logo.height).toBeGreaterThan(8);
+    expect(blank.titleHidden).toBe(true);
+    expect(blank.logoHidden).toBe(true);
+    // Layout item stays so the row remains as blank space above the toolbar.
+    expect(blank.titleHeight).toBeGreaterThan(0);
   });
 
   test('the About entry is reachable and carries the vendor copyright', async ({ page }) => {
@@ -81,6 +70,63 @@ test.describe('ONLYOFFICE branding (AGPL-3.0 Section 7(b))', () => {
     expect(inRail, 'the About entry must stay in the left rail -- see NOTICE').toBe(true);
 
     expect(await openAbout(frame)).toContain('Ascensio System SIA');
+  });
+
+  test('the File ribbon tab is hidden (save belongs to the host)', async ({ page }) => {
+    const frame = await openBlankDocument(page);
+    const fileTab = await frame.evaluate(() => {
+      const el = document.querySelector('.toolbar a[data-tab="file"], .toolbar [data-tab="file"]') as HTMLElement | null;
+      if (!el) return { present: false, visible: false };
+      const style = getComputedStyle(el);
+      const slot = el.closest('.ribtab') as HTMLElement | null;
+      const slotStyle = slot ? getComputedStyle(slot) : null;
+      const visible =
+        style.display !== 'none' &&
+        style.visibility !== 'hidden' &&
+        (!slotStyle || (slotStyle.display !== 'none' && slotStyle.visibility !== 'hidden'));
+      return { present: true, visible };
+    });
+    // The tab may still exist in the DOM; the chrome guard must keep it off-screen.
+    expect(fileTab.visible, 'File ribbon tab must stay hidden').toBe(false);
+  });
+
+  test('Save / Print / Undo / Redo sit in a 2x2 block on Home, not the title bar', async ({ page }) => {
+    const frame = await openBlankDocument(page);
+    await expect
+      .poll(
+        () =>
+          frame
+            .evaluate(() => {
+              const grid = document.getElementById('oo-home-quick');
+              if (!grid) return null;
+              const ids = [...grid.children].map((el) => el.id);
+              const filled = ids.every((id) => (document.getElementById(id)?.childElementCount ?? 0) > 0);
+              return filled ? ids : null;
+            })
+            .catch(() => null),
+        { timeout: 30_000 },
+      )
+      .toEqual(['slot-btn-dt-save', 'slot-btn-dt-print', 'slot-btn-dt-undo', 'slot-btn-dt-redo']);
+
+    const ok = await frame.evaluate(() => {
+      const grid = document.getElementById('oo-home-quick');
+      if (!grid) return { grid: false };
+      const undo = document.getElementById('slot-btn-dt-undo');
+      const redo = document.getElementById('slot-btn-dt-redo');
+      const undoBox = undo?.getBoundingClientRect();
+      const redoBox = redo?.getBoundingClientRect();
+      return {
+        grid: true,
+        inverseLeft: grid.querySelectorAll('.icon--inverse').length,
+        undoVisible: !!undoBox && undoBox.width > 8 && undoBox.height > 8,
+        redoVisible: !!redoBox && redoBox.width > 8 && redoBox.height > 8,
+        staticUndoHidden: getComputedStyle(document.getElementById('slot-btn-undo')!).display === 'none',
+      };
+    });
+    expect(ok.inverseLeft).toBe(0);
+    expect(ok.undoVisible).toBe(true);
+    expect(ok.redoVisible).toBe(true);
+    expect(ok.staticUndoHidden).toBe(true);
   });
 
   test("the About pane also offers this build's own source (Section 13)", async ({ page }) => {

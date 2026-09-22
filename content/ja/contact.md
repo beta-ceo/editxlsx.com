@@ -25,7 +25,7 @@ lead: 以下の窓口はすべて公開・追跡可能です。ご自分の報�
 どちらも対応しており、ドキュメントがあります。
 
 - **埋め込み** — iframe と `postMessage` のインターフェースは [Embed API リファレンス](/ja/help/embed-api)をご覧ください。
-- **セルフホスト** — 自前で動かすために必要なものは[リポジトリ](https://github.com/ranuts/document)にあります。AGPL-3.0 なので、改変してホストする場合はソースの公開が必要です。
+- **セルフホスト** — 自前で動かすために必要なものは[リポジトリ](https://github.com/ranuts/document)にあります。アプリケーションコードは MIT です。同梱の ONLYOFFICE エディタは AGPL-3.0 のため、その部分を改変して配布する場合はその条件に従ってください。
 
 不具合以外のご質問も [issue や GitHub Discussions](https://github.com/ranuts/document/issues) で受け付けています。同じ疑問を持つ次の方にも答えが残る、という利点もあります。
 

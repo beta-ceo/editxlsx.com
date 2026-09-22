@@ -46,15 +46,11 @@
     "document-converter",
     "office-suite"
   ],
-  "author": "ranuts",
-  "license": "AGPL-3.0",
+  "author": "",
+  "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/ranuts/document.git"
-  },
-  "homepage": "https://edit.chaxus.com/",
-  "bugs": {
-    "url": "https://github.com/ranuts/document/issues"
+    "url": ""
   },
   "devDependencies": {
     "@playwright/test": "^1.62.1",

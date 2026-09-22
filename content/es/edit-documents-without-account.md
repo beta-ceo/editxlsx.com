@@ -1,6 +1,6 @@
 ---
 title: Editar documentos sin cuenta — sin registro, empieza y ya
-description: Edita archivos de Word (DOCX), Excel (XLSX), PowerPoint (PPTX) y CSV sin cuenta, sin registro y sin inicio de sesión. Abre el editor y empieza de inmediato en tu navegador. Gratis, de código abierto (AGPL-3.0), no se sube nada, funciona sin conexión.
+description: Edita archivos de Word (DOCX), Excel (XLSX), PowerPoint (PPTX) y CSV sin cuenta, sin registro y sin inicio de sesión. Abre el editor y empieza de inmediato en tu navegador. Gratis, de código abierto (MIT), no se sube nada, funciona sin conexión.
 eyebrow: Sin cuenta · empieza y ya
 h1: ¿Quieres editar documentos sin cuenta?
 lead: Edita archivos de Word (DOCX), Excel (XLSX), PowerPoint (PPTX) y CSV sin darte de alta en nada. No hay cuenta, ni inicio de sesión, ni correo que entregar: abres el editor y empiezas a escribir.
@@ -21,7 +21,7 @@ Y es un editor completo, no una vista previa recortada: con el motor de OnlyOffi
 - **Edita los formatos habituales**: DOCX, XLSX, PPTX y CSV, con el formato completo conservado.
 - **Los archivos se quedan en el dispositivo**: 100% en el cliente; tus documentos nunca se suben.
 - **Trabaja sin conexión**: instalable como PWA y utilizable sin conexión.
-- **Sigue siendo gratis**: código abierto bajo AGPL-3.0, sin muro de pago que desbloquear.
+- **Sigue siendo gratis**: código abierto bajo MIT, sin muro de pago que desbloquear.
 
 ## Cómo funciona
 
@@ -46,7 +46,7 @@ Tus archivos se quedan en tu propio dispositivo. La edición ocurre en local, en
 
 ### ¿Es gratis sin cuenta?
 
-Sí. Es gratis y de código abierto bajo la licencia AGPL-3.0, sin muro de pago y sin cuenta necesaria para desbloquear funciones.
+Sí. Es gratis y de código abierto bajo la licencia MIT, sin muro de pago y sin cuenta necesaria para desbloquear funciones.
 
 ### ¿Puedo usarlo sin conexión y sin iniciar sesión?
 

@@ -1,6 +1,6 @@
 ---
 title: Editor de documentos — sin registro, sin subidas · gratis y de código abierto
-description: Edita Word (DOCX), Excel (XLSX), PowerPoint (PPTX) y CSV en tu navegador sin registro, sin inicio de sesión y sin subidas. Gratis, de código abierto (AGPL-3.0) y funciona sin conexión: tus archivos nunca salen de tu dispositivo.
+description: Edita Word (DOCX), Excel (XLSX), PowerPoint (PPTX) y CSV en tu navegador sin registro, sin inicio de sesión y sin subidas. Gratis, de código abierto (MIT) y funciona sin conexión: tus archivos nunca salen de tu dispositivo.
 eyebrow: Sin cuenta · sin registro
 h1: Editor de documentos en línea gratis — sin registro, sin subidas
 lead: Edita archivos de Word (DOCX), Excel (XLSX), PowerPoint (PPTX) y CSV directamente en tu navegador. Sin cuenta, sin inicio de sesión, sin suscripción, y tus archivos no se suben a ninguna parte.
@@ -43,7 +43,7 @@ No. Toda la edición ocurre en local, en tu navegador, con WebAssembly. Tus docu
 
 ### ¿Es realmente gratis?
 
-Sí. Es gratis y de código abierto bajo la licencia AGPL-3.0. También puedes alojarlo tú mismo desde el [código en GitHub](https://github.com/ranuts/document).
+Sí. Es gratis y de código abierto bajo la licencia MIT. También puedes alojarlo tú mismo desde el [código en GitHub](https://github.com/ranuts/document).
 
 ### ¿Puedo usarlo sin conexión?
 
@@ -55,7 +55,7 @@ DOCX, XLSX, PPTX y CSV, con OnlyOffice. También puedes exportar a PDF, TXT, HTM
 
 ### ¿Hay truco: un muro de pago o un plan premium?
 
-No. Es genuinamente gratis y de código abierto bajo AGPL-3.0, sin muro de pago y sin plan premium.
+No. Es genuinamente gratis y de código abierto bajo MIT, sin muro de pago y sin plan premium.
 
 ### ¿Puedo usarlo en el móvil?
 

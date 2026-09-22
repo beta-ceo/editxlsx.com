@@ -1,6 +1,6 @@
 ---
 title: Sobre — quem faz este editor e por quê
-description: Quem está por trás do edit.chaxus.com, o que ele realmente faz, como é construído e onde fica o código-fonte. Um editor de código aberto (AGPL-3.0) que roda no navegador para arquivos do Word, Excel, PowerPoint, CSV e PDF e nunca envia seus documentos.
+description: Quem está por trás do edit.chaxus.com, o que ele realmente faz, como é construído e onde fica o código-fonte. Um editor de código aberto (MIT) que roda no navegador para arquivos do Word, Excel, PowerPoint, CSV e PDF e nunca envia seus documentos.
 eyebrow: Sobre
 breadcrumb: Sobre
 h1: Sobre este editor
@@ -25,7 +25,7 @@ Este site é desenvolvido e mantido por **ranuts**, o mesmo autor por trás da [
 
 Afirmações sobre privacidade são baratas. Estas são as formas de conferir por conta própria:
 
-- **Leia o código.** Tudo é aberto sob **AGPL-3.0** em [github.com/ranuts/document](https://github.com/ranuts/document). A licença exige que qualquer versão modificada e hospedada também publique seu código.
+- **Leia o código.** Tudo é aberto sob **MIT** em [github.com/ranuts/document](https://github.com/ranuts/document). O código da aplicação é MIT; os editores ONLYOFFICE embutidos continuam sob AGPL-3.0 — veja NOTICE.
 - **Olhe a aba de rede.** Abra as ferramentas de desenvolvedor do navegador, carregue um documento, edite e observe as requisições. Você não verá seu arquivo indo a lugar nenhum.
 - **Desligue a rede.** Carregue o site uma vez, fique offline e então abra e edite um arquivo. Continua funcionando — algo só possível porque a edição acontece localmente.
 - **Hospede você mesmo.** O repositório traz o necessário para rodar sua própria cópia.

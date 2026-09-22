@@ -1,6 +1,6 @@
 ---
 title: Privater Dokumenteneditor — Ihre Dateien verlassen Ihr Gerät nie
-description: Ein privater Dokumenteneditor, der Ihre Dateien auf Ihrem Gerät behält. Word (DOCX), Excel (XLSX), PowerPoint (PPTX) und CSV 100% lokal im Browser bearbeiten — nichts wird hochgeladen. Kostenlos, quelloffen (AGPL-3.0), offlinefähig.
+description: Ein privater Dokumenteneditor, der Ihre Dateien auf Ihrem Gerät behält. Word (DOCX), Excel (XLSX), PowerPoint (PPTX) und CSV 100% lokal im Browser bearbeiten — nichts wird hochgeladen. Kostenlos, quelloffen (MIT), offlinefähig.
 eyebrow: Privat · 100% auf dem Gerät
 h1: Suchen Sie einen Dokumenteneditor, der Ihre Dateien privat hält?
 lead: Bearbeiten Sie Word- (DOCX), Excel- (XLSX), PowerPoint- (PPTX) und CSV-Dateien direkt im Browser — die Datei bleibt dabei von Anfang bis Ende auf Ihrem eigenen Gerät. Nichts wird hochgeladen, und es gibt kein Konto anzulegen.
@@ -46,7 +46,7 @@ Kein Konto, keine Anmeldung und kein Login. Sie öffnen den Editor und arbeiten 
 
 ### Kann ich überprüfen, dass nichts hochgeladen wird?
 
-Ja. Der gesamte Editor ist quelloffen unter der AGPL-3.0 — Sie können den Code lesen, den Netzwerk-Tab beobachten oder eine eigene Kopie betreiben.
+Ja. Der gesamte Editor ist quelloffen unter der MIT — Sie können den Code lesen, den Netzwerk-Tab beobachten oder eine eigene Kopie betreiben.
 
 ### Funktioniert er auch ohne Internetverbindung?
 

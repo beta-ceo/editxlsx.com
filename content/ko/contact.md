@@ -25,7 +25,7 @@ lead: 아래의 모든 경로는 공개되고 추적 가능합니다. 보내신 
 둘 다 지원되며 문서가 있습니다.
 
 - **임베드** — iframe과 `postMessage` 인터페이스는 [Embed API 참고](/ko/help/embed-api)를 보세요.
-- **자체 호스팅** — 직접 운영하는 데 필요한 것은 [저장소](https://github.com/ranuts/document)에 있습니다. AGPL-3.0이므로 수정해서 호스팅하는 경우 소스를 공개해야 합니다.
+- **자체 호스팅** — 직접 운영하는 데 필요한 것은 [저장소](https://github.com/ranuts/document)에 있습니다. 애플리케이션 코드는 MIT입니다. 내장 ONLYOFFICE 편집기는 AGPL-3.0이므로 해당 부분을 수정해 배포할 때는 그 조건을 지켜야 합니다.
 
 버그 신고가 아닌 질문도 [이슈나 GitHub Discussions](https://github.com/ranuts/document/issues)로 받습니다. 같은 궁금증을 가진 다음 사람에게 답이 남는다는 장점도 있습니다.
 

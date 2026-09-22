@@ -1,6 +1,6 @@
 ---
 title: Editor de documentos privado — tus archivos nunca salen de tu dispositivo
-description: Un editor de documentos privado que mantiene tus archivos en tu dispositivo. Edita Word (DOCX), Excel (XLSX), PowerPoint (PPTX) y CSV 100% en local, en tu navegador: no se sube nada. Gratis, de código abierto (AGPL-3.0), funciona sin conexión.
+description: Un editor de documentos privado que mantiene tus archivos en tu dispositivo. Edita Word (DOCX), Excel (XLSX), PowerPoint (PPTX) y CSV 100% en local, en tu navegador: no se sube nada. Gratis, de código abierto (MIT), funciona sin conexión.
 eyebrow: Privado · 100% en el dispositivo
 h1: ¿Buscas un editor de documentos que mantenga tus archivos privados?
 lead: Edita archivos de Word (DOCX), Excel (XLSX), PowerPoint (PPTX) y CSV directamente en tu navegador, donde el archivo se queda en tu propio dispositivo de principio a fin. No se sube nada y no hay ninguna cuenta que crear.
@@ -46,7 +46,7 @@ Sin cuenta, sin registro y sin inicio de sesión. Abres el editor y trabajas de 
 
 ### ¿Puedo verificar que no se sube nada?
 
-Sí. El editor entero es de código abierto bajo la licencia AGPL-3.0: puedes leer el código, mirar la pestaña de red o alojar tu propia copia.
+Sí. El editor entero es de código abierto bajo la licencia MIT: puedes leer el código, mirar la pestaña de red o alojar tu propia copia.
 
 ### ¿Sigue funcionando sin conexión a internet?
 

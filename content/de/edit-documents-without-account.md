@@ -1,6 +1,6 @@
 ---
 title: Dokumente ohne Konto bearbeiten — keine Anmeldung, einfach anfangen
-description: Word- (DOCX), Excel- (XLSX), PowerPoint- (PPTX) und CSV-Dateien ohne Konto, ohne Anmeldung und ohne Login bearbeiten. Editor öffnen und im Browser sofort loslegen. Kostenlos, quelloffen (AGPL-3.0), nichts wird hochgeladen, offlinefähig.
+description: Word- (DOCX), Excel- (XLSX), PowerPoint- (PPTX) und CSV-Dateien ohne Konto, ohne Anmeldung und ohne Login bearbeiten. Editor öffnen und im Browser sofort loslegen. Kostenlos, quelloffen (MIT), nichts wird hochgeladen, offlinefähig.
 eyebrow: Kein Konto · einfach anfangen
 h1: Sie wollen Dokumente ohne Konto bearbeiten?
 lead: Bearbeiten Sie Word- (DOCX), Excel- (XLSX), PowerPoint- (PPTX) und CSV-Dateien, ohne sich irgendwo anzumelden. Es gibt kein Konto, kein Login und keine E-Mail-Adresse abzugeben — Sie öffnen den Editor und tippen los.
@@ -21,7 +21,7 @@ Und es ist ein vollwertiger Editor, keine abgespeckte Vorschau: Mit der OnlyOffi
 - **Die gängigen Formate bearbeiten** — DOCX, XLSX, PPTX und CSV, mit voller Formatierung.
 - **Dateien bleiben auf dem Gerät** — 100% clientseitig; Ihre Dokumente werden nie hochgeladen.
 - **Offline arbeiten** — als PWA installierbar und ohne Verbindung nutzbar.
-- **Kostenlos bleiben** — quelloffen unter AGPL-3.0, ohne Paywall.
+- **Kostenlos bleiben** — quelloffen unter MIT, ohne Paywall.
 
 ## So funktioniert es
 
@@ -46,7 +46,7 @@ Ihre Dateien bleiben auf Ihrem eigenen Gerät. Bearbeitet wird lokal im Browser 
 
 ### Ist es ohne Konto kostenlos?
 
-Ja. Kostenlos und quelloffen unter der AGPL-3.0, ohne Paywall und ohne Konto, das Funktionen freischaltet.
+Ja. Kostenlos und quelloffen unter der MIT, ohne Paywall und ohne Konto, das Funktionen freischaltet.
 
 ### Kann ich es ohne Anmeldung offline nutzen?
 

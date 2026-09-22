@@ -1,6 +1,6 @@
 ---
 title: Edit Documents Without an Account — No Sign-Up, Just Start
-description: Edit Word (DOCX), Excel (XLSX), PowerPoint (PPTX) and CSV files with no account, no sign-up and no login. Open the editor and start immediately in your browser. Free, open source (AGPL-3.0), nothing uploaded, works offline.
+description: Edit Word (DOCX), Excel (XLSX), PowerPoint (PPTX) and CSV files with no account, no sign-up and no login. Open the editor and start immediately in your browser. Free, open source (MIT), nothing uploaded, works offline.
 eyebrow: No account · just start
 h1: Want to Edit Documents Without an Account?
 lead: Edit Word (DOCX), Excel (XLSX), PowerPoint (PPTX) and CSV files without signing up for anything. There is no account, no login and no email to hand over — you open the editor and start typing.
@@ -21,7 +21,7 @@ It is a full editor, not a stripped-down preview: powered by the OnlyOffice engi
 - **Edit the common formats** — DOCX, XLSX, PPTX and CSV, with full formatting preserved.
 - **Keep files on-device** — 100% client-side; your documents are never uploaded.
 - **Work offline** — installable as a PWA and usable with no connection.
-- **Stay free** — open source under AGPL-3.0, with no paywall to unlock.
+- **Stay free** — open source under MIT, with no paywall to unlock.
 
 ## How it works
 
@@ -46,7 +46,7 @@ Your files stay on your own device. Editing happens locally in your browser with
 
 ### Is it free without an account?
 
-Yes. It is free and open source under the AGPL-3.0 license, with no paywall and no account required to unlock features.
+Yes. It is free and open source under the MIT license, with no paywall and no account required to unlock features.
 
 ### Can I use it offline without signing in?
 

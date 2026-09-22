@@ -1,6 +1,6 @@
 ---
 title: Document Editor — No Sign-Up, No Upload · Free & Open Source
-description: Edit Word (DOCX), Excel (XLSX), PowerPoint (PPTX) and CSV in your browser with no sign-up, no login and no upload. Free, open source (AGPL-3.0) and works offline — your files never leave your device.
+description: Edit Word (DOCX), Excel (XLSX), PowerPoint (PPTX) and CSV in your browser with no sign-up, no login and no upload. Free, open source (MIT) and works offline — your files never leave your device.
 eyebrow: No account · no sign-up
 h1: Free Online Document Editor — No Sign-Up, No Upload
 lead: Edit Word (DOCX), Excel (XLSX), PowerPoint (PPTX) and CSV files right in your browser. No account, no login, no subscription — and your files are never uploaded anywhere.
@@ -43,7 +43,7 @@ No. All editing happens locally in your browser using WebAssembly. Your document
 
 ### Is it really free?
 
-Yes. It is free and open source under the AGPL-3.0 license. You can also self-host it from the [source code on GitHub](https://github.com/ranuts/document).
+Yes. It is free and open source under the MIT license. You can also self-host it from the [source code on GitHub](https://github.com/ranuts/document).
 
 ### Can I use it offline?
 
@@ -55,7 +55,7 @@ DOCX, XLSX, PPTX and CSV, powered by OnlyOffice. You can also export to PDF, TXT
 
 ### Is there a catch — a paywall or a premium tier?
 
-No. It is genuinely free and open source under AGPL-3.0, with no paywall and no premium tier.
+No. It is genuinely free and open source under MIT, with no paywall and no premium tier.
 
 ### Can I use it on my phone?
 

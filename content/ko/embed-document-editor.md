@@ -1,6 +1,6 @@
 ---
 title: 내 사이트에 문서 편집기 임베드하기 — iframe + postMessage API
-description: iframe 하나와 postMessage API로 DOCX·XLSX·PPTX·CSV 편집기를 내 웹 앱에 넣으세요. 인증과 파일은 내 앱에 남고, 편집기는 토큰을 보지 않습니다. 오픈 소스(AGPL-3.0), 자체 호스팅 가능, 화이트라벨.
+description: iframe 하나와 postMessage API로 DOCX·XLSX·PPTX·CSV 편집기를 내 웹 앱에 넣으세요. 인증과 파일은 내 앱에 남고, 편집기는 토큰을 보지 않습니다. 오픈 소스(MIT), 자체 호스팅 가능, 화이트라벨.
 eyebrow: 개발자 · 임베드
 h1: 내 웹 앱에 문서 편집기 임베드하기
 lead: 'iframe 하나와 **postMessage** API만으로 **DOCX·XLSX·PPTX·CSV** 편집기를 제품에 추가하세요. 인증, 파일 접근, 업로드는 내 앱이 계속 담당하고 편집기는 편집만 합니다 — 사용자의 토큰을 보지 않습니다.'
@@ -45,7 +45,7 @@ iframe.contentWindow.postMessage({ id, type: 'document:save', payload: { targetE
 - **XLSX·DOCX·PPTX·CSV**로 저장하고 `File`로 돌려받아 내 앱이 업로드
 - 읽기 전용 모드, 메시지 단위 오리진 제한(`embedOrigin`), 상태 조회
 - 운영할 문서 서버 없음 — 편집은 100% 클라이언트의 WebAssembly
-- 오픈 소스(AGPL-3.0)이며 자체 호스팅 가능 — 내 도메인 아래에 임베드
+- 오픈 소스(MIT)이며 자체 호스팅 가능 — 내 도메인 아래에 임베드
 
 ## 동작 방식
 
@@ -80,7 +80,7 @@ DOCX, XLSX, PPTX, CSV입니다. OnlyOffice의 WebAssembly 엔진으로 클라이
 
 ### 자체 호스팅이나 화이트라벨이 가능한가요?
 
-네. AGPL-3.0 오픈 소스이며 정적 파일로 배포되므로 자신의 사본을 호스팅해 자기 도메인 아래에 임베드할 수 있습니다.
+네. MIT 오픈 소스이며 정적 파일로 배포되므로 자신의 사본을 호스팅해 자기 도메인 아래에 임베드할 수 있습니다.
 
 ### 어떤 사이트가 편집기와 통신할 수 있는지 제한하려면?
 

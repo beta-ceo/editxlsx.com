@@ -25,7 +25,7 @@ Conviene incluir:
 Ambas cosas están soportadas y documentadas:
 
 - **Incrustación** — consulta la [referencia de la Embed API](/es/help/embed-api) para la interfaz de iframe y `postMessage`.
-- **Autoalojamiento** — el [repositorio](https://github.com/ranuts/document) contiene lo necesario para ejecutar tu propia copia. Está bajo AGPL-3.0, así que una versión modificada y alojada debe publicar su código.
+- **Autoalojamiento** — el [repositorio](https://github.com/ranuts/document) contiene lo necesario para ejecutar tu propia copia. El código de la aplicación es MIT; los editores ONLYOFFICE embebidos siguen en AGPL-3.0 (véase NOTICE).
 
 Para preguntas que no son informes de error, [las incidencias o GitHub Discussions](https://github.com/ranuts/document/issues) también sirven, con la ventaja de que la respuesta ayuda a la siguiente persona con la misma duda.
 

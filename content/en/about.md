@@ -1,6 +1,6 @@
 ---
 title: About — who builds this document editor and why
-description: Who is behind edit.chaxus.com, what it does, how it is built, and where the source code lives. An open-source (AGPL-3.0) in-browser editor for Word, Excel, PowerPoint, CSV and PDF files that never uploads your documents.
+description: Who is behind edit.chaxus.com, what it does, how it is built, and where the source code lives. An open-source (MIT) in-browser editor for Word, Excel, PowerPoint, CSV and PDF files that never uploads your documents.
 eyebrow: About
 breadcrumb: About
 h1: About this editor
@@ -25,7 +25,7 @@ It is a personal open-source project, not a company product. There is no sales t
 
 Claims about privacy are cheap. These are the ways to check them yourself:
 
-- **Read the source.** The whole thing is open source under **AGPL-3.0** at [github.com/ranuts/document](https://github.com/ranuts/document). The license means any hosted modification has to publish its source too.
+- **Read the source.** The whole thing is open source under **MIT** at [github.com/ranuts/document](https://github.com/ranuts/document). Application code is MIT; the embedded ONLYOFFICE editors remain AGPL-3.0 — see NOTICE.
 - **Watch the network tab.** Open your browser's developer tools, load a document, edit it, and look at the network requests. You will not see your file being sent anywhere.
 - **Turn off the network.** Load the site once, go offline, then open and edit a file. It keeps working, which is only possible because the editing happens locally.
 - **Self-host it.** The repository includes what you need to run your own copy.

@@ -43,6 +43,10 @@ notes. Entries describe what users experience, not internal refactors.
 
 ### Changed
 
+- **Application code is MIT.** `LICENSE` / `package.json` are MIT; the embedded
+  ONLYOFFICE editors stay AGPL-3.0 with Ascensio's Section 7 terms in
+  `NOTICE`. The editor title strip (including the header logo) is blank chrome;
+  the About pane on the left rail still carries the vendor logo and copyright.
 - **Homepage matches a marketing mock stack.** All seven languages now use a
   centered hero, product preview window, capability strip, feature cards,
   bento essentials, a dark CTA band, and a multi-column footer — still

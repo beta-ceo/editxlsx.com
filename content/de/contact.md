@@ -25,7 +25,7 @@ Hilfreich sind außerdem:
 Beides wird unterstützt und ist dokumentiert:
 
 - **Einbettung** — die iframe- und `postMessage`-Schnittstelle steht in der [Embed-API-Referenz](/de/help/embed-api).
-- **Selbst-Hosting** — das [Repository](https://github.com/ranuts/document) enthält, was Sie für eine eigene Instanz brauchen. Es steht unter AGPL-3.0, eine abgewandelte gehostete Fassung muss ihren Quellcode veröffentlichen.
+- **Selbst-Hosting** — das [Repository](https://github.com/ranuts/document) enthält, was Sie für eine eigene Instanz brauchen. Anwendungscode steht unter MIT; die eingebetteten ONLYOFFICE-Editoren bleiben AGPL-3.0 (siehe NOTICE).
 
 Für Fragen, die keine Fehlerberichte sind, funktionieren [Issues oder GitHub Discussions](https://github.com/ranuts/document/issues) ebenfalls — mit dem Vorteil, dass die Antwort der nächsten Person mit derselben Frage hilft.
 

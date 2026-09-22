@@ -6,9 +6,10 @@
  * AGPL terms asks for -- product logo, version, Ascensio System SIA copyright.
  * What it cannot carry is the two things that are true of THIS build and not of
  * theirs: that it is a modified version, and where its corresponding source is.
- * AGPL-3.0 Section 13 asks a network-interactive modified version to offer that
- * source to the people using it, and Section 7(e) is the reason to say plainly
- * that the mark on the pane above is not ours.
+ * The vendor remains AGPL-3.0 (Section 13 asks a network-interactive modified
+ * version to offer corresponding source); application code in this repository
+ * is MIT. Section 7(e) is the reason to say plainly that the mark on the pane
+ * above is not ours.
  *
  * The pane is populated lazily -- `#about-menu-panel` exists from boot but is
  * empty until the user opens it -- so this watches for the content to arrive
@@ -37,7 +38,7 @@ function renderNotice(doc: Document, panel: HTMLElement): void {
   box.appendChild(line);
 
   const source = doc.createElement('div');
-  source.textContent = 'Source code (AGPL-3.0): ';
+  source.textContent = 'Source code (MIT app; ONLYOFFICE editors AGPL-3.0): ';
   const link = doc.createElement('a');
   link.href = SOURCE_URL;
   link.target = '_blank';

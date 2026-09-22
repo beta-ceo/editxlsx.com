@@ -1,6 +1,6 @@
 ---
 title: Embed a Document Editor in Your Website — iframe + postMessage API
-description: Embed a DOCX, XLSX, PPTX and CSV editor into your web app with one iframe and a postMessage API. Auth and files stay in your app — the editor never sees your tokens. Open source (AGPL-3.0), self-hostable, white-label.
+description: Embed a DOCX, XLSX, PPTX and CSV editor into your web app with one iframe and a postMessage API. Auth and files stay in your app — the editor never sees your tokens. Open source (MIT), self-hostable, white-label.
 eyebrow: Developers · Embed
 h1: Embed a Document Editor in Your Web App
 lead: Add a **DOCX, XLSX, PPTX and CSV** editor to your product with a single iframe and a **postMessage** API. Your app keeps auth, file access and upload — the editor just edits, and never sees your users' tokens.
@@ -45,7 +45,7 @@ iframe.contentWindow.postMessage({ id, type: 'document:save', payload: { targetE
 - Save back to **XLSX, DOCX, PPTX or CSV**, returned as a `File` for your app to upload
 - Read-only mode, per-message origin locking (`embedOrigin`), and a state query
 - No document server to run — editing is 100% client-side WebAssembly
-- Open source (AGPL-3.0) and self-hostable — embed it under your own domain
+- Open source (MIT) and self-hostable — embed it under your own domain
 
 ## How it works
 
@@ -80,7 +80,7 @@ DOCX, XLSX, PPTX and CSV, edited client-side with the OnlyOffice WebAssembly eng
 
 ### Can I self-host it or use it white-label?
 
-Yes. It's open source under AGPL-3.0 and ships as static files, so you can host your own copy and embed it under your own domain.
+Yes. It's open source under MIT and ships as static files, so you can host your own copy and embed it under your own domain.
 
 ### How do I restrict which site can talk to the editor?
 

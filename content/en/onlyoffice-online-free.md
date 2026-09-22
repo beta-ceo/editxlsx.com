@@ -15,7 +15,7 @@ ONLYOFFICE is normally something you install: the editors are a front end for ON
 
 This site is the other shape. The same editors, plus the same `x2t` conversion engine, are compiled to WebAssembly and loaded into the page. Your browser is the document server — which is why nothing is uploaded, why there is no account, and why it keeps working after you go offline.
 
-It is a modified version of the ONLYOFFICE editors, published under the same AGPL-3.0 license. It is not an official ONLYOFFICE product, and this project is not affiliated with, sponsored by or endorsed by Ascensio System SIA.
+It is a modified host around the ONLYOFFICE editors (AGPL-3.0); application code is MIT. It is not an official ONLYOFFICE product, and this project is not affiliated with, sponsored by or endorsed by Ascensio System SIA.
 
 ## What you get
 
@@ -23,7 +23,7 @@ It is a modified version of the ONLYOFFICE editors, published under the same AGP
 - **The real converter** — `x2t`, the same engine ONLYOFFICE Docs uses, compiled to WebAssembly. DOCX, XLSX, PPTX, ODT, ODS, ODP, CSV and PDF in; DOCX, XLSX, PPTX, PDF, TXT, HTML and CSV out.
 - **No server, no account, no upload** — the file is read from your disk into the tab and written back to it.
 - **Offline** — installable as a PWA; after the first visit the engine is cached and the editor opens with no connection.
-- **Open source** — AGPL-3.0, and it deploys as static files, so you can host your own copy on any web server.
+- **Open source** — MIT, and it deploys as static files, so you can host your own copy on any web server.
 
 ## How it differs from ONLYOFFICE Docs
 
@@ -46,11 +46,11 @@ Being honest about this is more useful than a feature list:
 
 ### Is this the official ONLYOFFICE?
 
-No. This is an independent, open-source project built on the ONLYOFFICE editors, which are published under AGPL-3.0. It is not affiliated with, sponsored by or endorsed by Ascensio System SIA, and ONLYOFFICE is their trademark. For the official products, go to onlyoffice.com.
+No. This is an independent, open-source project built on the ONLYOFFICE editors, which are published under MIT. It is not affiliated with, sponsored by or endorsed by Ascensio System SIA, and ONLYOFFICE is their trademark. For the official products, go to onlyoffice.com.
 
 ### Is it really free?
 
-Yes, and there is no paid tier to unlock. The source is on GitHub under AGPL-3.0 and the site is static files you can host yourself.
+Yes, and there is no paid tier to unlock. The source is on GitHub under MIT and the site is static files you can host yourself.
 
 ### Do I need to install ONLYOFFICE Docs or a Document Server?
 
@@ -70,4 +70,4 @@ ONLYOFFICE 9.3, with the 9.4 build of the `x2t` converter. The exact version, an
 
 ### Can I embed it in my own application?
 
-Yes — it exposes an iframe API over `postMessage`, and it is AGPL-3.0, so you can also host the whole thing under your own domain.
+Yes — it exposes an iframe API over `postMessage`, and it is MIT, so you can also host the whole thing under your own domain.

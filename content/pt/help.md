@@ -93,7 +93,7 @@ O site se atualiza sozinho na próxima visita. Se uma página parecer presa numa
 
 ### Meus documentos são enviados para algum lugar?
 
-Não. O documento é lido do seu disco para a aba do navegador e processado ali com WebAssembly. Não existe endpoint de upload neste site. Você pode conferir no painel de rede do navegador enquanto abre e salva um documento — e o código é aberto sob a AGPL-3.0.
+Não. O documento é lido do seu disco para a aba do navegador e processado ali com WebAssembly. Não existe endpoint de upload neste site. Você pode conferir no painel de rede do navegador enquanto abre e salva um documento — e o código é aberto sob a MIT.
 
 ### O que a página carrega da rede?
 

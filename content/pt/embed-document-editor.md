@@ -1,6 +1,6 @@
 ---
 title: Incorporar um editor de documentos no seu site — iframe + API postMessage
-description: Incorpore um editor de DOCX, XLSX, PPTX e CSV no seu app web com um iframe e uma API postMessage. Autenticação e arquivos ficam no seu app — o editor nunca vê seus tokens. Código aberto (AGPL-3.0), auto-hospedável, white-label.
+description: Incorpore um editor de DOCX, XLSX, PPTX e CSV no seu app web com um iframe e uma API postMessage. Autenticação e arquivos ficam no seu app — o editor nunca vê seus tokens. Código aberto (MIT), auto-hospedável, white-label.
 eyebrow: Desenvolvedores · Incorporar
 h1: Incorporar um editor de documentos no seu app web
 lead: 'Adicione ao seu produto um editor de **DOCX, XLSX, PPTX e CSV** com um único iframe e uma API **postMessage**. Seu app mantém autenticação, acesso a arquivos e upload — o editor só edita, e nunca vê os tokens dos seus usuários.'
@@ -45,7 +45,7 @@ iframe.contentWindow.postMessage({ id, type: 'document:save', payload: { targetE
 - Salvar de volta em **XLSX, DOCX, PPTX ou CSV**, devolvido como um `File` para o seu app enviar
 - Modo somente leitura, trava de origem por mensagem (`embedOrigin`) e uma consulta de estado
 - Nenhum servidor de documentos para operar — a edição é 100% WebAssembly no cliente
-- Código aberto (AGPL-3.0) e auto-hospedável — incorpore sob o seu próprio domínio
+- Código aberto (MIT) e auto-hospedável — incorpore sob o seu próprio domínio
 
 ## Como funciona
 
@@ -80,7 +80,7 @@ DOCX, XLSX, PPTX e CSV, editados no cliente com o motor WebAssembly do OnlyOffic
 
 ### Dá para auto-hospedar ou usar em white-label?
 
-Sim. É código aberto sob a AGPL-3.0 e é distribuído como arquivos estáticos, então você pode hospedar a sua cópia e incorporá-la sob o seu domínio.
+Sim. É código aberto sob a MIT e é distribuído como arquivos estáticos, então você pode hospedar a sua cópia e incorporá-la sob o seu domínio.
 
 ### Como restrinjo qual site pode falar com o editor?
 

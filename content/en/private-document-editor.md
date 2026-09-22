@@ -1,6 +1,6 @@
 ---
 title: Private Document Editor — Your Files Never Leave Your Device
-description: A private document editor that keeps your files on your device. Edit Word (DOCX), Excel (XLSX), PowerPoint (PPTX) and CSV 100% locally in your browser — nothing is uploaded. Free, open source (AGPL-3.0), works offline.
+description: A private document editor that keeps your files on your device. Edit Word (DOCX), Excel (XLSX), PowerPoint (PPTX) and CSV 100% locally in your browser — nothing is uploaded. Free, open source (MIT), works offline.
 eyebrow: Private · 100% on-device
 h1: Looking for a Document Editor That Keeps Your Files Private?
 lead: Edit Word (DOCX), Excel (XLSX), PowerPoint (PPTX) and CSV files right in your browser — where the file stays on your own device from start to finish. Nothing is uploaded, and there is no account to create.
@@ -46,7 +46,7 @@ No account, no sign-up and no login. You open the editor and start working immed
 
 ### Can I verify that nothing is uploaded?
 
-Yes. The whole editor is open source under the AGPL-3.0 license, so you can read the code, watch the network tab, or self-host your own copy.
+Yes. The whole editor is open source under the MIT license, so you can read the code, watch the network tab, or self-host your own copy.
 
 ### Does it still work without an internet connection?
 

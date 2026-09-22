@@ -92,7 +92,7 @@
       "DOCX",
       "PPTX",
       "PDF",
-      "AGPL-3.0"
+      "MIT"
     ]
   },
   "features": {
@@ -284,7 +284,7 @@
     "Também abre DOCX, PPTX, PDF e CSV",
     "PWA instalável com suporte offline para edição local",
     "Embutível via API postMessage",
-    "Grátis e open source (AGPL-3.0)"
+    "Grátis e open source (MIT)"
   ],
   "ecosystem": {
     "name": "ran ecosystem",

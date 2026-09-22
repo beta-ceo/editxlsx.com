@@ -1,6 +1,6 @@
 ---
 title: 文档编辑器——免注册、不传服务器，免费开源
-description: 在浏览器中编辑 Word（DOCX）、Excel（XLSX）、PowerPoint（PPTX）和 CSV，无需注册、无需登录、不传服务器。免费、开源（AGPL-3.0），支持离线使用，文件始终留在你的设备上。
+description: 在浏览器中编辑 Word（DOCX）、Excel（XLSX）、PowerPoint（PPTX）和 CSV，无需注册、无需登录、不传服务器。免费、开源（MIT），支持离线使用，文件始终留在你的设备上。
 eyebrow: 免注册 · 免登录
 h1: 免费在线文档编辑器——免注册、不传服务器
 lead: 直接在浏览器中编辑 Word（DOCX）、Excel（XLSX）、PowerPoint（PPTX）和 CSV 文件。无需账号、无需登录、无需订阅，文件也不会传到任何服务器。
@@ -43,7 +43,7 @@ appDescription: 免费开源的文档编辑器，完全在浏览器里运行，�
 
 ### 它真的免费吗？
 
-是的。它基于 AGPL-3.0 协议免费开源。你也可以从 [GitHub 上的源代码](https://github.com/ranuts/document)自行部署。
+是的。它基于 MIT 协议免费开源。你也可以从 [GitHub 上的源代码](https://github.com/ranuts/document)自行部署。
 
 ### 我能离线使用吗？
 
@@ -55,7 +55,7 @@ DOCX、XLSX、PPTX 和 CSV，由 OnlyOffice 提供支持。你还可以导出为
 
 ### 有没有套路——付费墙或高级版？
 
-没有。它基于 AGPL-3.0 真正免费且开源，没有付费墙，也没有高级版。
+没有。它基于 MIT 真正免费且开源，没有付费墙，也没有高级版。
 
 ### 我能在手机上用吗？
 

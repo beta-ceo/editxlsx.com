@@ -14,8 +14,8 @@
  * - A theme the user picked *inside the editor* wins (it is what
  *   `ui-theme-id` holds when it differs from the last value we drove).
  * - Otherwise the editor follows the site: dark -> `theme-dark`,
- *   light -> the classic default; and it keeps following while the document
- *   is open (theme switch in the top bar / OS switch in system mode).
+ *   light -> Modern Light (`theme-white`); and it keeps following while the
+ *   document is open (theme switch in the top bar / OS switch in system mode).
  * - Every theme we drive is remembered in `ui-theme-site-driven`; when the
  *   editor persists that same id it is not mistaken for a user choice.
  */
