@@ -17,6 +17,7 @@ import { installAboutSourceNotice } from './guards/about-source';
 import { installBadImageUrlGuard } from './guards/bad-image-url';
 import { installX2tWorkerProxy } from './guards/x2t-worker';
 import { installPrintDelivery } from './guards/print-delivery';
+import { installHeaderFindComments } from './guards/header-find-comments';
 
 /**
  * Same-origin preparation of the editor iframe, applied from onAppReady and
@@ -47,6 +48,7 @@ export function prepareEditorIframe(): boolean {
       installOpenFailureGuard(win);
       injectLocalChromeCss(doc);
       installHomeQuickActions(doc);
+      installHeaderFindComments(doc);
 
       const sharedWorkerShadowed = shadowSharedWorker(win);
       const fetchFontsGuarded = installFetchFontsGuard(win);

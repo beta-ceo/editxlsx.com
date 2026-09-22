@@ -10,9 +10,10 @@ import { generate } from '../../bin/build-pages.mjs';
  * editors remain AGPL-3.0 with Ascensio's Section 7 terms: 7(b) requires the
  * original product logo to be retained when distributing the program, and 7(e)
  * declines trademark rights. The title-strip header logo may be blanked as UI
- * chrome; the About pane (left rail) must stay on, and site footers must keep
- * the trademark notice. test/e2e/vendor-branding.spec.ts covers the runtime
- * half.
+ * chrome; `customization.about` must stay on so the vendor About pane remains
+ * in the DOM (the left-rail About button may be hidden as chrome), and site
+ * footers must keep the trademark notice. test/e2e/vendor-branding.spec.ts
+ * covers the runtime half.
  */
 const ROOT = resolve(__dirname, '../..');
 const read = (rel: string) => readFileSync(resolve(ROOT, rel), 'utf8');
@@ -26,7 +27,7 @@ const SECTION_7 =
 const READMES = ['readme.md'];
 
 describe('ONLYOFFICE product logo (AGPL-3.0 Section 7(b))', () => {
-  it('keeps About reachable; the title-strip logo may be blanked as chrome', () => {
+  it('keeps the About pane in config; the title-strip logo may be blanked as chrome', () => {
     const guard = read('lib/onlyoffice/guards/chrome.ts');
     // Collaboration chrome and File / title-strip tidy-ups are intentional.
     expect(guard).toContain('.btn-current-user');

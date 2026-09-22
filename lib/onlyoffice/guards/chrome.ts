@@ -10,10 +10,10 @@ import { COMPACT_VIEWPORT_MAX_WIDTH } from '../viewport';
  * Print into a full-viewport overlay (no File-menu left rail; Close / Esc to
  * leave), and hide the right panel on phone-sized viewports.
  *
- * The ONLYOFFICE product mark stays reachable from the About entry on the
- * left rail (`#left-btn-about`); this stylesheet may hide `#header-logo` on
- * the title strip. Do not set `customization.about: false` -- that pane is
- * where the vendor logo, version and Ascensio copyright still live.
+ * This stylesheet may hide `#header-logo` on the title strip. Do not set
+ * `customization.about: false` -- the vendor About pane (logo / version /
+ * Ascensio copyright) must remain in the DOM even though Guard 19 hides the
+ * left-rail About button. Site footers and NOTICE carry the trademark line.
  */
 export function injectLocalChromeCss(doc: Document): void {
   if (!doc.getElementById('oo-local-chrome-css')) {
