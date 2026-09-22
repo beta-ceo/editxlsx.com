@@ -389,12 +389,35 @@ describe('empty office packages', () => {
     expect(bytes.byteLength).toBeGreaterThan(100);
   });
 
-  it('builds blank docx and pptx packages', async () => {
-    const { buildEmptyDocxBytes, buildEmptyPptxBytes } = await import('../../lib/appwrite/empty-office');
-    for (const bytes of [buildEmptyDocxBytes(), buildEmptyPptxBytes()]) {
+  it('builds blank docx packages', async () => {
+    const { buildEmptyDocxBytes } = await import('../../lib/appwrite/empty-office');
+    const bytes = buildEmptyDocxBytes();
+    expect(bytes[0]).toBe(0x50);
+    expect(bytes[1]).toBe(0x4b);
+    expect(bytes.byteLength).toBeGreaterThan(80);
+  });
+
+  it('loads blank pptx from the vendor 01_blank template', async () => {
+    const { readFileSync } = await import('node:fs');
+    const { resolve } = await import('node:path');
+    const template = readFileSync(resolve('public/sdkjs/slide/themes/src/01_blank.pptx'));
+    vi.stubGlobal(
+      'fetch',
+      vi.fn(async (url: string) => {
+        expect(String(url)).toContain('01_blank.pptx');
+        return new Response(template, { status: 200 });
+      }),
+    );
+    try {
+      const { buildEmptyPptxBytes, BLANK_PPTX_URL } = await import('../../lib/appwrite/empty-office');
+      expect(BLANK_PPTX_URL).toContain('01_blank.pptx');
+      const bytes = await buildEmptyPptxBytes();
       expect(bytes[0]).toBe(0x50);
       expect(bytes[1]).toBe(0x4b);
-      expect(bytes.byteLength).toBeGreaterThan(80);
+      expect(bytes.byteLength).toBe(template.byteLength);
+      expect(bytes.byteLength).toBeGreaterThan(10_000);
+    } finally {
+      vi.unstubAllGlobals();
     }
   });
 });

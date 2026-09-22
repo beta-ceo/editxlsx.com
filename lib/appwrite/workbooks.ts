@@ -271,7 +271,7 @@ export async function createBlankFile(
   options: { title?: string; parentId?: string } = {},
 ): Promise<Workbook> {
   const title = options.title || `Untitled.${format}`;
-  return createWorkbookFromFile(buildEmptyOfficeFile(format, title), title, options.parentId || '');
+  return createWorkbookFromFile(await buildEmptyOfficeFile(format, title), title, options.parentId || '');
 }
 
 export async function createBlankWorkbook(

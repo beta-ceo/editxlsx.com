@@ -145,6 +145,9 @@ export interface I18nMessages {
   /** Folder delete refused because it still has children. */
   cloudFolderNotEmpty: string;
   cloudFolderUntitled: string;
+  /** Aria label / action for renaming a vault item. */
+  cloudRename: string;
+  cloudRenameFailed: string;
   cloudNavUp: string;
   cloudUploadWorkbook: string;
   cloudEmptyTitle: string;

@@ -13,8 +13,9 @@ import { getTheme, initTheme, setTheme, type RanThemeName } from 'ranui/theme';
 import '../styles/workspace.css';
 import { applyDocumentLanguage, getLanguage, t, withLocale } from '@ranuts/shared/i18n';
 import { getCurrentUser, signOut, type AuthUser } from './appwrite/auth';
-import { createBlankFile, createFolder, listVaultItems, type VaultItem, type Workbook } from './appwrite/workbooks';
+import { createBlankFile, createFolder, deleteVaultItem, listVaultItems, renameVaultItem, type VaultItem, type Workbook } from './appwrite/workbooks';
 import type { VaultFormat } from './appwrite/ids';
+import { confirmDialog } from './confirm-dialog';
 import { isShellBridgeMessage, SHELL_FAILED, SHELL_READY, SHELL_SAVE_STATE } from './shell-bridge';
 import type { ShellSaveState } from './shell-bridge';
 
@@ -50,11 +51,13 @@ let user: AuthUser | null = null;
 let rows: VaultItem[] = [];
 let loading = true;
 let selectedId = '';
-/** '' = vault root. New actions land here; sidebar lists this folder's children. */
+/** '' = vault root. New actions land here; tree highlights this folder. */
 let currentFolderId = '';
+/** Folder ids whose children are visible in the sidebar tree. */
+const expandedFolderIds = new Set<string>();
+/** Inline rename target in the sidebar tree ('' = not renaming). */
+let renamingId = '';
 let openWorkbook: Workbook | null = null;
-/** When true, do not auto-open the newest workbook (Home is showing). */
-let preferHome = false;
 let shellReady = false;
 /** Editor pane while a framed workbook is opening. */
 let stageStatus: 'idle' | 'loading' | 'ready' | 'error' = 'idle';
@@ -216,7 +219,6 @@ function readUrl(): void {
   query = params.get('q') ?? '';
   selectedId = params.get('workbook') ?? '';
   currentFolderId = params.get('folder') ?? '';
-  if (selectedId) preferHome = false;
 }
 
 function rememberLocale(locale: string): void {
@@ -347,6 +349,7 @@ function displayName(account: AuthUser): string {
 
 async function refresh(): Promise<void> {
   loading = true;
+  renamingId = '';
   paint();
   try {
     rows = await listVaultItems({ search: query });
@@ -371,24 +374,48 @@ async function refresh(): Promise<void> {
         currentFolderId = selected.parentId || '';
       }
     }
-    const filesHere = visibleItems().filter((row) => row.kind === 'file');
-    if (!selectedId && !query && filesHere[0] && !preferHome && !currentFolderId) {
-      selectedId = filesHere[0].id;
+    const rootFiles = childrenOf('').filter((row) => row.kind === 'file');
+    if (!selectedId && !query && rootFiles[0] && !currentFolderId) {
+      selectedId = rootFiles[0].id;
       stageStatus = 'loading';
       stageError = '';
     }
+    revealTreeSelection();
     syncUrl();
     paint();
   }
 }
 
-function visibleItems(): VaultItem[] {
-  if (query.trim()) return rows;
-  return rows.filter((row) => (row.parentId || '') === currentFolderId);
+function childrenOf(parentId: string): VaultItem[] {
+  return rows.filter((row) => (row.parentId || '') === parentId);
+}
+
+/** Expand ancestors so `itemId` is reachable; when `includeSelf`, also expand that folder. */
+function expandAncestors(itemId: string, includeSelf = false): void {
+  const item = rows.find((row) => row.id === itemId);
+  if (!item) return;
+  if (includeSelf && item.kind === 'folder') expandedFolderIds.add(item.id);
+  let parentId = item.parentId || '';
+  const seen = new Set<string>();
+  while (parentId && !seen.has(parentId)) {
+    seen.add(parentId);
+    expandedFolderIds.add(parentId);
+    parentId = rows.find((row) => row.id === parentId)?.parentId || '';
+  }
+}
+
+function revealTreeSelection(): void {
+  if (selectedId) expandAncestors(selectedId);
+  if (currentFolderId) expandAncestors(currentFolderId, true);
+}
+
+function toggleFolderExpanded(id: string): void {
+  if (expandedFolderIds.has(id)) expandedFolderIds.delete(id);
+  else expandedFolderIds.add(id);
+  paintDocs();
 }
 
 function selectWorkbook(id: string): void {
-  preferHome = false;
   const same = selectedId === id;
   // Same row while stuck on loading/error: force a remount. The first framed
   // navigation can leave a blank editor (Vite 504 on a stale optimized dep)
@@ -407,12 +434,12 @@ function selectWorkbook(id: string): void {
   selectedId = id;
   const item = rows.find((row) => row.id === id);
   if (item?.kind === 'file') currentFolderId = item.parentId || '';
+  revealTreeSelection();
   syncUrl();
   paint();
 }
 
 function openFolder(id: string): void {
-  preferHome = false;
   currentFolderId = id;
   selectedId = '';
   openWorkbook = null;
@@ -420,49 +447,21 @@ function openFolder(id: string): void {
   stageError = '';
   setSaveStatus('idle');
   clearOpenWatchers();
-  syncUrl();
-  paint();
-}
-
-function showHome(): void {
-  preferHome = true;
-  selectedId = '';
-  currentFolderId = '';
-  openWorkbook = null;
-  stageStatus = 'idle';
-  stageError = '';
-  setSaveStatus('idle');
-  clearOpenWatchers();
-  syncUrl();
-  paint();
-}
-
-function navigateUp(): void {
-  if (!currentFolderId) {
-    showHome();
-    return;
-  }
-  const parent = rows.find((row) => row.id === currentFolderId);
-  currentFolderId = parent?.parentId || '';
-  selectedId = '';
-  openWorkbook = null;
-  stageStatus = 'idle';
-  stageError = '';
-  setSaveStatus('idle');
-  clearOpenWatchers();
-  preferHome = !currentFolderId;
+  expandedFolderIds.add(id);
+  expandAncestors(id);
   syncUrl();
   paint();
 }
 
 async function onNewFile(format: VaultFormat): Promise<void> {
   try {
-    preferHome = false;
     const workbook = await createBlankFile(format, { parentId: currentFolderId });
     rows = [workbook, ...rows.filter((row) => row.id !== workbook.id)];
     stageStatus = 'loading';
     stageError = '';
     selectedId = workbook.id;
+    if (currentFolderId) expandedFolderIds.add(currentFolderId);
+    revealTreeSelection();
     syncUrl();
     paint();
   } catch (error) {
@@ -473,13 +472,191 @@ async function onNewFile(format: VaultFormat): Promise<void> {
 
 async function onNewFolder(): Promise<void> {
   try {
+    if (currentFolderId) expandedFolderIds.add(currentFolderId);
     const folder = await createFolder(t('cloudFolderUntitled'), currentFolderId);
     rows = [folder, ...rows.filter((row) => row.id !== folder.id)];
     openFolder(folder.id);
+    startRename(folder.id);
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);
     notifyError(message);
   }
+}
+
+function startRename(id: string): void {
+  if (!rows.some((row) => row.id === id)) return;
+  renamingId = id;
+  closeNewMenu();
+  paintDocs();
+  requestAnimationFrame(() => {
+    const input = document.querySelector<HTMLInputElement>(
+      `.vault-tree-rename[data-id="${CSS.escape(id)}"]`,
+    );
+    if (!input) return;
+    input.focus();
+    const item = rows.find((row) => row.id === id);
+    if (item?.kind === 'file' && item.format) {
+      const suffix = `.${item.format}`;
+      const end = item.title.toLowerCase().endsWith(suffix) ? item.title.length - suffix.length : item.title.length;
+      input.setSelectionRange(0, Math.max(0, end));
+    } else {
+      input.select();
+    }
+  });
+}
+
+function cancelRename(): void {
+  if (!renamingId) return;
+  renamingId = '';
+  paintDocs();
+}
+
+async function commitRename(id: string, raw: string): Promise<void> {
+  if (renamingId !== id) return;
+  renamingId = '';
+  const item = rows.find((row) => row.id === id);
+  if (!item) {
+    paintDocs();
+    return;
+  }
+  const next = raw.trim();
+  if (!next || next === item.title) {
+    paintDocs();
+    return;
+  }
+  try {
+    const updated = await renameVaultItem(id, next);
+    rows = rows.map((row) => (row.id === id ? updated : row));
+    if (selectedId === id) {
+      openWorkbook = updated.kind === 'file' && updated.format ? (updated as Workbook) : openWorkbook;
+      document.title = updated.title;
+      const frame = document.getElementById('workspace-editor-frame') as HTMLIFrameElement | null;
+      if (frame?.dataset.workbook === id) frame.title = updated.title;
+    }
+    paint();
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
+    notifyError(`${t('cloudRenameFailed')}${message}`);
+    paintDocs();
+  }
+}
+
+async function deleteItem(id: string): Promise<void> {
+  closeContextMenu();
+  closeNewMenu();
+  const item = rows.find((row) => row.id === id);
+  if (!item) return;
+  const ok = await confirmDialog({
+    title: t('cloudDeleteTitle', { title: item.title }),
+    body: t('cloudDeleteConfirm', { title: item.title }),
+    confirmLabel: t('cloudDelete'),
+    cancelLabel: t('cloudCancel'),
+    danger: true,
+  });
+  if (!ok) return;
+  try {
+    await deleteVaultItem(id);
+    rows = rows.filter((row) => row.id !== id);
+    expandedFolderIds.delete(id);
+    if (selectedId === id) {
+      selectedId = '';
+      openWorkbook = null;
+      stageStatus = 'idle';
+      stageError = '';
+      setSaveStatus('idle');
+      clearOpenWatchers();
+    }
+    if (currentFolderId === id) {
+      currentFolderId = item.parentId || '';
+    }
+    syncUrl();
+    paint();
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
+    notifyError(/not empty/i.test(message) ? t('cloudFolderNotEmpty') : message);
+  }
+}
+
+function closeContextMenu(): void {
+  const menu = document.getElementById('workspace-context-menu');
+  if (!menu) return;
+  menu.classList.remove('is-shown');
+  menu.hidden = true;
+  menu.style.top = '';
+  menu.style.left = '';
+  delete menu.dataset.itemId;
+  document.removeEventListener('pointerdown', onContextMenuPointerDown, true);
+  document.removeEventListener('keydown', onContextMenuKeyDown, true);
+}
+
+function onContextMenuPointerDown(event: PointerEvent): void {
+  const menu = document.getElementById('workspace-context-menu');
+  const target = event.target as Node | null;
+  if (!menu || !target) return;
+  if (menu.contains(target)) return;
+  closeContextMenu();
+}
+
+function onContextMenuKeyDown(event: KeyboardEvent): void {
+  if (event.key === 'Escape') {
+    event.preventDefault();
+    closeContextMenu();
+  }
+}
+
+function openContextMenu(item: VaultItem, clientX: number, clientY: number): void {
+  closeNewMenu();
+  closeContextMenu();
+  const menu = document.getElementById('workspace-context-menu');
+  if (!menu) return;
+  menu.dataset.itemId = item.id;
+  menu.hidden = false;
+  menu.classList.remove('is-shown');
+
+  const width = 180;
+  let left = clientX;
+  let top = clientY;
+  left = Math.max(8, Math.min(left, window.innerWidth - width - 8));
+  menu.style.width = `${width}px`;
+  menu.style.left = `${left}px`;
+  menu.style.top = `${top}px`;
+
+  document.addEventListener('pointerdown', onContextMenuPointerDown, true);
+  document.addEventListener('keydown', onContextMenuKeyDown, true);
+
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => {
+      if (menu.hidden) return;
+      const height = menu.getBoundingClientRect().height;
+      if (top + height > window.innerHeight - 8) {
+        top = Math.max(8, clientY - height);
+        menu.style.top = `${top}px`;
+      }
+      menu.classList.add('is-shown');
+    });
+  });
+}
+
+function buildContextMenu(): HTMLElement {
+  const menu = document.createElement('div');
+  menu.id = 'workspace-context-menu';
+  menu.className = 'vault-context-menu';
+  menu.setAttribute('role', 'menu');
+  menu.hidden = true;
+  const deleteBtn = document.createElement('button');
+  deleteBtn.type = 'button';
+  deleteBtn.className = 'vault-context-option is-danger';
+  deleteBtn.setAttribute('role', 'menuitem');
+  deleteBtn.append(
+    svgIcon('M4 7h16M9 7V5a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2M6 7l1 12a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1l1-12'),
+    document.createTextNode(t('cloudDelete')),
+  );
+  deleteBtn.addEventListener('click', () => {
+    const id = menu.dataset.itemId;
+    if (id) void deleteItem(id);
+  });
+  menu.append(deleteBtn);
+  return menu;
 }
 
 function newMenuOption(
@@ -494,6 +671,158 @@ function newMenuOption(
   option.append(svgIcon(iconPath), document.createTextNode(label));
   option.addEventListener('click', onClick);
   return option;
+}
+
+function closeNewMenu(): void {
+  const menu = document.getElementById('workspace-new-menu');
+  const trigger = document.getElementById('workspace-new');
+  if (menu) {
+    menu.classList.remove('is-shown');
+    menu.hidden = true;
+    menu.style.top = '';
+    menu.style.left = '';
+    menu.style.width = '';
+    delete menu.dataset.anchor;
+  }
+  trigger?.setAttribute('aria-expanded', 'false');
+  document.querySelectorAll<HTMLElement>('.vault-tree-add[aria-expanded="true"]').forEach((el) => {
+    el.setAttribute('aria-expanded', 'false');
+  });
+  document.removeEventListener('pointerdown', onNewMenuPointerDown, true);
+  document.removeEventListener('keydown', onNewMenuKeyDown, true);
+}
+
+function onNewMenuPointerDown(event: PointerEvent): void {
+  const menu = document.getElementById('workspace-new-menu');
+  const trigger = document.getElementById('workspace-new');
+  const target = event.target as Node | null;
+  if (!menu || !target) return;
+  if (menu.contains(target)) return;
+  if (trigger?.contains(target)) return;
+  if (target instanceof Element && target.closest('.vault-tree-add')) return;
+  closeNewMenu();
+}
+
+function onNewMenuKeyDown(event: KeyboardEvent): void {
+  if (event.key === 'Escape') {
+    event.preventDefault();
+    closeNewMenu();
+  }
+}
+
+/** Shared New menu: anchored under the top New button or a folder + control. */
+function openNewMenuAt(anchor: HTMLElement, options: { matchWidth?: boolean; key?: string } = {}): void {
+  const menu = document.getElementById('workspace-new-menu');
+  const trigger = document.getElementById('workspace-new');
+  if (!menu) return;
+
+  const key = options.key || anchor.id || 'anon';
+  const alreadyOpen = !menu.hidden && menu.dataset.anchor === key;
+  if (alreadyOpen) {
+    closeNewMenu();
+    return;
+  }
+
+  closeNewMenu();
+  menu.dataset.anchor = key;
+  menu.hidden = false;
+  menu.classList.remove('is-shown');
+
+  const rect = anchor.getBoundingClientRect();
+  const width = options.matchWidth ? Math.max(rect.width, 200) : 220;
+  let left = options.matchWidth ? rect.left : rect.right - width;
+  left = Math.max(8, Math.min(left, window.innerWidth - width - 8));
+  let top = rect.bottom + 6;
+
+  menu.style.width = `${width}px`;
+  menu.style.left = `${left}px`;
+  menu.style.top = `${top}px`;
+
+  trigger?.setAttribute('aria-expanded', key === 'workspace-new' ? 'true' : 'false');
+  if (anchor.classList.contains('vault-tree-add')) {
+    anchor.setAttribute('aria-expanded', 'true');
+  }
+  document.addEventListener('pointerdown', onNewMenuPointerDown, true);
+  document.addEventListener('keydown', onNewMenuKeyDown, true);
+
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => {
+      if (menu.hidden) return;
+      const height = menu.getBoundingClientRect().height;
+      if (top + height > window.innerHeight - 8) {
+        top = Math.max(8, rect.top - height - 6);
+        menu.style.top = `${top}px`;
+      }
+      menu.classList.add('is-shown');
+    });
+  });
+}
+
+function buildNewMenuPanel(): HTMLElement {
+  const panel = document.createElement('div');
+  panel.id = 'workspace-new-menu';
+  panel.className = 'vault-new-menu';
+  panel.setAttribute('role', 'menu');
+  panel.hidden = true;
+  const dismiss = (): void => closeNewMenu();
+  panel.append(
+    newMenuOption(
+      'M4 4h16v16H4zM4 10h16M10 4v16',
+      t('cloudNewWorkbook'),
+      () => {
+        dismiss();
+        void onNewFile('xlsx');
+      },
+      'workbook',
+    ),
+    newMenuOption(
+      'M7 3h7l5 5v13a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1zM14 3v5h5M9 13h6M9 17h4',
+      t('cloudNewDocument'),
+      () => {
+        dismiss();
+        void onNewFile('docx');
+      },
+      'document',
+    ),
+    newMenuOption(
+      'M3 5h18v12H3zM8 21h8M12 17v4',
+      t('cloudNewPresentation'),
+      () => {
+        dismiss();
+        void onNewFile('pptx');
+      },
+      'presentation',
+    ),
+    newMenuOption(
+      'M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7z',
+      t('cloudNewFolder'),
+      () => {
+        dismiss();
+        void onNewFolder();
+      },
+      'folder',
+    ),
+  );
+  return panel;
+}
+
+/** Point New at this folder and open the menu under the + control. */
+function openNewMenuForFolder(folderId: string, anchor: HTMLElement): void {
+  const menu = document.getElementById('workspace-new-menu');
+  const key = `folder:${folderId}`;
+  if (menu && !menu.hidden && menu.dataset.anchor === key) {
+    closeNewMenu();
+    return;
+  }
+  currentFolderId = folderId;
+  expandedFolderIds.add(folderId);
+  expandAncestors(folderId);
+  syncUrl();
+  paintDocs();
+  const liveAnchor =
+    document.querySelector<HTMLElement>(`.vault-tree-add[data-folder="${CSS.escape(folderId)}"]`) ||
+    anchor;
+  openNewMenuAt(liveAnchor, { key });
 }
 
 async function onSignOut(): Promise<void> {
@@ -659,99 +988,25 @@ function mountShell(): void {
     )
     .build();
 
-  const newMenu = document.createElement('details');
-  newMenu.className = 'vault-new';
-  const newSummary = document.createElement('summary');
-  newSummary.id = 'workspace-new';
+  const newTrigger = document.createElement('button');
+  newTrigger.type = 'button';
+  newTrigger.className = 'vault-new';
+  newTrigger.id = 'workspace-new';
+  newTrigger.setAttribute('aria-haspopup', 'menu');
+  newTrigger.setAttribute('aria-expanded', 'false');
+  newTrigger.setAttribute('aria-controls', 'workspace-new-menu');
   const newChevron = svgIcon('M6 9l6 6 6-6');
   newChevron.classList.add('vault-new-chevron');
-  newSummary.append(
+  newTrigger.append(
     svgIcon('M12 5v14M5 12h14'),
     document.createTextNode(t('cloudNew')),
     newChevron,
   );
-  const newPanel = document.createElement('div');
-  newPanel.className = 'vault-new-menu';
-  newPanel.setAttribute('role', 'menu');
-  // Spreadsheet grid — workbook.
-  const newWorkbook = newMenuOption(
-    'M4 4h16v16H4zM4 10h16M10 4v16',
-    t('cloudNewWorkbook'),
-    () => {
-      newMenu.open = false;
-      void onNewFile('xlsx');
-    },
-    'workbook',
-  );
-  // File with text lines — document.
-  const newDocument = newMenuOption(
-    'M7 3h7l5 5v13a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1zM14 3v5h5M9 13h6M9 17h4',
-    t('cloudNewDocument'),
-    () => {
-      newMenu.open = false;
-      void onNewFile('docx');
-    },
-    'document',
-  );
-  // Slides — presentation.
-  const newPresentation = newMenuOption(
-    'M3 5h18v12H3zM8 21h8M12 17v4',
-    t('cloudNewPresentation'),
-    () => {
-      newMenu.open = false;
-      void onNewFile('pptx');
-    },
-    'presentation',
-  );
-  // Folder — directory.
-  const newFolder = newMenuOption(
-    'M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7z',
-    t('cloudNewFolder'),
-    () => {
-      newMenu.open = false;
-      void onNewFolder();
-    },
-    'folder',
-  );
-  newPanel.append(newWorkbook, newDocument, newPresentation, newFolder);
-  newMenu.append(newSummary, newPanel);
-  // <details> starts content at display:none, so CSS alone cannot animate open.
-  // Flip is-shown on the next frame after [open] so opacity/translate can run.
-  newMenu.addEventListener('toggle', () => {
-    if (!newMenu.open) {
-      newPanel.classList.remove('is-shown');
-      return;
-    }
-    newPanel.classList.remove('is-shown');
-    requestAnimationFrame(() => {
-      requestAnimationFrame(() => {
-        if (newMenu.open) newPanel.classList.add('is-shown');
-      });
-    });
+  newTrigger.addEventListener('click', () => {
+    openNewMenuAt(newTrigger, { matchWidth: true, key: 'workspace-new' });
   });
-
-  const homeBtn = document.createElement('button');
-  homeBtn.type = 'button';
-  homeBtn.className = 'vault-tree-item';
-  homeBtn.id = 'workspace-home';
-  homeBtn.append(
-    svgIcon('M4 4h6v6H4zM14 4h6v6h-6zM4 14h6v6H4zM14 14h6v6h-6z'),
-    document.createTextNode(t('cloudNavHome')),
-  );
-  homeBtn.addEventListener('click', () => showHome());
-
-  const upBtn = document.createElement('button');
-  upBtn.type = 'button';
-  upBtn.className = 'vault-tree-item vault-nav-up';
-  upBtn.id = 'workspace-up';
-  upBtn.hidden = true;
-  upBtn.append(svgIcon('M12 19V5M5 12l7-7 7 7'), document.createTextNode(t('cloudNavUp')));
-  upBtn.addEventListener('click', () => navigateUp());
-
-  const folderCrumb = document.createElement('div');
-  folderCrumb.className = 'vault-folder-crumb';
-  folderCrumb.id = 'workspace-folder-crumb';
-  folderCrumb.hidden = true;
+  const newPanel = buildNewMenuPanel();
+  const contextMenu = buildContextMenu();
 
   const side = Div()
     .class('vault-side')
@@ -769,10 +1024,7 @@ function mountShell(): void {
             .build(),
         )
         .build(),
-      newMenu,
-      homeBtn,
-      upBtn,
-      folderCrumb,
+      newTrigger,
       Div()
         .class('vault-dir-head')
         .children(
@@ -852,7 +1104,11 @@ function mountShell(): void {
     )
     .build();
 
-  root().append(Div().class('vault').children(side, Div().class('vault-body').children(top, stage).build()).build());
+  root().append(
+    Div().class('vault').children(side, Div().class('vault-body').children(top, stage).build()).build(),
+    newPanel,
+    contextMenu,
+  );
 
   window.addEventListener('keydown', (event) => {
     if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === 'k') {
@@ -956,31 +1212,11 @@ function itemIcon(item: VaultItem): SVGElement {
   return svgIcon('M4 4h16v16H4zM4 10h16M10 4v16');
 }
 
-function paintFolderNav(): void {
-  const up = document.getElementById('workspace-up') as HTMLButtonElement | null;
-  const crumb = document.getElementById('workspace-folder-crumb');
-  const folder = currentFolderId ? rows.find((row) => row.id === currentFolderId) : undefined;
-  if (up) up.hidden = !currentFolderId;
-  if (!crumb) return;
-  if (!folder) {
-    crumb.hidden = true;
-    crumb.replaceChildren();
-    return;
-  }
-  crumb.hidden = false;
-  crumb.replaceChildren();
-  const icon = svgIcon('M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7z');
-  const label = document.createElement('span');
-  label.textContent = folder.title;
-  crumb.append(icon, label);
-}
-
 function paintDocs(): void {
   const host = document.getElementById('workspace-docs');
-  const home = document.getElementById('workspace-home');
   if (!host) return;
-  paintFolderNav();
-  home?.classList.toggle('is-current', preferHome || (!selectedId && !currentFolderId));
+  closeNewMenu();
+  closeContextMenu();
   host.replaceChildren();
   if (loading) {
     const pending = document.createElement('p');
@@ -989,36 +1225,160 @@ function paintDocs(): void {
     host.append(pending);
     return;
   }
-  const visible = visibleItems().slice().sort((a, b) => {
-    if (a.kind !== b.kind) return a.kind === 'folder' ? -1 : 1;
-    return b.updatedAt.localeCompare(a.updatedAt);
-  });
-  if (visible.length === 0) {
+  if (query.trim()) {
+    const matches = rows;
+    if (matches.length === 0) {
+      const empty = document.createElement('p');
+      empty.className = 'vault-empty';
+      empty.textContent = t('cloudEmptySearch');
+      host.append(empty);
+      return;
+    }
+    for (const item of matches) host.append(buildTreeRow(item, 0, { searchable: true }));
+    return;
+  }
+  if (childrenOf('').length === 0) {
     const empty = document.createElement('p');
     empty.className = 'vault-empty';
-    empty.textContent = query ? t('cloudEmptySearch') : t('cloudEmpty');
+    empty.textContent = t('cloudEmpty');
     host.append(empty);
     return;
   }
-  for (const item of visible) {
-    const buttonEl = document.createElement('button');
-    buttonEl.type = 'button';
-    const isCurrent =
-      item.kind === 'file' ? item.id === selectedId : item.id === currentFolderId && !selectedId;
-    buttonEl.className = isCurrent ? 'vault-tree-item is-current' : 'vault-tree-item';
-    buttonEl.dataset.kind = item.kind;
-    if (item.format) buttonEl.dataset.format = item.format;
-    if (isCurrent) buttonEl.setAttribute('aria-current', 'true');
-    const title = document.createElement('span');
-    title.className = 'vault-tree-title';
-    title.textContent = item.title;
-    buttonEl.append(itemIcon(item), title);
-    buttonEl.addEventListener('click', () => {
+  appendTreeBranch(host, '', 0);
+}
+
+function appendTreeBranch(host: HTMLElement, parentId: string, depth: number): void {
+  for (const item of childrenOf(parentId)) {
+    host.append(buildTreeRow(item, depth));
+    if (item.kind === 'folder' && expandedFolderIds.has(item.id)) {
+      appendTreeBranch(host, item.id, depth + 1);
+    }
+  }
+}
+
+function buildTreeRow(item: VaultItem, depth: number, options: { searchable?: boolean } = {}): HTMLElement {
+  const row = document.createElement('div');
+  row.className = 'vault-tree-row';
+  row.dataset.depth = String(depth);
+  row.style.setProperty('--vault-depth', String(depth));
+
+  const kids = item.kind === 'folder' && !options.searchable ? childrenOf(item.id) : [];
+  const canExpand = kids.length > 0;
+  const expanded = canExpand && expandedFolderIds.has(item.id);
+
+  const twist = document.createElement('button');
+  twist.type = 'button';
+  twist.className = canExpand ? 'vault-tree-twist' : 'vault-tree-twist is-leaf';
+  twist.tabIndex = canExpand ? 0 : -1;
+  twist.setAttribute('aria-hidden', canExpand ? 'false' : 'true');
+  if (canExpand) {
+    twist.setAttribute('aria-expanded', expanded ? 'true' : 'false');
+    twist.append(svgIcon('M9 18l6-6-6-6', 'vault-tree-chevron'));
+    twist.addEventListener('click', (event) => {
+      event.stopPropagation();
+      toggleFolderExpanded(item.id);
+    });
+  }
+
+  const isCurrent =
+    item.kind === 'file' ? item.id === selectedId : item.id === currentFolderId && !selectedId;
+  const isRenaming = renamingId === item.id;
+
+  if (isRenaming) {
+    row.classList.add('is-renaming');
+    const renameWrap = document.createElement('div');
+    renameWrap.className = isCurrent ? 'vault-tree-item is-current is-renaming' : 'vault-tree-item is-renaming';
+    renameWrap.dataset.kind = item.kind;
+    renameWrap.dataset.id = item.id;
+    if (item.format) renameWrap.dataset.format = item.format;
+    const input = document.createElement('input');
+    input.type = 'text';
+    input.className = 'vault-tree-rename';
+    input.dataset.id = item.id;
+    input.value = item.title;
+    input.setAttribute('aria-label', t('cloudRename'));
+    input.spellcheck = false;
+    let finished = false;
+    const finish = (commit: boolean): void => {
+      if (finished) return;
+      finished = true;
+      if (commit) void commitRename(item.id, input.value);
+      else cancelRename();
+    };
+    input.addEventListener('keydown', (event) => {
+      if (event.key === 'Enter') {
+        event.preventDefault();
+        finish(true);
+      } else if (event.key === 'Escape') {
+        event.preventDefault();
+        finish(false);
+      }
+      event.stopPropagation();
+    });
+    input.addEventListener('blur', () => finish(true));
+    input.addEventListener('click', (event) => event.stopPropagation());
+    renameWrap.append(itemIcon(item), input);
+    row.append(twist, renameWrap);
+    return row;
+  }
+
+  const buttonEl = document.createElement('button');
+  buttonEl.type = 'button';
+  buttonEl.className = isCurrent ? 'vault-tree-item is-current' : 'vault-tree-item';
+  buttonEl.dataset.kind = item.kind;
+  buttonEl.dataset.id = item.id;
+  if (item.format) buttonEl.dataset.format = item.format;
+  if (isCurrent) buttonEl.setAttribute('aria-current', 'true');
+  const title = document.createElement('span');
+  title.className = 'vault-tree-title';
+  title.textContent = item.title;
+  buttonEl.append(itemIcon(item), title);
+  let clickTimer = 0;
+  buttonEl.addEventListener('click', () => {
+    window.clearTimeout(clickTimer);
+    clickTimer = window.setTimeout(() => {
       if (item.kind === 'folder') openFolder(item.id);
       else selectWorkbook(item.id);
+    }, 250);
+  });
+  buttonEl.addEventListener('dblclick', (event) => {
+    window.clearTimeout(clickTimer);
+    event.preventDefault();
+    event.stopPropagation();
+    startRename(item.id);
+  });
+  buttonEl.addEventListener('keydown', (event) => {
+    if (event.key === 'F2') {
+      event.preventDefault();
+      startRename(item.id);
+    }
+  });
+
+  row.addEventListener('contextmenu', (event) => {
+    event.preventDefault();
+    event.stopPropagation();
+    window.clearTimeout(clickTimer);
+    openContextMenu(item, event.clientX, event.clientY);
+  });
+
+  row.append(twist, buttonEl);
+
+  if (item.kind === 'folder' && !options.searchable) {
+    const add = document.createElement('button');
+    add.type = 'button';
+    add.className = 'vault-tree-add';
+    add.dataset.folder = item.id;
+    add.setAttribute('aria-label', t('cloudNew'));
+    add.setAttribute('aria-haspopup', 'menu');
+    add.append(svgIcon('M12 5v14M5 12h14', 'vault-tree-add-icon'));
+    add.addEventListener('click', (event) => {
+      event.stopPropagation();
+      openNewMenuForFolder(item.id, add);
     });
-    host.append(buttonEl);
+    row.append(add);
   }
+
+  return row;
 }
 
 function paintStorage(): void {

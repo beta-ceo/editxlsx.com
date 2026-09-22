@@ -113,9 +113,36 @@ async function mockAppwrite(
     }
     if (url.includes('/documents/') && !url.includes('queries')) {
       const id = url.split('/documents/')[1]?.split('?')[0];
-      const all = [...created, ...documents] as Array<{ $id: string }>;
-      const hit = all.find((doc) => doc.$id === id) || WORKBOOK;
+      const all = [...created, ...documents] as Array<{ $id: string; [key: string]: unknown }>;
+      const hit = all.find((doc) => doc.$id === id) || (WORKBOOK as { $id: string; [key: string]: unknown });
+      if (request.method() === 'DELETE') {
+        created = created.filter((doc) => (doc as { $id: string }).$id !== id);
+        const docs = documents as Array<{ $id: string }>;
+        const docIdx = docs.findIndex((doc) => doc.$id === id);
+        if (docIdx >= 0) docs.splice(docIdx, 1);
+        await json({});
+        return;
+      }
+      if (request.method() === 'PATCH' || request.method() === 'PUT') {
+        const body = request.postDataJSON() as { data?: Record<string, unknown> };
+        const updated = {
+          ...hit,
+          ...(body.data || {}),
+          $updatedAt: '2026-09-22T12:00:00.000+00:00',
+        };
+        const createdIdx = created.findIndex((doc) => (doc as { $id: string }).$id === id);
+        if (createdIdx >= 0) created[createdIdx] = updated;
+        const docs = documents as Array<{ $id: string }>;
+        const docIdx = docs.findIndex((doc) => doc.$id === id);
+        if (docIdx >= 0) docs[docIdx] = updated as (typeof docs)[number];
+        await json(updated);
+        return;
+      }
       await json(hit);
+      return;
+    }
+    if (request.method() === 'DELETE' && url.includes('/storage/') && url.includes('/files/')) {
+      await json({});
       return;
     }
     if (url.includes('/documents')) {
@@ -182,7 +209,6 @@ test.describe('cloud auth pages', () => {
     await expect(page.locator('.vault')).toBeVisible();
     await expect(page.locator('.vault-side')).toBeVisible();
     await expect(page.locator('#workspace-new')).toBeVisible();
-    await expect(page.locator('#workspace-home')).toBeVisible();
     await expect(page.locator('.vault-tree-title').first()).toHaveText('sample_data_3000x20.xlsx');
     await expect(page.locator('#workspace-editor-frame')).toHaveAttribute('src', /\/editor\?workbook=wb1.*shell=1/);
     await expect(page.locator('#workspace-stage-overlay')).toBeVisible({ timeout: 30_000 });
@@ -209,7 +235,42 @@ test.describe('cloud auth pages', () => {
     await expect(options.nth(3)).toContainText(/folder|文件夹|Ordner|carpeta|pasta|フォルダ|폴더/i);
   });
 
-  test('creating a folder opens it in the sidebar', async ({ page, l0 }) => {
+  test('creating a folder selects and expands it in the tree', async ({ page, l0 }) => {
+    l0.allowAscError(() => true);
+    l0.allowConsole(/Failed to open cloud workbook|Could not open|cloudOpenFailed|Failed to download/i);
+    l0.allowFrameError(/Failed to download|Could not open/i);
+
+    const nested = {
+      ...WORKBOOK,
+      $id: 'wb-nested',
+      title: 'nested.xlsx',
+      fileId: 'wb-nested',
+      parentId: 'folder1',
+      $updatedAt: '2026-09-21T10:00:00.000+00:00',
+    };
+
+    await page.goto('/login');
+    await mockAppwrite(page, { download: 'fail', documents: [WORKBOOK, FOLDER, nested] });
+    await page.goto('/workspace');
+
+    const folderRow = page.locator('.vault-tree-item[data-kind="folder"][data-id="folder1"]');
+    await expect(folderRow).toBeVisible();
+    await expect(page.locator('.vault-tree-item[data-id="wb-nested"]')).toHaveCount(0);
+
+    await folderRow.click();
+    await expect(page).toHaveURL(/folder=folder1/);
+    await expect(folderRow).toHaveClass(/is-current/);
+    await expect(page.locator('.vault-tree-twist[aria-expanded="true"]')).toBeVisible();
+    await expect(page.locator('.vault-tree-item[data-id="wb-nested"]')).toBeVisible();
+    await expect(page.locator('.vault-tree-item[data-id="wb-nested"] .vault-tree-title')).toHaveText(
+      'nested.xlsx',
+    );
+
+    await page.locator('.vault-tree-twist[aria-expanded="true"]').click();
+    await expect(page.locator('.vault-tree-item[data-id="wb-nested"]')).toHaveCount(0);
+  });
+
+  test('folder hover + opens New menu into that folder', async ({ page, l0 }) => {
     l0.allowAscError(() => true);
     l0.allowConsole(/Failed to open cloud workbook|Could not open|cloudOpenFailed|Failed to download/i);
     l0.allowFrameError(/Failed to download|Could not open/i);
@@ -218,12 +279,61 @@ test.describe('cloud auth pages', () => {
     await mockAppwrite(page, { download: 'fail', documents: [WORKBOOK, FOLDER] });
     await page.goto('/workspace');
 
-    await expect(page.locator('.vault-tree-item[data-kind="folder"]')).toBeVisible();
-    await page.locator('.vault-tree-item[data-kind="folder"]').click();
+    const folderRow = page.locator('.vault-tree-row').filter({
+      has: page.locator('.vault-tree-item[data-id="folder1"]'),
+    });
+    await folderRow.hover();
+    await folderRow.locator('.vault-tree-add').click();
     await expect(page).toHaveURL(/folder=folder1/);
-    await expect(page.locator('#workspace-folder-crumb')).toBeVisible();
-    await expect(page.locator('#workspace-folder-crumb')).toContainText('Projects');
-    await expect(page.locator('#workspace-up')).toBeVisible();
+    const menu = page.locator('#workspace-new-menu');
+    await expect(menu).toBeVisible();
+    await expect(menu).toHaveClass(/is-shown/);
+    await expect(page.locator('#workspace-new-menu .vault-new-option')).toHaveCount(4);
+    // Menu is anchored under the +, not the top New control.
+    const addBox = await folderRow.locator('.vault-tree-add').boundingBox();
+    const menuBox = await menu.boundingBox();
+    expect(addBox && menuBox).toBeTruthy();
+    if (addBox && menuBox) {
+      expect(menuBox.y).toBeGreaterThan(addBox.y);
+      expect(Math.abs(menuBox.x + menuBox.width - (addBox.x + addBox.width))).toBeLessThan(24);
+    }
+  });
+
+  test('double-click renames a vault item inline', async ({ page, l0 }) => {
+    l0.allowAscError(() => true);
+    l0.allowConsole(/Failed to open cloud workbook|Could not open|cloudOpenFailed|Failed to download/i);
+    l0.allowFrameError(/Failed to download|Could not open/i);
+
+    await page.goto('/login');
+    await mockAppwrite(page, { download: 'fail', documents: [WORKBOOK, FOLDER] });
+    await page.goto('/workspace');
+
+    const folder = page.locator('.vault-tree-item[data-kind="folder"][data-id="folder1"]');
+    await folder.dblclick();
+    const input = page.locator('.vault-tree-rename[data-id="folder1"]');
+    await expect(input).toBeVisible();
+    await input.fill('Projects');
+    await input.press('Enter');
+    await expect(page.locator('.vault-tree-item[data-id="folder1"] .vault-tree-title')).toHaveText('Projects');
+  });
+
+  test('right-click shows delete menu and removes the item', async ({ page, l0 }) => {
+    l0.allowAscError(() => true);
+    l0.allowConsole(/Failed to open cloud workbook|Could not open|cloudOpenFailed|Failed to download/i);
+    l0.allowFrameError(/Failed to download|Could not open/i);
+
+    await page.goto('/login');
+    await mockAppwrite(page, { download: 'fail', documents: [WORKBOOK, FOLDER] });
+    await page.goto('/workspace');
+
+    const folder = page.locator('.vault-tree-item[data-id="folder1"]');
+    await folder.click({ button: 'right' });
+    const menu = page.locator('#workspace-context-menu');
+    await expect(menu).toBeVisible();
+    await expect(menu).toHaveClass(/is-shown/);
+    await menu.locator('.vault-context-option.is-danger').click();
+    await page.locator('r-modal.confirm-dialog .confirm-ok-danger').click();
+    await expect(page.locator('.vault-tree-item[data-id="folder1"]')).toHaveCount(0);
   });
 
   test('signed-in /workspace opens a workbook in the editor pane', async ({ page, l0 }) => {
