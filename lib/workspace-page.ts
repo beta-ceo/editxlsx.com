@@ -267,6 +267,36 @@ function svgIcon(path: string, className = 'vault-icon'): SVGElement {
   return svg;
 }
 
+/** Animated drop-to-upload illustration for the empty stage. */
+function buildEmptyDropArt(): HTMLElement {
+  const art = document.createElement('div');
+  art.className = 'vault-stage-drop-art';
+  art.setAttribute('aria-hidden', 'true');
+
+  const file = document.createElement('div');
+  file.className = 'vault-stage-drop-art-file';
+  file.append(
+    svgIcon(
+      'M7 3h7l5 5v13a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1zM14 3v5h5',
+      'vault-icon vault-stage-drop-art-doc',
+    ),
+  );
+
+  const arrow = document.createElement('div');
+  arrow.className = 'vault-stage-drop-art-arrow';
+  arrow.append(svgIcon('M12 5v10M8 11l4 4 4-4', 'vault-icon'));
+
+  const tray = document.createElement('div');
+  tray.className = 'vault-stage-drop-art-tray';
+  tray.append(svgIcon('M4 14h16v4a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-4zM8 14V10h8v4', 'vault-icon'));
+
+  const ring = document.createElement('div');
+  ring.className = 'vault-stage-drop-art-ring';
+
+  art.append(ring, file, arrow, tray);
+  return art;
+}
+
 /** Multi-path stroke icon (sync chip). Same visual language as `svgIcon`. */
 function svgIconPaths(paths: string[], className: string): SVGElement {
   const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
@@ -1433,12 +1463,26 @@ function mountShell(): void {
             dropOverlay.append(banner);
             return dropOverlay;
           })(),
+          (() => {
+            const head = document.createElement('div');
+            head.className = 'vault-stage-empty-head';
+            head.id = 'workspace-stage-empty-head';
+            head.hidden = true;
+            const title = document.createElement('h2');
+            title.className = 'vault-stage-browser-title';
+            title.id = 'workspace-stage-empty-title';
+            const tools = document.createElement('div');
+            tools.className = 'vault-stage-browser-tools';
+            tools.id = 'workspace-stage-empty-tools';
+            head.append(title, tools);
+            return head;
+          })(),
           Div()
             .class('vault-stage-empty-copy')
             .id('workspace-stage-empty-copy')
             .children(
-              View('h2').id('workspace-stage-empty-title').text(t('cloudEmptyTitle')).build(),
-              View('p').id('workspace-stage-empty-body').text(t('cloudEmpty')).build(),
+              buildEmptyDropArt(),
+              View('p').id('workspace-stage-search-empty').attr('hidden', 'true').text('').build(),
             )
             .build(),
           (() => {
@@ -1481,14 +1525,11 @@ function mountShell(): void {
             });
 
             actions.append(newBtn, uploadBtn, fileInput);
-            const dropHint = document.createElement('p');
-            dropHint.className = 'vault-stage-drop-hint';
-            dropHint.id = 'workspace-stage-drop-hint';
-            dropHint.textContent = t('cloudDropOffice');
             const wrap = document.createElement('div');
             wrap.className = 'vault-stage-empty-cta';
             wrap.id = 'workspace-stage-empty-cta';
-            wrap.append(actions, dropHint);
+            wrap.hidden = true;
+            wrap.append(actions);
             return wrap;
           })(),
           (() => {
@@ -2080,6 +2121,21 @@ function paintOverlay(): void {
   body.textContent = '';
 }
 
+function paintFolderTitle(title: HTMLElement): void {
+  title.replaceChildren();
+  title.classList.toggle('is-root', !currentFolderId);
+  const folderIcon = currentFolderId
+    ? svgIcon(
+        'M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7z',
+        'vault-icon vault-stage-browser-folder-icon',
+      )
+    : svgIcon('M4 4h16v16H4zM4 10h16', 'vault-icon vault-stage-browser-folder-icon');
+  const label = document.createElement('span');
+  label.className = 'vault-stage-browser-title-text';
+  label.textContent = currentFolderTitle();
+  title.append(folderIcon, label);
+}
+
 function paintStageBrowser(items: VaultItem[]): void {
   const browser = document.getElementById('workspace-stage-browser');
   const title = document.getElementById('workspace-stage-browser-title');
@@ -2088,7 +2144,7 @@ function paintStageBrowser(items: VaultItem[]): void {
   const actions = document.getElementById('workspace-stage-empty-actions');
   if (!browser || !title || !list) return;
 
-  title.textContent = currentFolderTitle();
+  paintFolderTitle(title);
   if (tools && actions && actions.parentElement !== tools) {
     tools.replaceChildren(actions);
   }
@@ -2148,11 +2204,13 @@ function paintStage(): void {
     }
     const copy = document.getElementById('workspace-stage-empty-copy');
     const cta = document.getElementById('workspace-stage-empty-cta');
+    const emptyHead = document.getElementById('workspace-stage-empty-head');
+    const emptyTitle = document.getElementById('workspace-stage-empty-title');
+    const emptyTools = document.getElementById('workspace-stage-empty-tools');
     const browser = document.getElementById('workspace-stage-browser');
     const skeleton = document.getElementById('workspace-stage-skeleton');
-    const heading = document.getElementById('workspace-stage-empty-title');
-    const body = document.getElementById('workspace-stage-empty-body');
-    const dropHint = document.getElementById('workspace-stage-drop-hint');
+    const searchEmpty = document.getElementById('workspace-stage-search-empty');
+    const dropArt = copy?.querySelector('.vault-stage-drop-art') as HTMLElement | null;
     const actions = document.getElementById('workspace-stage-empty-actions');
     const searching = Boolean(query.trim());
     const children = searching ? [] : childrenOf(currentFolderId);
@@ -2164,7 +2222,7 @@ function paintStage(): void {
       empty.classList.add('is-skeleton');
       if (copy) copy.hidden = true;
       if (cta) cta.hidden = true;
-      if (dropHint) dropHint.hidden = true;
+      if (emptyHead) emptyHead.hidden = true;
       if (skeleton) skeleton.hidden = false;
       document.title = t('cloudFilesTitle');
       paintOverlay();
@@ -2179,24 +2237,20 @@ function paintStage(): void {
     if (!searching && !folderEmpty) {
       if (copy) copy.hidden = true;
       if (cta) cta.hidden = true;
-      if (dropHint) dropHint.hidden = true;
+      if (emptyHead) emptyHead.hidden = true;
       paintStageBrowser(children);
     } else {
       if (copy) copy.hidden = false;
-      if (cta) {
-        cta.hidden = searching;
-        if (actions && cta !== actions.parentElement) cta.insertBefore(actions, dropHint);
+      if (cta) cta.hidden = true;
+      if (emptyHead) emptyHead.hidden = searching;
+      if (emptyTitle && !searching) paintFolderTitle(emptyTitle);
+      if (!searching && emptyTools && actions && actions.parentElement !== emptyTools) {
+        emptyTools.replaceChildren(actions);
       }
-      if (dropHint) dropHint.hidden = searching;
-      if (heading) {
-        heading.textContent = searching ? t('cloudEmptySearchTitle') : t('cloudEmptyTitle');
-      }
-      if (body) {
-        body.textContent = searching
-          ? t('cloudEmptySearch')
-          : currentFolderId
-            ? t('cloudFolderEmptyHint')
-            : t('cloudEmpty');
+      if (dropArt) dropArt.hidden = searching;
+      if (searchEmpty) {
+        searchEmpty.hidden = !searching;
+        searchEmpty.textContent = searching ? t('cloudEmptySearch') : '';
       }
     }
     document.title = t('cloudFilesTitle');
