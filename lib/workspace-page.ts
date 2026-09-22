@@ -13,7 +13,7 @@ import { getTheme, initTheme, setTheme, type RanThemeName } from 'ranui/theme';
 import '../styles/workspace.css';
 import { applyDocumentLanguage, getLanguage, t, withLocale } from '@ranuts/shared/i18n';
 import { getCurrentUser, signOut, type AuthUser } from './appwrite/auth';
-import { createBlankFile, createFolder, deleteVaultItem, listVaultItems, renameVaultItem, type VaultItem, type Workbook } from './appwrite/workbooks';
+import { createBlankFile, createFolder, deleteVaultItem, ensureFormatName, isUnderFolder, listVaultItems, placeVaultItem, renameVaultItem, reorderVaultSiblings, compareVaultOrder, nextSortOrder, type VaultItem, type Workbook } from './appwrite/workbooks';
 import type { VaultFormat } from './appwrite/ids';
 import { confirmDialog } from './confirm-dialog';
 import { isShellBridgeMessage, SHELL_FAILED, SHELL_READY, SHELL_SAVE_STATE } from './shell-bridge';
@@ -57,6 +57,10 @@ let currentFolderId = '';
 const expandedFolderIds = new Set<string>();
 /** Inline rename target in the sidebar tree ('' = not renaming). */
 let renamingId = '';
+/** HTML5 DnD: id being dragged (tree mode only). */
+let dragId = '';
+type DropMode = 'before' | 'after' | 'into';
+let dropHint: { targetId: string; mode: DropMode } | null = null;
 let openWorkbook: Workbook | null = null;
 let shellReady = false;
 /** Editor pane while a framed workbook is opening. */
@@ -387,7 +391,7 @@ async function refresh(): Promise<void> {
 }
 
 function childrenOf(parentId: string): VaultItem[] {
-  return rows.filter((row) => (row.parentId || '') === parentId);
+  return rows.filter((row) => (row.parentId || '') === parentId).sort(compareVaultOrder);
 }
 
 /** Expand ancestors so `itemId` is reachable; when `includeSelf`, also expand that folder. */
@@ -455,7 +459,8 @@ function openFolder(id: string): void {
 
 async function onNewFile(format: VaultFormat): Promise<void> {
   try {
-    const workbook = await createBlankFile(format, { parentId: currentFolderId });
+    const sortOrder = nextSortOrder(childrenOf(currentFolderId));
+    const workbook = await createBlankFile(format, { parentId: currentFolderId, sortOrder });
     rows = [workbook, ...rows.filter((row) => row.id !== workbook.id)];
     stageStatus = 'loading';
     stageError = '';
@@ -473,7 +478,8 @@ async function onNewFile(format: VaultFormat): Promise<void> {
 async function onNewFolder(): Promise<void> {
   try {
     if (currentFolderId) expandedFolderIds.add(currentFolderId);
-    const folder = await createFolder(t('cloudFolderUntitled'), currentFolderId);
+    const sortOrder = nextSortOrder(childrenOf(currentFolderId));
+    const folder = await createFolder(t('cloudFolderUntitled'), currentFolderId, sortOrder);
     rows = [folder, ...rows.filter((row) => row.id !== folder.id)];
     openFolder(folder.id);
     startRename(folder.id);
@@ -519,22 +525,45 @@ async function commitRename(id: string, raw: string): Promise<void> {
     paintDocs();
     return;
   }
-  const next = raw.trim();
-  if (!next || next === item.title) {
+  const trimmed = raw.trim();
+  if (!trimmed || trimmed === item.title) {
     paintDocs();
     return;
   }
+  const nextTitle =
+    item.kind === 'folder' ? trimmed : ensureFormatName(trimmed, item.format || 'xlsx');
+  if (nextTitle === item.title) {
+    paintDocs();
+    return;
+  }
+
+  // Optimistic: leave the input immediately; sync Appwrite in the background.
+  const previous = item;
+  const optimistic: VaultItem = { ...item, title: nextTitle };
+  rows = rows.map((row) => (row.id === id ? optimistic : row));
+  if (selectedId === id) {
+    openWorkbook = optimistic.kind === 'file' && optimistic.format ? (optimistic as Workbook) : openWorkbook;
+    document.title = nextTitle;
+    const frame = document.getElementById('workspace-editor-frame') as HTMLIFrameElement | null;
+    if (frame?.dataset.workbook === id) frame.title = nextTitle;
+  }
+  paintDocs();
+
   try {
-    const updated = await renameVaultItem(id, next);
+    const updated = await renameVaultItem(id, nextTitle, {
+      kind: item.kind,
+      format: item.format,
+      title: item.title,
+    });
     rows = rows.map((row) => (row.id === id ? updated : row));
-    if (selectedId === id) {
-      openWorkbook = updated.kind === 'file' && updated.format ? (updated as Workbook) : openWorkbook;
-      document.title = updated.title;
-      const frame = document.getElementById('workspace-editor-frame') as HTMLIFrameElement | null;
-      if (frame?.dataset.workbook === id) frame.title = updated.title;
-    }
-    paint();
   } catch (error) {
+    rows = rows.map((row) => (row.id === id ? previous : row));
+    if (selectedId === id) {
+      openWorkbook = previous.kind === 'file' && previous.format ? (previous as Workbook) : openWorkbook;
+      document.title = previous.title;
+      const frame = document.getElementById('workspace-editor-frame') as HTMLIFrameElement | null;
+      if (frame?.dataset.workbook === id) frame.title = previous.title;
+    }
     const message = error instanceof Error ? error.message : String(error);
     notifyError(`${t('cloudRenameFailed')}${message}`);
     paintDocs();
@@ -1212,6 +1241,142 @@ function itemIcon(item: VaultItem): SVGElement {
   return svgIcon('M4 4h16v16H4zM4 10h16M10 4v16');
 }
 
+function clearDropHintClasses(): void {
+  const host = document.getElementById('workspace-docs');
+  if (!host) return;
+  host.querySelectorAll('.vault-tree-row.is-drop-before, .vault-tree-row.is-drop-after, .vault-tree-row.is-drop-into').forEach((el) => {
+    el.classList.remove('is-drop-before', 'is-drop-after', 'is-drop-into');
+  });
+}
+
+function setDropHint(targetId: string, mode: DropMode): void {
+  dropHint = { targetId, mode };
+  clearDropHintClasses();
+  const host = document.getElementById('workspace-docs');
+  const row = host?.querySelector(`.vault-tree-row[data-id="${CSS.escape(targetId)}"]`);
+  row?.classList.add(`is-drop-${mode}`);
+}
+
+function resolveDropPlacement(
+  movedId: string,
+  hint: { targetId: string; mode: DropMode },
+): { parentId: string; beforeId: string | null } | null {
+  const moved = rows.find((row) => row.id === movedId);
+  const target = rows.find((row) => row.id === hint.targetId);
+  if (!moved || !target || moved.id === target.id) return null;
+
+  if (hint.mode === 'into') {
+    if (target.kind !== 'folder') return null;
+    if (moved.kind === 'folder' && isUnderFolder(rows, moved.id, target.id)) return null;
+    return { parentId: target.id, beforeId: null };
+  }
+
+  const parentId = target.parentId || '';
+  if (moved.kind === 'folder' && (parentId === moved.id || isUnderFolder(rows, moved.id, parentId))) {
+    return null;
+  }
+
+  if (hint.mode === 'before') {
+    return { parentId, beforeId: target.id };
+  }
+
+  const siblings = childrenOf(parentId);
+  const idx = siblings.findIndex((row) => row.id === target.id);
+  let beforeId: string | null = siblings[idx + 1]?.id ?? null;
+  if (beforeId === movedId) {
+    beforeId = siblings[idx + 2]?.id ?? null;
+  }
+  return { parentId, beforeId };
+}
+
+async function commitVaultDrop(movedId: string, hint: { targetId: string; mode: DropMode }): Promise<void> {
+  const placement = resolveDropPlacement(movedId, hint);
+  dropHint = null;
+  clearDropHintClasses();
+  if (!placement) return;
+
+  const previous = rows;
+  try {
+    const { items, patches } = placeVaultItem(rows, movedId, placement.parentId, placement.beforeId);
+    if (patches.length === 0) return;
+    rows = items;
+    if (hint.mode === 'into') expandedFolderIds.add(hint.targetId);
+    paintDocs();
+    await reorderVaultSiblings(patches);
+  } catch (error) {
+    rows = previous;
+    paintDocs();
+    const message = error instanceof Error ? error.message : String(error);
+    notifyError(message);
+  }
+}
+
+function bindVaultDrag(row: HTMLElement, item: VaultItem): void {
+  row.dataset.id = item.id;
+  row.draggable = true;
+
+  row.addEventListener('dragstart', (event) => {
+    if (renamingId) {
+      event.preventDefault();
+      return;
+    }
+    dragId = item.id;
+    dropHint = null;
+    row.classList.add('is-dragging');
+    event.dataTransfer?.setData('text/plain', item.id);
+    if (event.dataTransfer) event.dataTransfer.effectAllowed = 'move';
+  });
+
+  row.addEventListener('dragend', () => {
+    dragId = '';
+    dropHint = null;
+    row.classList.remove('is-dragging');
+    clearDropHintClasses();
+  });
+
+  row.addEventListener('dragover', (event) => {
+    if (!dragId || dragId === item.id) return;
+    const rect = row.getBoundingClientRect();
+    const ratio = (event.clientY - rect.top) / Math.max(rect.height, 1);
+    let mode: DropMode;
+    if (item.kind === 'folder') {
+      if (ratio < 0.28) mode = 'before';
+      else if (ratio > 0.72) mode = 'after';
+      else mode = 'into';
+    } else {
+      mode = ratio < 0.5 ? 'before' : 'after';
+    }
+    if (!resolveDropPlacement(dragId, { targetId: item.id, mode })) return;
+    event.preventDefault();
+    if (event.dataTransfer) event.dataTransfer.dropEffect = 'move';
+    setDropHint(item.id, mode);
+  });
+
+  row.addEventListener('dragleave', (event) => {
+    const related = event.relatedTarget as Node | null;
+    if (related && row.contains(related)) return;
+    if (dropHint?.targetId === item.id) {
+      dropHint = null;
+      row.classList.remove('is-drop-before', 'is-drop-after', 'is-drop-into');
+    }
+  });
+
+  row.addEventListener('drop', (event) => {
+    event.preventDefault();
+    event.stopPropagation();
+    const moved = dragId || event.dataTransfer?.getData('text/plain') || '';
+    const hint = dropHint?.targetId === item.id ? dropHint : null;
+    dragId = '';
+    row.classList.remove('is-dragging');
+    if (!moved || !hint) {
+      clearDropHintClasses();
+      dropHint = null;
+      return;
+    }
+    void commitVaultDrop(moved, hint);
+  });
+}
+
 function paintDocs(): void {
   const host = document.getElementById('workspace-docs');
   if (!host) return;
@@ -1260,6 +1425,7 @@ function buildTreeRow(item: VaultItem, depth: number, options: { searchable?: bo
   const row = document.createElement('div');
   row.className = 'vault-tree-row';
   row.dataset.depth = String(depth);
+  row.dataset.id = item.id;
   row.style.setProperty('--vault-depth', String(depth));
 
   const kids = item.kind === 'folder' && !options.searchable ? childrenOf(item.id) : [];
@@ -1376,6 +1542,29 @@ function buildTreeRow(item: VaultItem, depth: number, options: { searchable?: bo
       openNewMenuForFolder(item.id, add);
     });
     row.append(add);
+  }
+
+  if (!options.searchable) {
+    bindVaultDrag(row, item);
+    // Buttons don't initiate parent HTML5 drag in some browsers; mirror on the row item.
+    buttonEl.draggable = true;
+    buttonEl.addEventListener('dragstart', (event) => {
+      if (renamingId) {
+        event.preventDefault();
+        return;
+      }
+      dragId = item.id;
+      dropHint = null;
+      row.classList.add('is-dragging');
+      event.dataTransfer?.setData('text/plain', item.id);
+      if (event.dataTransfer) event.dataTransfer.effectAllowed = 'move';
+    });
+    buttonEl.addEventListener('dragend', () => {
+      dragId = '';
+      dropHint = null;
+      row.classList.remove('is-dragging');
+      clearDropHintClasses();
+    });
   }
 
   return row;

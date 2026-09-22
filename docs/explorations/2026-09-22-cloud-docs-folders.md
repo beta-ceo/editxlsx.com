@@ -14,6 +14,7 @@ Collection `editxlsx` / `workbooks`:
 | `kind` | enum `file` \| `folder` | `file` | existing rows inherit default |
 | `format` | enum `xlsx` \| `docx` \| `pptx` \| `none` | `xlsx` | folders store `none` |
 | `parentId` | string(36) | `''` | root |
+| `sortOrder` | integer | `0` | sibling order within `parentId` (asc) |
 
 Index `user_parent` on (`userId`, `parentId`).
 
@@ -28,6 +29,8 @@ Bucket `workbooks` `allowedFileExtensions`: `xlsx`, `docx`, `pptx` (was xlsx-onl
   `currentFolderId` and expands that node (ancestors auto-expand for deep selection).
 - Folder hover `+` opens the shared New menu anchored under the control.
 - Double-click a row (or press F2) to rename inline via `renameVaultItem`.
-- Sidebar preserves list order from Appwrite (`$updatedAt` desc); no client re-sort.
+- Sibling order: `sortOrder` asc, then `$createdAt` desc for legacy ties (all `0`).
+  Drag-and-drop reorders siblings and can move into/out of folders (`placeVaultItem` →
+  `reorderVaultSiblings`). Drop on folder middle = into; edges = before/after.
 - Blank pptx for New presentation uses vendor `sdkjs/slide/themes/src/01_blank.pptx`
   (hand-rolled OOXML lacked slide masters → open code -82 / `reading 'Master'`).

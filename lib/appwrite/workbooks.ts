@@ -33,6 +33,8 @@ export interface VaultItem {
   /** Empty string for folders (Appwrite stores `none`). */
   format: VaultFormat | '';
   parentId: string;
+  /** Sibling order within `parentId` (asc). Untouched legacy rows stay 0. */
+  sortOrder: number;
   fileId: string;
   sizeBytes: number;
   createdAt: string;
@@ -42,6 +44,12 @@ export interface VaultItem {
 /** File-shaped vault item (editor / cloud save binding). */
 export type Workbook = VaultItem & { kind: 'file'; format: VaultFormat };
 
+export type VaultPlacementPatch = {
+  id: string;
+  parentId: string;
+  sortOrder: number;
+};
+
 type VaultDoc = Models.Document & {
   userId: string;
   title: string;
@@ -50,6 +58,7 @@ type VaultDoc = Models.Document & {
   kind?: string;
   format?: string;
   parentId?: string;
+  sortOrder?: number;
 };
 
 function ownerPermissions(userId: string): string[] {
@@ -75,11 +84,99 @@ function fromDocument(doc: VaultDoc): VaultItem {
     kind,
     format,
     parentId: typeof doc.parentId === 'string' ? doc.parentId : '',
+    sortOrder: typeof doc.sortOrder === 'number' && Number.isFinite(doc.sortOrder) ? doc.sortOrder : 0,
     fileId: doc.fileId || '',
     sizeBytes: doc.sizeBytes || 0,
     createdAt: doc.$createdAt,
     updatedAt: doc.$updatedAt,
   };
+}
+
+/** Sibling sort: `sortOrder` asc, then `$createdAt` desc for legacy ties (all 0). */
+export function compareVaultOrder(a: VaultItem, b: VaultItem): number {
+  if (a.sortOrder !== b.sortOrder) return a.sortOrder - b.sortOrder;
+  return b.createdAt.localeCompare(a.createdAt);
+}
+
+/** Next append index for a sibling list (after any prior renumber / Date.now creates). */
+export function nextSortOrder(siblings: VaultItem[]): number {
+  let max = -1;
+  for (const row of siblings) {
+    if (row.sortOrder > max) max = row.sortOrder;
+  }
+  return max + 1;
+}
+
+/** True when `itemId` sits under `folderId` in the parent chain (not when equal). */
+export function isUnderFolder(items: VaultItem[], folderId: string, itemId: string): boolean {
+  let parentId = items.find((row) => row.id === itemId)?.parentId || '';
+  const seen = new Set<string>();
+  while (parentId) {
+    if (parentId === folderId) return true;
+    if (seen.has(parentId)) break;
+    seen.add(parentId);
+    parentId = items.find((row) => row.id === parentId)?.parentId || '';
+  }
+  return false;
+}
+
+/**
+ * Pure placement: move `movedId` under `newParentId`, inserting before `beforeId`
+ * (or append when `beforeId` is null). Renumbers both destination and vacated parents.
+ */
+export function placeVaultItem(
+  items: VaultItem[],
+  movedId: string,
+  newParentId: string,
+  beforeId: string | null,
+): { items: VaultItem[]; patches: VaultPlacementPatch[] } {
+  const moved = items.find((row) => row.id === movedId);
+  if (!moved) throw new Error('Item not found');
+  if (movedId === newParentId) throw new Error('Cannot move into itself');
+  if (moved.kind === 'folder' && (newParentId === movedId || isUnderFolder(items, movedId, newParentId))) {
+    throw new Error('Cannot move a folder into itself');
+  }
+
+  const oldParentId = moved.parentId || '';
+  const dest = items
+    .filter((row) => (row.parentId || '') === newParentId && row.id !== movedId)
+    .sort(compareVaultOrder);
+  let insertAt = dest.length;
+  if (beforeId) {
+    const idx = dest.findIndex((row) => row.id === beforeId);
+    if (idx >= 0) insertAt = idx;
+  }
+  const ordered = [...dest];
+  ordered.splice(insertAt, 0, { ...moved, parentId: newParentId });
+
+  const patches: VaultPlacementPatch[] = [];
+  ordered.forEach((row, sortOrder) => {
+    const orig = items.find((item) => item.id === row.id);
+    if (!orig || orig.parentId !== newParentId || orig.sortOrder !== sortOrder) {
+      patches.push({ id: row.id, parentId: newParentId, sortOrder });
+    }
+  });
+
+  if (oldParentId !== newParentId) {
+    const vacated = items
+      .filter((row) => (row.parentId || '') === oldParentId && row.id !== movedId)
+      .sort(compareVaultOrder);
+    vacated.forEach((row, sortOrder) => {
+      if (row.sortOrder !== sortOrder) {
+        patches.push({ id: row.id, parentId: oldParentId, sortOrder });
+      }
+    });
+  }
+
+  const byId = new Map<string, VaultPlacementPatch>();
+  for (const patch of patches) byId.set(patch.id, patch);
+
+  const nextItems = items.map((row) => {
+    const patch = byId.get(row.id);
+    return patch ? { ...row, parentId: patch.parentId, sortOrder: patch.sortOrder } : row;
+  });
+
+  return { items: nextItems, patches: [...byId.values()] };
 }
 
 function asWorkbook(item: VaultItem): Workbook {
@@ -109,7 +206,7 @@ function assertCloudOfficeFile(file: File, format?: VaultFormat): VaultFormat {
 export async function listVaultItems(options: { search?: string; limit?: number } = {}): Promise<VaultItem[]> {
   const user = await requireUser();
   const limit = options.limit ?? 100;
-  const queries = [Query.equal('userId', user.$id), Query.orderDesc('$updatedAt'), Query.limit(limit)];
+  const queries = [Query.equal('userId', user.$id), Query.orderDesc('$createdAt'), Query.limit(limit)];
   const result = await getDatabases().listDocuments<VaultDoc>({
     databaseId: DATABASE_ID,
     collectionId: COLLECTION_WORKBOOKS,
@@ -242,6 +339,7 @@ export async function createWorkbookFromFile(
   file: File,
   title?: string,
   parentId = '',
+  sortOrder = 0,
 ): Promise<Workbook> {
   const user = await requireUser();
   const format = assertCloudOfficeFile(file);
@@ -260,6 +358,7 @@ export async function createWorkbookFromFile(
       kind: 'file',
       format,
       parentId,
+      sortOrder,
     },
     permissions: ownerPermissions(user.$id),
   });
@@ -268,10 +367,15 @@ export async function createWorkbookFromFile(
 
 export async function createBlankFile(
   format: VaultFormat,
-  options: { title?: string; parentId?: string } = {},
+  options: { title?: string; parentId?: string; sortOrder?: number } = {},
 ): Promise<Workbook> {
   const title = options.title || `Untitled.${format}`;
-  return createWorkbookFromFile(await buildEmptyOfficeFile(format, title), title, options.parentId || '');
+  return createWorkbookFromFile(
+    await buildEmptyOfficeFile(format, title),
+    title,
+    options.parentId || '',
+    options.sortOrder ?? 0,
+  );
 }
 
 export async function createBlankWorkbook(
@@ -281,7 +385,11 @@ export async function createBlankWorkbook(
   return createBlankFile('xlsx', { title, parentId });
 }
 
-export async function createFolder(title = 'Untitled folder', parentId = ''): Promise<VaultItem> {
+export async function createFolder(
+  title = 'Untitled folder',
+  parentId = '',
+  sortOrder = 0,
+): Promise<VaultItem> {
   const user = await requireUser();
   const id = ID.unique();
   const finalTitle = title.trim() || 'Untitled folder';
@@ -297,10 +405,46 @@ export async function createFolder(title = 'Untitled folder', parentId = ''): Pr
       kind: 'folder',
       format: 'none',
       parentId,
+      sortOrder,
     },
     permissions: ownerPermissions(user.$id),
   });
   return fromDocument(doc);
+}
+
+/**
+ * Patch a single item's parent + order. Prefer `placeVaultItem` +
+ * `reorderVaultSiblings` when renumbering a whole sibling list.
+ */
+export async function moveVaultItem(
+  itemId: string,
+  parentId: string,
+  sortOrder: number,
+): Promise<VaultItem> {
+  await requireUser();
+  const doc = await getDatabases().updateDocument<VaultDoc>({
+    databaseId: DATABASE_ID,
+    collectionId: COLLECTION_WORKBOOKS,
+    documentId: itemId,
+    data: { parentId, sortOrder },
+  });
+  return fromDocument(doc);
+}
+
+/** Persist parent/sortOrder patches from `placeVaultItem` (parallel updates). */
+export async function reorderVaultSiblings(patches: VaultPlacementPatch[]): Promise<void> {
+  if (patches.length === 0) return;
+  await requireUser();
+  await Promise.all(
+    patches.map((patch) =>
+      getDatabases().updateDocument<VaultDoc>({
+        databaseId: DATABASE_ID,
+        collectionId: COLLECTION_WORKBOOKS,
+        documentId: patch.id,
+        data: { parentId: patch.parentId, sortOrder: patch.sortOrder },
+      }),
+    ),
+  );
 }
 
 /**
@@ -337,9 +481,13 @@ export async function saveWorkbookBytes(
   });
 }
 
-export async function renameVaultItem(itemId: string, title: string): Promise<VaultItem> {
+export async function renameVaultItem(
+  itemId: string,
+  title: string,
+  known?: Pick<VaultItem, 'kind' | 'format' | 'title'>,
+): Promise<VaultItem> {
   await requireUser();
-  const existing = await getVaultItem(itemId);
+  const existing = known ?? (await getVaultItem(itemId));
   const nextTitle =
     existing.kind === 'folder'
       ? title.trim() || existing.title
