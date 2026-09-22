@@ -37,14 +37,35 @@ const WORKBOOK = {
   title: 'sample_data_3000x20.xlsx',
   fileId: 'wb1',
   sizeBytes: 482344,
+  kind: 'file',
+  format: 'xlsx',
+  parentId: '',
+};
+
+const FOLDER = {
+  $id: 'folder1',
+  $createdAt: '2026-09-20T00:00:00.000+00:00',
+  $updatedAt: '2026-09-21T11:00:00.000+00:00',
+  $permissions: [] as string[],
+  $databaseId: 'editxlsx',
+  $collectionId: 'workbooks',
+  userId: 'user1',
+  title: 'Projects',
+  fileId: '',
+  sizeBytes: 0,
+  kind: 'folder',
+  format: 'none',
+  parentId: '',
 };
 
 async function mockAppwrite(
   page: import('@playwright/test').Page,
-  options: { download?: 'xlsx' | 'fail' } = {},
+  options: { download?: 'xlsx' | 'fail'; documents?: unknown[] } = {},
 ): Promise<void> {
   const download = options.download ?? 'xlsx';
+  const documents = options.documents ?? [WORKBOOK];
   const xlsx = Buffer.from(buildEmptyXlsxBytes());
+  let created: unknown[] = [];
 
   await page.route(/cloud\.appwrite\.io/, async (route) => {
     const request = route.request();
@@ -71,12 +92,34 @@ async function mockAppwrite(
       await json(USER);
       return;
     }
+    if (request.method() === 'POST' && url.includes('/documents') && !url.includes('/documents/')) {
+      const body = request.postDataJSON() as { documentId?: string; data?: Record<string, unknown> };
+      const doc = {
+        $id: body.documentId || `created-${created.length + 1}`,
+        $createdAt: '2026-09-22T00:00:00.000+00:00',
+        $updatedAt: '2026-09-22T00:00:00.000+00:00',
+        $permissions: [] as string[],
+        $databaseId: 'editxlsx',
+        $collectionId: 'workbooks',
+        ...(body.data || {}),
+      };
+      created = [doc, ...created];
+      await json(doc);
+      return;
+    }
+    if (request.method() === 'POST' && url.includes('/storage/') && url.includes('/files')) {
+      await json({ $id: 'uploaded-file' });
+      return;
+    }
     if (url.includes('/documents/') && !url.includes('queries')) {
-      await json(WORKBOOK);
+      const id = url.split('/documents/')[1]?.split('?')[0];
+      const all = [...created, ...documents] as Array<{ $id: string }>;
+      const hit = all.find((doc) => doc.$id === id) || WORKBOOK;
+      await json(hit);
       return;
     }
     if (url.includes('/documents')) {
-      await json({ total: 1, documents: [WORKBOOK] });
+      await json({ total: documents.length + created.length, documents: [...created, ...documents] });
       return;
     }
     if (url.includes('/storage/') && url.includes('/download')) {
@@ -145,6 +188,42 @@ test.describe('cloud auth pages', () => {
     await expect(page.locator('#workspace-stage-overlay')).toBeVisible({ timeout: 30_000 });
     await expect(page.locator('#workspace-stage-overlay')).toHaveAttribute('data-state', 'error');
     await expect(page.locator('#workspace-stage-overlay-title')).not.toHaveText('');
+  });
+
+  test('New menu lists workbook, document, presentation, and folder', async ({ page, l0 }) => {
+    l0.allowAscError(() => true);
+    l0.allowConsole(/Failed to open cloud workbook|Could not open|cloudOpenFailed|Failed to download/i);
+    l0.allowFrameError(/Failed to download|Could not open/i);
+
+    await page.goto('/login');
+    await mockAppwrite(page, { download: 'fail' });
+    await page.goto('/workspace');
+
+    await expect(page.locator('#workspace-new')).toBeVisible();
+    await page.locator('#workspace-new').click();
+    const options = page.locator('.vault-new-option');
+    await expect(options).toHaveCount(4);
+    await expect(options.nth(0)).toContainText(/workbook|工作簿|Arbeitsmappe|libro|folha|ワークブック|통합/i);
+    await expect(options.nth(1)).toContainText(/document|文档|Dokument|documento|ドキュメント|문서/i);
+    await expect(options.nth(2)).toContainText(/presentation|演示|Präsentation|presentación|apresentação|プレゼン|프레젠/i);
+    await expect(options.nth(3)).toContainText(/folder|文件夹|Ordner|carpeta|pasta|フォルダ|폴더/i);
+  });
+
+  test('creating a folder opens it in the sidebar', async ({ page, l0 }) => {
+    l0.allowAscError(() => true);
+    l0.allowConsole(/Failed to open cloud workbook|Could not open|cloudOpenFailed|Failed to download/i);
+    l0.allowFrameError(/Failed to download|Could not open/i);
+
+    await page.goto('/login');
+    await mockAppwrite(page, { download: 'fail', documents: [WORKBOOK, FOLDER] });
+    await page.goto('/workspace');
+
+    await expect(page.locator('.vault-tree-item[data-kind="folder"]')).toBeVisible();
+    await page.locator('.vault-tree-item[data-kind="folder"]').click();
+    await expect(page).toHaveURL(/folder=folder1/);
+    await expect(page.locator('#workspace-folder-crumb')).toBeVisible();
+    await expect(page.locator('#workspace-folder-crumb')).toContainText('Projects');
+    await expect(page.locator('#workspace-up')).toBeVisible();
   });
 
   test('signed-in /workspace opens a workbook in the editor pane', async ({ page, l0 }) => {

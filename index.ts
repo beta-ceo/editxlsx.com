@@ -200,6 +200,7 @@ void (async () => {
         pendingFile ??
         (await downloadWorkbookFile(workbook.fileId, workbook.title, {
           cacheBust: workbook.updatedAt,
+          format: workbook.format,
         }));
       bindCloudWorkbook(workbook);
       await openLocalFile(file, { skipHistory: true });

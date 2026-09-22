@@ -1,7 +1,9 @@
+import { formatFromTitle, mimeForFormat } from './appwrite/ids';
+
 /**
  * Durable local staging for cloud workbook saves.
  *
- * Save writes the exported .xlsx here first (same-tab, survives reload), then
+ * Save writes the exported Office file here first (same-tab, survives reload), then
  * uploads to Appwrite in the background. Open prefers a pending copy when it
  * is newer than the cloud row's updatedAt -- otherwise a reload mid-upload
  * would reopen the pre-edit bytes from Storage.
@@ -167,8 +169,10 @@ export async function takeCloudPendingIfNewer(
     await clearCloudPending(workbookId);
     return null;
   }
-  return new File([pending.bytes], pending.title, {
-    type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+  const copy = new Uint8Array(pending.bytes.byteLength);
+  copy.set(pending.bytes);
+  return new File([copy], pending.title, {
+    type: mimeForFormat(formatFromTitle(pending.title) || 'xlsx'),
     lastModified: pending.savedAt,
   });
 }

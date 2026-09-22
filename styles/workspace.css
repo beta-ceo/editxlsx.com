@@ -327,8 +327,16 @@ body {
   color: var(--ran-blue-700, #006bff);
 }
 
+.vault-new-option.is-presentation .vault-icon {
+  color: #c2410c;
+}
+
 .vault-new-option.is-folder .vault-icon {
   color: #c47a12;
+}
+
+.vault-new[open] .vault-new-menu.is-shown .vault-new-option:nth-child(4) {
+  transition-delay: 0.12s;
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -390,6 +398,34 @@ body {
   padding: 0 2px;
 }
 
+.vault-folder-crumb {
+  flex: none;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0 2px 4px;
+  padding: 6px 8px;
+  border-radius: 6px;
+  color: var(--ran-color-text);
+  font-size: 13px;
+  font-weight: 550;
+  background: color-mix(in srgb, var(--ran-blue-700, #006bff) 6%, transparent);
+}
+
+.vault-folder-crumb .vault-icon {
+  width: 16px;
+  height: 16px;
+  flex: none;
+  color: #c47a12;
+}
+
+.vault-folder-crumb span {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 .vault-tree-item {
   width: 100%;
   display: flex;
@@ -420,6 +456,22 @@ body {
   height: 16px;
   flex: none;
   color: var(--ran-blue-700, #006bff);
+}
+
+.vault-tree-item[data-kind='folder'] .vault-icon {
+  color: #c47a12;
+}
+
+.vault-tree-item[data-format='xlsx'] .vault-icon {
+  color: #0f8a5f;
+}
+
+.vault-tree-item[data-format='docx'] .vault-icon {
+  color: var(--ran-blue-700, #006bff);
+}
+
+.vault-tree-item[data-format='pptx'] .vault-icon {
+  color: #c2410c;
 }
 
 .vault-tree-title {

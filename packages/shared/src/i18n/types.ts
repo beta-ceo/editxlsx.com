@@ -138,9 +138,14 @@ export interface I18nMessages {
   cloudFilesIntro: string;
   cloudNewWorkbook: string;
   cloudNewDocument: string;
+  cloudNewPresentation: string;
   cloudNewFolder: string;
   /** Shown when a New-menu action is not wired to cloud storage yet. */
   cloudComingSoon: string;
+  /** Folder delete refused because it still has children. */
+  cloudFolderNotEmpty: string;
+  cloudFolderUntitled: string;
+  cloudNavUp: string;
   cloudUploadWorkbook: string;
   cloudEmptyTitle: string;
   cloudEmpty: string;

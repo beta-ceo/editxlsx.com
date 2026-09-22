@@ -275,20 +275,126 @@ describe('appwrite workbooks', () => {
     vi.unstubAllGlobals();
   });
 
-  it('rejects non-xlsx uploads', async () => {
+  it('rejects non-office uploads', async () => {
     const { createWorkbookFromFile } = await import('../../lib/appwrite/workbooks');
     const file = new File([new Uint8Array([1])], 'notes.csv', { type: 'text/csv' });
-    await expect(createWorkbookFromFile(file)).rejects.toThrow(/xlsx/i);
+    await expect(createWorkbookFromFile(file)).rejects.toThrow(/xlsx|docx|pptx/i);
     expect(createFile).not.toHaveBeenCalled();
+  });
+
+  it('creates a folder as metadata with no storage object', async () => {
+    createDocument.mockResolvedValue({
+      $id: 'generated-id',
+      $createdAt: '2026-01-01',
+      $updatedAt: '2026-01-01',
+      userId: 'user-1',
+      title: 'Projects',
+      fileId: '',
+      sizeBytes: 0,
+      kind: 'folder',
+      format: 'none',
+      parentId: '',
+    });
+
+    const { createFolder } = await import('../../lib/appwrite/workbooks');
+    const folder = await createFolder('Projects');
+
+    expect(createFile).not.toHaveBeenCalled();
+    expect(createDocument).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({
+          kind: 'folder',
+          format: 'none',
+          fileId: '',
+          parentId: '',
+        }),
+      }),
+    );
+    expect(folder.kind).toBe('folder');
+    expect(folder.format).toBe('');
+  });
+
+  it('refuses to delete a non-empty folder', async () => {
+    getDocument.mockResolvedValue({
+      $id: 'folder-1',
+      $createdAt: '2026-01-01',
+      $updatedAt: '2026-01-01',
+      userId: 'user-1',
+      title: 'Projects',
+      fileId: '',
+      sizeBytes: 0,
+      kind: 'folder',
+      format: 'none',
+      parentId: '',
+    });
+    listDocuments.mockResolvedValue({
+      documents: [
+        {
+          $id: 'child-1',
+          $createdAt: '2026-01-01',
+          $updatedAt: '2026-01-01',
+          userId: 'user-1',
+          title: 'A.xlsx',
+          fileId: 'child-1',
+          sizeBytes: 1,
+          kind: 'file',
+          format: 'xlsx',
+          parentId: 'folder-1',
+        },
+      ],
+    });
+
+    const { deleteVaultItem } = await import('../../lib/appwrite/workbooks');
+    await expect(deleteVaultItem('folder-1')).rejects.toThrow(/not empty/i);
+    expect(deleteDocument).not.toHaveBeenCalled();
+  });
+
+  it('creates a blank docx with parentId', async () => {
+    createFile.mockResolvedValue({ $id: 'generated-id' });
+    createDocument.mockResolvedValue({
+      $id: 'generated-id',
+      $createdAt: '2026-01-01',
+      $updatedAt: '2026-01-01',
+      userId: 'user-1',
+      title: 'Untitled.docx',
+      fileId: 'generated-id',
+      sizeBytes: 200,
+      kind: 'file',
+      format: 'docx',
+      parentId: 'folder-1',
+    });
+
+    const { createBlankFile } = await import('../../lib/appwrite/workbooks');
+    const doc = await createBlankFile('docx', { parentId: 'folder-1' });
+
+    expect(createDocument).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({
+          kind: 'file',
+          format: 'docx',
+          parentId: 'folder-1',
+        }),
+      }),
+    );
+    expect(doc.format).toBe('docx');
   });
 });
 
-describe('empty xlsx', () => {
+describe('empty office packages', () => {
   it('builds a zip that starts with a local-file header', async () => {
     const { buildEmptyXlsxBytes } = await import('../../lib/appwrite/empty-xlsx');
     const bytes = buildEmptyXlsxBytes();
     expect(bytes[0]).toBe(0x50); // P
     expect(bytes[1]).toBe(0x4b); // K
     expect(bytes.byteLength).toBeGreaterThan(100);
+  });
+
+  it('builds blank docx and pptx packages', async () => {
+    const { buildEmptyDocxBytes, buildEmptyPptxBytes } = await import('../../lib/appwrite/empty-office');
+    for (const bytes of [buildEmptyDocxBytes(), buildEmptyPptxBytes()]) {
+      expect(bytes[0]).toBe(0x50);
+      expect(bytes[1]).toBe(0x4b);
+      expect(bytes.byteLength).toBeGreaterThan(80);
+    }
   });
 });

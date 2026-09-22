@@ -101,6 +101,9 @@ describe('cloud-workbook binding', () => {
       fileId: 'f2',
       userId: 'u',
       sizeBytes: 3,
+      kind: 'file',
+      format: 'xlsx',
+      parentId: '',
       createdAt: '',
       updatedAt: '',
     });
@@ -136,6 +139,9 @@ describe('cloud-workbook binding', () => {
       fileId: 'f2',
       userId: 'u',
       sizeBytes: 1,
+      kind: 'file',
+      format: 'xlsx',
+      parentId: '',
       createdAt: '',
       updatedAt: '',
     });
@@ -148,5 +154,31 @@ describe('cloud-workbook binding', () => {
       expect.objectContaining({ hot: expect.objectContaining({ fileId: 'f1' }) }),
     );
     expect(postShellSaveState).toHaveBeenCalledWith('w1', 'saved');
+  });
+
+  it('passes the bound format on the blocking fallback save', async () => {
+    const { bindCloudWorkbook, writeCloudWorkbook } = await import('../../lib/cloud-workbook');
+    bindCloudWorkbook({ id: 'w1', title: 'Notes.docx', fileId: 'f1', userId: 'u', format: 'docx' });
+    putCloudPending.mockResolvedValue(false);
+    saveWorkbookBytes.mockResolvedValue({
+      id: 'w1',
+      title: 'Notes.docx',
+      fileId: 'f2',
+      userId: 'u',
+      sizeBytes: 1,
+      kind: 'file',
+      format: 'docx',
+      parentId: '',
+      createdAt: '',
+      updatedAt: '',
+    });
+
+    const ok = await writeCloudWorkbook(new File([new Uint8Array([1])], 'Notes.docx'));
+    expect(ok).toBe(true);
+    expect(saveWorkbookBytes).toHaveBeenCalledWith(
+      'w1',
+      expect.any(File),
+      expect.objectContaining({ hot: expect.objectContaining({ format: 'docx' }) }),
+    );
   });
 });

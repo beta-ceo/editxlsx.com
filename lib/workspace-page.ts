@@ -13,7 +13,8 @@ import { getTheme, initTheme, setTheme, type RanThemeName } from 'ranui/theme';
 import '../styles/workspace.css';
 import { applyDocumentLanguage, getLanguage, t, withLocale } from '@ranuts/shared/i18n';
 import { getCurrentUser, signOut, type AuthUser } from './appwrite/auth';
-import { createBlankWorkbook, listWorkbooks, type Workbook } from './appwrite/workbooks';
+import { createBlankFile, createFolder, listVaultItems, type VaultItem, type Workbook } from './appwrite/workbooks';
+import type { VaultFormat } from './appwrite/ids';
 import { isShellBridgeMessage, SHELL_FAILED, SHELL_READY, SHELL_SAVE_STATE } from './shell-bridge';
 import type { ShellSaveState } from './shell-bridge';
 
@@ -46,9 +47,11 @@ const LOCALES: Array<{ code: string; label: string }> = [
 let query = '';
 let searchTimer = 0;
 let user: AuthUser | null = null;
-let rows: Workbook[] = [];
+let rows: VaultItem[] = [];
 let loading = true;
 let selectedId = '';
+/** '' = vault root. New actions land here; sidebar lists this folder's children. */
+let currentFolderId = '';
 let openWorkbook: Workbook | null = null;
 /** When true, do not auto-open the newest workbook (Home is showing). */
 let preferHome = false;
@@ -96,10 +99,6 @@ function formatBytes(size: number): string {
 
 function notifyError(message: string): void {
   (window as unknown as { message?: { error?: (msg: string) => void } }).message?.error?.(message);
-}
-
-function notifyInfo(message: string): void {
-  (window as unknown as { message?: { info?: (msg: string) => void } }).message?.info?.(message);
 }
 
 function clearOpenWatchers(): void {
@@ -193,8 +192,11 @@ function watchEditorOpen(
 
 function selectedWorkbook(): Workbook | undefined {
   const found = rows.find((row) => row.id === selectedId);
-  if (found) openWorkbook = found;
-  if (!selectedId) openWorkbook = null;
+  if (found?.kind === 'file' && found.format) {
+    openWorkbook = found as Workbook;
+  } else if (!selectedId) {
+    openWorkbook = null;
+  }
   return openWorkbook?.id === selectedId ? openWorkbook : undefined;
 }
 
@@ -204,6 +206,8 @@ function syncUrl(): void {
   else url.searchParams.delete('q');
   if (selectedId) url.searchParams.set('workbook', selectedId);
   else url.searchParams.delete('workbook');
+  if (currentFolderId) url.searchParams.set('folder', currentFolderId);
+  else url.searchParams.delete('folder');
   window.history.replaceState(null, '', url);
 }
 
@@ -211,6 +215,8 @@ function readUrl(): void {
   const params = new URLSearchParams(window.location.search);
   query = params.get('q') ?? '';
   selectedId = params.get('workbook') ?? '';
+  currentFolderId = params.get('folder') ?? '';
+  if (selectedId) preferHome = false;
 }
 
 function rememberLocale(locale: string): void {
@@ -343,28 +349,42 @@ async function refresh(): Promise<void> {
   loading = true;
   paint();
   try {
-    rows = await listWorkbooks({ search: query });
+    rows = await listVaultItems({ search: query });
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);
     notifyError(message);
     rows = [];
   } finally {
     loading = false;
-    if (selectedId && !rows.some((row) => row.id === selectedId) && !query) {
-      selectedId = '';
-      openWorkbook = null;
-      stageStatus = 'idle';
-      stageError = '';
-      clearOpenWatchers();
+    if (currentFolderId && !rows.some((row) => row.id === currentFolderId && row.kind === 'folder')) {
+      currentFolderId = '';
     }
-    if (!selectedId && !query && rows[0] && !preferHome) {
-      selectedId = rows[0].id;
+    if (selectedId) {
+      const selected = rows.find((row) => row.id === selectedId);
+      if (!selected || selected.kind !== 'file') {
+        selectedId = '';
+        openWorkbook = null;
+        stageStatus = 'idle';
+        stageError = '';
+        clearOpenWatchers();
+      } else if (!query) {
+        currentFolderId = selected.parentId || '';
+      }
+    }
+    const filesHere = visibleItems().filter((row) => row.kind === 'file');
+    if (!selectedId && !query && filesHere[0] && !preferHome && !currentFolderId) {
+      selectedId = filesHere[0].id;
       stageStatus = 'loading';
       stageError = '';
     }
     syncUrl();
     paint();
   }
+}
+
+function visibleItems(): VaultItem[] {
+  if (query.trim()) return rows;
+  return rows.filter((row) => (row.parentId || '') === currentFolderId);
 }
 
 function selectWorkbook(id: string): void {
@@ -385,12 +405,15 @@ function selectWorkbook(id: string): void {
   }
   if (!same) setSaveStatus('idle');
   selectedId = id;
+  const item = rows.find((row) => row.id === id);
+  if (item?.kind === 'file') currentFolderId = item.parentId || '';
   syncUrl();
   paint();
 }
 
-function showHome(): void {
-  preferHome = true;
+function openFolder(id: string): void {
+  preferHome = false;
+  currentFolderId = id;
   selectedId = '';
   openWorkbook = null;
   stageStatus = 'idle';
@@ -401,10 +424,41 @@ function showHome(): void {
   paint();
 }
 
-async function onNew(): Promise<void> {
+function showHome(): void {
+  preferHome = true;
+  selectedId = '';
+  currentFolderId = '';
+  openWorkbook = null;
+  stageStatus = 'idle';
+  stageError = '';
+  setSaveStatus('idle');
+  clearOpenWatchers();
+  syncUrl();
+  paint();
+}
+
+function navigateUp(): void {
+  if (!currentFolderId) {
+    showHome();
+    return;
+  }
+  const parent = rows.find((row) => row.id === currentFolderId);
+  currentFolderId = parent?.parentId || '';
+  selectedId = '';
+  openWorkbook = null;
+  stageStatus = 'idle';
+  stageError = '';
+  setSaveStatus('idle');
+  clearOpenWatchers();
+  preferHome = !currentFolderId;
+  syncUrl();
+  paint();
+}
+
+async function onNewFile(format: VaultFormat): Promise<void> {
   try {
     preferHome = false;
-    const workbook = await createBlankWorkbook();
+    const workbook = await createBlankFile(format, { parentId: currentFolderId });
     rows = [workbook, ...rows.filter((row) => row.id !== workbook.id)];
     stageStatus = 'loading';
     stageError = '';
@@ -417,15 +471,22 @@ async function onNew(): Promise<void> {
   }
 }
 
-function onComingSoon(): void {
-  notifyInfo(t('cloudComingSoon'));
+async function onNewFolder(): Promise<void> {
+  try {
+    const folder = await createFolder(t('cloudFolderUntitled'), currentFolderId);
+    rows = [folder, ...rows.filter((row) => row.id !== folder.id)];
+    openFolder(folder.id);
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
+    notifyError(message);
+  }
 }
 
 function newMenuOption(
   iconPath: string,
   label: string,
   onClick: () => void,
-  tone: 'workbook' | 'document' | 'folder',
+  tone: 'workbook' | 'document' | 'presentation' | 'folder',
 ): HTMLButtonElement {
   const option = document.createElement('button');
   option.type = 'button';
@@ -618,7 +679,7 @@ function mountShell(): void {
     t('cloudNewWorkbook'),
     () => {
       newMenu.open = false;
-      void onNew();
+      void onNewFile('xlsx');
     },
     'workbook',
   );
@@ -628,9 +689,19 @@ function mountShell(): void {
     t('cloudNewDocument'),
     () => {
       newMenu.open = false;
-      onComingSoon();
+      void onNewFile('docx');
     },
     'document',
+  );
+  // Slides — presentation.
+  const newPresentation = newMenuOption(
+    'M3 5h18v12H3zM8 21h8M12 17v4',
+    t('cloudNewPresentation'),
+    () => {
+      newMenu.open = false;
+      void onNewFile('pptx');
+    },
+    'presentation',
   );
   // Folder — directory.
   const newFolder = newMenuOption(
@@ -638,11 +709,11 @@ function mountShell(): void {
     t('cloudNewFolder'),
     () => {
       newMenu.open = false;
-      onComingSoon();
+      void onNewFolder();
     },
     'folder',
   );
-  newPanel.append(newWorkbook, newDocument, newFolder);
+  newPanel.append(newWorkbook, newDocument, newPresentation, newFolder);
   newMenu.append(newSummary, newPanel);
   // <details> starts content at display:none, so CSS alone cannot animate open.
   // Flip is-shown on the next frame after [open] so opacity/translate can run.
@@ -669,6 +740,19 @@ function mountShell(): void {
   );
   homeBtn.addEventListener('click', () => showHome());
 
+  const upBtn = document.createElement('button');
+  upBtn.type = 'button';
+  upBtn.className = 'vault-tree-item vault-nav-up';
+  upBtn.id = 'workspace-up';
+  upBtn.hidden = true;
+  upBtn.append(svgIcon('M12 19V5M5 12l7-7 7 7'), document.createTextNode(t('cloudNavUp')));
+  upBtn.addEventListener('click', () => navigateUp());
+
+  const folderCrumb = document.createElement('div');
+  folderCrumb.className = 'vault-folder-crumb';
+  folderCrumb.id = 'workspace-folder-crumb';
+  folderCrumb.hidden = true;
+
   const side = Div()
     .class('vault-side')
     .children(
@@ -687,6 +771,8 @@ function mountShell(): void {
         .build(),
       newMenu,
       homeBtn,
+      upBtn,
+      folderCrumb,
       Div()
         .class('vault-dir-head')
         .children(
@@ -857,11 +943,44 @@ function paintSaveStatus(): void {
   el.hidden = false;
 }
 
+function itemIcon(item: VaultItem): SVGElement {
+  if (item.kind === 'folder') {
+    return svgIcon('M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7z');
+  }
+  if (item.format === 'docx') {
+    return svgIcon('M7 3h7l5 5v13a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1zM14 3v5h5M9 13h6M9 17h4');
+  }
+  if (item.format === 'pptx') {
+    return svgIcon('M3 5h18v12H3zM8 21h8M12 17v4');
+  }
+  return svgIcon('M4 4h16v16H4zM4 10h16M10 4v16');
+}
+
+function paintFolderNav(): void {
+  const up = document.getElementById('workspace-up') as HTMLButtonElement | null;
+  const crumb = document.getElementById('workspace-folder-crumb');
+  const folder = currentFolderId ? rows.find((row) => row.id === currentFolderId) : undefined;
+  if (up) up.hidden = !currentFolderId;
+  if (!crumb) return;
+  if (!folder) {
+    crumb.hidden = true;
+    crumb.replaceChildren();
+    return;
+  }
+  crumb.hidden = false;
+  crumb.replaceChildren();
+  const icon = svgIcon('M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7z');
+  const label = document.createElement('span');
+  label.textContent = folder.title;
+  crumb.append(icon, label);
+}
+
 function paintDocs(): void {
   const host = document.getElementById('workspace-docs');
   const home = document.getElementById('workspace-home');
   if (!host) return;
-  home?.classList.toggle('is-current', preferHome || !selectedId);
+  paintFolderNav();
+  home?.classList.toggle('is-current', preferHome || (!selectedId && !currentFolderId));
   host.replaceChildren();
   if (loading) {
     const pending = document.createElement('p');
@@ -870,24 +989,35 @@ function paintDocs(): void {
     host.append(pending);
     return;
   }
-  if (rows.length === 0) {
+  const visible = visibleItems().slice().sort((a, b) => {
+    if (a.kind !== b.kind) return a.kind === 'folder' ? -1 : 1;
+    return b.updatedAt.localeCompare(a.updatedAt);
+  });
+  if (visible.length === 0) {
     const empty = document.createElement('p');
     empty.className = 'vault-empty';
     empty.textContent = query ? t('cloudEmptySearch') : t('cloudEmpty');
     host.append(empty);
     return;
   }
-  for (const workbook of rows) {
-    const item = document.createElement('button');
-    item.type = 'button';
-    item.className = workbook.id === selectedId ? 'vault-tree-item is-current' : 'vault-tree-item';
-    if (workbook.id === selectedId) item.setAttribute('aria-current', 'true');
+  for (const item of visible) {
+    const buttonEl = document.createElement('button');
+    buttonEl.type = 'button';
+    const isCurrent =
+      item.kind === 'file' ? item.id === selectedId : item.id === currentFolderId && !selectedId;
+    buttonEl.className = isCurrent ? 'vault-tree-item is-current' : 'vault-tree-item';
+    buttonEl.dataset.kind = item.kind;
+    if (item.format) buttonEl.dataset.format = item.format;
+    if (isCurrent) buttonEl.setAttribute('aria-current', 'true');
     const title = document.createElement('span');
     title.className = 'vault-tree-title';
-    title.textContent = workbook.title;
-    item.append(svgIcon('M7 3h7l5 5v13a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1zM14 3v5h5'), title);
-    item.addEventListener('click', () => selectWorkbook(workbook.id));
-    host.append(item);
+    title.textContent = item.title;
+    buttonEl.append(itemIcon(item), title);
+    buttonEl.addEventListener('click', () => {
+      if (item.kind === 'folder') openFolder(item.id);
+      else selectWorkbook(item.id);
+    });
+    host.append(buttonEl);
   }
 }
 
@@ -895,7 +1025,7 @@ function paintStorage(): void {
   const used = document.getElementById('workspace-storage-used');
   const fill = document.getElementById('workspace-storage-fill');
   if (!used || !fill) return;
-  const bytes = rows.reduce((sum, row) => sum + row.sizeBytes, 0);
+  const bytes = rows.reduce((sum, row) => (row.kind === 'file' ? sum + row.sizeBytes : sum), 0);
   used.textContent = t('cloudStorageUsed', { size: formatBytes(bytes) });
   const ratio = Math.max(0, Math.min(1, bytes / STORAGE_SCALE_BYTES));
   fill.style.width = `${Math.round(ratio * 1000) / 10}%`;

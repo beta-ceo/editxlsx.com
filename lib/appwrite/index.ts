@@ -8,17 +8,51 @@ export {
   resetAppwriteClientForTests,
 } from './client';
 export { getCurrentUser, requireUser, signIn, signOut, signUp, type AuthUser } from './auth';
-export { buildEmptyXlsxBytes, buildEmptyXlsxFile } from './empty-xlsx';
-export { BUCKET_WORKBOOKS, COLLECTION_WORKBOOKS, DATABASE_ID, MAX_WORKBOOK_BYTES, XLSX_EXT, XLSX_MIME } from './ids';
 export {
+  buildEmptyDocxBytes,
+  buildEmptyDocxFile,
+  buildEmptyOfficeFile,
+  buildEmptyPptxBytes,
+  buildEmptyPptxFile,
+  buildEmptyXlsxBytes,
+  buildEmptyXlsxFile,
+} from './empty-office';
+export {
+  BUCKET_WORKBOOKS,
+  COLLECTION_WORKBOOKS,
+  DATABASE_ID,
+  DOCX_EXT,
+  DOCX_MIME,
+  FORMAT_MIME,
+  MAX_WORKBOOK_BYTES,
+  PPTX_EXT,
+  PPTX_MIME,
+  VAULT_FORMATS,
+  XLSX_EXT,
+  XLSX_MIME,
+  formatFromTitle,
+  isVaultFormat,
+  mimeForFormat,
+  type VaultFormat,
+  type VaultKind,
+} from './ids';
+export {
+  createBlankFile,
   createBlankWorkbook,
+  createFolder,
   createWorkbookFromFile,
+  deleteVaultItem,
   deleteWorkbook,
   downloadWorkbookFile,
+  ensureFormatName,
+  getVaultItem,
   getWorkbook,
+  listVaultItems,
   listWorkbooks,
+  renameVaultItem,
   renameWorkbook,
   saveWorkbookBytes,
   type SaveWorkbookHot,
+  type VaultItem,
   type Workbook,
 } from './workbooks';

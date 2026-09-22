@@ -11,6 +11,7 @@
  */
 import { t } from '@ranuts/shared/i18n';
 import { isEmbedMode } from './embed-mode';
+import { formatFromTitle, mimeForFormat, type VaultFormat } from './appwrite/ids';
 import { saveWorkbookBytes, type Workbook } from './appwrite/workbooks';
 import {
   clearCloudPending,
@@ -43,6 +44,7 @@ export interface CloudWorkbookBinding {
   title: string;
   fileId: string;
   userId: string;
+  format: VaultFormat;
 }
 
 let binding: CloudWorkbookBinding | null = null;
@@ -56,6 +58,18 @@ let lastExportMs: number | null = null;
 let failures = 0;
 let onVisibility: (() => void) | null = null;
 
+function bindingFormat(active: CloudWorkbookBinding): VaultFormat {
+  return active.format || formatFromTitle(active.title) || 'xlsx';
+}
+
+function bindingMime(active: CloudWorkbookBinding): string {
+  return mimeForFormat(bindingFormat(active));
+}
+
+function bindingSaveExt(active: CloudWorkbookBinding): string {
+  return bindingFormat(active).toUpperCase();
+}
+
 export function getCloudWorkbook(): CloudWorkbookBinding | null {
   return binding;
 }
@@ -64,12 +78,15 @@ export function isCloudWorkbookBound(): boolean {
   return binding !== null;
 }
 
-export function bindCloudWorkbook(workbook: Pick<Workbook, 'id' | 'title' | 'fileId' | 'userId'>): void {
+export function bindCloudWorkbook(
+  workbook: Pick<Workbook, 'id' | 'title' | 'fileId' | 'userId'> & { format?: VaultFormat },
+): void {
   binding = {
     id: workbook.id,
     title: workbook.title,
     fileId: workbook.fileId,
     userId: workbook.userId,
+    format: workbook.format || formatFromTitle(workbook.title) || 'xlsx',
   };
   stampWorkbookInUrl(workbook.id);
 }
@@ -99,11 +116,16 @@ function notify(kind: 'success' | 'error' | 'warning', message: string): void {
 
 function hotSaveOptions(active: CloudWorkbookBinding): {
   title: string;
-  hot: { userId: string; fileId: string; title: string };
+  hot: { userId: string; fileId: string; title: string; format: VaultFormat };
 } {
   return {
     title: active.title,
-    hot: { userId: active.userId, fileId: active.fileId, title: active.title },
+    hot: {
+      userId: active.userId,
+      fileId: active.fileId,
+      title: active.title,
+      format: bindingFormat(active),
+    },
   };
 }
 
@@ -126,8 +148,10 @@ export async function flushCloudPending(): Promise<void> {
       const generation = pending.savedAt;
       postShellSaveState(binding.id, 'local');
       try {
-        const file = new File([pending.bytes], pending.title, {
-          type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+        const copy = new Uint8Array(pending.bytes.byteLength);
+        copy.set(pending.bytes);
+        const file = new File([copy], pending.title, {
+          type: bindingMime(binding),
           lastModified: pending.savedAt,
         });
         const updated = await saveWorkbookBytes(binding.id, file, {
@@ -139,6 +163,7 @@ export async function flushCloudPending(): Promise<void> {
             // whatever the row currently points at.
             fileId: binding.fileId,
             title: pending.title,
+            format: bindingFormat(binding),
           },
         });
         if (!binding || binding.id !== updated.id) break;
@@ -147,6 +172,7 @@ export async function flushCloudPending(): Promise<void> {
           title: updated.title,
           fileId: updated.fileId,
           userId: updated.userId,
+          format: updated.format,
         };
         lastCloudSaveAt = Date.now();
         failures = 0;
@@ -197,7 +223,7 @@ export async function writeCloudWorkbook(file: File): Promise<boolean> {
   postShellSaveState(active.id, 'saving');
   try {
     const named = new File([file], active.title, {
-      type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+      type: bindingMime(active),
     });
     const staged = await putCloudPending(active.id, named, {
       userId: active.userId,
@@ -213,6 +239,7 @@ export async function writeCloudWorkbook(file: File): Promise<boolean> {
         title: updated.title,
         fileId: updated.fileId,
         userId: updated.userId,
+        format: updated.format,
       };
       markDocumentSaved();
       clearCloudSyncPending();
@@ -249,9 +276,9 @@ async function takeCloudSnapshot(): Promise<void> {
   postShellSaveState(active.id, 'saving');
   const startedAt = Date.now();
   try {
-    const file = await requestSaveDocument('XLSX');
+    const file = await requestSaveDocument(bindingSaveExt(active));
     const named = new File([file], active.title, {
-      type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+      type: bindingMime(active),
     });
     const staged = await putCloudPending(active.id, named, {
       userId: active.userId,
@@ -265,6 +292,7 @@ async function takeCloudSnapshot(): Promise<void> {
         title: updated.title,
         fileId: updated.fileId,
         userId: updated.userId,
+        format: updated.format,
       };
       markDocumentSaved();
       clearCloudSyncPending();
