@@ -13,8 +13,9 @@ import { getTheme, initTheme, setTheme, type RanThemeName } from 'ranui/theme';
 import '../styles/workspace.css';
 import { applyDocumentLanguage, getLanguage, t, withLocale } from '@ranuts/shared/i18n';
 import { getCurrentUser, signOut, type AuthUser } from './appwrite/auth';
-import { createBlankFile, createFolder, deleteVaultItem, ensureFormatName, isUnderFolder, listVaultItems, placeVaultItem, renameVaultItem, reorderVaultSiblings, compareVaultOrder, nextSortOrder, type VaultItem, type Workbook } from './appwrite/workbooks';
+import { createBlankFile, createFolder, createWorkbookFromFile, deleteVaultItem, ensureFormatName, isUnderFolder, listVaultItems, placeVaultItem, renameVaultItem, reorderVaultSiblings, compareVaultOrder, nextSortOrder, type VaultItem, type Workbook } from './appwrite/workbooks';
 import type { VaultFormat } from './appwrite/ids';
+import { formatFromTitle } from './appwrite/ids';
 import { confirmDialog } from './confirm-dialog';
 import { isShellBridgeMessage, SHELL_FAILED, SHELL_READY, SHELL_SAVE_STATE } from './shell-bridge';
 import type { ShellSaveState } from './shell-bridge';
@@ -489,6 +490,42 @@ async function onNewFolder(): Promise<void> {
   }
 }
 
+function pickUploadFiles(): void {
+  const input = document.getElementById('workspace-upload-input') as HTMLInputElement | null;
+  if (!input) return;
+  input.value = '';
+  input.click();
+}
+
+async function onUploadFiles(fileList: FileList | null): Promise<void> {
+  if (!fileList || fileList.length === 0) return;
+  const files = [...fileList];
+  let lastId = '';
+  try {
+    for (const file of files) {
+      if (!formatFromTitle(file.name)) {
+        notifyError(t('cloudUploadTypeError'));
+        continue;
+      }
+      const sortOrder = nextSortOrder(childrenOf(currentFolderId));
+      const workbook = await createWorkbookFromFile(file, file.name, currentFolderId, sortOrder);
+      rows = [workbook, ...rows.filter((row) => row.id !== workbook.id)];
+      lastId = workbook.id;
+    }
+    if (!lastId) return;
+    stageStatus = 'loading';
+    stageError = '';
+    selectedId = lastId;
+    if (currentFolderId) expandedFolderIds.add(currentFolderId);
+    revealTreeSelection();
+    syncUrl();
+    paint();
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
+    notifyError(message);
+  }
+}
+
 function startRename(id: string): void {
   if (!rows.some((row) => row.id === id)) return;
   renamingId = id;
@@ -704,7 +741,6 @@ function newMenuOption(
 
 function closeNewMenu(): void {
   const menu = document.getElementById('workspace-new-menu');
-  const trigger = document.getElementById('workspace-new');
   if (menu) {
     menu.classList.remove('is-shown');
     menu.hidden = true;
@@ -713,7 +749,8 @@ function closeNewMenu(): void {
     menu.style.width = '';
     delete menu.dataset.anchor;
   }
-  trigger?.setAttribute('aria-expanded', 'false');
+  document.getElementById('workspace-new')?.setAttribute('aria-expanded', 'false');
+  document.getElementById('workspace-stage-new')?.setAttribute('aria-expanded', 'false');
   document.querySelectorAll<HTMLElement>('.vault-tree-add[aria-expanded="true"]').forEach((el) => {
     el.setAttribute('aria-expanded', 'false');
   });
@@ -723,12 +760,12 @@ function closeNewMenu(): void {
 
 function onNewMenuPointerDown(event: PointerEvent): void {
   const menu = document.getElementById('workspace-new-menu');
-  const trigger = document.getElementById('workspace-new');
   const target = event.target as Node | null;
   if (!menu || !target) return;
   if (menu.contains(target)) return;
-  if (trigger?.contains(target)) return;
-  if (target instanceof Element && target.closest('.vault-tree-add')) return;
+  if (target instanceof Element) {
+    if (target.closest('#workspace-new, #workspace-stage-new, .vault-tree-add')) return;
+  }
   closeNewMenu();
 }
 
@@ -768,6 +805,8 @@ function openNewMenuAt(anchor: HTMLElement, options: { matchWidth?: boolean; key
   menu.style.top = `${top}px`;
 
   trigger?.setAttribute('aria-expanded', key === 'workspace-new' ? 'true' : 'false');
+  const stageNew = document.getElementById('workspace-stage-new');
+  stageNew?.setAttribute('aria-expanded', key === 'workspace-stage-new' ? 'true' : 'false');
   if (anchor.classList.contains('vault-tree-add')) {
     anchor.setAttribute('aria-expanded', 'true');
   }
@@ -1098,11 +1137,60 @@ function mountShell(): void {
         .id('workspace-stage-empty')
         .children(
           Div()
+            .class('vault-stage-empty-copy')
             .children(
-              View('h2').text(t('cloudEmptyTitle')).build(),
-              View('p').text(t('cloudEmpty')).build(),
+              View('h2').id('workspace-stage-empty-title').text(t('cloudEmptyTitle')).build(),
+              View('p').id('workspace-stage-empty-body').text(t('cloudEmpty')).build(),
             )
             .build(),
+          (() => {
+            const actions = document.createElement('div');
+            actions.className = 'vault-stage-empty-actions';
+            actions.id = 'workspace-stage-empty-actions';
+
+            const newBtn = document.createElement('button');
+            newBtn.type = 'button';
+            newBtn.className = 'vault-stage-action vault-stage-action-primary';
+            newBtn.id = 'workspace-stage-new';
+            newBtn.setAttribute('aria-haspopup', 'menu');
+            newBtn.setAttribute('aria-expanded', 'false');
+            newBtn.setAttribute('aria-controls', 'workspace-new-menu');
+            newBtn.append(svgIcon('M12 5v14M5 12h14'), document.createTextNode(t('cloudNew')));
+            newBtn.addEventListener('click', () => {
+              openNewMenuAt(newBtn, { key: 'workspace-stage-new' });
+            });
+
+            const uploadBtn = document.createElement('button');
+            uploadBtn.type = 'button';
+            uploadBtn.className = 'vault-stage-action';
+            uploadBtn.id = 'workspace-stage-upload';
+            uploadBtn.append(
+              svgIcon('M12 3v12M8 7l4-4 4 4M5 15v3a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-3'),
+              document.createTextNode(t('cloudUpload')),
+            );
+            uploadBtn.addEventListener('click', () => pickUploadFiles());
+
+            const fileInput = document.createElement('input');
+            fileInput.type = 'file';
+            fileInput.id = 'workspace-upload-input';
+            fileInput.className = 'vault-upload-input';
+            fileInput.accept = '.xlsx,.docx,.pptx,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/vnd.openxmlformats-officedocument.presentationml.presentation';
+            fileInput.multiple = true;
+            fileInput.hidden = true;
+            fileInput.addEventListener('change', () => {
+              void onUploadFiles(fileInput.files);
+            });
+
+            actions.append(newBtn, uploadBtn, fileInput);
+            const dropHint = document.createElement('p');
+            dropHint.className = 'vault-stage-drop-hint';
+            dropHint.id = 'workspace-stage-drop-hint';
+            dropHint.textContent = t('cloudDropOffice');
+            const wrap = document.createElement('div');
+            wrap.className = 'vault-stage-empty-cta';
+            wrap.append(actions, dropHint);
+            return wrap;
+          })(),
         )
         .build(),
       Div()
@@ -1132,6 +1220,26 @@ function mountShell(): void {
         .build(),
     )
     .build();
+
+  const emptyStage = stage.querySelector('#workspace-stage-empty');
+  if (emptyStage instanceof HTMLElement) {
+    emptyStage.addEventListener('dragover', (event) => {
+      if (!event.dataTransfer?.types.includes('Files')) return;
+      event.preventDefault();
+      event.dataTransfer.dropEffect = 'copy';
+      emptyStage.classList.add('is-drop-target');
+    });
+    emptyStage.addEventListener('dragleave', (event) => {
+      const related = event.relatedTarget as Node | null;
+      if (related && emptyStage.contains(related)) return;
+      emptyStage.classList.remove('is-drop-target');
+    });
+    emptyStage.addEventListener('drop', (event) => {
+      event.preventDefault();
+      emptyStage.classList.remove('is-drop-target');
+      void onUploadFiles(event.dataTransfer?.files ?? null);
+    });
+  }
 
   root().append(
     Div().class('vault').children(side, Div().class('vault-body').children(top, stage).build()).build(),
@@ -1623,10 +1731,24 @@ function paintStage(): void {
       frame.dataset.workbook = '';
       frame.removeAttribute('src');
     }
-    const heading = empty.querySelector('h2');
-    const copy = empty.querySelector('p');
-    if (heading) heading.textContent = query ? t('cloudEmptySearchTitle') : t('cloudEmptyTitle');
-    if (copy) copy.textContent = query ? t('cloudEmptySearch') : t('cloudSelectWorkbook');
+    const heading = document.getElementById('workspace-stage-empty-title');
+    const copy = document.getElementById('workspace-stage-empty-body');
+    const cta = empty.querySelector('.vault-stage-empty-cta') as HTMLElement | null;
+    const searching = Boolean(query.trim());
+    const folderEmpty = !searching && childrenOf(currentFolderId).length === 0;
+    if (heading) {
+      heading.textContent = searching ? t('cloudEmptySearchTitle') : folderEmpty ? t('cloudEmptyTitle') : t('cloudFilesTitle');
+    }
+    if (copy) {
+      copy.textContent = searching
+        ? t('cloudEmptySearch')
+        : folderEmpty
+          ? currentFolderId
+            ? t('cloudFolderEmptyHint')
+            : t('cloudEmpty')
+          : t('cloudSelectWorkbook');
+    }
+    if (cta) cta.hidden = searching;
     document.title = t('cloudFilesTitle');
     paintOverlay();
     return;

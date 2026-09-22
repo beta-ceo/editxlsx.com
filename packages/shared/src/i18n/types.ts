@@ -150,6 +150,13 @@ export interface I18nMessages {
   cloudRenameFailed: string;
   cloudNavUp: string;
   cloudUploadWorkbook: string;
+  /** Generic upload label (xlsx / docx / pptx). */
+  cloudUpload: string;
+  cloudUploadTypeError: string;
+  /** Empty folder stage hint (create or upload into currentFolderId). */
+  cloudFolderEmptyHint: string;
+  /** Drop zone hint under empty-stage actions. */
+  cloudDropOffice: string;
   cloudEmptyTitle: string;
   cloudEmpty: string;
   cloudEmptySearchTitle: string;

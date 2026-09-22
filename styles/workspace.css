@@ -1124,12 +1124,20 @@ body {
   flex: 1 1 auto;
   display: grid;
   place-items: center;
+  align-content: center;
+  gap: 20px;
   padding: 32px;
   text-align: center;
 }
 
+.vault-stage-empty-copy {
+  display: grid;
+  gap: 8px;
+  justify-items: center;
+}
+
 .vault-stage-empty h2 {
-  margin: 0 0 8px;
+  margin: 0;
   font-size: 20px;
   font-weight: 600;
 }
@@ -1138,6 +1146,97 @@ body {
   margin: 0;
   max-width: 42ch;
   color: var(--ran-color-text-secondary);
+}
+
+.vault-stage-empty-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+
+.vault-stage-empty-cta {
+  display: grid;
+  gap: 12px;
+  justify-items: center;
+}
+
+.vault-stage-empty-cta[hidden] {
+  display: none;
+}
+
+.vault-stage-drop-hint {
+  margin: 0;
+  font-size: 12.5px;
+  color: color-mix(in srgb, var(--ran-color-text-secondary) 88%, transparent);
+}
+
+.vault-stage-empty.is-drop-target {
+  background: color-mix(in srgb, var(--ran-blue-700, #006bff) 6%, transparent);
+  outline: 1px dashed color-mix(in srgb, var(--ran-blue-700, #006bff) 45%, transparent);
+  outline-offset: -12px;
+  border-radius: 16px;
+}
+
+.vault-stage-empty-actions[hidden] {
+  display: none;
+}
+
+.vault-stage-action {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 40px;
+  padding: 0 16px;
+  border-radius: 10px;
+  border: 1px solid var(--ran-color-border, rgba(0, 0, 0, 0.1));
+  background: var(--ran-color-bg);
+  color: var(--ran-color-text);
+  font: inherit;
+  font-size: 14px;
+  font-weight: 550;
+  cursor: pointer;
+  transition:
+    background 0.15s ease,
+    border-color 0.15s ease,
+    box-shadow 0.15s ease;
+}
+
+.vault-stage-action:hover {
+  background: var(--ran-gray-100, #f2f2f2);
+  border-color: color-mix(in srgb, var(--ran-blue-700, #006bff) 22%, var(--ran-color-border, rgba(0, 0, 0, 0.1)));
+}
+
+.vault-stage-action-primary {
+  background: var(--ran-blue-700, #006bff);
+  border-color: var(--ran-blue-700, #006bff);
+  color: #fff;
+}
+
+.vault-stage-action-primary:hover {
+  background: color-mix(in srgb, var(--ran-blue-700, #006bff) 88%, #000);
+  border-color: color-mix(in srgb, var(--ran-blue-700, #006bff) 88%, #000);
+  color: #fff;
+}
+
+.vault-stage-action[aria-expanded='true'] {
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--ran-blue-700, #006bff) 16%, transparent);
+}
+
+.vault-stage-action .vault-icon {
+  width: 16px;
+  height: 16px;
+  flex: none;
+}
+
+.vault-upload-input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+  pointer-events: none;
 }
 
 .vault-lang {
