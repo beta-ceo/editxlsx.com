@@ -19,5 +19,6 @@ export {
   listWorkbooks,
   renameWorkbook,
   saveWorkbookBytes,
+  type SaveWorkbookHot,
   type Workbook,
 } from './workbooks';

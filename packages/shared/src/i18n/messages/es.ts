@@ -174,4 +174,10 @@ export const es: Partial<I18nMessages> = {
   cloudHelp: 'Ayuda',
   cloudOpeningWorkbook: 'Abriendo el libro…',
   cloudOpenFailedTitle: 'No se pudo abrir este libro',
+  cloudOpenTimedOut: 'Este libro tardó demasiado en abrirse. Haz clic de nuevo para reintentar.',
+  cloudOpenBootFailed: 'El editor no pudo iniciarse. Haz clic de nuevo en el libro para reintentar.',
+  cloudSaveStatusSaving: 'Guardando…',
+  cloudSaveStatusLocal: 'Guardado en este dispositivo · sincronizando con la cuenta…',
+  cloudSaveStatusSaved: 'Sincronizado con tu cuenta',
+  cloudSaveStatusError: 'No se pudo guardar: ',
 };

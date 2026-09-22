@@ -14,11 +14,24 @@ import '../styles/workspace.css';
 import { applyDocumentLanguage, getLanguage, t, withLocale } from '@ranuts/shared/i18n';
 import { getCurrentUser, signOut, type AuthUser } from './appwrite/auth';
 import { createBlankWorkbook, listWorkbooks, type Workbook } from './appwrite/workbooks';
-import { isShellBridgeMessage, SHELL_FAILED, SHELL_READY } from './shell-bridge';
+import { isShellBridgeMessage, SHELL_FAILED, SHELL_READY, SHELL_SAVE_STATE } from './shell-bridge';
+import type { ShellSaveState } from './shell-bridge';
 
 const SEARCH_DEBOUNCE_MS = 200;
 /** Visual scale for the sidebar meter. The client has no account quota. */
 const STORAGE_SCALE_BYTES = 1024 * 1024 * 1024;
+/** Give up waiting for shell:workbook-ready / shell:workbook-failed. */
+const OPEN_TIMEOUT_MS = 90_000;
+/**
+ * After the iframe `load`s, poll for the editor bundle having evaluated
+ * (`opening-document` / `embed-mode` on body). A Vite 504 on a stale
+ * optimized dep leaves a blank document forever; one remount usually cures it.
+ * Slow but healthy cold starts must beat this window, so it is deliberately
+ * longer than a typical module-graph fetch.
+ */
+const BOOT_POLL_MS = 500;
+const BOOT_GIVE_UP_MS = 15_000;
+const BOOT_AUTO_RETRIES = 1;
 
 const LOCALES: Array<{ code: string; label: string }> = [
   { code: 'de', label: 'Deutsch' },
@@ -44,6 +57,16 @@ let shellReady = false;
 let stageStatus: 'idle' | 'loading' | 'ready' | 'error' = 'idle';
 let stageError = '';
 let bridgeListening = false;
+/** Sync chip: icon for saving / local / synced / error (label in title). */
+let saveStatus: ShellSaveState | 'idle' = 'idle';
+let saveStatusError = '';
+let saveStatusTimer = 0;
+/** Bumps on every framed open so stale timers / load handlers stay inert. */
+let openGeneration = 0;
+let openTimer = 0;
+let bootTimer = 0;
+let bootRetries = 0;
+let frameLoadHandler: (() => void) | null = null;
 
 function root(): HTMLElement {
   return document.getElementById('workspace-root') as HTMLElement;
@@ -54,8 +77,9 @@ function loginUrl(): string {
   return locale ? `/login?locale=${encodeURIComponent(locale)}` : '/login';
 }
 
-function editorFrameUrl(workbookId: string): string {
-  return withLocale(`/editor?workbook=${encodeURIComponent(workbookId)}&shell=1`, getLanguage());
+function editorFrameUrl(workbookId: string, bootToken?: number): string {
+  const base = withLocale(`/editor?workbook=${encodeURIComponent(workbookId)}&shell=1`, getLanguage());
+  return typeof bootToken === 'number' ? `${base}&_boot=${bootToken}` : base;
 }
 
 function formatBytes(size: number): string {
@@ -72,6 +96,95 @@ function formatBytes(size: number): string {
 
 function notifyError(message: string): void {
   (window as unknown as { message?: { error?: (msg: string) => void } }).message?.error?.(message);
+}
+
+function clearOpenWatchers(): void {
+  if (openTimer) {
+    window.clearTimeout(openTimer);
+    openTimer = 0;
+  }
+  if (bootTimer) {
+    window.clearTimeout(bootTimer);
+    bootTimer = 0;
+  }
+  const frame = document.getElementById('workspace-editor-frame') as HTMLIFrameElement | null;
+  if (frame && frameLoadHandler) {
+    frame.removeEventListener('load', frameLoadHandler);
+    frameLoadHandler = null;
+  }
+}
+
+function editorBundleBooted(frame: HTMLIFrameElement): boolean {
+  try {
+    const body = frame.contentDocument?.body;
+    if (!body) return false;
+    // index.ts adds these synchronously once the module graph evaluates.
+    return body.classList.contains('opening-document') || body.classList.contains('embed-mode');
+  } catch {
+    return false;
+  }
+}
+
+function failOpen(workbookId: string, message: string): void {
+  if (selectedId !== workbookId || stageStatus !== 'loading') return;
+  clearOpenWatchers();
+  stageStatus = 'error';
+  stageError = message;
+  notifyError(`${t('cloudOpenFailed')}${message}`);
+  paintOverlay();
+}
+
+function remountEditorFrame(frame: HTMLIFrameElement, workbookId: string): void {
+  stageStatus = 'loading';
+  stageError = '';
+  frame.dataset.workbook = workbookId;
+  frame.title = rows.find((row) => row.id === workbookId)?.title || workbookId;
+  // Bust the URL so the browser remounts even when workbook+shell are unchanged.
+  // Attach the load watcher before assigning src so a cached document cannot
+  // finish loading before we are listening.
+  watchEditorOpen(frame, workbookId, { preserveRetries: true });
+  frame.src = editorFrameUrl(workbookId, Date.now());
+  paintOverlay();
+}
+
+function watchEditorOpen(
+  frame: HTMLIFrameElement,
+  workbookId: string,
+  options: { preserveRetries?: boolean } = {},
+): void {
+  clearOpenWatchers();
+  const generation = ++openGeneration;
+  if (!options.preserveRetries) bootRetries = 0;
+
+  openTimer = window.setTimeout(() => {
+    if (generation !== openGeneration) return;
+    failOpen(workbookId, t('cloudOpenTimedOut'));
+  }, OPEN_TIMEOUT_MS);
+
+  frameLoadHandler = () => {
+    if (generation !== openGeneration) return;
+    if (bootTimer) window.clearTimeout(bootTimer);
+    const startedAt = Date.now();
+    const pollBoot = (): void => {
+      if (generation !== openGeneration) return;
+      if (selectedId !== workbookId || stageStatus !== 'loading') return;
+      // Module graph evaluated: still waiting for shell:workbook-ready (download /
+      // OnlyOffice). Do not treat that as a boot failure.
+      if (editorBundleBooted(frame)) return;
+      if (Date.now() - startedAt < BOOT_GIVE_UP_MS) {
+        bootTimer = window.setTimeout(pollBoot, BOOT_POLL_MS);
+        return;
+      }
+      if (bootRetries < BOOT_AUTO_RETRIES) {
+        bootRetries += 1;
+        remountEditorFrame(frame, workbookId);
+        return;
+      }
+      failOpen(workbookId, t('cloudOpenBootFailed'));
+    };
+    bootTimer = window.setTimeout(pollBoot, BOOT_POLL_MS);
+  };
+  frame.addEventListener('load', frameLoadHandler);
 }
 
 function selectedWorkbook(): Workbook | undefined {
@@ -104,11 +217,11 @@ function rememberLocale(locale: string): void {
   }
 }
 
-function svgIcon(path: string): SVGElement {
+function svgIcon(path: string, className = 'vault-icon'): SVGElement {
   const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
   svg.setAttribute('viewBox', '0 0 24 24');
   svg.setAttribute('aria-hidden', 'true');
-  svg.setAttribute('class', 'vault-icon');
+  svg.setAttribute('class', className);
   const shape = document.createElementNS('http://www.w3.org/2000/svg', 'path');
   shape.setAttribute('d', path);
   shape.setAttribute('fill', 'none');
@@ -118,6 +231,61 @@ function svgIcon(path: string): SVGElement {
   shape.setAttribute('stroke-linejoin', 'round');
   svg.append(shape);
   return svg;
+}
+
+/** Multi-path stroke icon (sync chip). Same visual language as `svgIcon`. */
+function svgIconPaths(paths: string[], className: string): SVGElement {
+  const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+  svg.setAttribute('viewBox', '0 0 24 24');
+  svg.setAttribute('aria-hidden', 'true');
+  svg.setAttribute('class', className);
+  for (const d of paths) {
+    const shape = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+    shape.setAttribute('d', d);
+    shape.setAttribute('fill', 'none');
+    shape.setAttribute('stroke', 'currentColor');
+    shape.setAttribute('stroke-width', '1.7');
+    shape.setAttribute('stroke-linecap', 'round');
+    shape.setAttribute('stroke-linejoin', 'round');
+    svg.append(shape);
+  }
+  return svg;
+}
+
+/** Sync chip glyph: icon carries the state; label is title / aria only. */
+function syncStatusIcon(state: ShellSaveState): SVGElement {
+  if (state === 'saving') {
+    // Partial ring — CSS spins the whole glyph while exporting.
+    return svgIconPaths(['M12 3a9 9 0 1 1-6.36 2.64'], 'vault-icon vault-sync-icon is-spinning');
+  }
+  if (state === 'local') {
+    // Cloud + upload arrow: on this device, account upload still in flight.
+    return svgIconPaths(
+      [
+        'M7 18h9.5a3.5 3.5 0 0 0 .5-6.97 5 5 0 0 0-9.7-1.53A3.5 3.5 0 0 0 7 18z',
+        'M12 16V10M9.5 12.5 12 10l2.5 2.5',
+      ],
+      'vault-icon vault-sync-icon',
+    );
+  }
+  if (state === 'saved') {
+    // Cloud + check: Appwrite has the revision.
+    return svgIconPaths(
+      [
+        'M7 18h9.5a3.5 3.5 0 0 0 .5-6.97 5 5 0 0 0-9.7-1.53A3.5 3.5 0 0 0 7 18z',
+        'M9.5 13.5 11.5 15.5 15 12',
+      ],
+      'vault-icon vault-sync-icon',
+    );
+  }
+  // Warning triangle.
+  return svgIconPaths(
+    [
+      'M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z',
+      'M12 9v4M12 17h.01',
+    ],
+    'vault-icon vault-sync-icon',
+  );
 }
 
 function iconSlot(path: string, className?: string): HTMLElement {
@@ -183,6 +351,7 @@ async function refresh(): Promise<void> {
       openWorkbook = null;
       stageStatus = 'idle';
       stageError = '';
+      clearOpenWatchers();
     }
     if (!selectedId && !query && rows[0] && !preferHome) {
       selectedId = rows[0].id;
@@ -196,10 +365,21 @@ async function refresh(): Promise<void> {
 
 function selectWorkbook(id: string): void {
   preferHome = false;
-  if (selectedId !== id) {
+  const same = selectedId === id;
+  // Same row while stuck on loading/error: force a remount. The first framed
+  // navigation can leave a blank editor (Vite 504 on a stale optimized dep)
+  // that never posts shell:workbook-ready; without this, clicking the current
+  // item is a no-op and the overlay spins forever.
+  if (!same || stageStatus === 'loading' || stageStatus === 'error') {
     stageStatus = 'loading';
     stageError = '';
+    if (same) {
+      const frame = document.getElementById('workspace-editor-frame') as HTMLIFrameElement | null;
+      if (frame) frame.dataset.workbook = '';
+      clearOpenWatchers();
+    }
   }
+  if (!same) setSaveStatus('idle');
   selectedId = id;
   syncUrl();
   paint();
@@ -211,6 +391,8 @@ function showHome(): void {
   openWorkbook = null;
   stageStatus = 'idle';
   stageError = '';
+  setSaveStatus('idle');
+  clearOpenWatchers();
   syncUrl();
   paint();
 }
@@ -381,6 +563,12 @@ function mountShell(): void {
           Div().class('vault-search').children(search, View('span').class('vault-kbd').text('⌘K').build()).build(),
         )
         .build(),
+      View('div')
+        .class('vault-sync')
+        .id('workspace-sync')
+        .attr('role', 'status')
+        .attr('aria-live', 'polite')
+        .build(),
       Div()
         .class('vault-tools')
         .children(langMenu, themeMenu, userMenu)
@@ -538,16 +726,79 @@ function mountShell(): void {
       if (!isShellBridgeMessage(event.data)) return;
       if (event.data.workbookId !== selectedId) return;
       if (event.data.type === SHELL_READY) {
+        clearOpenWatchers();
         stageStatus = 'ready';
         stageError = '';
+        paintOverlay();
       } else if (event.data.type === SHELL_FAILED) {
+        clearOpenWatchers();
         stageStatus = 'error';
         stageError = event.data.message;
         notifyError(`${t('cloudOpenFailed')}${event.data.message}`);
+        paintOverlay();
+      } else if (event.data.type === SHELL_SAVE_STATE) {
+        setSaveStatus(event.data.state, event.data.message);
       }
-      paintOverlay();
     });
   }
+}
+
+function setSaveStatus(state: ShellSaveState | 'idle', message = ''): void {
+  if (saveStatusTimer) {
+    window.clearTimeout(saveStatusTimer);
+    saveStatusTimer = 0;
+  }
+  saveStatus = state;
+  saveStatusError = message;
+  paintSaveStatus();
+  // "Saved" is a confirmation, not a permanent label -- fade after a beat so
+  // the bar stays quiet between edits (Docs-style).
+  if (state === 'saved') {
+    saveStatusTimer = window.setTimeout(() => {
+      if (saveStatus === 'saved') {
+        saveStatus = 'idle';
+        saveStatusError = '';
+        paintSaveStatus();
+      }
+    }, 3_500);
+  }
+}
+
+function paintSaveStatus(): void {
+  const el = document.getElementById('workspace-sync');
+  if (!el) return;
+  el.dataset.state = saveStatus;
+  el.replaceChildren();
+  el.removeAttribute('title');
+  el.removeAttribute('aria-label');
+
+  if (saveStatus === 'idle') {
+    el.hidden = true;
+    return;
+  }
+
+  const label =
+    saveStatus === 'saving'
+      ? t('cloudSaveStatusSaving')
+      : saveStatus === 'local'
+        ? t('cloudSaveStatusLocal')
+        : saveStatus === 'saved'
+          ? t('cloudSaveStatusSaved')
+          : saveStatusError
+            ? `${t('cloudSaveStatusError')}${saveStatusError}`
+            : t('cloudSaveStatusError');
+
+  el.append(syncStatusIcon(saveStatus));
+  el.title = label;
+  el.setAttribute('aria-label', label);
+  // Errors keep a short text trail so the reason is visible without hovering.
+  if (saveStatus === 'error' && saveStatusError) {
+    const detail = document.createElement('span');
+    detail.className = 'vault-sync-detail';
+    detail.textContent = saveStatusError;
+    el.append(detail);
+  }
+  el.hidden = false;
 }
 
 function paintDocs(): void {
@@ -632,6 +883,7 @@ function paintStage(): void {
     frame.hidden = true;
     stageStatus = 'idle';
     stageError = '';
+    clearOpenWatchers();
     if (frame.dataset.workbook) {
       frame.dataset.workbook = '';
       frame.removeAttribute('src');
@@ -658,6 +910,7 @@ function paintStage(): void {
   stageError = '';
   frame.dataset.workbook = workbook.id;
   frame.title = workbook.title;
+  watchEditorOpen(frame, workbook.id);
   frame.src = editorFrameUrl(workbook.id);
   paintOverlay();
 }
@@ -667,6 +920,7 @@ function paint(): void {
   mountShell();
   paintDocs();
   paintStorage();
+  paintSaveStatus();
   paintStage();
 }
 

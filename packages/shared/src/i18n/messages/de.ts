@@ -178,4 +178,10 @@ export const de: Partial<I18nMessages> = {
   cloudHelp: 'Hilfe',
   cloudOpeningWorkbook: 'Arbeitsmappe wird geöffnet…',
   cloudOpenFailedTitle: 'Arbeitsmappe konnte nicht geöffnet werden',
+  cloudOpenTimedOut: 'Das Öffnen der Arbeitsmappe hat zu lange gedauert. Klicken Sie erneut darauf, um es erneut zu versuchen.',
+  cloudOpenBootFailed: 'Der Editor konnte nicht starten. Klicken Sie erneut auf die Arbeitsmappe, um es erneut zu versuchen.',
+  cloudSaveStatusSaving: 'Wird gespeichert…',
+  cloudSaveStatusLocal: 'Auf diesem Gerät gespeichert · Konto wird synchronisiert…',
+  cloudSaveStatusSaved: 'Mit Ihrem Konto synchronisiert',
+  cloudSaveStatusError: 'Speichern fehlgeschlagen: ',
 };

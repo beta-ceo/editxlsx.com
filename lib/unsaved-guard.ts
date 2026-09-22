@@ -7,13 +7,20 @@
  * happening at all: the accidental Cmd+W / Ctrl+R on a document that has never
  * been exported. It costs no storage and touches no user data.
  *
+ * Cloud workbooks add a second arm: bytes may already be on this device
+ * (IndexedDB pending) while Appwrite has not finished the upload. That is not
+ * "unsaved edits" -- `hasUnsavedChanges()` stays false so autosave / SW heal
+ * do not treat it as dirty -- but unloading still prompts, because other
+ * devices will not see the revision until the next open flushes.
+ *
  * What it deliberately does NOT do:
  * - It is not armed in embed mode. The document belongs to the host page and
  *   the host owns its own unload UX.
- * - An autosave snapshot does not disarm it. A snapshot lives in this browser;
- *   the user still has no file on disk, which is exactly what they are about
- *   to walk away from. Only a real export to disk clears the flag (this is the
- *   same split Office draws between AutoRecover and Save).
+ * - An autosave snapshot does not disarm the dirty flag. A snapshot lives in
+ *   this browser; the user still has no file on disk, which is exactly what
+ *   they are about to walk away from. Only a real export to disk (or a cloud
+ *   local-stage that calls `markDocumentSaved`) clears dirty. Pending cloud
+ *   sync is a separate flag cleared only when the flush lands.
  *
  * Browser limits worth knowing: the prompt's wording is the browser's, not
  * ours; the page must have been interacted with (sticky activation) for the
@@ -23,6 +30,8 @@
 import { isEmbedMode } from './embed-mode';
 
 let dirty = false;
+/** Local cloud pending exists; account upload has not finished (or failed). */
+let cloudSyncPending = false;
 let installed = false;
 let lastEditAt = 0;
 
@@ -46,17 +55,39 @@ export function markDocumentSaved(): void {
   dirty = false;
 }
 
+/**
+ * Cloud Save staged bytes on this device and has not yet confirmed the
+ * Appwrite upload. Arms beforeunload without re-dirtying the editor.
+ */
+export function markCloudSyncPending(): void {
+  cloudSyncPending = true;
+}
+
+/** Flush cleared the pending row (or a blocking cloud write landed). */
+export function clearCloudSyncPending(): void {
+  cloudSyncPending = false;
+}
+
+export function hasPendingCloudSync(): boolean {
+  return cloudSyncPending;
+}
+
 /** A different document is taking over the editor; its edit history is not ours. */
 export function resetUnsavedChanges(): void {
   dirty = false;
+  cloudSyncPending = false;
 }
 
 export function hasUnsavedChanges(): boolean {
   return dirty;
 }
 
+function shouldPromptUnload(): boolean {
+  return dirty || cloudSyncPending;
+}
+
 function handleBeforeUnload(event: BeforeUnloadEvent): void {
-  if (!dirty) return;
+  if (!shouldPromptUnload()) return;
   // Both spellings on purpose: preventDefault() is what the spec asks for,
   // returnValue is what older WebKit still checks. The string is never shown --
   // every browser prints its own wording.
@@ -78,6 +109,7 @@ export function installUnsavedChangesGuard(): void {
  */
 export function resetUnsavedGuardForTests(): void {
   dirty = false;
+  cloudSyncPending = false;
   lastEditAt = 0;
   if (installed && typeof window !== 'undefined') {
     window.removeEventListener('beforeunload', handleBeforeUnload);

@@ -1,10 +1,10 @@
 /**
  * Cloud workbooks: Appwrite Databases row + Storage file.
  *
- * Convention matches the existing console data: document `$id` === Storage
- * `fileId`. Permissions are per-user on both sides (documentSecurity +
- * fileSecurity). Saves replace the Storage object (delete + create same id)
- * because Appwrite has no content-overwrite for files.
+ * Document `$id` starts equal to the first Storage `fileId`. Each Save mints a
+ * new Storage object and points the row at it (Appwrite has no content
+ * overwrite); the previous object is deleted in the background. Permissions
+ * are per-user on both sides (documentSecurity + fileSecurity).
  */
 import { ID, Permission, Query, Role, type Models } from 'appwrite';
 import { requireUser } from './auth';
@@ -102,25 +102,82 @@ async function uploadFile(fileId: string, file: File, userId: string): Promise<v
   });
 }
 
-async function replaceFile(fileId: string, file: File, userId: string): Promise<void> {
-  try {
-    await getStorage().deleteFile({ bucketId: BUCKET_WORKBOOKS, fileId });
-  } catch {
-    // First save of a row whose file was already gone, or a race -- create below.
+/**
+ * Known session state from an already-open workbook. When present, Save skips
+ * Account.get + Databases.getDocument and goes straight to Storage create +
+ * document PATCH -- the only two round-trips that move bytes and publish them.
+ */
+export type SaveWorkbookHot = {
+  userId: string;
+  fileId: string;
+  title?: string;
+};
+
+/**
+ * Publish new workbook bytes without waiting on delete.
+ *
+ * Appwrite Storage has no content-overwrite, so each Save mints a new file id,
+ * points the row at it, then deletes the previous object in the background.
+ * That drops the DELETE off the critical path (measured ~260 ms to SFO) and
+ * also changes the download URL, so HTTP caches cannot serve a pre-Save copy.
+ */
+async function publishWorkbookBytes(
+  workbookId: string,
+  file: File,
+  ctx: SaveWorkbookHot,
+): Promise<Workbook> {
+  assertXlsxFile(file);
+  const title = ensureXlsxName(ctx.title || file.name || 'Untitled.xlsx');
+  const named = new File([file], title, { type: XLSX_MIME });
+  const nextFileId = ID.unique();
+  const previousFileId = ctx.fileId;
+
+  await uploadFile(nextFileId, named, ctx.userId);
+  const doc = await getDatabases().updateDocument<WorkbookDoc>({
+    databaseId: DATABASE_ID,
+    collectionId: COLLECTION_WORKBOOKS,
+    documentId: workbookId,
+    data: {
+      title,
+      sizeBytes: file.size,
+      fileId: nextFileId,
+    },
+  });
+
+  if (previousFileId && previousFileId !== nextFileId) {
+    void getStorage()
+      .deleteFile({ bucketId: BUCKET_WORKBOOKS, fileId: previousFileId })
+      .catch(() => {
+        // Orphan cleanup is best-effort: the row already points at nextFileId.
+      });
   }
-  await uploadFile(fileId, file, userId);
+
+  return fromDocument(doc);
 }
 
 /**
  * Download workbook bytes. The download URL is on the Appwrite host; the
  * session cookie is sent with credentials: 'include', and the project header
  * is required for the request to resolve.
+ *
+ * Appwrite answers with `Cache-Control: private, max-age=3888000` (45 days).
+ * Saves now rotate the Storage file id, but a re-open of the same revision
+ * (same URL) still needs `cache: 'no-store'` plus a bust query so a tab that
+ * downloaded before Save cannot keep the old body.
  */
-export async function downloadWorkbookFile(fileId: string, title: string): Promise<File> {
+export async function downloadWorkbookFile(
+  fileId: string,
+  title: string,
+  options: { cacheBust?: string | number } = {},
+): Promise<File> {
   await requireUser();
-  const url = getStorage().getFileDownload({ bucketId: BUCKET_WORKBOOKS, fileId });
+  const url = new URL(getStorage().getFileDownload({ bucketId: BUCKET_WORKBOOKS, fileId }).toString());
+  // Bust intermediaries that ignore Request.cache; prefer the row's updatedAt
+  // so two tabs opening the same revision still share one network response.
+  url.searchParams.set('v', String(options.cacheBust ?? Date.now()));
   const response = await fetch(url.toString(), {
     credentials: 'include',
+    cache: 'no-store',
     headers: {
       'X-Appwrite-Project': getClient().config.project,
     },
@@ -157,30 +214,36 @@ export async function createBlankWorkbook(title = 'Untitled.xlsx'): Promise<Work
   return createWorkbookFromFile(buildEmptyXlsxFile(title), title);
 }
 
+/**
+ * Upload exported bytes for a workbook.
+ *
+ * Pass `hot` (from the editor binding) on the interactive Save path: no
+ * Account.get, no Databases.getDocument -- only createFile + updateDocument.
+ * Without `hot`, ownership is checked the slow way (tests / recovery).
+ */
 export async function saveWorkbookBytes(
   workbookId: string,
   file: File,
-  options: { title?: string } = {},
+  options: { title?: string; hot?: SaveWorkbookHot } = {},
 ): Promise<Workbook> {
+  if (options.hot) {
+    return publishWorkbookBytes(workbookId, file, {
+      userId: options.hot.userId,
+      fileId: options.hot.fileId,
+      title: options.title || options.hot.title,
+    });
+  }
+
   const user = await requireUser();
-  assertXlsxFile(file);
   const existing = await getWorkbook(workbookId);
   if (existing.userId !== user.$id) {
     throw new Error('Not allowed to save this workbook');
   }
-  const title = ensureXlsxName(options.title || existing.title);
-  await replaceFile(existing.fileId, new File([file], title, { type: XLSX_MIME }), user.$id);
-  const doc = await getDatabases().updateDocument<WorkbookDoc>({
-    databaseId: DATABASE_ID,
-    collectionId: COLLECTION_WORKBOOKS,
-    documentId: workbookId,
-    data: {
-      title,
-      sizeBytes: file.size,
-      fileId: existing.fileId,
-    },
+  return publishWorkbookBytes(workbookId, file, {
+    userId: existing.userId,
+    fileId: existing.fileId,
+    title: options.title || existing.title,
   });
-  return fromDocument(doc);
 }
 
 export async function renameWorkbook(workbookId: string, title: string): Promise<Workbook> {

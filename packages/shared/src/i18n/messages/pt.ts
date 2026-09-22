@@ -173,4 +173,10 @@ export const pt: Partial<I18nMessages> = {
   cloudHelp: 'Ajuda',
   cloudOpeningWorkbook: 'A abrir a folha…',
   cloudOpenFailedTitle: 'Não foi possível abrir esta folha',
+  cloudOpenTimedOut: 'Esta folha demorou demasiado a abrir. Clique novamente para tentar de novo.',
+  cloudOpenBootFailed: 'O editor não arrancou. Clique novamente na folha para tentar de novo.',
+  cloudSaveStatusSaving: 'A guardar…',
+  cloudSaveStatusLocal: 'Guardado neste dispositivo · a sincronizar com a conta…',
+  cloudSaveStatusSaved: 'Sincronizado com a sua conta',
+  cloudSaveStatusError: 'Não foi possível guardar: ',
 };

@@ -1,10 +1,14 @@
 /**
  * Same-origin bridge between `/workspace` and the editor iframe it hosts
  * (`?shell=1`). The frame posts when a cloud workbook finished opening or
- * failed; the shell paints loading / error chrome over an otherwise blank pane.
+ * failed, and when a Save / autosave is in flight so the shell can show a
+ * Docs-style sync chip instead of waiting on a completion toast.
+ * States: saving → local (on this device, account upload in flight) → saved
+ * (synced to account) | error.
  */
 export const SHELL_READY = 'shell:workbook-ready';
 export const SHELL_FAILED = 'shell:workbook-failed';
+export const SHELL_SAVE_STATE = 'shell:save-state';
 
 export type ShellReadyMessage = {
   type: typeof SHELL_READY;
@@ -17,7 +21,16 @@ export type ShellFailedMessage = {
   message: string;
 };
 
-export type ShellBridgeMessage = ShellReadyMessage | ShellFailedMessage;
+export type ShellSaveState = 'saving' | 'local' | 'saved' | 'error';
+
+export type ShellSaveStateMessage = {
+  type: typeof SHELL_SAVE_STATE;
+  workbookId: string;
+  state: ShellSaveState;
+  message?: string;
+};
+
+export type ShellBridgeMessage = ShellReadyMessage | ShellFailedMessage | ShellSaveStateMessage;
 
 export function isShellBridgeMessage(data: unknown): data is ShellBridgeMessage {
   if (!data || typeof data !== 'object') return false;
@@ -28,17 +41,31 @@ export function isShellBridgeMessage(data: unknown): data is ShellBridgeMessage 
   if (msg.type === SHELL_FAILED) {
     return typeof msg.workbookId === 'string' && msg.workbookId.length > 0 && typeof msg.message === 'string';
   }
+  if (msg.type === SHELL_SAVE_STATE) {
+    return (
+      typeof msg.workbookId === 'string' &&
+      msg.workbookId.length > 0 &&
+      (msg.state === 'saving' || msg.state === 'local' || msg.state === 'saved' || msg.state === 'error')
+    );
+  }
   return false;
 }
 
-export function postShellReady(workbookId: string): void {
+function postToParent(message: ShellBridgeMessage): void {
   if (typeof window === 'undefined' || window.parent === window) return;
-  const message: ShellReadyMessage = { type: SHELL_READY, workbookId };
   window.parent.postMessage(message, window.location.origin);
 }
 
+export function postShellReady(workbookId: string): void {
+  postToParent({ type: SHELL_READY, workbookId });
+}
+
 export function postShellFailed(workbookId: string, message: string): void {
-  if (typeof window === 'undefined' || window.parent === window) return;
-  const payload: ShellFailedMessage = { type: SHELL_FAILED, workbookId, message };
-  window.parent.postMessage(payload, window.location.origin);
+  postToParent({ type: SHELL_FAILED, workbookId, message });
+}
+
+export function postShellSaveState(workbookId: string, state: ShellSaveState, message?: string): void {
+  const payload: ShellSaveStateMessage = { type: SHELL_SAVE_STATE, workbookId, state };
+  if (message) payload.message = message;
+  postToParent(payload);
 }

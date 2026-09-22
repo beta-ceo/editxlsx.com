@@ -170,4 +170,10 @@ export const ja: Partial<I18nMessages> = {
   cloudHelp: 'ヘルプ',
   cloudOpeningWorkbook: 'ワークブックを開いています…',
   cloudOpenFailedTitle: 'このワークブックを開けませんでした',
+  cloudOpenTimedOut: 'ワークブックのオープンがタイムアウトしました。もう一度クリックして再試行してください。',
+  cloudOpenBootFailed: 'エディターを起動できませんでした。もう一度クリックして再試行してください。',
+  cloudSaveStatusSaving: '保存しています…',
+  cloudSaveStatusLocal: 'この端末に保存済み · アカウントに同期中…',
+  cloudSaveStatusSaved: 'アカウントに同期済み',
+  cloudSaveStatusError: '保存できませんでした：',
 };

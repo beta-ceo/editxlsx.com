@@ -57,6 +57,65 @@ body {
   border-bottom: 1px solid var(--ran-color-border, rgba(0, 0, 0, 0.08));
 }
 
+.vault-sync {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  min-width: 0;
+  max-width: min(42vw, 280px);
+  color: var(--ran-color-text-secondary);
+}
+
+.vault-sync .vault-sync-icon {
+  width: 18px;
+  height: 18px;
+  flex: none;
+}
+
+.vault-sync .vault-sync-icon.is-spinning {
+  animation: vault-sync-spin 0.85s linear infinite;
+}
+
+@keyframes vault-sync-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .vault-sync .vault-sync-icon.is-spinning {
+    animation: none;
+  }
+}
+
+.vault-sync-detail {
+  min-width: 0;
+  font-size: 12px;
+  line-height: 1.2;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.vault-sync[data-state='saving'],
+.vault-sync[data-state='local'] {
+  color: var(--ran-color-text-secondary);
+}
+
+.vault-sync[data-state='saved'] {
+  color: var(--ran-color-success, #2e7d32);
+}
+
+.vault-sync[data-state='error'] {
+  color: var(--ran-color-error, #c62828);
+}
+
+.vault-sync[hidden] {
+  display: none;
+}
+
 .vault-space {
   display: flex;
   align-items: center;

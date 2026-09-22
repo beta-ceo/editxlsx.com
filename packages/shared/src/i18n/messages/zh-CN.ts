@@ -161,4 +161,10 @@ export const zhCN: I18nMessages = {
   cloudHelp: '帮助',
   cloudOpeningWorkbook: '正在打开工作簿…',
   cloudOpenFailedTitle: '无法打开这个工作簿',
+  cloudOpenTimedOut: '打开工作簿超时。请再点一次侧栏里的文件重试。',
+  cloudOpenBootFailed: '编辑器未能启动。请再点一次侧栏里的文件重试。',
+  cloudSaveStatusSaving: '正在保存…',
+  cloudSaveStatusLocal: '已保存在本机 · 正在同步到账号…',
+  cloudSaveStatusSaved: '已同步到账号',
+  cloudSaveStatusError: '保存失败：',
 };

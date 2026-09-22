@@ -14,6 +14,9 @@
  *    our save UX consumes. Autosave-flagged calls keep the original path so
  *    nothing else changes.
  */
+import { getCloudWorkbook, isCloudWorkbookBound } from '../../cloud-workbook';
+import { postShellSaveState } from '../../shell-bridge';
+
 export function installServerlessSaveSemantics(win: Window): boolean {
   const saveWin = win as unknown as {
     Asc?: {
@@ -53,6 +56,12 @@ export function installServerlessSaveSemantics(win: Window): boolean {
       const format = typeof this.documentFormatSave === 'number' ? this.documentFormatSave : undefined;
       if (format === undefined || typeof this.asc_DownloadAs !== 'function') {
         return origSave.call(this, isAutoSave, isUndoRequest);
+      }
+      // Flip the shell chip to "Saving…" before x2t runs so Ctrl+S feels
+      // instant even though the upload still takes a round-trip.
+      const bound = getCloudWorkbook();
+      if (bound && isCloudWorkbookBound()) {
+        postShellSaveState(bound.id, 'saving');
       }
       this.asc_DownloadAs(new DownloadOptions(format));
       return true;

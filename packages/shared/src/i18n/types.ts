@@ -177,4 +177,13 @@ export interface I18nMessages {
   cloudHelp: string;
   cloudOpeningWorkbook: string;
   cloudOpenFailedTitle: string;
+  /** Shown when the framed editor never posts shell:workbook-ready. */
+  cloudOpenTimedOut: string;
+  /** Shown when the editor page loaded but its JS bundle never ran. */
+  cloudOpenBootFailed: string;
+  cloudSaveStatusSaving: string;
+  /** Local IDB write done; Appwrite upload still in flight. */
+  cloudSaveStatusLocal: string;
+  cloudSaveStatusSaved: string;
+  cloudSaveStatusError: string;
 }

@@ -194,7 +194,13 @@ void (async () => {
         return;
       }
       const workbook = await getWorkbook(workbookParam);
-      const file = await downloadWorkbookFile(workbook.fileId, workbook.title);
+      const { takeCloudPendingIfNewer } = await import('./lib/cloud-pending');
+      const pendingFile = await takeCloudPendingIfNewer(workbook.id, workbook.updatedAt);
+      const file =
+        pendingFile ??
+        (await downloadWorkbookFile(workbook.fileId, workbook.title, {
+          cacheBust: workbook.updatedAt,
+        }));
       bindCloudWorkbook(workbook);
       await openLocalFile(file, { skipHistory: true });
       beginCloudAutosave();

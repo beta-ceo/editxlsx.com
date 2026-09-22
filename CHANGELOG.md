@@ -7,6 +7,40 @@ notes. Entries describe what users experience, not internal refactors.
 
 ## [Unreleased]
 
+### Fixed
+
+- **Cloud Save names the two durable places honestly.** The sync chip uses
+  icons (spinner while exporting, cloud↑ while local pending, cloud✓ when
+  Appwrite has it; hover / screen readers still get the full phrase). Closing
+  the tab while a pending flush exists still prompts so it is clear the
+  account copy is not updated yet; the next open of that workbook flushes
+  again. Edits are not treated as “unsaved” for autosave / SW reload — only
+  the unload arm cares.
+- **Cloud Save is local-first.** Ctrl+S writes the exported .xlsx to IndexedDB
+  first (chip: “Saved on this device · syncing…”), then uploads to Appwrite in
+  the background. Re-opening prefers a pending copy newer than the cloud row,
+  so a reload mid-upload keeps your edits. Instant feedback is no longer gated
+  on the SFO RTT.
+- **Cloud Save feedback is a sync chip, not a completion toast.** Ctrl+S /
+  Save flips the `/workspace` top bar to “Saving…” before x2t runs; success
+  becomes “Synced to your account” for a few seconds. Failures still toast.
+  Waiting on a toast made the round-trip itself feel like the product.
+- **Cloud Save is two Appwrite round-trips, not six.** Interactive Save now
+  uses the open workbook binding (`userId` + current `fileId`) and skips
+  Account.get / Databases.getDocument. Bytes go up under a new Storage id;
+  the row is patched to point at it; the previous object is deleted in the
+  background. Measured path to SFO drops from ~2.2 s of serial API work to
+  createFile + updateDocument only (~1 s of network after a warm export).
+- **Re-opening a cloud workbook after Save no longer shows the pre-edit
+  bytes.** Appwrite Storage answers downloads with a 45-day `Cache-Control`.
+  Downloads use `cache: 'no-store'` plus a `?v=<updatedAt>` bust; Saves also
+  rotate the Storage file id so the download URL itself changes.
+- **`/workspace` no longer spins forever on a blank editor.** If the framed
+  editor page loads but its JavaScript never starts (seen locally when Vite
+  504s a stale optimized dependency), the shell remounts once, then shows an
+  error you can retry by clicking the workbook again. Clicking the already
+  selected file also forces a reload when open is stuck.
+
 ### Changed
 
 - **Homepage matches a marketing mock stack.** All seven languages now use a

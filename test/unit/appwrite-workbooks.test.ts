@@ -178,7 +178,7 @@ describe('appwrite workbooks', () => {
     expect(workbook.fileId).toBe('generated-id');
   });
 
-  it('saves by deleting the old storage object then recreating it under the same id', async () => {
+  it('saves by minting a new storage id then pointing the row at it', async () => {
     getDocument.mockResolvedValue({
       $id: 'w1',
       $createdAt: '2026-01-01',
@@ -188,33 +188,91 @@ describe('appwrite workbooks', () => {
       fileId: 'w1',
       sizeBytes: 4,
     });
-    deleteFile.mockResolvedValue({});
-    createFile.mockResolvedValue({ $id: 'w1' });
+    createFile.mockResolvedValue({ $id: 'generated-id' });
     updateDocument.mockResolvedValue({
       $id: 'w1',
       $createdAt: '2026-01-01',
       $updatedAt: '2026-01-02',
       userId: 'user-1',
       title: 'Report.xlsx',
-      fileId: 'w1',
+      fileId: 'generated-id',
       sizeBytes: 8,
     });
+    deleteFile.mockResolvedValue({});
 
     const { saveWorkbookBytes } = await import('../../lib/appwrite/workbooks');
     const file = new File([new Uint8Array(8)], 'Report.xlsx', {
       type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
     });
-    await saveWorkbookBytes('w1', file);
+    const updated = await saveWorkbookBytes('w1', file);
 
-    expect(deleteFile).toHaveBeenCalledWith({ bucketId: 'workbooks', fileId: 'w1' });
-    expect(createFile).toHaveBeenCalledWith(expect.objectContaining({ fileId: 'w1' }));
-    expect(deleteFile.mock.invocationCallOrder[0]).toBeLessThan(createFile.mock.invocationCallOrder[0]!);
+    expect(createFile).toHaveBeenCalledWith(expect.objectContaining({ fileId: 'generated-id' }));
     expect(updateDocument).toHaveBeenCalledWith(
       expect.objectContaining({
         documentId: 'w1',
-        data: expect.objectContaining({ sizeBytes: 8 }),
+        data: expect.objectContaining({ sizeBytes: 8, fileId: 'generated-id' }),
       }),
     );
+    expect(updated.fileId).toBe('generated-id');
+    // Previous object is deleted after the row points at the new one (fire-and-forget).
+    await vi.waitFor(() => {
+      expect(deleteFile).toHaveBeenCalledWith({ bucketId: 'workbooks', fileId: 'w1' });
+    });
+    expect(createFile.mock.invocationCallOrder[0]).toBeLessThan(updateDocument.mock.invocationCallOrder[0]!);
+  });
+
+  it('hot save skips Account.get and Databases.getDocument', async () => {
+    createFile.mockResolvedValue({ $id: 'generated-id' });
+    updateDocument.mockResolvedValue({
+      $id: 'w1',
+      $createdAt: '2026-01-01',
+      $updatedAt: '2026-01-02',
+      userId: 'user-1',
+      title: 'Report.xlsx',
+      fileId: 'generated-id',
+      sizeBytes: 8,
+    });
+    deleteFile.mockResolvedValue({});
+
+    const { saveWorkbookBytes } = await import('../../lib/appwrite/workbooks');
+    const file = new File([new Uint8Array(8)], 'Report.xlsx', {
+      type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+    });
+    await saveWorkbookBytes('w1', file, {
+      hot: { userId: 'user-1', fileId: 'old-file', title: 'Report.xlsx' },
+    });
+
+    expect(get.mock.calls.length).toBe(0);
+    expect(getDocument).not.toHaveBeenCalled();
+    expect(createFile).toHaveBeenCalled();
+    expect(updateDocument).toHaveBeenCalled();
+  });
+
+  it('downloads with cache: no-store and a bust query so Save-then-reopen is not stale', async () => {
+    getFileDownload.mockReturnValue(
+      new URL('https://sfo.cloud.appwrite.io/v1/storage/buckets/workbooks/files/w1/download'),
+    );
+    const bytes = new Uint8Array([0x50, 0x4b, 0x03, 0x04]);
+    const fetchMock = vi.fn().mockResolvedValue({
+      ok: true,
+      arrayBuffer: async () => bytes.buffer,
+    });
+    vi.stubGlobal('fetch', fetchMock);
+
+    const { downloadWorkbookFile } = await import('../../lib/appwrite/workbooks');
+    const file = await downloadWorkbookFile('w1', 'Report.xlsx', { cacheBust: '2026-01-02T00:00:00.000Z' });
+
+    expect(file.name).toBe('Report.xlsx');
+    expect(file.size).toBe(4);
+    expect(fetchMock).toHaveBeenCalledWith(
+      'https://sfo.cloud.appwrite.io/v1/storage/buckets/workbooks/files/w1/download?v=2026-01-02T00%3A00%3A00.000Z',
+      expect.objectContaining({
+        cache: 'no-store',
+        credentials: 'include',
+        headers: expect.objectContaining({ 'X-Appwrite-Project': expect.any(String) }),
+      }),
+    );
+    vi.unstubAllGlobals();
   });
 
   it('rejects non-xlsx uploads', async () => {

@@ -169,4 +169,10 @@ export const ko: Partial<I18nMessages> = {
   cloudHelp: '도움말',
   cloudOpeningWorkbook: '통합 문서를 여는 중…',
   cloudOpenFailedTitle: '이 통합 문서를 열 수 없습니다',
+  cloudOpenTimedOut: '통합 문서를 여는 데 시간이 너무 오래 걸렸습니다. 다시 클릭해 재시도하세요.',
+  cloudOpenBootFailed: '편집기를 시작하지 못했습니다. 다시 클릭해 재시도하세요.',
+  cloudSaveStatusSaving: '저장 중…',
+  cloudSaveStatusLocal: '이 기기에 저장됨 · 계정에 동기화 중…',
+  cloudSaveStatusSaved: '계정에 동기화됨',
+  cloudSaveStatusError: '저장할 수 없음: ',
 };

@@ -162,4 +162,35 @@ test.describe('cloud auth pages', () => {
     await expect(page.locator('#workspace-stage-overlay')).toBeHidden({ timeout: 90_000 });
     await expect(page.locator('#workspace-stage-overlay')).not.toHaveAttribute('data-state', 'error');
   });
+
+  test('blank editor boot auto-retries then opens', async ({ page, l0 }) => {
+    // Reverse: without the boot watchdog remount, the first blank framed document
+    // leaves #workspace-stage-overlay on data-state=loading forever.
+    test.setTimeout(120_000);
+    l0.allowConsole(/Failed to load resource|net::ERR_/i);
+
+    let blankServed = 0;
+    await page.route('**/editor**', async (route) => {
+      const request = route.request();
+      const isFramedNav = request.isNavigationRequest() && request.frame() !== page.mainFrame();
+      if (isFramedNav && blankServed === 0) {
+        blankServed += 1;
+        await route.fulfill({
+          status: 200,
+          contentType: 'text/html',
+          body: '<!doctype html><html><head><title>Document Editor</title></head><body><div id="app"></div></body></html>',
+        });
+        return;
+      }
+      await route.continue();
+    });
+
+    await page.goto('/login');
+    await mockAppwrite(page, { download: 'xlsx' });
+    await page.goto('/workspace');
+
+    await expect(page.locator('.vault-tree-title').first()).toHaveText('sample_data_3000x20.xlsx');
+    await expect(page.locator('#workspace-stage-overlay')).toBeHidden({ timeout: 120_000 });
+    expect(blankServed).toBeGreaterThanOrEqual(1);
+  });
 });

@@ -166,4 +166,10 @@ export const en: I18nMessages = {
   cloudHelp: 'Help',
   cloudOpeningWorkbook: 'Opening workbook…',
   cloudOpenFailedTitle: 'Could not open this workbook',
+  cloudOpenTimedOut: 'This workbook took too long to open. Click it again to retry.',
+  cloudOpenBootFailed: 'The editor failed to start. Click the workbook again to retry.',
+  cloudSaveStatusSaving: 'Saving…',
+  cloudSaveStatusLocal: 'Saved on this device · syncing to account…',
+  cloudSaveStatusSaved: 'Synced to your account',
+  cloudSaveStatusError: 'Could not save: ',
 };

@@ -1,7 +1,10 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import {
+  clearCloudSyncPending,
+  hasPendingCloudSync,
   hasUnsavedChanges,
   installUnsavedChangesGuard,
+  markCloudSyncPending,
   markDocumentDirty,
   markDocumentSaved,
   resetUnsavedChanges,
@@ -51,12 +54,30 @@ describe('unsaved changes guard', () => {
     expect(fireBeforeUnload().defaultPrevented).toBe(false);
   });
 
+  it('blocks unload while cloud sync is still pending on this device', () => {
+    installUnsavedChangesGuard();
+
+    markDocumentDirty();
+    markCloudSyncPending();
+    markDocumentSaved();
+
+    // Edits are local-safe, so autosave / SW heal must not see dirty.
+    expect(hasUnsavedChanges()).toBe(false);
+    expect(hasPendingCloudSync()).toBe(true);
+    expect(fireBeforeUnload().defaultPrevented).toBe(true);
+
+    clearCloudSyncPending();
+    expect(fireBeforeUnload().defaultPrevented).toBe(false);
+  });
+
   it('clears the flag when another document takes over the editor', () => {
     installUnsavedChangesGuard();
 
     markDocumentDirty();
+    markCloudSyncPending();
     resetUnsavedChanges();
 
+    expect(hasPendingCloudSync()).toBe(false);
     expect(fireBeforeUnload().defaultPrevented).toBe(false);
   });
 
@@ -65,6 +86,7 @@ describe('unsaved changes guard', () => {
     installUnsavedChangesGuard();
 
     markDocumentDirty();
+    markCloudSyncPending();
 
     // The host page owns the unload experience for its own iframe.
     expect(fireBeforeUnload().defaultPrevented).toBe(false);
