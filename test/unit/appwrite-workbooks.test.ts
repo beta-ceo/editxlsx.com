@@ -307,11 +307,13 @@ describe('appwrite workbooks', () => {
           format: 'none',
           fileId: '',
           parentId: '',
+          sortOrder: 0,
         }),
       }),
     );
     expect(folder.kind).toBe('folder');
     expect(folder.format).toBe('');
+    expect(folder.sortOrder).toBe(0);
   });
 
   it('refuses to delete a non-empty folder', async () => {
@@ -378,6 +380,77 @@ describe('appwrite workbooks', () => {
     );
     expect(doc.format).toBe('docx');
   });
+
+  it('orders siblings by sortOrder then createdAt desc', async () => {
+    const { compareVaultOrder, nextSortOrder } = await import('../../lib/appwrite/workbooks');
+    const a = vaultStub({ id: 'a', sortOrder: 0, createdAt: '2026-01-02' });
+    const b = vaultStub({ id: 'b', sortOrder: 0, createdAt: '2026-01-03' });
+    const c = vaultStub({ id: 'c', sortOrder: 2, createdAt: '2026-01-01' });
+    expect([a, b, c].sort(compareVaultOrder).map((row) => row.id)).toEqual(['b', 'a', 'c']);
+    expect(nextSortOrder([a, c])).toBe(3);
+  });
+
+  it('placeVaultItem reorders siblings and blocks folding into self', async () => {
+    const { isUnderFolder, placeVaultItem } = await import('../../lib/appwrite/workbooks');
+    const folder = vaultStub({ id: 'f1', kind: 'folder', title: 'F', sortOrder: 0 });
+    const nested = vaultStub({ id: 'f2', kind: 'folder', title: 'N', parentId: 'f1', sortOrder: 0 });
+    const fileA = vaultStub({ id: 'a', title: 'A.xlsx', sortOrder: 0, createdAt: '2026-01-03' });
+    const fileB = vaultStub({ id: 'b', title: 'B.xlsx', sortOrder: 1, createdAt: '2026-01-02' });
+    const fileC = vaultStub({ id: 'c', title: 'C.xlsx', sortOrder: 2, createdAt: '2026-01-01' });
+    const items = [folder, nested, fileA, fileB, fileC];
+
+    expect(isUnderFolder(items, 'f1', 'f2')).toBe(true);
+    expect(() => placeVaultItem(items, 'f1', 'f2', null)).toThrow(/into itself/i);
+
+    const moved = placeVaultItem(items, 'c', '', 'a');
+    expect(moved.patches.find((p) => p.id === 'c')).toEqual({ id: 'c', parentId: '', sortOrder: 0 });
+    expect(
+      moved.items
+        .filter((row) => row.parentId === '')
+        .sort((x, y) => x.sortOrder - y.sortOrder)
+        .map((row) => row.id),
+    ).toEqual(['c', 'a', 'f1', 'b']);
+
+    const into = placeVaultItem(items, 'a', 'f1', null);
+    expect(into.patches.find((p) => p.id === 'a')).toEqual({ id: 'a', parentId: 'f1', sortOrder: 1 });
+  });
+
+  it('reorderVaultSiblings writes parentId and sortOrder', async () => {
+    updateDocument.mockResolvedValue({
+      $id: 'a',
+      $createdAt: '2026-01-01',
+      $updatedAt: '2026-01-02',
+      userId: 'user-1',
+      title: 'A.xlsx',
+      fileId: 'a',
+      sizeBytes: 1,
+      kind: 'file',
+      format: 'xlsx',
+      parentId: 'f1',
+      sortOrder: 0,
+    });
+
+    const { reorderVaultSiblings, moveVaultItem } = await import('../../lib/appwrite/workbooks');
+    await reorderVaultSiblings([
+      { id: 'a', parentId: 'f1', sortOrder: 0 },
+      { id: 'b', parentId: 'f1', sortOrder: 1 },
+    ]);
+    expect(updateDocument).toHaveBeenCalledTimes(2);
+    expect(updateDocument).toHaveBeenCalledWith(
+      expect.objectContaining({
+        documentId: 'a',
+        data: { parentId: 'f1', sortOrder: 0 },
+      }),
+    );
+
+    await moveVaultItem('a', '', 3);
+    expect(updateDocument).toHaveBeenCalledWith(
+      expect.objectContaining({
+        documentId: 'a',
+        data: { parentId: '', sortOrder: 3 },
+      }),
+    );
+  });
 });
 
 describe('empty office packages', () => {
@@ -421,3 +494,30 @@ describe('empty office packages', () => {
     }
   });
 });
+
+function vaultStub(
+  overrides: Partial<{
+    id: string;
+    title: string;
+    kind: 'file' | 'folder';
+    parentId: string;
+    sortOrder: number;
+    createdAt: string;
+  }> = {},
+) {
+  const id = overrides.id || 'x';
+  const kind = overrides.kind || 'file';
+  return {
+    id,
+    userId: 'user-1',
+    title: overrides.title || (kind === 'folder' ? 'Folder' : `${id}.xlsx`),
+    kind,
+    format: (kind === 'folder' ? '' : 'xlsx') as '' | 'xlsx',
+    parentId: overrides.parentId ?? '',
+    sortOrder: overrides.sortOrder ?? 0,
+    fileId: kind === 'folder' ? '' : id,
+    sizeBytes: kind === 'folder' ? 0 : 1,
+    createdAt: overrides.createdAt || '2026-01-01',
+    updatedAt: overrides.createdAt || '2026-01-01',
+  };
+}

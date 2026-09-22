@@ -422,6 +422,36 @@ body {
   transition: background 0.12s ease;
 }
 
+.vault-tree-row.is-dragging {
+  opacity: 0.45;
+}
+
+.vault-tree-row.is-drop-before::after,
+.vault-tree-row.is-drop-after::after {
+  content: '';
+  position: absolute;
+  inset-inline: calc(var(--vault-row-pad) + var(--vault-depth, 0) * 12px) 4px;
+  height: 2px;
+  border-radius: 1px;
+  background: var(--ran-blue-700, #006bff);
+  pointer-events: none;
+  z-index: 1;
+}
+
+.vault-tree-row.is-drop-before::after {
+  top: 0;
+}
+
+.vault-tree-row.is-drop-after::after {
+  bottom: 0;
+}
+
+.vault-tree-row.is-drop-into {
+  background: color-mix(in srgb, var(--ran-blue-700, #006bff) 14%, transparent);
+  outline: 1px solid color-mix(in srgb, var(--ran-blue-700, #006bff) 55%, transparent);
+  outline-offset: -1px;
+}
+
 .vault-tree-row[data-depth]:not([data-depth='0'])::before {
   content: '';
   position: absolute;
