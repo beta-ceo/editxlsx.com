@@ -46,18 +46,28 @@ describe('home quick actions (guard 17)', () => {
     expect(document.getElementById('oo-home-quick')).toBeNull();
   });
 
-  it('moves the title-bar slots into a 2x2 grid and strips inverse icons', () => {
+  it('moves the title-bar slots into two elset rows like neighboring Home groups', () => {
     mountToolbarFixture();
     expect(relocateHomeQuickActions(document)).toBe(true);
 
     const grid = document.getElementById('oo-home-quick');
     expect(grid).not.toBeNull();
-    expect([...grid!.children].map((el) => el.id)).toEqual([
+    expect(grid!.classList.contains('group')).toBe(true);
+    expect(grid!.classList.contains('small')).toBe(true);
+
+    const rows = [...grid!.querySelectorAll(':scope > .elset')];
+    expect(rows).toHaveLength(2);
+    expect([...rows[0]!.children].map((el) => el.id)).toEqual([
       'slot-btn-dt-save',
       'slot-btn-dt-print',
+    ]);
+    expect([...rows[1]!.children].map((el) => el.id)).toEqual([
       'slot-btn-dt-undo',
       'slot-btn-dt-redo',
     ]);
+    expect(document.getElementById('slot-btn-dt-save')!.classList.contains('split')).toBe(true);
+    expect(document.getElementById('slot-btn-dt-undo')!.classList.contains('split')).toBe(true);
+
     expect(grid!.querySelectorAll('.icon--inverse')).toHaveLength(0);
     expect(grid!.querySelectorAll('button.btn-toolbar').length).toBeGreaterThan(0);
     expect(grid!.querySelectorAll('button.btn-header')).toHaveLength(0);
@@ -65,6 +75,7 @@ describe('home quick actions (guard 17)', () => {
     const css = document.getElementById('oo-home-quick-css')?.textContent ?? '';
     expect(css).toContain('#slot-btn-undo');
     expect(css).toContain('#slot-btn-dt-print-quick');
+    expect(css).toContain('display: table-cell');
   });
 
   it('is idempotent across re-applies', () => {

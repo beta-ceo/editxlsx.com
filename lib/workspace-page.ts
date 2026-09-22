@@ -98,6 +98,10 @@ function notifyError(message: string): void {
   (window as unknown as { message?: { error?: (msg: string) => void } }).message?.error?.(message);
 }
 
+function notifyInfo(message: string): void {
+  (window as unknown as { message?: { info?: (msg: string) => void } }).message?.info?.(message);
+}
+
 function clearOpenWatchers(): void {
   if (openTimer) {
     window.clearTimeout(openTimer);
@@ -413,6 +417,24 @@ async function onNew(): Promise<void> {
   }
 }
 
+function onComingSoon(): void {
+  notifyInfo(t('cloudComingSoon'));
+}
+
+function newMenuOption(
+  iconPath: string,
+  label: string,
+  onClick: () => void,
+  tone: 'workbook' | 'document' | 'folder',
+): HTMLButtonElement {
+  const option = document.createElement('button');
+  option.type = 'button';
+  option.className = `vault-new-option is-${tone}`;
+  option.append(svgIcon(iconPath), document.createTextNode(label));
+  option.addEventListener('click', onClick);
+  return option;
+}
+
 async function onSignOut(): Promise<void> {
   await signOut();
   window.location.replace(loginUrl());
@@ -589,19 +611,53 @@ function mountShell(): void {
   );
   const newPanel = document.createElement('div');
   newPanel.className = 'vault-new-menu';
-  const newWorkbook = document.createElement('button');
-  newWorkbook.type = 'button';
-  newWorkbook.className = 'vault-new-option';
-  newWorkbook.append(
-    svgIcon('M7 3h7l5 5v13a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1zM14 3v5h5'),
-    document.createTextNode(t('cloudNewWorkbook')),
+  newPanel.setAttribute('role', 'menu');
+  // Spreadsheet grid — workbook.
+  const newWorkbook = newMenuOption(
+    'M4 4h16v16H4zM4 10h16M10 4v16',
+    t('cloudNewWorkbook'),
+    () => {
+      newMenu.open = false;
+      void onNew();
+    },
+    'workbook',
   );
-  newWorkbook.addEventListener('click', () => {
-    newMenu.open = false;
-    void onNew();
-  });
-  newPanel.append(newWorkbook);
+  // File with text lines — document.
+  const newDocument = newMenuOption(
+    'M7 3h7l5 5v13a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1zM14 3v5h5M9 13h6M9 17h4',
+    t('cloudNewDocument'),
+    () => {
+      newMenu.open = false;
+      onComingSoon();
+    },
+    'document',
+  );
+  // Folder — directory.
+  const newFolder = newMenuOption(
+    'M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7z',
+    t('cloudNewFolder'),
+    () => {
+      newMenu.open = false;
+      onComingSoon();
+    },
+    'folder',
+  );
+  newPanel.append(newWorkbook, newDocument, newFolder);
   newMenu.append(newSummary, newPanel);
+  // <details> starts content at display:none, so CSS alone cannot animate open.
+  // Flip is-shown on the next frame after [open] so opacity/translate can run.
+  newMenu.addEventListener('toggle', () => {
+    if (!newMenu.open) {
+      newPanel.classList.remove('is-shown');
+      return;
+    }
+    newPanel.classList.remove('is-shown');
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        if (newMenu.open) newPanel.classList.add('is-shown');
+      });
+    });
+  });
 
   const homeBtn = document.createElement('button');
   homeBtn.type = 'button';

@@ -242,24 +242,26 @@ body {
     0 12px 28px rgba(0, 0, 0, 0.1);
   transform-origin: top center;
   opacity: 0;
-  transform: translateY(-8px) scale(0.96);
+  transform: translateY(-10px) scale(0.96);
   visibility: hidden;
   pointer-events: none;
   transition:
     opacity 0.2s cubic-bezier(0.4, 0, 0.2, 1),
-    transform 0.22s cubic-bezier(0.34, 1.2, 0.64, 1),
-    visibility 0s linear 0.2s;
+    transform 0.24s cubic-bezier(0.34, 1.25, 0.64, 1),
+    visibility 0s linear 0.2s,
+    box-shadow 0.2s ease;
 }
 
-.vault-new[open] .vault-new-menu {
+.vault-new[open] .vault-new-menu.is-shown {
   opacity: 1;
   transform: translateY(0) scale(1);
   visibility: visible;
   pointer-events: auto;
   transition:
     opacity 0.2s cubic-bezier(0.4, 0, 0.2, 1),
-    transform 0.22s cubic-bezier(0.34, 1.2, 0.64, 1),
-    visibility 0s linear 0s;
+    transform 0.24s cubic-bezier(0.34, 1.25, 0.64, 1),
+    visibility 0s linear 0s,
+    box-shadow 0.2s ease;
 }
 
 .vault-new-option {
@@ -277,7 +279,30 @@ body {
   font-weight: 500;
   text-align: start;
   cursor: pointer;
-  transition: background 0.12s ease, color 0.12s ease;
+  opacity: 0;
+  transform: translateY(-4px);
+  transition:
+    background 0.12s ease,
+    color 0.12s ease,
+    opacity 0.18s ease,
+    transform 0.2s cubic-bezier(0.34, 1.2, 0.64, 1);
+}
+
+.vault-new[open] .vault-new-menu.is-shown .vault-new-option {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.vault-new[open] .vault-new-menu.is-shown .vault-new-option:nth-child(1) {
+  transition-delay: 0.03s;
+}
+
+.vault-new[open] .vault-new-menu.is-shown .vault-new-option:nth-child(2) {
+  transition-delay: 0.06s;
+}
+
+.vault-new[open] .vault-new-menu.is-shown .vault-new-option:nth-child(3) {
+  transition-delay: 0.09s;
 }
 
 .vault-new-option:hover {
@@ -292,7 +317,18 @@ body {
   width: 18px;
   height: 18px;
   flex: none;
+}
+
+.vault-new-option.is-workbook .vault-icon {
+  color: #0f8a5f;
+}
+
+.vault-new-option.is-document .vault-icon {
   color: var(--ran-blue-700, #006bff);
+}
+
+.vault-new-option.is-folder .vault-icon {
+  color: #c47a12;
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -307,8 +343,16 @@ body {
     transform: none;
   }
 
-  .vault-new[open] .vault-new-menu {
+  .vault-new[open] .vault-new-menu,
+  .vault-new[open] .vault-new-menu.is-shown {
     transform: none;
+  }
+
+  .vault-new-option,
+  .vault-new[open] .vault-new-menu.is-shown .vault-new-option {
+    opacity: 1;
+    transform: none;
+    transition-delay: 0s;
   }
 }
 

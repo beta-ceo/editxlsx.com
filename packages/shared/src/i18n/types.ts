@@ -137,6 +137,10 @@ export interface I18nMessages {
   cloudFilesTitle: string;
   cloudFilesIntro: string;
   cloudNewWorkbook: string;
+  cloudNewDocument: string;
+  cloudNewFolder: string;
+  /** Shown when a New-menu action is not wired to cloud storage yet. */
+  cloudComingSoon: string;
   cloudUploadWorkbook: string;
   cloudEmptyTitle: string;
   cloudEmpty: string;

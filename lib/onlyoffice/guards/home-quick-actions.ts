@@ -9,9 +9,11 @@
  * made Undo / Redo disappear entirely.
  *
  * Fix: move the four title-bar slots into `#oo-home-quick` at the left of
- * `.panel.static`, strip `icon--inverse` (those glyphs are painted for the
- * dark title bar and vanish on the light Home strip), and hide the unused
- * static duplicates plus quick-print.
+ * `.panel.static`, laid out like every other small Home group (two `.elset`
+ * rows of `.btn-slot`s, `display: table-cell`, vendor padding / margins),
+ * strip `icon--inverse` (those glyphs are painted for the dark title bar and
+ * vanish on the light Home strip), and hide the unused static duplicates plus
+ * quick-print.
  *
  * Idempotent. Returns false until the Header has rendered buttons into the
  * dt-slots so prepareEditorIframe can keep polling.
@@ -42,24 +44,20 @@ function injectCss(doc: Document): void {
   style.id = STYLE_ID;
   style.textContent = [
     HIDE_SLOT_IDS.map((id) => `#${id}`).join(', ') + ' { display: none !important; }',
+    // Match neighboring `.group.small` table-cells: same padding, no extra gap.
     `#${GRID_ID} {`,
-    '  display: grid !important;',
-    '  grid-template-columns: repeat(2, min-content);',
-    '  grid-template-rows: repeat(2, min-content);',
-    '  grid-auto-flow: row;',
-    '  align-items: center;',
-    '  justify-items: center;',
-    '  gap: 2px 4px;',
-    '  flex: none;',
-    '  margin-right: 6px;',
-    '}',
-    `#${GRID_ID} > .btn-slot {`,
-    '  display: inline-block !important;',
+    '  display: table-cell !important;',
+    '  vertical-align: middle !important;',
     '  margin: 0 !important;',
     '  float: none !important;',
-    '  width: auto !important;',
-    '  min-width: var(--x-small-btn-size, 20px);',
-    '  min-height: var(--x-small-btn-size, 20px);',
+    '}',
+    `#${GRID_ID} > .elset {`,
+    '  display: flex !important;',
+    '  align-items: center !important;',
+    '}',
+    `#${GRID_ID} .btn-slot {`,
+    '  display: inline-block !important;',
+    '  float: none !important;',
     '}',
   ].join('\n');
   (doc.head || doc.documentElement).appendChild(style);
@@ -77,8 +75,24 @@ function adaptIconsForHomeToolbar(root: HTMLElement): void {
   });
 }
 
+function ensureElsetRows(doc: Document, grid: HTMLElement): [HTMLElement, HTMLElement] {
+  let row1 = grid.querySelector(':scope > .elset:nth-child(1)') as HTMLElement | null;
+  let row2 = grid.querySelector(':scope > .elset:nth-child(2)') as HTMLElement | null;
+  if (!row1) {
+    row1 = doc.createElement('div');
+    row1.className = 'elset';
+    grid.appendChild(row1);
+  }
+  if (!row2) {
+    row2 = doc.createElement('div');
+    row2.className = 'elset';
+    grid.appendChild(row2);
+  }
+  return [row1, row2];
+}
+
 /**
- * Relocate the four title-bar slots into a 2x2 grid. Exported for unit tests.
+ * Relocate the four title-bar slots into a 2x2 Home group. Exported for unit tests.
  * Returns true when the grid holds live buttons.
  */
 export function relocateHomeQuickActions(doc: Document): boolean {
@@ -100,7 +114,8 @@ export function relocateHomeQuickActions(doc: Document): boolean {
   if (
     existing &&
     MOVE_SLOT_IDS.every((id) => existing.querySelector(`#${id}`)) &&
-    MOVE_SLOT_IDS.every((id) => (existing.querySelector(`#${id}`)?.childElementCount ?? 0) > 0)
+    MOVE_SLOT_IDS.every((id) => (existing.querySelector(`#${id}`)?.childElementCount ?? 0) > 0) &&
+    existing.querySelectorAll(':scope > .elset').length === 2
   ) {
     adaptIconsForHomeToolbar(existing);
     return true;
@@ -108,14 +123,23 @@ export function relocateHomeQuickActions(doc: Document): boolean {
 
   const grid = existing ?? doc.createElement('div');
   grid.id = GRID_ID;
+  // Same classes as neighboring clipboard / filter groups so padding and
+  // separators line up without custom gap rules.
   grid.className = 'oo-home-quick group no-mask small';
   grid.setAttribute('role', 'toolbar');
   grid.setAttribute('aria-label', 'Save, Print, Undo, Redo');
 
+  const [row1, row2] = ensureElsetRows(doc, grid);
+  // Mirror filter-group slots: first of each row gets `.split` for the
+  // vendor's horizontal slot width / margin between neighbors.
+  save.classList.add('split');
+  undo.classList.add('split');
+  print.classList.remove('split');
+  redo.classList.remove('split');
+
   // Row-major 2x2: Save | Print / Undo | Redo.
-  for (const el of [save, print, undo, redo]) {
-    grid.appendChild(el);
-  }
+  row1.append(save, print);
+  row2.append(undo, redo);
 
   if (!existing || existing.parentElement !== panel) {
     panel.insertBefore(grid, panel.firstChild);

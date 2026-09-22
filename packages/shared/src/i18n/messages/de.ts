@@ -141,6 +141,9 @@ export const de: Partial<I18nMessages> = {
   cloudFilesIntro:
     'Excel-Dateien in Ihrem Konto. Öffnen Sie eine zum Bearbeiten im Browser, oder laden Sie eine .xlsx hoch.',
   cloudNewWorkbook: 'Neue Arbeitsmappe',
+  cloudNewDocument: 'Neues Dokument',
+  cloudNewFolder: 'Neuer Ordner',
+  cloudComingSoon: 'Demnächst verfügbar',
   cloudUploadWorkbook: '.xlsx hochladen',
   cloudEmptyTitle: 'Noch keine Arbeitsmappen',
   cloudEmpty: 'Erstellen Sie eine leere Arbeitsmappe oder laden Sie eine .xlsx hoch.',
