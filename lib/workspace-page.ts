@@ -832,13 +832,6 @@ function formatIcon(format: VaultFormat): SVGElement {
   return svgIcon('M4 4h16v16H4zM4 10h16M10 4v16', 'vault-icon vault-upload-queue-file-icon');
 }
 
-function dismissUploadItem(key: string): void {
-  const item = uploadQueue.find((row) => row.key === key);
-  if (!item || item.state === 'uploading') return;
-  uploadQueue = uploadQueue.filter((row) => row.key !== key);
-  paintUploadProgress();
-}
-
 function clearCompletedUploads(): void {
   uploadQueue = uploadQueue.filter((row) => row.state !== 'done' && row.state !== 'error');
   paintUploadProgress();
@@ -1003,22 +996,6 @@ function syncUploadQueueCard(card: HTMLElement, item: UploadQueueItem): void {
     body.querySelector('.vault-upload-queue-track')?.remove();
     detail?.remove();
   }
-
-  const actions = card.querySelector('.vault-upload-queue-actions');
-  if (actions) {
-    const dismiss = actions.querySelector('.vault-upload-queue-dismiss') as HTMLButtonElement | null;
-    if (item.state === 'uploading') {
-      dismiss?.remove();
-    } else if (!dismiss) {
-      const btn = document.createElement('button');
-      btn.type = 'button';
-      btn.className = 'vault-upload-queue-dismiss';
-      btn.setAttribute('aria-label', t('cloudCancel'));
-      btn.append(svgIcon('M6 6l12 12M18 6 6 18'));
-      btn.addEventListener('click', () => dismissUploadItem(item.key));
-      actions.append(btn);
-    }
-  }
 }
 
 function buildUploadQueueCard(item: UploadQueueItem): HTMLElement {
@@ -1048,10 +1025,7 @@ function buildUploadQueueCard(item: UploadQueueItem): HTMLElement {
 
   body.append(titleRow, meta);
 
-  const actions = document.createElement('div');
-  actions.className = 'vault-upload-queue-actions';
-
-  card.append(iconWrap, body, actions);
+  card.append(iconWrap, body);
   // Populate dynamic bits (fill starts at 0%, then sync animates to target).
   syncUploadQueueCard(card, item);
   if (item.state === 'done' || item.state === 'uploading') {
