@@ -2097,33 +2097,56 @@ function mountShell(): void {
             selection.className = 'vault-stage-browser-selection';
             selection.id = 'workspace-stage-browser-selection';
             selection.hidden = true;
+            const selectionMeta = document.createElement('div');
+            selectionMeta.className = 'vault-stage-browser-selection-meta';
+            selectionMeta.append(
+              svgIcon('M5 13l4 4L19 7', 'vault-icon vault-stage-browser-selection-mark'),
+            );
             const selectionCount = document.createElement('span');
             selectionCount.className = 'vault-stage-browser-selection-count';
             selectionCount.id = 'workspace-stage-browser-selection-count';
+            selectionMeta.append(selectionCount);
             const selectionActions = document.createElement('div');
             selectionActions.className = 'vault-stage-browser-selection-actions';
             const selectAllBtn = document.createElement('button');
             selectAllBtn.type = 'button';
-            selectAllBtn.className = 'vault-stage-browser-selection-btn';
+            selectAllBtn.className = 'vault-stage-browser-selection-btn is-quiet';
             selectAllBtn.id = 'workspace-stage-browser-select-all';
             selectAllBtn.textContent = t('cloudBatchSelectAll');
             const moveBtn = document.createElement('button');
             moveBtn.type = 'button';
             moveBtn.className = 'vault-stage-browser-selection-btn';
             moveBtn.id = 'workspace-stage-browser-move';
-            moveBtn.textContent = t('cloudBatchMove');
+            moveBtn.append(
+              svgIcon(
+                'M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7z',
+                'vault-icon',
+              ),
+              document.createTextNode(t('cloudBatchMove')),
+            );
             const deleteBtn = document.createElement('button');
             deleteBtn.type = 'button';
             deleteBtn.className = 'vault-stage-browser-selection-btn is-danger';
             deleteBtn.id = 'workspace-stage-browser-delete';
-            deleteBtn.textContent = t('cloudBatchDelete');
+            deleteBtn.append(
+              svgIcon(
+                'M4 7h16M10 11v6M14 11v6M6 7l1 12a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2l1-12M9 7V5a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2',
+                'vault-icon',
+              ),
+              document.createTextNode(t('cloudBatchDelete')),
+            );
             const clearBtn = document.createElement('button');
             clearBtn.type = 'button';
-            clearBtn.className = 'vault-stage-browser-selection-btn';
+            clearBtn.className = 'vault-stage-browser-selection-btn is-dismiss';
             clearBtn.id = 'workspace-stage-browser-clear';
-            clearBtn.textContent = t('cloudBatchClear');
-            selectionActions.append(selectAllBtn, moveBtn, deleteBtn, clearBtn);
-            selection.append(selectionCount, selectionActions);
+            clearBtn.setAttribute('aria-label', t('cloudBatchClear'));
+            clearBtn.title = t('cloudBatchClear');
+            clearBtn.append(svgIcon('M6 6l12 12M18 6 6 18', 'vault-icon'));
+            const divider = document.createElement('span');
+            divider.className = 'vault-stage-browser-selection-divider';
+            divider.setAttribute('aria-hidden', 'true');
+            selectionActions.append(selectAllBtn, divider, moveBtn, deleteBtn);
+            selection.append(selectionMeta, selectionActions, clearBtn);
             const list = document.createElement('div');
             list.className = 'vault-stage-browser-list';
             list.id = 'workspace-stage-browser-list';

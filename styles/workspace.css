@@ -1655,57 +1655,129 @@ body {
 .vault-stage-browser-selection {
   display: flex;
   align-items: center;
-  gap: 12px;
-  margin: 0 0 12px;
-  padding: 8px 12px;
-  border-radius: 10px;
-  background: color-mix(in srgb, var(--ran-blue-700, #006bff) 8%, transparent);
-  border: 1px solid color-mix(in srgb, var(--ran-blue-700, #006bff) 18%, transparent);
+  gap: 10px;
+  margin: 0 0 10px;
+  padding: 6px 8px 6px 12px;
+  border-radius: 12px;
+  background: var(--ran-color-bg, #fff);
+  border: 1px solid var(--ran-color-border, rgba(0, 0, 0, 0.08));
+  box-shadow: 0 1px 2px color-mix(in srgb, var(--ran-color-text) 4%, transparent);
+  animation: vault-selection-in 0.16s ease;
+}
+
+@keyframes vault-selection-in {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
 }
 
 .vault-stage-browser-selection[hidden] {
   display: none;
 }
 
-.vault-stage-browser-selection-count {
+.vault-stage-browser-selection-meta {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
   flex: 1 1 auto;
   min-width: 0;
+}
+
+.vault-stage-browser-selection-mark {
+  width: 16px;
+  height: 16px;
+  flex: none;
+  color: var(--ran-blue-700, #006bff);
+}
+
+.vault-stage-browser-selection-count {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
   font-size: 13px;
   font-weight: 600;
-  color: var(--ran-blue-800, #0059ec);
+  letter-spacing: -0.01em;
+  color: var(--ran-color-text);
 }
 
 .vault-stage-browser-selection-actions {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 6px;
+  gap: 4px;
+  flex: none;
+}
+
+.vault-stage-browser-selection-divider {
+  width: 1px;
+  height: 16px;
+  margin: 0 4px;
+  background: var(--ran-color-border, rgba(0, 0, 0, 0.1));
   flex: none;
 }
 
 .vault-stage-browser-selection-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
   min-height: 30px;
   padding: 0 10px;
-  border: 1px solid var(--ran-color-border, rgba(0, 0, 0, 0.08));
+  border: 0;
   border-radius: 8px;
-  background: var(--ran-color-bg, #fff);
+  background: transparent;
   color: var(--ran-color-text);
   font: inherit;
   font-size: 12.5px;
+  font-weight: 550;
   cursor: pointer;
+  transition: background 0.12s ease, color 0.12s ease;
+}
+
+.vault-stage-browser-selection-btn .vault-icon {
+  width: 14px;
+  height: 14px;
+  flex: none;
 }
 
 .vault-stage-browser-selection-btn:hover {
   background: var(--ran-gray-100, #f2f2f2);
 }
 
+.vault-stage-browser-selection-btn.is-quiet {
+  font-weight: 500;
+  color: var(--ran-color-text-secondary);
+}
+
+.vault-stage-browser-selection-btn.is-quiet:hover {
+  color: var(--ran-color-text);
+}
+
 .vault-stage-browser-selection-btn.is-danger {
   color: var(--ran-color-danger, #c62828);
-  border-color: color-mix(in srgb, var(--ran-color-danger, #c62828) 28%, transparent);
 }
 
 .vault-stage-browser-selection-btn.is-danger:hover {
-  background: color-mix(in srgb, var(--ran-color-danger, #c62828) 8%, #fff);
+  background: color-mix(in srgb, var(--ran-color-danger, #c62828) 9%, transparent);
+}
+
+.vault-stage-browser-selection-btn.is-dismiss {
+  width: 30px;
+  min-height: 30px;
+  padding: 0;
+  flex: none;
+  color: var(--ran-color-text-secondary);
+}
+
+.vault-stage-browser-selection-btn.is-dismiss:hover {
+  color: var(--ran-color-text);
+  background: var(--ran-gray-100, #f2f2f2);
 }
 
 .vault-stage-browser-list {
