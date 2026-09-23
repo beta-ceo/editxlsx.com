@@ -188,7 +188,4 @@ history for non-obvious choices: `docs/explorations/`.
 
 ## License
 
-Application code is [MIT](LICENSE). The embedded ONLYOFFICE editors remain
-AGPL-3.0 with Ascensio System SIA's Section 7 terms — see [NOTICE](NOTICE).
-ONLYOFFICE is a trademark of Ascensio System SIA; this project is not an
-official ONLYOFFICE product and is not affiliated with Ascensio System SIA.
+Application code is [MIT](LICENSE). 

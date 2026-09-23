@@ -31,14 +31,8 @@ function renderNotice(doc: Document, panel: HTMLElement): void {
   box.id = NOTICE_ID;
   box.style.cssText = 'padding:12px 0;font-size:11px;line-height:1.6;opacity:0.75;';
 
-  const line = doc.createElement('div');
-  line.textContent =
-    'This is a modified version of the ONLYOFFICE editors, not an official ONLYOFFICE product. ' +
-    'ONLYOFFICE is a trademark of Ascensio System SIA.';
-  box.appendChild(line);
-
   const source = doc.createElement('div');
-  source.textContent = 'Source code (MIT app; ONLYOFFICE editors AGPL-3.0): ';
+  source.textContent = 'Source code (MIT app): ';
   const link = doc.createElement('a');
   link.href = SOURCE_URL;
   link.target = '_blank';

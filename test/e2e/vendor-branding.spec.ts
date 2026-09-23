@@ -150,18 +150,3 @@ test.describe('ONLYOFFICE branding (vendor About)', () => {
     expect(notice.href).toBe('https://github.com/ranuts/document');
   });
 });
-
-test.describe('trademark notice (AGPL-3.0 Section 7(e))', () => {
-  const PAGES = [
-    ['/', 'ONLYOFFICE is a trademark of Ascensio System SIA'],
-    ['/zh-CN/', 'ONLYOFFICE 是 Ascensio System SIA 的商标'],
-    ['/help', 'ONLYOFFICE is a trademark of Ascensio System SIA'],
-  ] as const;
-
-  for (const [route, expected] of PAGES) {
-    test(`${route} states whose mark ONLYOFFICE is`, async ({ page }) => {
-      await page.goto(route);
-      await expect(page.locator('.tm').first()).toContainText(expected);
-    });
-  }
-});

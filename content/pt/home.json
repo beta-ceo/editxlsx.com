@@ -22,24 +22,24 @@
   ],
   "navActions": {
     "logIn": "Entrar",
-    "getStarted": "Começar grátis"
+    "getStarted": "Começar — $5/ano"
   },
-  "badge": "Pronto na hora · Sync na nuvem · Rota local",
+  "badge": "$5/ano · Sem instalar o Office · Local grátis",
   "h1": {
-    "plain": "O espaço de trabalho leve e moderno para",
-    "accent": "docs e planilhas"
+    "plain": "Excel no navegador",
+    "accent": "sem instalar o Office"
   },
-  "sub": "Crie, edite e sincronize pastas Excel com OnlyOffice no navegador. Entre para a nuvem ou abra um arquivo local — sem instalar, sem excesso.",
+  "sub": "Pastas na nuvem por $5 ao ano. Abra um arquivo local grátis quando quiser — a edição roda no navegador.",
   "cta": {
-    "signIn": "Começar grátis",
+    "signIn": "Começar — $5/ano",
     "files": "Minhas pastas",
     "xlsx": "Novo Excel (local)",
     "open": "Abrir arquivo local"
   },
   "checks": [
-    "Sem cartão de crédito",
-    "Abrir local sem conta",
-    "Sync na nuvem ao entrar"
+    "$5 por ano na nuvem",
+    "Abrir local continua grátis",
+    "Sem instalar o Office"
   ],
   "recent": {
     "label": "Continuar editando",
@@ -158,13 +158,13 @@
   "band": {
     "eyebrow": "Comece em segundos",
     "h2": "Pronto para um fluxo de planilhas mais rápido e leve?",
-    "p": "Entre para sincronizar pastas ou abra um .xlsx local na aba — OnlyOffice, sem instalar.",
-    "primary": "Começar grátis",
+    "p": "Pastas na nuvem por $5 ao ano — ou abra um .xlsx local grátis. OnlyOffice na aba, sem instalar.",
+    "primary": "Começar — $5/ano",
     "secondary": "Minhas pastas",
     "checks": [
-      "Comece de graça",
-      "Sem instalação",
-      "Nuvem ou local — você escolhe"
+      "$5/ano na nuvem",
+      "Local grátis",
+      "Sem instalar o Office"
     ]
   },
   "foot": {

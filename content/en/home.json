@@ -22,24 +22,24 @@
   ],
   "navActions": {
     "logIn": "Log in",
-    "getStarted": "Get Started Free"
+    "getStarted": "Start — $5/year"
   },
-  "badge": "Instant setup · Cloud sync · Local fallback",
+  "badge": "$5/year · No Office install · Local free",
   "h1": {
-    "plain": "The lightweight, modern workspace for",
-    "accent": "docs & spreadsheets"
+    "plain": "Excel in your browser",
+    "accent": "without installing Office"
   },
-  "sub": "Create, edit, and sync Excel workbooks with OnlyOffice in your browser. Sign in for cloud workbooks, or open a local file — no install, no bloat.",
+  "sub": "Cloud workbooks for $5 a year. Open a local file anytime for free — editing runs in your browser.",
   "cta": {
-    "signIn": "Start for free",
+    "signIn": "Start — $5/year",
     "files": "My workbooks",
     "xlsx": "New Excel (local)",
     "open": "Open a local file"
   },
   "checks": [
-    "No credit card required",
-    "Local open without an account",
-    "Cloud sync when signed in"
+    "$5 per year for cloud",
+    "Local open stays free",
+    "No Office install"
   ],
   "recent": {
     "label": "Continue editing",
@@ -158,13 +158,13 @@
   "band": {
     "eyebrow": "Get started in seconds",
     "h2": "Ready for a faster, lighter spreadsheet workflow?",
-    "p": "Sign in to sync workbooks to your account, or open a local .xlsx and start editing in the tab — OnlyOffice, no install.",
-    "primary": "Get Started Free",
+    "p": "Cloud workbooks for $5 a year — or open a local .xlsx free. OnlyOffice in the tab, no install.",
+    "primary": "Start — $5/year",
     "secondary": "My workbooks",
     "checks": [
-      "Free to start",
-      "Zero install required",
-      "Cloud or local — your choice"
+      "$5/year for cloud",
+      "Local open free",
+      "No Office install"
     ]
   },
   "foot": {

@@ -22,24 +22,24 @@
   ],
   "navActions": {
     "logIn": "Anmelden",
-    "getStarted": "Kostenlos starten"
+    "getStarted": "Starten — $5/Jahr"
   },
-  "badge": "Sofort startklar · Cloud-Sync · Lokal verfügbar",
+  "badge": "$5/Jahr · Ohne Office-Installation · Lokal kostenlos",
   "h1": {
-    "plain": "Der schlanke, moderne Arbeitsplatz für",
-    "accent": "Dokumente & Tabellen"
+    "plain": "Excel im Browser",
+    "accent": "ohne Office zu installieren"
   },
-  "sub": "Excel-Arbeitsmappen mit OnlyOffice im Browser erstellen, bearbeiten und synchronisieren. Anmelden für Cloud-Arbeitsmappen oder lokal öffnen — ohne Installation, ohne Ballast.",
+  "sub": "Cloud-Arbeitsmappen für $5 im Jahr. Lokale Dateien jederzeit kostenlos öffnen — Bearbeitung im Browser.",
   "cta": {
-    "signIn": "Kostenlos starten",
+    "signIn": "Starten — $5/Jahr",
     "files": "Meine Arbeitsmappen",
     "xlsx": "Neues Excel (lokal)",
     "open": "Lokale Datei öffnen"
   },
   "checks": [
-    "Keine Kreditkarte nötig",
-    "Lokal öffnen ohne Konto",
-    "Cloud-Sync nach Anmeldung"
+    "$5 pro Jahr für die Cloud",
+    "Lokal öffnen bleibt kostenlos",
+    "Keine Office-Installation"
   ],
   "recent": {
     "label": "Weiter bearbeiten",
@@ -158,13 +158,13 @@
   "band": {
     "eyebrow": "In Sekunden starten",
     "h2": "Bereit für einen schnelleren, leichteren Tabellen-Workflow?",
-    "p": "Anmelden und Arbeitsmappen synchronisieren, oder eine lokale .xlsx im Tab öffnen — OnlyOffice, ohne Installation.",
-    "primary": "Kostenlos starten",
+    "p": "Cloud-Arbeitsmappen für $5 im Jahr — oder lokale .xlsx kostenlos öffnen. OnlyOffice im Tab, ohne Installation.",
+    "primary": "Starten — $5/Jahr",
     "secondary": "Meine Arbeitsmappen",
     "checks": [
-      "Kostenlos starten",
-      "Keine Installation",
-      "Cloud oder lokal — Ihre Wahl"
+      "$5/Jahr für die Cloud",
+      "Lokal öffnen kostenlos",
+      "Keine Office-Installation"
     ]
   },
   "foot": {

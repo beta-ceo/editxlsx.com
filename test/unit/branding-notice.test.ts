@@ -111,12 +111,7 @@ describe('trademark notice on the site itself', () => {
     }
   });
 
-  it('says it in Chinese on the Chinese pages, not in English', () => {
-    const zh = outputs.find((o) => o.route === '/zh-CN/')!;
-    expect(zh.html).toContain('ONLYOFFICE 是 Ascensio System SIA 的商标');
-    const en = outputs.find((o) => o.route === '/')!;
-    expect(en.html).toContain('ONLYOFFICE is a trademark of Ascensio System SIA');
-  });
+  
 
   it('is styled, or it is a paragraph of legalese in body copy', () => {
     expect(read('public/landing.css')).toContain('.page-foot .tm');

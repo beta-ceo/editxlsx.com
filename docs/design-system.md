@@ -113,10 +113,27 @@ Notion 正文 708）。**不存在"一个正确的宽度"，只存在按内容�
 并给一个真图标（ranui 内置 52 个，`<r-icon name="book">` 零注册懒加载，
 打包成独立 chunk），不是拿排版字符凑。
 
-## 六、颜色一律走 `--ran-*`
+## 六、颜色：`--ran-*` 中性层 + EditXLSX 品牌色
 
-不写死任何颜色值。暗色模式因此不需要任何额外工作——token 层自己翻转，
-`/history` 的暗色版本是零成本得到的。
+页面中性色（背景、正文、边框、成功/危险）一律走 `--ran-*`，暗色模式由 token 层翻转。
+
+**首页营销层另有一套品牌色**（声明在 `public/home.css` 的 `#landing-hero`），
+命名 **Sheet Green**——Excel 优先 + 每年 $5 的价值感，又不抄 Microsoft Office 绿
+（`#217346`）。主色与工作区 `.xlsx` 图标同源（`#0f8a5f`），营销与产品共用一管墨。
+
+| Token | 亮色 | 用途 |
+| ----- | ---- | ---- |
+| `--brand` | `#0f8a5f` | CTA、Logo 方标、h1 accent、勾选点 |
+| `--brand-strong` | `#0a6e4b` | hover / pressed |
+| `--brand-soft` | `#e8f6ef` | 徽章底、band 铺底 |
+| `--brand-mid` | `#9dd4b8` | soft 表面的描边 |
+| `--brand-ink` | `#0a5439` | soft 上的文字 |
+| `--brand-glow` | brand @ ~32% | hero 近场氛围光 |
+| `--brand-air-glow` | 冷灰蓝 @ ~16% | 远场陪衬，避免整页单色绿 |
+
+暗色下同一组变量被覆写成更亮的绿（`--brand: #3ecf8e` 等），仍只改 token，不改选择器。
+内容页 / `/history` 暂不引入品牌绿——它们继续用 ranui 中性 + 链接蓝；品牌绿是
+「卖产品」的语言，不是「读文档」的语言。
 
 ## 七、已知的合理例外
 

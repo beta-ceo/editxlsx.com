@@ -22,24 +22,24 @@
   ],
   "navActions": {
     "logIn": "Iniciar sesión",
-    "getStarted": "Empezar gratis"
+    "getStarted": "Empezar — $5/año"
   },
-  "badge": "Listo al instante · Sync en la nube · Ruta local",
+  "badge": "$5/año · Sin instalar Office · Local gratis",
   "h1": {
-    "plain": "El espacio de trabajo ligero y moderno para",
-    "accent": "docs y hojas de cálculo"
+    "plain": "Excel en el navegador",
+    "accent": "sin instalar Office"
   },
-  "sub": "Crea, edita y sincroniza libros Excel con OnlyOffice en el navegador. Inicia sesión para la nube, o abre un archivo local — sin instalar, sin exceso.",
+  "sub": "Libros en la nube por $5 al año. Abre un archivo local gratis cuando quieras — la edición corre en el navegador.",
   "cta": {
-    "signIn": "Empezar gratis",
+    "signIn": "Empezar — $5/año",
     "files": "Mis libros",
     "xlsx": "Nuevo Excel (local)",
     "open": "Abrir archivo local"
   },
   "checks": [
-    "Sin tarjeta de crédito",
-    "Abrir local sin cuenta",
-    "Sync en la nube al iniciar sesión"
+    "$5 al año en la nube",
+    "Abrir local sigue gratis",
+    "Sin instalar Office"
   ],
   "recent": {
     "label": "Seguir editando",
@@ -158,13 +158,13 @@
   "band": {
     "eyebrow": "Empieza en segundos",
     "h2": "¿Listo para un flujo de hojas más rápido y ligero?",
-    "p": "Inicia sesión para sincronizar libros, o abre un .xlsx local en la pestaña — OnlyOffice, sin instalar.",
-    "primary": "Empezar gratis",
+    "p": "Libros en la nube por $5 al año — o abre un .xlsx local gratis. OnlyOffice en la pestaña, sin instalar.",
+    "primary": "Empezar — $5/año",
     "secondary": "Mis libros",
     "checks": [
-      "Plan gratuito para empezar",
-      "Sin instalación",
-      "Nube o local — tú eliges"
+      "$5/año en la nube",
+      "Local gratis",
+      "Sin instalar Office"
     ]
   },
   "foot": {

@@ -1,8 +1,9 @@
-/* Landing hero for the homepage (edit.chaxus.com) — mockup stack on ranui tokens.
+/* Landing hero for the homepage (editxlsx.com) — mockup stack on ranui tokens.
    home.css holds ONLY page layout/composition. Every design VALUE comes from
-   the ranui token layer (public/ran-tokens.css). UI chrome uses real ranui
-   components (<r-button>). EVERY selector is scoped under #landing-hero;
-   dark mode comes from ranui for free. */
+   the ranui token layer (public/ran-tokens.css) or the EditXLSX brand tokens
+   declared on #landing-hero below. UI chrome uses real ranui components
+   (<r-button>). EVERY selector is scoped under #landing-hero; dark mode comes
+   from ranui for free. */
 
 body {
   margin: 0;
@@ -11,12 +12,37 @@ body {
 }
 
 #landing-hero {
-  --sel: var(--ran-blue-300);
+  /*
+   * EditXLSX brand — "Sheet Green"
+   *
+   * Why green: the product is Excel-first ($5/year cloud + local free). Green
+   * reads as spreadsheet cells and value, without copying Microsoft Office
+   * (#217346). --brand matches the workspace .xlsx icon (#0f8a5f) so marketing
+   * and the app share one ink.
+   *
+   * Roles:
+   *   --brand          primary actions, logo mark, h1 accent
+   *   --brand-strong   hover / pressed
+   *   --brand-soft     tinted chips, badge fill, soft bands
+   *   --brand-mid      borders on soft surfaces
+   *   --brand-ink      text sitting on soft fills
+   *   --brand-glow     hero atmosphere (near-field)
+   *   --brand-air-glow cool companion wash so the page is not monochrome green
+   */
+  --brand: #0f8a5f;
+  --brand-strong: #0a6e4b;
+  --brand-soft: #e8f6ef;
+  --brand-mid: #9dd4b8;
+  --brand-ink: #0a5439;
+  --brand-glow: color-mix(in srgb, var(--brand) 32%, transparent);
+  --brand-air-glow: color-mix(in srgb, #6a8fa8 16%, transparent);
+
+  --sel: color-mix(in srgb, var(--brand) 28%, var(--ran-color-bg));
   --maxw: 1152px;
   --pad: clamp(20px, 5vw, 56px);
-  --success-text: var(--ran-green-900);
-  --glow-blue: color-mix(in srgb, var(--ran-blue-500) 35%, transparent);
-  --glow-green: color-mix(in srgb, var(--ran-green-500) 28%, transparent);
+  --success-text: var(--brand-ink);
+  --glow-blue: var(--brand-air-glow);
+  --glow-green: var(--brand-glow);
 
   position: relative;
   z-index: 1;
@@ -45,7 +71,7 @@ body {
   padding-right: var(--pad);
 }
 
-/* Soft hero atmosphere — radial glows, not a flat wash. */
+/* Soft hero atmosphere — brand glow + cool air, not a flat wash. */
 #landing-hero::before {
   content: '';
   position: absolute;
@@ -53,8 +79,8 @@ body {
   height: min(720px, 90vh);
   pointer-events: none;
   background:
-    radial-gradient(ellipse 55% 50% at 20% 10%, var(--glow-blue), transparent 70%),
-    radial-gradient(ellipse 45% 40% at 85% 5%, var(--glow-green), transparent 65%);
+    radial-gradient(ellipse 55% 50% at 18% 8%, var(--brand-glow), transparent 70%),
+    radial-gradient(ellipse 45% 40% at 88% 4%, var(--brand-air-glow), transparent 65%);
   z-index: 0;
 }
 #landing-hero > * {
@@ -76,12 +102,11 @@ body {
   font-size: 15.5px;
   font-weight: 600;
 }
-/* Mock stack accents blue CTAs; ranui primary may be monochrome ink.
-   Band CTA is inverted (white on dark) — styled under .band below. */
+/* Brand CTAs — Sheet Green, not ranui's default ink / blue. */
 #landing-hero .cta r-button[type='primary']::part(button),
 #landing-hero .nav-cta r-button[type='primary']::part(button) {
-  background: var(--ran-blue-700);
-  border-color: var(--ran-blue-700);
+  background: var(--brand);
+  border-color: var(--brand);
 }
 #landing-hero .cta r-button[type='primary']::part(content),
 #landing-hero .nav-cta r-button[type='primary']::part(content) {
@@ -110,8 +135,8 @@ body {
   line-height: 22px;
 }
 #landing-hero r-button[type='primary']:not(:defined) {
-  background: var(--ran-blue-700);
-  border-color: var(--ran-blue-700);
+  background: var(--brand);
+  border-color: var(--brand);
   color: #fff;
 }
 
@@ -234,7 +259,7 @@ body {
   width: 22px;
   height: 22px;
   border-radius: 6px;
-  background: var(--ran-blue-700);
+  background: var(--brand);
   display: inline-grid;
   place-items: center;
   flex: none;
@@ -313,9 +338,9 @@ body {
   gap: var(--ran-space-2);
   padding: 6px 14px;
   border-radius: var(--ran-radius-full);
-  border: 1px solid var(--ran-blue-400);
-  background: color-mix(in srgb, var(--ran-blue-100) 80%, transparent);
-  color: var(--ran-blue-800);
+  border: 1px solid var(--brand-mid);
+  background: color-mix(in srgb, var(--brand-soft) 88%, transparent);
+  color: var(--brand-ink);
   font-size: 12.5px;
   font-weight: 600;
   letter-spacing: 0.01em;
@@ -330,7 +355,7 @@ body {
   color: var(--ran-color-text);
 }
 #landing-hero .hero h1 .accent {
-  color: var(--ran-blue-700);
+  color: var(--brand);
 }
 #landing-hero .hero .sub {
   margin: 0;
@@ -364,7 +389,7 @@ body {
   width: 14px;
   height: 14px;
   border-radius: 50%;
-  background: var(--ran-color-success);
+  background: var(--brand);
   flex: none;
   position: relative;
 }
@@ -393,7 +418,7 @@ body {
   border: 0;
   padding: 0;
   font: inherit;
-  color: var(--ran-blue-800);
+  color: var(--brand-ink);
   cursor: pointer;
   text-decoration: underline;
   text-underline-offset: 2px;
@@ -416,7 +441,7 @@ body {
   text-align: center;
 }
 #landing-hero .recent-all {
-  color: var(--ran-blue-800);
+  color: var(--brand-ink);
   font-weight: 500;
 }
 
@@ -789,7 +814,7 @@ body {
   position: relative;
   padding-top: clamp(56px, 8vw, 96px);
   padding-bottom: clamp(56px, 8vw, 96px);
-  background: color-mix(in srgb, var(--ran-blue-100) 55%, var(--ran-color-bg));
+  background: color-mix(in srgb, var(--brand-soft) 55%, var(--ran-color-bg));
 }
 #landing-hero .essentials .section-head {
   max-width: 34rem;
@@ -1045,15 +1070,15 @@ body {
   overflow: hidden;
   padding: clamp(48px, 7vw, 72px) clamp(28px, 5vw, 64px);
   border-radius: 28px;
-  border: 1px solid color-mix(in srgb, var(--ran-blue-400) 70%, var(--ran-color-border));
+  border: 1px solid color-mix(in srgb, var(--brand-mid) 70%, var(--ran-color-border));
   background:
-    radial-gradient(ellipse 80% 70% at 0% 0%, color-mix(in srgb, var(--ran-blue-400) 55%, transparent), transparent 55%),
-    radial-gradient(ellipse 70% 80% at 100% 100%, color-mix(in srgb, var(--ran-blue-300) 80%, transparent), transparent 50%),
-    linear-gradient(160deg, var(--ran-blue-100) 0%, var(--ran-blue-200) 45%, color-mix(in srgb, var(--ran-blue-300) 55%, #fff) 100%);
+    radial-gradient(ellipse 80% 70% at 0% 0%, color-mix(in srgb, var(--brand-mid) 55%, transparent), transparent 55%),
+    radial-gradient(ellipse 70% 80% at 100% 100%, color-mix(in srgb, var(--brand-soft) 90%, transparent), transparent 50%),
+    linear-gradient(160deg, var(--brand-soft) 0%, color-mix(in srgb, var(--brand-soft) 70%, #fff) 45%, #fff 100%);
   color: var(--ran-color-text);
   text-align: center;
   box-shadow:
-    0 24px 56px -28px color-mix(in srgb, var(--ran-blue-700) 28%, transparent),
+    0 24px 56px -28px color-mix(in srgb, var(--brand) 28%, transparent),
     inset 0 1px 0 color-mix(in srgb, #fff 80%, transparent);
 }
 #landing-hero .band::before {
@@ -1062,8 +1087,8 @@ body {
   inset: 0;
   z-index: 0;
   background-image:
-    linear-gradient(color-mix(in srgb, var(--ran-blue-500) 18%, transparent) 1px, transparent 1px),
-    linear-gradient(90deg, color-mix(in srgb, var(--ran-blue-500) 18%, transparent) 1px, transparent 1px);
+    linear-gradient(color-mix(in srgb, var(--brand) 12%, transparent) 1px, transparent 1px),
+    linear-gradient(90deg, color-mix(in srgb, var(--brand) 12%, transparent) 1px, transparent 1px);
   background-size: 44px 44px;
   mask-image: radial-gradient(ellipse 75% 70% at 50% 45%, #000 15%, transparent 72%);
   pointer-events: none;
@@ -1077,7 +1102,7 @@ body {
   right: -80px;
   top: -100px;
   border-radius: 50%;
-  background: color-mix(in srgb, var(--ran-blue-500) 28%, transparent);
+  background: color-mix(in srgb, var(--brand) 22%, transparent);
   filter: blur(48px);
   z-index: 0;
   pointer-events: none;
@@ -1094,13 +1119,13 @@ body {
   margin-bottom: var(--ran-space-4);
   padding: 5px 12px;
   border-radius: 999px;
-  border: 1px solid color-mix(in srgb, var(--ran-blue-500) 45%, transparent);
+  border: 1px solid color-mix(in srgb, var(--brand-mid) 65%, transparent);
   background: color-mix(in srgb, #fff 70%, transparent);
   font-size: 11px;
   font-weight: 700;
   letter-spacing: 0.1em;
   text-transform: uppercase;
-  color: var(--ran-blue-800);
+  color: var(--brand-ink);
 }
 #landing-hero .band h2 {
   margin: 0 0 var(--ran-space-4);
@@ -1132,14 +1157,14 @@ body {
   justify-content: center;
   padding: var(--ran-space-3) var(--ran-space-6);
   border-radius: var(--ran-radius-full);
-  border: 1px solid var(--ran-blue-700);
-  background: var(--ran-blue-700);
+  border: 1px solid var(--brand);
+  background: var(--brand);
   font-size: 15.5px;
   font-weight: 600;
   line-height: 22px;
   color: #fff;
   text-decoration: none;
-  box-shadow: 0 10px 28px -12px color-mix(in srgb, var(--ran-blue-700) 55%, transparent);
+  box-shadow: 0 10px 28px -12px color-mix(in srgb, var(--brand) 55%, transparent);
   transition:
     transform 0.15s ease,
     box-shadow 0.15s ease,
@@ -1148,9 +1173,9 @@ body {
 @media (prefers-reduced-motion: no-preference) {
   #landing-hero .band-primary:hover {
     transform: translateY(-1px);
-    background: var(--ran-blue-800);
-    border-color: var(--ran-blue-800);
-    box-shadow: 0 14px 32px -12px color-mix(in srgb, var(--ran-blue-700) 60%, transparent);
+    background: var(--brand-strong);
+    border-color: var(--brand-strong);
+    box-shadow: 0 14px 32px -12px color-mix(in srgb, var(--brand) 60%, transparent);
   }
 }
 #landing-hero .band-secondary {
@@ -1159,12 +1184,12 @@ body {
   justify-content: center;
   padding: var(--ran-space-3) var(--ran-space-6);
   border-radius: var(--ran-radius-full);
-  border: 1px solid color-mix(in srgb, var(--ran-blue-500) 55%, var(--ran-color-border));
+  border: 1px solid color-mix(in srgb, var(--brand-mid) 65%, var(--ran-color-border));
   background: color-mix(in srgb, #fff 78%, transparent);
   font-size: 14.5px;
   font-weight: 600;
   line-height: 22px;
-  color: var(--ran-blue-800);
+  color: var(--brand-ink);
   text-decoration: none;
   transition:
     background 0.15s ease,
@@ -1172,7 +1197,7 @@ body {
 }
 #landing-hero .band-secondary:hover {
   background: #fff;
-  border-color: var(--ran-blue-600);
+  border-color: var(--brand);
 }
 #landing-hero .band-checks {
   gap: var(--ran-space-3);
@@ -1183,13 +1208,13 @@ body {
   padding: 6px 12px;
   border-radius: 999px;
   background: color-mix(in srgb, #fff 72%, transparent);
-  border: 1px solid color-mix(in srgb, var(--ran-blue-400) 55%, transparent);
+  border: 1px solid color-mix(in srgb, var(--brand-mid) 55%, transparent);
   font-size: 12.5px;
   font-weight: 500;
   color: inherit;
 }
 #landing-hero .band-checks .check i {
-  background: var(--ran-blue-700);
+  background: var(--brand);
 }
 
 @media (max-width: 560px) {
@@ -1366,12 +1391,22 @@ body {
   }
 }
 
-/* Dark theme: keep the band readable; tone down purple labels. */
+/* Dark theme: brand soft surfaces flip to deep green ink. */
+[data-ran-theme='dark'] #landing-hero,
+html[theme='dark'] #landing-hero {
+  --brand: #3ecf8e;
+  --brand-strong: #2fb87a;
+  --brand-soft: color-mix(in srgb, #0f8a5f 22%, var(--ran-color-bg));
+  --brand-mid: color-mix(in srgb, #3ecf8e 40%, transparent);
+  --brand-ink: #9ee5c2;
+  --brand-glow: color-mix(in srgb, #3ecf8e 22%, transparent);
+  --brand-air-glow: color-mix(in srgb, #6a8fa8 12%, transparent);
+}
 [data-ran-theme='dark'] #landing-hero .hero-badge,
 html[theme='dark'] #landing-hero .hero-badge {
-  background: color-mix(in srgb, var(--ran-blue-900) 40%, transparent);
-  border-color: var(--ran-blue-800);
-  color: var(--ran-blue-400);
+  background: color-mix(in srgb, var(--brand) 18%, transparent);
+  border-color: var(--brand-mid);
+  color: var(--brand-ink);
 }
 [data-ran-theme='dark'] #landing-hero .bento-card.tone-purple .bento-label,
 html[theme='dark'] #landing-hero .bento-card.tone-purple .bento-label,
@@ -1427,27 +1462,27 @@ html[theme='dark'] #landing-hero .snip-metrics b {
 }
 [data-ran-theme='dark'] #landing-hero .band,
 html[theme='dark'] #landing-hero .band {
-  border-color: color-mix(in srgb, var(--ran-blue-500) 40%, var(--ran-color-border));
+  border-color: color-mix(in srgb, var(--brand-mid) 50%, var(--ran-color-border));
   background:
-    radial-gradient(ellipse 80% 70% at 0% 0%, color-mix(in srgb, var(--ran-blue-500) 35%, transparent), transparent 55%),
-    radial-gradient(ellipse 70% 80% at 100% 100%, color-mix(in srgb, var(--ran-blue-400) 30%, transparent), transparent 50%),
-    linear-gradient(160deg, var(--ran-blue-100) 0%, var(--ran-blue-200) 55%, var(--ran-blue-300) 100%);
+    radial-gradient(ellipse 80% 70% at 0% 0%, color-mix(in srgb, var(--brand) 22%, transparent), transparent 55%),
+    radial-gradient(ellipse 70% 80% at 100% 100%, color-mix(in srgb, var(--brand) 14%, transparent), transparent 50%),
+    linear-gradient(160deg, var(--brand-soft) 0%, color-mix(in srgb, var(--brand) 12%, var(--ran-color-bg)) 55%, var(--ran-color-bg) 100%);
   box-shadow: 0 24px 56px -28px color-mix(in srgb, #000 55%, transparent);
 }
 [data-ran-theme='dark'] #landing-hero .band-eyebrow,
 html[theme='dark'] #landing-hero .band-eyebrow {
-  background: color-mix(in srgb, var(--ran-blue-300) 40%, transparent);
-  border-color: color-mix(in srgb, var(--ran-blue-500) 45%, transparent);
-  color: var(--ran-blue-900);
+  background: color-mix(in srgb, var(--brand) 16%, transparent);
+  border-color: var(--brand-mid);
+  color: var(--brand-ink);
 }
 [data-ran-theme='dark'] #landing-hero .band-secondary,
 html[theme='dark'] #landing-hero .band-secondary {
   background: color-mix(in srgb, var(--ran-color-bg-elevated) 70%, transparent);
-  border-color: color-mix(in srgb, var(--ran-blue-500) 45%, transparent);
-  color: var(--ran-blue-900);
+  border-color: var(--brand-mid);
+  color: var(--brand-ink);
 }
 [data-ran-theme='dark'] #landing-hero .band-checks .check,
 html[theme='dark'] #landing-hero .band-checks .check {
   background: color-mix(in srgb, var(--ran-color-bg-elevated) 70%, transparent);
-  border-color: color-mix(in srgb, var(--ran-blue-500) 35%, transparent);
+  border-color: var(--brand-mid);
 }

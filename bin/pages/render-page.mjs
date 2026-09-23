@@ -199,11 +199,6 @@ ${jsonLd}
   <body>
     <header class="bar">
       <a class="brand" href="${L.home}"><span class="wordmark">${ui.siteName}</span></a>
-      <nav class="products" aria-label="${escapeHtml(ui.productsAria)}">
-        <a class="product" href="/editor?${locale === DEFAULT_LOCALE ? '' : `locale=${locale}&`}new=xlsx">${escapeHtml(ui.productExcel)}</a>
-        <span class="products-sep" aria-hidden="true"></span>
-        <a class="product" href="/editor?${locale === DEFAULT_LOCALE ? '' : `locale=${locale}&`}new=docx">${escapeHtml(ui.productDocx)}</a>
-      </nav>
       <nav class="utils">
 ${langMenu(locale, translations, ui, (l) => routeFor(l, page.slug))}
         <r-theme-switch class="theme-switch" label="${ui.themeLabel}"></r-theme-switch>

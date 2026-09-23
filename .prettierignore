@@ -1,7 +1,6 @@
 # Generated lockfile — managed by pnpm, not prettier.
 pnpm-lock.yaml
 
-# Vendored OnlyOffice SDK assets (sdkjs/web-apps/fonts and their manifests) —
 # huge minified bundles that crash prettier's parser (V8 stack overflow), not
 # hand-written. Mirrors the oxlint ignores; see .oxlintrc.json.
 public/sdkjs/
