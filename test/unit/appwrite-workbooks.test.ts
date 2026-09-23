@@ -56,6 +56,7 @@ vi.mock('appwrite', () => {
       equal: (attr: string, value: string) => `equal("${attr}",[${JSON.stringify(value)}])`,
       orderDesc: (attr: string) => `orderDesc("${attr}")`,
       limit: (n: number) => `limit(${n})`,
+      cursorAfter: (id: string) => `cursorAfter("${id}")`,
     },
   };
 });
@@ -142,11 +143,47 @@ describe('appwrite workbooks', () => {
       expect.objectContaining({
         databaseId: 'editxlsx',
         collectionId: 'workbooks',
-        queries: expect.arrayContaining([expect.stringContaining('user-1')]),
+        queries: expect.arrayContaining([expect.stringContaining('user-1'), 'limit(100)']),
       }),
     );
+    expect(listDocuments).toHaveBeenCalledTimes(1);
     expect(rows).toHaveLength(1);
     expect(rows[0]?.title).toBe('Notes.xlsx');
+  });
+
+  it('pages through vault items with cursorAfter until a short page', async () => {
+    const page = (ids: string[]) => ({
+      documents: ids.map((id) => ({
+        $id: id,
+        $createdAt: '2026-01-01',
+        $updatedAt: '2026-01-01',
+        userId: 'user-1',
+        title: `${id}.xlsx`,
+        fileId: id,
+        sizeBytes: 1,
+        kind: 'file',
+        format: 'xlsx',
+        parentId: '',
+      })),
+    });
+    listDocuments
+      .mockResolvedValueOnce(page(['a', 'b', 'c']))
+      .mockResolvedValueOnce(page(['d', 'e']));
+
+    const { listVaultItems } = await import('../../lib/appwrite/workbooks');
+    const rows = await listVaultItems({ pageSize: 3 });
+
+    expect(listDocuments).toHaveBeenCalledTimes(2);
+    expect(listDocuments.mock.calls[0]?.[0]?.queries).toEqual(
+      expect.arrayContaining(['limit(3)']),
+    );
+    expect(listDocuments.mock.calls[0]?.[0]?.queries).not.toEqual(
+      expect.arrayContaining([expect.stringContaining('cursorAfter')]),
+    );
+    expect(listDocuments.mock.calls[1]?.[0]?.queries).toEqual(
+      expect.arrayContaining(['limit(3)', 'cursorAfter("c")']),
+    );
+    expect(rows.map((row) => row.id)).toEqual(['a', 'b', 'c', 'd', 'e']);
   });
 
   it('creates a workbook by uploading the file before the metadata row', async () => {

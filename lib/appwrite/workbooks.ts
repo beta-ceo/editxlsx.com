@@ -206,25 +206,52 @@ function assertCloudOfficeFile(file: File, format?: VaultFormat): VaultFormat {
   return detected;
 }
 
-export async function listVaultItems(options: { search?: string; limit?: number } = {}): Promise<VaultItem[]> {
+/** Appwrite listDocuments max page size; keep vault listing within that. */
+const VAULT_LIST_PAGE_SIZE = 100;
+
+/**
+ * Every vault row for the signed-in user (folders + files).
+ * Pages with cursorAfter until exhausted — a single Query.limit used to
+ * silently drop anything past the first page.
+ */
+export async function listVaultItems(options: { search?: string; pageSize?: number } = {}): Promise<VaultItem[]> {
   const user = await requireUser();
-  const limit = options.limit ?? 100;
-  const queries = [Query.equal('userId', user.$id), Query.orderDesc('$createdAt'), Query.limit(limit)];
-  const result = await getDatabases().listDocuments<VaultDoc>({
-    databaseId: DATABASE_ID,
-    collectionId: COLLECTION_WORKBOOKS,
-    queries,
-  });
-  let docs = result.documents.map(fromDocument);
+  const pageSize = Math.min(Math.max(options.pageSize ?? VAULT_LIST_PAGE_SIZE, 1), VAULT_LIST_PAGE_SIZE);
+  const docs: VaultItem[] = [];
+  let cursor: string | undefined;
+
+  for (;;) {
+    const queries = [
+      Query.equal('userId', user.$id),
+      Query.orderDesc('$createdAt'),
+      Query.limit(pageSize),
+    ];
+    if (cursor) queries.push(Query.cursorAfter(cursor));
+
+    const result = await getDatabases().listDocuments<VaultDoc>({
+      databaseId: DATABASE_ID,
+      collectionId: COLLECTION_WORKBOOKS,
+      queries,
+    });
+    const page = result.documents;
+    if (page.length === 0) break;
+
+    docs.push(...page.map(fromDocument));
+    if (page.length < pageSize) break;
+    const lastId = page[page.length - 1]?.$id;
+    if (!lastId || lastId === cursor) break;
+    cursor = lastId;
+  }
+
   const needle = options.search?.trim().toLowerCase();
   if (needle) {
-    docs = docs.filter((doc) => doc.title.toLowerCase().includes(needle));
+    return docs.filter((doc) => doc.title.toLowerCase().includes(needle));
   }
   return docs;
 }
 
 /** @deprecated Prefer listVaultItems — kept for call sites that only list files. */
-export async function listWorkbooks(options: { search?: string; limit?: number } = {}): Promise<Workbook[]> {
+export async function listWorkbooks(options: { search?: string; pageSize?: number } = {}): Promise<Workbook[]> {
   const items = await listVaultItems(options);
   return items.filter((item): item is Workbook => item.kind === 'file' && !!item.format);
 }
@@ -605,7 +632,7 @@ export async function deleteVaultItem(itemId: string): Promise<void> {
   await requireUser();
   const existing = await getVaultItem(itemId);
   if (existing.kind === 'folder') {
-    const children = (await listVaultItems({ limit: 100 })).filter((row) => row.parentId === itemId);
+    const children = (await listVaultItems()).filter((row) => row.parentId === itemId);
     if (children.length > 0) {
       throw new Error('Folder is not empty');
     }

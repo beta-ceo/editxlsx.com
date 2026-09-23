@@ -143,8 +143,11 @@ function compareBrowserItems(a: VaultItem, b: VaultItem): number {
 function browserChildrenOf(parentId: string): VaultItem[] {
   return rows.filter((row) => (row.parentId || '') === parentId).sort(compareBrowserItems);
 }
-/** Inline rename target in the sidebar tree ('' = not renaming). */
+/** Inline rename target ('' = not renaming). */
 let renamingId = '';
+/** Where the rename field should render: sidebar tree or stage browser list. */
+type RenameSurface = 'tree' | 'browser';
+let renameSurface: RenameSurface = 'tree';
 /** HTML5 DnD: id being dragged (tree mode only). */
 let dragId = '';
 type DropMode = 'before' | 'after' | 'into';
@@ -560,6 +563,7 @@ function displayName(account: AuthUser): string {
 async function refresh(): Promise<void> {
   loading = true;
   renamingId = '';
+  renameSurface = 'tree';
   paint();
   try {
     rows = await listVaultItems({ search: query });
@@ -1264,51 +1268,103 @@ function setStageFileDropActive(active: boolean, folderRow: HTMLElement | null =
   if (active && folderRow) folderRow.classList.add('is-file-drop');
 }
 
-function startRename(id: string): void {
-  if (!rows.some((row) => row.id === id)) return;
-  renamingId = id;
-  closeNewMenu();
+function paintDocsAndBrowser(): void {
   paintDocs();
-  requestAnimationFrame(() => {
-    const input = document.querySelector<HTMLInputElement>(
-      `.vault-tree-rename[data-id="${CSS.escape(id)}"]`,
-    );
-    if (!input) return;
-    input.focus();
-    const item = rows.find((row) => row.id === id);
-    if (item?.kind === 'file' && item.format) {
-      const suffix = `.${item.format}`;
-      const end = item.title.toLowerCase().endsWith(suffix) ? item.title.length - suffix.length : item.title.length;
-      input.setSelectionRange(0, Math.max(0, end));
-    } else {
-      input.select();
+  const browser = document.getElementById('workspace-stage-browser');
+  if (browser && !browser.hidden) {
+    paintStageBrowser(browserChildrenOf(currentFolderId));
+  }
+}
+
+function attachRenameInput(input: HTMLInputElement, item: VaultItem): void {
+  input.dataset.id = item.id;
+  input.value = item.title;
+  input.setAttribute('aria-label', t('cloudRename'));
+  input.spellcheck = false;
+  let finished = false;
+  const finish = (commit: boolean): void => {
+    if (finished) return;
+    finished = true;
+    if (commit) void commitRename(item.id, input.value);
+    else cancelRename();
+  };
+  input.addEventListener('keydown', (event) => {
+    if (event.key === 'Enter') {
+      event.preventDefault();
+      finish(true);
+    } else if (event.key === 'Escape') {
+      event.preventDefault();
+      finish(false);
     }
+    event.stopPropagation();
+  });
+  input.addEventListener('blur', () => finish(true));
+  input.addEventListener('click', (event) => event.stopPropagation());
+}
+
+function focusRenameInput(id: string, surface: RenameSurface): void {
+  const selector =
+    surface === 'browser'
+      ? `.vault-stage-browser-rename[data-id="${CSS.escape(id)}"]`
+      : `.vault-tree-rename[data-id="${CSS.escape(id)}"]`;
+  const input = document.querySelector<HTMLInputElement>(selector);
+  if (!input) return;
+  input.focus();
+  const item = rows.find((row) => row.id === id);
+  if (item?.kind === 'file' && item.format) {
+    const suffix = `.${item.format}`;
+    const end = item.title.toLowerCase().endsWith(suffix)
+      ? item.title.length - suffix.length
+      : item.title.length;
+    input.setSelectionRange(0, Math.max(0, end));
+  } else {
+    input.select();
+  }
+}
+
+function startRename(id: string, surface: RenameSurface = 'tree'): void {
+  if (!rows.some((row) => row.id === id)) return;
+  let nextSurface = surface;
+  if (
+    nextSurface === 'browser' &&
+    !browserChildrenOf(currentFolderId).some((row) => row.id === id)
+  ) {
+    nextSurface = 'tree';
+  }
+  renamingId = id;
+  renameSurface = nextSurface;
+  closeNewMenu();
+  paintDocsAndBrowser();
+  requestAnimationFrame(() => {
+    focusRenameInput(id, nextSurface);
   });
 }
 
 function cancelRename(): void {
   if (!renamingId) return;
   renamingId = '';
-  paintDocs();
+  renameSurface = 'tree';
+  paintDocsAndBrowser();
 }
 
 async function commitRename(id: string, raw: string): Promise<void> {
   if (renamingId !== id) return;
   renamingId = '';
+  renameSurface = 'tree';
   const item = rows.find((row) => row.id === id);
   if (!item) {
-    paintDocs();
+    paintDocsAndBrowser();
     return;
   }
   const trimmed = raw.trim();
   if (!trimmed || trimmed === item.title) {
-    paintDocs();
+    paintDocsAndBrowser();
     return;
   }
   const nextTitle =
     item.kind === 'folder' ? trimmed : ensureFormatName(trimmed, item.format || 'xlsx');
   if (nextTitle === item.title) {
-    paintDocs();
+    paintDocsAndBrowser();
     return;
   }
 
@@ -1322,7 +1378,7 @@ async function commitRename(id: string, raw: string): Promise<void> {
     const frame = document.getElementById('workspace-editor-frame') as HTMLIFrameElement | null;
     if (frame?.dataset.workbook === id) frame.title = nextTitle;
   }
-  paintDocs();
+  paintDocsAndBrowser();
 
   try {
     const updated = await renameVaultItem(id, nextTitle, {
@@ -1341,7 +1397,7 @@ async function commitRename(id: string, raw: string): Promise<void> {
     }
     const message = error instanceof Error ? error.message : String(error);
     notifyError(`${t('cloudRenameFailed')}${message}`);
-    paintDocs();
+    paintDocsAndBrowser();
   }
 }
 
@@ -1633,6 +1689,7 @@ function closeContextMenu(): void {
   menu.style.top = '';
   menu.style.left = '';
   delete menu.dataset.itemId;
+  delete menu.dataset.surface;
   document.removeEventListener('pointerdown', onContextMenuPointerDown, true);
   document.removeEventListener('keydown', onContextMenuKeyDown, true);
 }
@@ -1652,13 +1709,19 @@ function onContextMenuKeyDown(event: KeyboardEvent): void {
   }
 }
 
-function openContextMenu(item: VaultItem, clientX: number, clientY: number): void {
+function openContextMenu(
+  item: VaultItem,
+  clientX: number,
+  clientY: number,
+  surface: RenameSurface = 'tree',
+): void {
   closeNewMenu();
   closeContextMenu();
   closeBrowserSortMenu();
   const menu = document.getElementById('workspace-context-menu');
   if (!menu) return;
   menu.dataset.itemId = item.id;
+  menu.dataset.surface = surface;
   menu.hidden = false;
   menu.classList.remove('is-shown');
 
@@ -1692,6 +1755,22 @@ function buildContextMenu(): HTMLElement {
   menu.className = 'vault-context-menu';
   menu.setAttribute('role', 'menu');
   menu.hidden = true;
+
+  const renameBtn = document.createElement('button');
+  renameBtn.type = 'button';
+  renameBtn.className = 'vault-context-option';
+  renameBtn.setAttribute('role', 'menuitem');
+  renameBtn.append(
+    svgIcon('M12 20h9M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z'),
+    document.createTextNode(t('cloudRename')),
+  );
+  renameBtn.addEventListener('click', () => {
+    const id = menu.dataset.itemId;
+    const surface = menu.dataset.surface === 'browser' ? 'browser' : 'tree';
+    closeContextMenu();
+    if (id) startRename(id, surface);
+  });
+
   const deleteBtn = document.createElement('button');
   deleteBtn.type = 'button';
   deleteBtn.className = 'vault-context-option is-danger';
@@ -1704,7 +1783,8 @@ function buildContextMenu(): HTMLElement {
     const id = menu.dataset.itemId;
     if (id) void deleteItem(id);
   });
-  menu.append(deleteBtn);
+
+  menu.append(renameBtn, deleteBtn);
   return menu;
 }
 
@@ -2849,7 +2929,7 @@ function buildTreeRow(item: VaultItem, depth: number, options: { searchable?: bo
 
   const isCurrent =
     item.kind === 'file' ? item.id === selectedId : item.id === currentFolderId && !selectedId;
-  const isRenaming = renamingId === item.id;
+  const isRenaming = renamingId === item.id && renameSurface === 'tree';
 
   if (isRenaming) {
     row.classList.add('is-renaming');
@@ -2861,29 +2941,7 @@ function buildTreeRow(item: VaultItem, depth: number, options: { searchable?: bo
     const input = document.createElement('input');
     input.type = 'text';
     input.className = 'vault-tree-rename';
-    input.dataset.id = item.id;
-    input.value = item.title;
-    input.setAttribute('aria-label', t('cloudRename'));
-    input.spellcheck = false;
-    let finished = false;
-    const finish = (commit: boolean): void => {
-      if (finished) return;
-      finished = true;
-      if (commit) void commitRename(item.id, input.value);
-      else cancelRename();
-    };
-    input.addEventListener('keydown', (event) => {
-      if (event.key === 'Enter') {
-        event.preventDefault();
-        finish(true);
-      } else if (event.key === 'Escape') {
-        event.preventDefault();
-        finish(false);
-      }
-      event.stopPropagation();
-    });
-    input.addEventListener('blur', () => finish(true));
-    input.addEventListener('click', (event) => event.stopPropagation());
+    attachRenameInput(input, item);
     renameWrap.append(itemIcon(item), input);
     row.append(twist, renameWrap);
     return row;
@@ -2925,7 +2983,7 @@ function buildTreeRow(item: VaultItem, depth: number, options: { searchable?: bo
     event.preventDefault();
     event.stopPropagation();
     window.clearTimeout(clickTimer);
-    openContextMenu(item, event.clientX, event.clientY);
+    openContextMenu(item, event.clientX, event.clientY, 'tree');
   });
 
   row.append(twist, buttonEl);
@@ -3231,6 +3289,31 @@ function paintStageBrowser(items: VaultItem[]): void {
       paintStageBrowser(browserChildrenOf(currentFolderId));
     });
 
+    const isRenaming = renamingId === item.id && renameSurface === 'browser';
+    if (isRenaming) {
+      row.classList.add('is-renaming');
+      check.disabled = true;
+      const open = document.createElement('div');
+      open.className = 'vault-stage-browser-open is-renaming';
+      const name = document.createElement('span');
+      name.className = 'vault-stage-browser-name';
+      const input = document.createElement('input');
+      input.type = 'text';
+      input.className = 'vault-stage-browser-rename';
+      attachRenameInput(input, item);
+      name.append(itemIcon(item), input);
+      const size = document.createElement('span');
+      size.className = 'vault-stage-browser-size';
+      size.textContent = item.kind === 'file' ? formatBytes(item.sizeBytes) : '—';
+      const edited = document.createElement('span');
+      edited.className = 'vault-stage-browser-edited';
+      edited.textContent = formatEditedWhen(item.updatedAt);
+      open.append(name, size, edited);
+      row.append(check, open);
+      list.append(row);
+      continue;
+    }
+
     const open = document.createElement('button');
     open.type = 'button';
     open.className = 'vault-stage-browser-open';
@@ -3260,7 +3343,7 @@ function paintStageBrowser(items: VaultItem[]): void {
     });
     open.addEventListener('contextmenu', (event) => {
       event.preventDefault();
-      openContextMenu(item, event.clientX, event.clientY);
+      openContextMenu(item, event.clientX, event.clientY, 'browser');
     });
 
     row.append(check, open);

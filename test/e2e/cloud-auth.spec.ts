@@ -320,7 +320,7 @@ test.describe('cloud auth pages', () => {
     await expect(page.locator('.vault-tree-item[data-id="folder1"] .vault-tree-title')).toHaveText('Projects');
   });
 
-  test('right-click shows delete menu and removes the item', async ({ page, l0 }) => {
+  test('right-click rename and delete from context menu', async ({ page, l0 }) => {
     l0.allowAscError(() => true);
     l0.allowConsole(/Failed to open cloud workbook|Could not open|cloudOpenFailed|Failed to download/i);
     l0.allowFrameError(/Failed to download|Could not open/i);
@@ -334,6 +334,29 @@ test.describe('cloud auth pages', () => {
     const menu = page.locator('#workspace-context-menu');
     await expect(menu).toBeVisible();
     await expect(menu).toHaveClass(/is-shown/);
+    await expect(menu.locator('.vault-context-option')).toHaveCount(2);
+
+    await menu.locator('.vault-context-option').first().click();
+    const treeInput = page.locator('.vault-tree-rename[data-id="folder1"]');
+    await expect(treeInput).toBeVisible();
+    await treeInput.press('Escape');
+    await expect(treeInput).toHaveCount(0);
+
+    const browserRow = page.locator('.vault-stage-browser-row[data-id="folder1"]');
+    await browserRow.click({ button: 'right' });
+    await expect(menu).toBeVisible();
+    await menu.locator('.vault-context-option').first().click();
+    const browserInput = page.locator('.vault-stage-browser-rename[data-id="folder1"]');
+    await expect(browserInput).toBeVisible();
+    await expect(page.locator('.vault-tree-rename[data-id="folder1"]')).toHaveCount(0);
+    await browserInput.fill('Projects');
+    await browserInput.press('Enter');
+    await expect(page.locator('.vault-tree-item[data-id="folder1"] .vault-tree-title')).toHaveText(
+      'Projects',
+    );
+
+    await folder.click({ button: 'right' });
+    await expect(menu).toBeVisible();
     await menu.locator('.vault-context-option.is-danger').click();
     await page.locator('r-modal.confirm-dialog .confirm-ok-danger').click();
     await expect(page.locator('.vault-tree-item[data-id="folder1"]')).toHaveCount(0);

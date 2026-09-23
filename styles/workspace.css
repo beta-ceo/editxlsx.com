@@ -1981,6 +1981,36 @@ body {
   white-space: nowrap;
 }
 
+.vault-stage-browser-row.is-renaming {
+  background: color-mix(in srgb, var(--ran-blue-700, #006bff) 8%, transparent);
+}
+
+.vault-stage-browser-open.is-renaming {
+  cursor: text;
+}
+
+.vault-stage-browser-open.is-renaming:hover {
+  background: transparent;
+}
+
+.vault-stage-browser-rename {
+  flex: 1 1 auto;
+  min-width: 0;
+  height: 28px;
+  margin: 0;
+  padding: 0 8px;
+  border: 1px solid color-mix(in srgb, var(--ran-blue-700, #006bff) 45%, transparent);
+  border-radius: 6px;
+  background: var(--ran-color-bg);
+  color: var(--ran-color-text);
+  font: inherit;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 1.25;
+  outline: none;
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--ran-blue-700, #006bff) 12%, transparent);
+}
+
 .vault-stage-browser-name .vault-icon {
   width: 18px;
   height: 18px;
