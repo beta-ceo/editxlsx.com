@@ -77,6 +77,72 @@ let currentFolderId = '';
 const expandedFolderIds = new Set<string>();
 /** Multi-select in the stage browser list (folder view). */
 const selectedBrowserIds = new Set<string>();
+type BrowserSortKey = 'created' | 'size' | 'name' | 'type';
+type BrowserSortDir = 'asc' | 'desc';
+const BROWSER_SORT_STORAGE_KEY = 'editxlsx-browser-sort';
+const BROWSER_SORT_KEYS: BrowserSortKey[] = ['created', 'size', 'name', 'type'];
+
+function readBrowserSort(): { key: BrowserSortKey; dir: BrowserSortDir } {
+  try {
+    const raw = localStorage.getItem(BROWSER_SORT_STORAGE_KEY);
+    if (!raw) return { key: 'created', dir: 'desc' };
+    const parsed = JSON.parse(raw) as { key?: string; dir?: string };
+    const key = BROWSER_SORT_KEYS.includes(parsed.key as BrowserSortKey)
+      ? (parsed.key as BrowserSortKey)
+      : 'created';
+    const dir: BrowserSortDir = parsed.dir === 'asc' ? 'asc' : 'desc';
+    return { key, dir };
+  } catch {
+    return { key: 'created', dir: 'desc' };
+  }
+}
+
+let browserSort = readBrowserSort();
+
+function persistBrowserSort(): void {
+  try {
+    localStorage.setItem(BROWSER_SORT_STORAGE_KEY, JSON.stringify(browserSort));
+  } catch {
+    /* private mode / quota */
+  }
+}
+
+function browserSortLabel(key: BrowserSortKey): string {
+  if (key === 'created') return t('cloudSortCreated');
+  if (key === 'size') return t('cloudSortSize');
+  if (key === 'name') return t('cloudSortName');
+  return t('cloudSortType');
+}
+
+function typeSortValue(item: VaultItem): string {
+  if (item.kind === 'folder') return '0-folder';
+  return `1-${item.format || 'file'}`;
+}
+
+function compareBrowserItems(a: VaultItem, b: VaultItem): number {
+  let cmp = 0;
+  switch (browserSort.key) {
+    case 'created':
+      cmp = a.createdAt.localeCompare(b.createdAt);
+      break;
+    case 'size':
+      cmp = a.sizeBytes - b.sizeBytes;
+      break;
+    case 'name':
+      cmp = a.title.localeCompare(b.title, getLanguage(), { sensitivity: 'base' });
+      break;
+    case 'type':
+      cmp = typeSortValue(a).localeCompare(typeSortValue(b));
+      if (cmp === 0) cmp = a.title.localeCompare(b.title, getLanguage(), { sensitivity: 'base' });
+      break;
+  }
+  if (cmp === 0) cmp = a.id.localeCompare(b.id);
+  return browserSort.dir === 'asc' ? cmp : -cmp;
+}
+
+function browserChildrenOf(parentId: string): VaultItem[] {
+  return rows.filter((row) => (row.parentId || '') === parentId).sort(compareBrowserItems);
+}
 /** Inline rename target in the sidebar tree ('' = not renaming). */
 let renamingId = '';
 /** HTML5 DnD: id being dragged (tree mode only). */
@@ -1321,6 +1387,87 @@ function clearBrowserSelection(): void {
   selectedBrowserIds.clear();
 }
 
+function closeBrowserSortMenu(): void {
+  const menu = document.getElementById('workspace-stage-browser-sort-menu');
+  const trigger = document.getElementById('workspace-stage-browser-sort');
+  if (menu) menu.hidden = true;
+  trigger?.setAttribute('aria-expanded', 'false');
+  document.removeEventListener('pointerdown', onBrowserSortPointerDown, true);
+  document.removeEventListener('keydown', onBrowserSortKeyDown, true);
+}
+
+function onBrowserSortPointerDown(event: PointerEvent): void {
+  const menu = document.getElementById('workspace-stage-browser-sort-menu');
+  const wrap = document.getElementById('workspace-stage-browser-sort-wrap');
+  const target = event.target as Node | null;
+  if (!menu || !target) return;
+  if (wrap?.contains(target) || menu.contains(target)) return;
+  closeBrowserSortMenu();
+}
+
+function onBrowserSortKeyDown(event: KeyboardEvent): void {
+  if (event.key === 'Escape') {
+    event.preventDefault();
+    closeBrowserSortMenu();
+  }
+}
+
+function defaultDirForSortKey(key: BrowserSortKey): BrowserSortDir {
+  return key === 'name' || key === 'type' ? 'asc' : 'desc';
+}
+
+function setBrowserSort(key: BrowserSortKey, dir?: BrowserSortDir): void {
+  const nextDir = dir ?? (browserSort.key === key ? (browserSort.dir === 'asc' ? 'desc' : 'asc') : defaultDirForSortKey(key));
+  browserSort = { key, dir: nextDir };
+  persistBrowserSort();
+  closeBrowserSortMenu();
+  paintStageBrowser(browserChildrenOf(currentFolderId));
+}
+
+function paintBrowserSortControl(): void {
+  const trigger = document.getElementById('workspace-stage-browser-sort');
+  const label = document.getElementById('workspace-stage-browser-sort-label');
+  const menu = document.getElementById('workspace-stage-browser-sort-menu');
+  if (!trigger || !label || !menu) return;
+
+  label.textContent = browserSortLabel(browserSort.key);
+  trigger.setAttribute(
+    'title',
+    `${t('cloudSort')}: ${browserSortLabel(browserSort.key)} · ${browserSort.dir === 'asc' ? t('cloudSortAsc') : t('cloudSortDesc')}`,
+  );
+  trigger.setAttribute('aria-label', trigger.title);
+  trigger.classList.toggle('is-asc', browserSort.dir === 'asc');
+  trigger.classList.toggle('is-desc', browserSort.dir === 'desc');
+
+  for (const btn of menu.querySelectorAll<HTMLButtonElement>('[data-sort-key]')) {
+    const key = btn.dataset.sortKey as BrowserSortKey;
+    const active = key === browserSort.key;
+    btn.classList.toggle('is-active', active);
+    btn.setAttribute('aria-checked', active ? 'true' : 'false');
+    const dirEl = btn.querySelector('.vault-stage-browser-sort-dir');
+    if (dirEl) {
+      dirEl.textContent = active ? (browserSort.dir === 'asc' ? '↑' : '↓') : '';
+    }
+  }
+}
+
+function openBrowserSortMenu(): void {
+  const menu = document.getElementById('workspace-stage-browser-sort-menu');
+  const trigger = document.getElementById('workspace-stage-browser-sort');
+  if (!menu || !trigger) return;
+  if (!menu.hidden) {
+    closeBrowserSortMenu();
+    return;
+  }
+  closeNewMenu();
+  closeContextMenu();
+  paintBrowserSortControl();
+  menu.hidden = false;
+  trigger.setAttribute('aria-expanded', 'true');
+  document.addEventListener('pointerdown', onBrowserSortPointerDown, true);
+  document.addEventListener('keydown', onBrowserSortKeyDown, true);
+}
+
 function toggleBrowserSelection(id: string): void {
   if (selectedBrowserIds.has(id)) selectedBrowserIds.delete(id);
   else selectedBrowserIds.add(id);
@@ -1449,7 +1596,7 @@ async function batchMoveSelected(): Promise<void> {
     }
     if (moved === 0) {
       clearBrowserSelection();
-      paintStageBrowser(childrenOf(currentFolderId));
+      paintStageBrowser(browserChildrenOf(currentFolderId));
       return;
     }
     rows = working;
@@ -1508,6 +1655,7 @@ function onContextMenuKeyDown(event: KeyboardEvent): void {
 function openContextMenu(item: VaultItem, clientX: number, clientY: number): void {
   closeNewMenu();
   closeContextMenu();
+  closeBrowserSortMenu();
   const menu = document.getElementById('workspace-context-menu');
   if (!menu) return;
   menu.dataset.itemId = item.id;
@@ -1625,6 +1773,8 @@ function openNewMenuAt(anchor: HTMLElement, options: { matchWidth?: boolean; key
   }
 
   closeNewMenu();
+  closeContextMenu();
+  closeBrowserSortMenu();
   menu.dataset.anchor = key;
   menu.hidden = false;
   menu.classList.remove('is-shown');
@@ -2092,7 +2242,48 @@ function mountShell(): void {
             const tools = document.createElement('div');
             tools.className = 'vault-stage-browser-tools';
             tools.id = 'workspace-stage-browser-tools';
-            head.append(title, tools);
+            const sortWrap = document.createElement('div');
+            sortWrap.className = 'vault-stage-browser-sort-wrap';
+            sortWrap.id = 'workspace-stage-browser-sort-wrap';
+            const sortBtn = document.createElement('button');
+            sortBtn.type = 'button';
+            sortBtn.className = 'vault-stage-browser-sort';
+            sortBtn.id = 'workspace-stage-browser-sort';
+            sortBtn.setAttribute('aria-haspopup', 'listbox');
+            sortBtn.setAttribute('aria-expanded', 'false');
+            sortBtn.setAttribute('aria-controls', 'workspace-stage-browser-sort-menu');
+            const sortLabel = document.createElement('span');
+            sortLabel.className = 'vault-stage-browser-sort-label';
+            sortLabel.id = 'workspace-stage-browser-sort-label';
+            sortBtn.append(
+              svgIcon('M3 6h18M6 12h12M10 18h4', 'vault-icon'),
+              sortLabel,
+              svgIcon('M6 9l6 6 6-6', 'vault-icon vault-stage-browser-sort-chevron'),
+            );
+            sortBtn.addEventListener('click', () => openBrowserSortMenu());
+            const sortMenu = document.createElement('div');
+            sortMenu.className = 'vault-stage-browser-sort-menu';
+            sortMenu.id = 'workspace-stage-browser-sort-menu';
+            sortMenu.setAttribute('role', 'listbox');
+            sortMenu.setAttribute('aria-label', t('cloudSort'));
+            sortMenu.hidden = true;
+            for (const key of BROWSER_SORT_KEYS) {
+              const opt = document.createElement('button');
+              opt.type = 'button';
+              opt.className = 'vault-stage-browser-sort-option';
+              opt.dataset.sortKey = key;
+              opt.setAttribute('role', 'option');
+              const optLabel = document.createElement('span');
+              optLabel.textContent = browserSortLabel(key);
+              const optDir = document.createElement('span');
+              optDir.className = 'vault-stage-browser-sort-dir';
+              optDir.setAttribute('aria-hidden', 'true');
+              opt.append(optLabel, optDir);
+              opt.addEventListener('click', () => setBrowserSort(key));
+              sortMenu.append(opt);
+            }
+            sortWrap.append(sortBtn, sortMenu);
+            head.append(title, tools, sortWrap);
             const selection = document.createElement('div');
             selection.className = 'vault-stage-browser-selection';
             selection.id = 'workspace-stage-browser-selection';
@@ -2996,7 +3187,7 @@ function paintStageBrowser(items: VaultItem[]): void {
   if (selectAllBtn && !selectAllBtn.dataset.bound) {
     selectAllBtn.dataset.bound = '1';
     selectAllBtn.addEventListener('click', () => {
-      const visible = childrenOf(currentFolderId);
+      const visible = browserChildrenOf(currentFolderId);
       selectAllVisibleBrowserItems(visible);
       paintStageBrowser(visible);
     });
@@ -3013,10 +3204,11 @@ function paintStageBrowser(items: VaultItem[]): void {
     clearBtn.dataset.bound = '1';
     clearBtn.addEventListener('click', () => {
       clearBrowserSelection();
-      paintStageBrowser(childrenOf(currentFolderId));
+      paintStageBrowser(browserChildrenOf(currentFolderId));
     });
   }
 
+  paintBrowserSortControl();
   paintBrowserSelectionBar(items);
   list.replaceChildren();
   for (const item of items) {
@@ -3036,7 +3228,7 @@ function paintStageBrowser(items: VaultItem[]): void {
     check.addEventListener('click', (event) => event.stopPropagation());
     check.addEventListener('change', () => {
       toggleBrowserSelection(item.id);
-      paintStageBrowser(childrenOf(currentFolderId));
+      paintStageBrowser(browserChildrenOf(currentFolderId));
     });
 
     const open = document.createElement('button');
@@ -3055,12 +3247,12 @@ function paintStageBrowser(items: VaultItem[]): void {
     open.addEventListener('click', (event) => {
       if (event.metaKey || event.ctrlKey) {
         toggleBrowserSelection(item.id);
-        paintStageBrowser(childrenOf(currentFolderId));
+        paintStageBrowser(browserChildrenOf(currentFolderId));
         return;
       }
       if (selectedBrowserIds.size > 0) {
         toggleBrowserSelection(item.id);
-        paintStageBrowser(childrenOf(currentFolderId));
+        paintStageBrowser(browserChildrenOf(currentFolderId));
         return;
       }
       if (item.kind === 'folder') openFolder(item.id);
@@ -3130,7 +3322,7 @@ function paintStage(): void {
     const formats = document.getElementById('workspace-stage-drop-formats');
     const actions = document.getElementById('workspace-stage-empty-actions');
     const searching = Boolean(query.trim());
-    const children = searching ? [] : childrenOf(currentFolderId);
+    const children = searching ? [] : browserChildrenOf(currentFolderId);
     const folderEmpty = !searching && children.length === 0;
 
     if (browser) browser.hidden = true;

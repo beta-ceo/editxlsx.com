@@ -1602,7 +1602,7 @@ body {
 .vault-stage-browser-head {
   display: flex;
   align-items: center;
-  gap: 16px;
+  gap: 12px;
   margin-bottom: 16px;
 }
 
@@ -1635,10 +1635,121 @@ body {
   white-space: nowrap;
 }
 
+.vault-stage-browser-sort-wrap {
+  position: relative;
+  flex: none;
+}
+
+.vault-stage-browser-sort {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 34px;
+  max-width: 180px;
+  padding: 0 10px;
+  border: 1px solid var(--ran-color-border, rgba(0, 0, 0, 0.1));
+  border-radius: 10px;
+  background: var(--ran-color-bg, #fff);
+  color: var(--ran-color-text);
+  font: inherit;
+  font-size: 13px;
+  font-weight: 550;
+  cursor: pointer;
+  transition:
+    background 0.12s ease,
+    border-color 0.12s ease;
+}
+
+.vault-stage-browser-sort:hover,
+.vault-stage-browser-sort[aria-expanded='true'] {
+  background: var(--ran-gray-100, #f2f2f2);
+  border-color: color-mix(in srgb, var(--ran-blue-700, #006bff) 22%, var(--ran-color-border, rgba(0, 0, 0, 0.1)));
+}
+
+.vault-stage-browser-sort .vault-icon {
+  width: 14px;
+  height: 14px;
+  flex: none;
+  color: var(--ran-color-text-secondary);
+}
+
+.vault-stage-browser-sort-label {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.vault-stage-browser-sort-chevron {
+  width: 12px !important;
+  height: 12px !important;
+  opacity: 0.7;
+}
+
+.vault-stage-browser-sort-menu {
+  position: absolute;
+  top: calc(100% + 6px);
+  right: 0;
+  z-index: 6;
+  min-width: 180px;
+  padding: 6px;
+  border-radius: 10px;
+  background: var(--ran-color-bg, #fff);
+  border: 1px solid var(--ran-color-border, rgba(0, 0, 0, 0.08));
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+}
+
+.vault-stage-browser-sort-menu[hidden] {
+  display: none;
+}
+
+.vault-stage-browser-sort-option {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  min-height: 34px;
+  margin: 0;
+  padding: 0 10px;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--ran-color-text);
+  font: inherit;
+  font-size: 13px;
+  text-align: start;
+  cursor: pointer;
+}
+
+.vault-stage-browser-sort-option:hover {
+  background: var(--ran-gray-100, #f2f2f2);
+}
+
+.vault-stage-browser-sort-option.is-active {
+  background: color-mix(in srgb, var(--ran-blue-700, #006bff) 10%, transparent);
+  color: var(--ran-blue-800, #0059ec);
+  font-weight: 600;
+}
+
+.vault-stage-browser-sort-option > span:first-child {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.vault-stage-browser-sort-dir {
+  flex: none;
+  min-width: 1em;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--ran-blue-700, #006bff);
+  text-align: end;
+}
+
 .vault-stage-browser-tools {
   flex: none;
   display: flex;
   align-items: center;
+  margin-inline-start: auto;
 }
 
 .vault-stage-browser-tools .vault-stage-empty-actions {

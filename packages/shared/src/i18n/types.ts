@@ -207,6 +207,13 @@ export interface I18nMessages {
   cloudBatchMoveFailed: string;
   /** `{done}` / `{total}` after partial batch delete. */
   cloudBatchDeletePartial: string;
+  cloudSort: string;
+  cloudSortCreated: string;
+  cloudSortSize: string;
+  cloudSortName: string;
+  cloudSortType: string;
+  cloudSortAsc: string;
+  cloudSortDesc: string;
   cloudCancel: string;
   cloudSearchPlaceholder: string;
   cloudColDocument: string;
