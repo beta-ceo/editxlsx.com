@@ -198,7 +198,7 @@ export const ko: Partial<I18nMessages> = {
   cloudSignedInAs: '{email}(으)로 로그인됨',
   cloudOpenEditor: '문서 편집기 열기',
   cloudNavHome: '홈',
-  cloudNavDirectory: '디렉터리',
+  cloudNavDirectory: '폴더',
   cloudNavWorkspace: '작업 공간',
   cloudAllDocuments: '모든 문서',
   cloudNavDocuments: '문서',

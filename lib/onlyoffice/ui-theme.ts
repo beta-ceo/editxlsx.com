@@ -13,8 +13,8 @@ export const DEFAULT_UI_THEME = 'theme-white';
 export const UI_THEME_STORAGE_KEY = 'ui-theme-id';
 
 export function resolveUiTheme(): string {
-  // Follows the site's ranui theme (dark site -> theme-dark) unless the user
-  // picked a theme inside the editor; see lib/editor-theme.ts.
+  // Follows the site's ranui theme (dark site -> Modern Dark / theme-night)
+  // unless the user picked a theme inside the editor; see lib/editor-theme.ts.
   return resolveEditorUiTheme(DEFAULT_UI_THEME);
 }
 

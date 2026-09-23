@@ -203,7 +203,7 @@ export const es: Partial<I18nMessages> = {
   cloudSignedInAs: 'Sesión iniciada como {email}',
   cloudOpenEditor: 'Abrir el editor',
   cloudNavHome: 'Inicio',
-  cloudNavDirectory: 'Directorio',
+  cloudNavDirectory: 'Carpetas',
   cloudNavWorkspace: 'Espacio de trabajo',
   cloudAllDocuments: 'Todos los documentos',
   cloudNavDocuments: 'Documentos',

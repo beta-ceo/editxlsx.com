@@ -199,7 +199,7 @@ export const ja: Partial<I18nMessages> = {
   cloudSignedInAs: '{email} でログイン中',
   cloudOpenEditor: 'ドキュメントエディタを開く',
   cloudNavHome: 'ホーム',
-  cloudNavDirectory: 'ディレクトリ',
+  cloudNavDirectory: 'フォルダー',
   cloudNavWorkspace: 'ワークスペース',
   cloudAllDocuments: 'すべてのドキュメント',
   cloudNavDocuments: 'ドキュメント',

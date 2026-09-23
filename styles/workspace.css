@@ -368,13 +368,23 @@ body {
   font-size: 11px;
   font-weight: 600;
   letter-spacing: 0.04em;
+  line-height: 1;
   text-transform: uppercase;
   color: var(--ran-color-text-secondary);
 }
 
+.vault-dir-label > span {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 0;
+}
+
 .vault-dir-label .vault-icon {
-  width: 13px;
-  height: 13px;
+  display: block;
+  width: 12px;
+  height: 12px;
+  flex: none;
   color: var(--ran-color-text-secondary);
   opacity: 0.85;
 }
@@ -735,6 +745,10 @@ body {
   font-weight: 500;
   text-align: start;
   cursor: pointer;
+}
+
+.vault-context-option[hidden] {
+  display: none;
 }
 
 .vault-context-option:hover {

@@ -13,9 +13,10 @@
  * Rules:
  * - A theme the user picked *inside the editor* wins (it is what
  *   `ui-theme-id` holds when it differs from the last value we drove).
- * - Otherwise the editor follows the site: dark -> `theme-dark`,
- *   light -> Modern Light (`theme-white`); and it keeps following while the
- *   document is open (theme switch in the top bar / OS switch in system mode).
+ * - Otherwise the editor follows the site: dark -> Modern Dark
+ *   (`theme-night`), light -> Modern Light (`theme-white`); and it keeps
+ *   following while the document is open (theme switch in the top bar / OS
+ *   switch in system mode).
  * - Every theme we drive is remembered in `ui-theme-site-driven`; when the
  *   editor persists that same id it is not mistaken for a user choice.
  */
@@ -24,7 +25,10 @@ export const SITE_THEME_ATTR = 'data-ran-theme';
 export const SITE_THEME_STORAGE_KEY = 'ran-theme';
 export const EDITOR_THEME_STORAGE_KEY = 'ui-theme-id';
 export const SITE_DRIVEN_THEME_STORAGE_KEY = 'ui-theme-site-driven';
-export const DARK_UI_THEME = 'theme-dark';
+/** OnlyOffice "Modern Dark" (not classic `theme-dark`). */
+export const DARK_UI_THEME = 'theme-night';
+/** OnlyOffice "Modern Light". */
+export const LIGHT_UI_THEME = 'theme-white';
 
 const DARK_MQ = '(prefers-color-scheme: dark)';
 

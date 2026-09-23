@@ -343,16 +343,17 @@ describe('X2TConverter', () => {
     const makeBinConverter = () => {
       const converter = new X2TConverter();
       const writeFile = vi.fn();
+      const readFile = vi.fn().mockReturnValue(new Uint8Array([1]));
       vi.spyOn(converter, 'initialize').mockResolvedValue({} as any);
       (converter as any).x2tModule = {
         ccall: vi.fn().mockReturnValue(0),
         FS: {
           writeFile,
-          readFile: vi.fn().mockReturnValue(new Uint8Array([1])),
+          readFile,
         },
       };
       (converter as any).fontsLoaded = true; // skip the font fetch in loadFontsForPdf
-      return { converter, writeFile };
+      return { converter, writeFile, readFile };
     };
 
     const writtenParams = (writeFile: ReturnType<typeof vi.fn>): string =>
@@ -400,13 +401,34 @@ describe('X2TConverter', () => {
       it('converts a cross-format zip save as a real document with the source extension', async () => {
         const { converter, writeFile } = makeBinConverter();
 
-        await converter.convertBinToDocument(zip(), 'doc.xlsx', 'PDF');
+        await converter.convertBinToDocument(zip(), 'doc.xlsx', 'DOCX');
 
         const params = writtenParams(writeFile);
         expect(params).toContain('<m_sFileFrom>/working/doc.xlsx</m_sFileFrom>');
-        expect(params).toContain('<m_sFileTo>/working/doc.pdf</m_sFileTo>');
+        expect(params).toContain('<m_sFileTo>/working/doc.docx</m_sFileTo>');
         expect(params).toContain('<m_bIsNoBase64>true</m_bIsNoBase64>');
         expect(params).not.toContain('<m_nFormatFrom>');
+      });
+
+      it('routes zip → PDF through an editor bin first (direct zip→PDF is x2t code 80)', async () => {
+        const { converter, writeFile, readFile } = makeBinConverter();
+        const signedBin = new TextEncoder().encode('XLSY' + 'payload');
+        readFile.mockImplementation((path: string) => {
+          if (String(path).endsWith('.bin')) return signedBin;
+          return new Uint8Array([0x25, 0x50, 0x44, 0x46]);
+        });
+
+        const result = await converter.convertBinToDocument(zip(), 'doc.xlsx', 'PDF');
+
+        expect(result.fileName).toBe('doc.pdf');
+        const writes = writeFile.mock.calls.map((c: unknown[]) => String(c[0]));
+        expect(writes.some((p: string) => p.endsWith('params.xml'))).toBe(true);
+        // First conversion: xlsx → bin; second (via convertBinToDocument): bin → pdf.
+        const paramsCalls = writeFile.mock.calls.filter((c: unknown[]) => String(c[0]).endsWith('params.xml'));
+        expect(paramsCalls.length).toBeGreaterThanOrEqual(2);
+        const firstParams = String(paramsCalls[0]![1]);
+        expect(firstParams).toContain('<m_sFileFrom>/working/doc.xlsx</m_sFileFrom>');
+        expect(firstParams).toContain('<m_sFileTo>/working/doc.bin</m_sFileTo>');
       });
     });
   });

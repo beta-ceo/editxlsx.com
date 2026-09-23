@@ -1,13 +1,16 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import {
   applySiteThemeToEditor,
+  DARK_UI_THEME,
   hasUserPickedEditorTheme,
   installEditorThemeFollow,
   isSiteDark,
+  LIGHT_UI_THEME,
   resolveEditorUiTheme,
 } from '../../lib/editor-theme';
 
-const LIGHT = 'theme-white';
+const LIGHT = LIGHT_UI_THEME;
+const DARK = DARK_UI_THEME;
 const html = document.documentElement;
 
 afterEach(() => {
@@ -33,10 +36,10 @@ describe('isSiteDark', () => {
 });
 
 describe('resolveEditorUiTheme', () => {
-  it('maps a dark site to theme-dark and remembers that it drove it', () => {
+  it('maps a dark site to Modern Dark (theme-night) and remembers that it drove it', () => {
     html.setAttribute('data-ran-theme', 'dark');
-    expect(resolveEditorUiTheme(LIGHT)).toBe('theme-dark');
-    expect(window.localStorage.getItem('ui-theme-site-driven')).toBe('theme-dark');
+    expect(resolveEditorUiTheme(LIGHT)).toBe(DARK);
+    expect(window.localStorage.getItem('ui-theme-site-driven')).toBe(DARK);
     expect(hasUserPickedEditorTheme()).toBe(false);
   });
 
@@ -56,7 +59,7 @@ describe('resolveEditorUiTheme', () => {
     html.setAttribute('data-ran-theme', 'dark');
     resolveEditorUiTheme(LIGHT);
     // The editor writes ui-theme-id with the theme it was told to use.
-    window.localStorage.setItem('ui-theme-id', 'theme-dark');
+    window.localStorage.setItem('ui-theme-id', DARK);
     expect(hasUserPickedEditorTheme()).toBe(false);
     html.setAttribute('data-ran-theme', 'light');
     expect(resolveEditorUiTheme(LIGHT)).toBe(LIGHT);
@@ -76,8 +79,8 @@ describe('applySiteThemeToEditor / installEditorThemeFollow', () => {
   it('pushes the site theme into every editor frame that exposes Common.UI.Themes', () => {
     const { root, setTheme } = fakeEditorRoot();
     html.setAttribute('data-ran-theme', 'dark');
-    expect(applySiteThemeToEditor(LIGHT, root)).toBe('theme-dark');
-    expect(setTheme).toHaveBeenCalledWith('theme-dark');
+    expect(applySiteThemeToEditor(LIGHT, root)).toBe(DARK);
+    expect(setTheme).toHaveBeenCalledWith(DARK);
     // Same theme again: no redundant call.
     applySiteThemeToEditor(LIGHT, root);
     expect(setTheme).toHaveBeenCalledTimes(1);
@@ -85,7 +88,7 @@ describe('applySiteThemeToEditor / installEditorThemeFollow', () => {
 
   it('does nothing when the user overrode the theme inside the editor', () => {
     const { root, setTheme } = fakeEditorRoot();
-    window.localStorage.setItem('ui-theme-id', 'theme-night');
+    window.localStorage.setItem('ui-theme-id', 'theme-dark');
     html.setAttribute('data-ran-theme', 'dark');
     expect(applySiteThemeToEditor(LIGHT, root)).toBeNull();
     expect(setTheme).not.toHaveBeenCalled();
@@ -93,11 +96,11 @@ describe('applySiteThemeToEditor / installEditorThemeFollow', () => {
 
   it('force pushes past an in-editor theme pick', () => {
     const { root, setTheme } = fakeEditorRoot();
-    window.localStorage.setItem('ui-theme-id', 'theme-night');
+    window.localStorage.setItem('ui-theme-id', 'theme-dark');
     html.setAttribute('data-ran-theme', 'dark');
-    expect(applySiteThemeToEditor(LIGHT, root, { force: true })).toBe('theme-dark');
-    expect(setTheme).toHaveBeenCalledWith('theme-dark');
-    expect(window.localStorage.getItem('ui-theme-id')).toBe('theme-dark');
+    expect(applySiteThemeToEditor(LIGHT, root, { force: true })).toBe(DARK);
+    expect(setTheme).toHaveBeenCalledWith(DARK);
+    expect(window.localStorage.getItem('ui-theme-id')).toBe(DARK);
   });
 
   it('reacts to <html data-ran-theme> flips until disposed', async () => {
@@ -109,7 +112,7 @@ describe('applySiteThemeToEditor / installEditorThemeFollow', () => {
     try {
       html.setAttribute('data-ran-theme', 'dark');
       await new Promise((r) => setTimeout(r, 0));
-      expect(setTheme).toHaveBeenCalledWith('theme-dark');
+      expect(setTheme).toHaveBeenCalledWith(DARK);
       dispose();
       setTheme.mockClear();
       html.setAttribute('data-ran-theme', 'light');

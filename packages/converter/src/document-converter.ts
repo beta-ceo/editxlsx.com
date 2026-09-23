@@ -784,13 +784,19 @@ export class X2TConverter {
     const outputPath = `/working/${outputFileName}`;
     this.x2tModule!.FS.writeFile(inputPath, bin);
 
-    let additionalParams = '';
+    // Direct OOXML → PDF fails with x2t code 80 for many packages (including the
+    // blank vault templates). Match the editor: zip → signed bin → PDF.
     if (targetExt === 'PDF') {
-      await this.loadFontsForPdf();
-      additionalParams = `<m_sFontDir>/working/fonts/</m_sFontDir><m_nFormatTo>${PDF_OUTPUT_FORMAT}</m_nFormatTo>`;
+      const binPath = `/working/${sanitizedBase}.bin`;
+      const toBinParams = this.createConversionParams(inputPath, binPath, '', true);
+      this.x2tModule!.FS.writeFile('/working/params.xml', toBinParams);
+      this.executeConversion('/working/params.xml');
+      const editorBin = this.x2tModule!.FS.readFile(binPath);
+      const binBytes = editorBin instanceof Uint8Array ? editorBin : new Uint8Array(editorBin as ArrayBuffer);
+      return this.convertBinToDocument(binBytes, originalFileName, 'PDF');
     }
 
-    const params = this.createConversionParams(inputPath, outputPath, additionalParams, true);
+    const params = this.createConversionParams(inputPath, outputPath, '', true);
     this.x2tModule!.FS.writeFile('/working/params.xml', params);
     this.executeConversion('/working/params.xml');
 

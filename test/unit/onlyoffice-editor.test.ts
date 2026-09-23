@@ -497,7 +497,7 @@ describe('onlyoffice-editor', () => {
       document.documentElement.setAttribute('data-ran-theme', 'dark');
       try {
         const config = await createAndGetConfig({ fileName: 'a.docx', fileType: 'docx' });
-        expect(config.editorConfig.customization.uiTheme).toBe('theme-dark');
+        expect(config.editorConfig.customization.uiTheme).toBe('theme-night');
       } finally {
         document.documentElement.removeAttribute('data-ran-theme');
         window.localStorage.removeItem('ui-theme-site-driven');

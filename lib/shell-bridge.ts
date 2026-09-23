@@ -24,6 +24,13 @@ export const SHELL_NEED_PAYLOAD = 'shell:need-payload';
 export const SHELL_OPEN_PAYLOAD = 'shell:open-payload';
 /** parent → iframe: shell-side open failed before bytes were ready. */
 export const SHELL_OPEN_PAYLOAD_FAILED = 'shell:open-payload-failed';
+/**
+ * parent → iframe: run editor `downloadAs` (PDF uses the canvas render path;
+ * standalone x2t cannot produce spreadsheet PDFs).
+ */
+export const SHELL_EXPORT = 'shell:export';
+/** iframe → parent: export finished (bytes) or failed. */
+export const SHELL_EXPORT_DONE = 'shell:export-done';
 
 export type ShellReadyMessage = {
   type: typeof SHELL_READY;
@@ -84,6 +91,23 @@ export type ShellOpenPayloadFailedMessage = {
   message: string;
 };
 
+export type ShellExportMessage = {
+  type: typeof SHELL_EXPORT;
+  workbookId: string;
+  requestId: string;
+  targetExt: string;
+};
+
+export type ShellExportDoneMessage = {
+  type: typeof SHELL_EXPORT_DONE;
+  workbookId: string;
+  requestId: string;
+  ok: boolean;
+  fileName?: string;
+  buffer?: ArrayBuffer;
+  message?: string;
+};
+
 /** Messages the shell parent listens for from the editor iframe. */
 export type ShellBridgeMessage =
   | ShellReadyMessage
@@ -93,7 +117,10 @@ export type ShellBridgeMessage =
   | ShellNeedPayloadMessage;
 
 /** Messages the editor iframe listens for from the workspace shell. */
-export type ShellParentMessage = ShellOpenPayloadMessage | ShellOpenPayloadFailedMessage;
+export type ShellParentMessage =
+  | ShellOpenPayloadMessage
+  | ShellOpenPayloadFailedMessage
+  | ShellExportMessage;
 
 export function isShellBridgeMessage(data: unknown): data is ShellBridgeMessage {
   if (!data || typeof data !== 'object') return false;
@@ -121,6 +148,16 @@ export function isShellParentMessage(data: unknown): data is ShellParentMessage 
   if (msg.type === SHELL_OPEN_PAYLOAD_FAILED) {
     return typeof msg.workbookId === 'string' && msg.workbookId.length > 0 && typeof msg.message === 'string';
   }
+  if (msg.type === SHELL_EXPORT) {
+    return (
+      typeof msg.workbookId === 'string' &&
+      msg.workbookId.length > 0 &&
+      typeof msg.requestId === 'string' &&
+      msg.requestId.length > 0 &&
+      typeof msg.targetExt === 'string' &&
+      msg.targetExt.length > 0
+    );
+  }
   if (msg.type !== SHELL_OPEN_PAYLOAD) return false;
   if (typeof msg.workbookId !== 'string' || !msg.workbookId) return false;
   if (msg.source !== 'pending' && msg.source !== 'download' && msg.source !== 'cache') return false;
@@ -136,6 +173,19 @@ export function isShellParentMessage(data: unknown): data is ShellParentMessage 
     typeof meta.format === 'string' &&
     typeof meta.updatedAt === 'string'
   );
+}
+
+export function isShellExportDoneMessage(data: unknown): data is ShellExportDoneMessage {
+  if (!data || typeof data !== 'object') return false;
+  const msg = data as Record<string, unknown>;
+  if (msg.type !== SHELL_EXPORT_DONE) return false;
+  if (typeof msg.workbookId !== 'string' || !msg.workbookId) return false;
+  if (typeof msg.requestId !== 'string' || !msg.requestId) return false;
+  if (msg.ok !== true && msg.ok !== false) return false;
+  if (msg.ok === true) {
+    return typeof msg.fileName === 'string' && msg.buffer instanceof ArrayBuffer;
+  }
+  return typeof msg.message === 'string';
 }
 
 function postToParent(message: ShellBridgeMessage): void {
@@ -184,6 +234,24 @@ export function postShellOpenPayloadFailed(target: Window, workbookId: string, m
   target.postMessage(body, window.location.origin);
 }
 
+export function postShellExport(
+  target: Window,
+  payload: Omit<ShellExportMessage, 'type'>,
+): void {
+  const message: ShellExportMessage = { type: SHELL_EXPORT, ...payload };
+  target.postMessage(message, window.location.origin);
+}
+
+export function postShellExportDone(payload: Omit<ShellExportDoneMessage, 'type'>): void {
+  if (typeof window === 'undefined' || window.parent === window) return;
+  const message: ShellExportDoneMessage = { type: SHELL_EXPORT_DONE, ...payload };
+  if (message.ok && message.buffer) {
+    window.parent.postMessage(message, window.location.origin, [message.buffer]);
+  } else {
+    window.parent.postMessage(message, window.location.origin);
+  }
+}
+
 /**
  * Ask the parent for open bytes and resolve when they arrive.
  * `null` means timeout — caller should fall back to self-fetch.
@@ -214,6 +282,7 @@ export function waitForShellOpenPayload(
         reject(new Error(event.data.message));
         return;
       }
+      if (event.data.type !== SHELL_OPEN_PAYLOAD) return;
       finish(event.data);
     };
     window.addEventListener('message', onMessage);

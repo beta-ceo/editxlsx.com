@@ -1,13 +1,18 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import {
   isShellBridgeMessage,
+  isShellExportDoneMessage,
   isShellParentMessage,
+  postShellExport,
+  postShellExportDone,
   postShellFailed,
   postShellFrameReady,
   postShellNeedPayload,
   postShellOpenPayload,
   postShellReady,
   postShellSaveState,
+  SHELL_EXPORT,
+  SHELL_EXPORT_DONE,
   SHELL_FAILED,
   SHELL_FRAME_READY,
   SHELL_NEED_PAYLOAD,
@@ -33,7 +38,7 @@ describe('shell bridge', () => {
     expect(isShellBridgeMessage({ type: 'document:ready' })).toBe(false);
   });
 
-  it('accepts open-payload and open-payload-failed from the parent', () => {
+  it('accepts open-payload, open-payload-failed, and export from the parent', () => {
     const workbook = {
       id: 'w1',
       userId: 'u1',
@@ -58,7 +63,46 @@ describe('shell bridge', () => {
     expect(
       isShellParentMessage({ type: SHELL_OPEN_PAYLOAD_FAILED, workbookId: 'w1', message: 'no' }),
     ).toBe(true);
+    expect(
+      isShellParentMessage({
+        type: SHELL_EXPORT,
+        workbookId: 'w1',
+        requestId: 'r1',
+        targetExt: 'PDF',
+      }),
+    ).toBe(true);
     expect(isShellParentMessage({ type: SHELL_OPEN_PAYLOAD, workbookId: 'w1' })).toBe(false);
+    expect(isShellParentMessage({ type: SHELL_EXPORT, workbookId: 'w1', requestId: 'r1' })).toBe(false);
+  });
+
+  it('accepts export-done replies from the iframe', () => {
+    expect(
+      isShellExportDoneMessage({
+        type: SHELL_EXPORT_DONE,
+        workbookId: 'w1',
+        requestId: 'r1',
+        ok: true,
+        fileName: 'a.pdf',
+        buffer: new ArrayBuffer(4),
+      }),
+    ).toBe(true);
+    expect(
+      isShellExportDoneMessage({
+        type: SHELL_EXPORT_DONE,
+        workbookId: 'w1',
+        requestId: 'r1',
+        ok: false,
+        message: 'boom',
+      }),
+    ).toBe(true);
+    expect(
+      isShellExportDoneMessage({
+        type: SHELL_EXPORT_DONE,
+        workbookId: 'w1',
+        requestId: 'r1',
+        ok: true,
+      }),
+    ).toBe(false);
   });
 
   it('posts ready, failed, save-state, and need-payload to the same-origin parent', () => {
@@ -130,6 +174,42 @@ describe('shell bridge', () => {
       expect.objectContaining({ type: SHELL_OPEN_PAYLOAD, workbookId: 'w1', source: 'pending' }),
       window.location.origin,
       [buffer],
+    );
+  });
+
+  it('posts export and export-done with a transferable buffer', () => {
+    const postMessage = vi.fn();
+    const target = { postMessage } as unknown as Window;
+    postShellExport(target, { workbookId: 'w1', requestId: 'r1', targetExt: 'PDF' });
+    expect(postMessage).toHaveBeenCalledWith(
+      { type: SHELL_EXPORT, workbookId: 'w1', requestId: 'r1', targetExt: 'PDF' },
+      window.location.origin,
+    );
+
+    const parentPost = vi.fn();
+    vi.spyOn(window, 'parent', 'get').mockReturnValue({ postMessage: parentPost } as unknown as Window);
+    const buffer = new ArrayBuffer(8);
+    postShellExportDone({
+      workbookId: 'w1',
+      requestId: 'r1',
+      ok: true,
+      fileName: 'a.pdf',
+      buffer,
+    });
+    expect(parentPost).toHaveBeenCalledWith(
+      expect.objectContaining({ type: SHELL_EXPORT_DONE, ok: true, fileName: 'a.pdf' }),
+      window.location.origin,
+      [buffer],
+    );
+    postShellExportDone({
+      workbookId: 'w1',
+      requestId: 'r1',
+      ok: false,
+      message: 'nope',
+    });
+    expect(parentPost).toHaveBeenCalledWith(
+      { type: SHELL_EXPORT_DONE, workbookId: 'w1', requestId: 'r1', ok: false, message: 'nope' },
+      window.location.origin,
     );
   });
 

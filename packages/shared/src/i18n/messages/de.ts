@@ -207,7 +207,7 @@ export const de: Partial<I18nMessages> = {
   cloudSignedInAs: 'Angemeldet als {email}',
   cloudOpenEditor: 'Dokumenteditor öffnen',
   cloudNavHome: 'Startseite',
-  cloudNavDirectory: 'Verzeichnis',
+  cloudNavDirectory: 'Ordner',
   cloudNavWorkspace: 'Arbeitsbereich',
   cloudAllDocuments: 'Alle Dokumente',
   cloudNavDocuments: 'Dokumente',

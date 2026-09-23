@@ -10,15 +10,21 @@ import { openLocalFile } from './document';
 import { OpenTiming, publishOpenTiming } from './open-timing';
 import {
   isShellParentMessage,
+  postShellExportDone,
   postShellFailed,
   postShellFrameReady,
   postShellReady,
+  SHELL_EXPORT,
   SHELL_OPEN_PAYLOAD_FAILED,
+  type ShellExportMessage,
   type ShellOpenPayloadMessage,
 } from './shell-bridge';
 
 let started = false;
 let openGeneration = 0;
+/** Workbook id last successfully opened (for export gating). */
+let activeWorkbookId = '';
+let exportInFlight = false;
 
 function workbookFromPayload(payload: ShellOpenPayloadMessage): Workbook {
   const format = payload.workbook.format as VaultFormat;
@@ -37,14 +43,13 @@ async function openFromPayload(payload: ShellOpenPayloadMessage): Promise<void> 
   timing.mark('synced');
 
   try {
-    const [{ bindCloudWorkbook, beginCloudAutosave, unbindCloudWorkbook }] = await Promise.all([
-      import('./cloud-workbook'),
-    ]);
+    const { bindCloudWorkbook, beginCloudAutosave, unbindCloudWorkbook } = await import('./cloud-workbook');
     if (generation !== openGeneration) return;
 
     // Drop the previous cloud binding / metronome before the next DocEditor
     // takes over — otherwise Save could land on the wrong workbook id.
     unbindCloudWorkbook();
+    activeWorkbookId = '';
 
     const workbook = workbookFromPayload(payload);
     const file = new File([payload.buffer], workbook.title, {
@@ -59,6 +64,7 @@ async function openFromPayload(payload: ShellOpenPayloadMessage): Promise<void> 
     timing.mark('mounted');
     beginCloudAutosave();
     timing.mark('ready');
+    activeWorkbookId = workbook.id;
     const report = timing.buildReport();
     publishOpenTiming(report);
     postShellReady(workbook.id, report);
@@ -71,6 +77,51 @@ async function openFromPayload(payload: ShellOpenPayloadMessage): Promise<void> 
       `${t('cloudOpenFailed')}${detail}`,
     );
     postShellFailed(payload.workbookId, detail);
+  }
+}
+
+async function handleExport(message: ShellExportMessage): Promise<void> {
+  if (exportInFlight) {
+    postShellExportDone({
+      workbookId: message.workbookId,
+      requestId: message.requestId,
+      ok: false,
+      message: 'An export is already in progress',
+    });
+    return;
+  }
+  if (!activeWorkbookId || activeWorkbookId !== message.workbookId) {
+    postShellExportDone({
+      workbookId: message.workbookId,
+      requestId: message.requestId,
+      ok: false,
+      message: 'Workbook is not open in the editor',
+    });
+    return;
+  }
+
+  exportInFlight = true;
+  try {
+    const { requestSaveDocument } = await import('./onlyoffice/save-stream');
+    const file = await requestSaveDocument(message.targetExt);
+    const buffer = await file.arrayBuffer();
+    postShellExportDone({
+      workbookId: message.workbookId,
+      requestId: message.requestId,
+      ok: true,
+      fileName: file.name,
+      buffer,
+    });
+  } catch (error) {
+    const detail = error instanceof Error ? error.message : String(error);
+    postShellExportDone({
+      workbookId: message.workbookId,
+      requestId: message.requestId,
+      ok: false,
+      message: detail,
+    });
+  } finally {
+    exportInFlight = false;
   }
 }
 
@@ -90,6 +141,10 @@ export async function startShellWarmHost(): Promise<void> {
       postShellFailed(event.data.workbookId, event.data.message);
       return;
     }
+    if (event.data.type === SHELL_EXPORT) {
+      void handleExport(event.data);
+      return;
+    }
     void openFromPayload(event.data);
   });
 
@@ -105,4 +160,6 @@ export async function startShellWarmHost(): Promise<void> {
 export function resetShellWarmHostForTests(): void {
   started = false;
   openGeneration = 0;
+  activeWorkbookId = '';
+  exportInFlight = false;
 }

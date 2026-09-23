@@ -239,6 +239,9 @@ export interface I18nMessages {
   /** `{size}` is a formatted byte count. */
   cloudStorageUsed: string;
   cloudExport: string;
+  cloudExportPdf: string;
+  /** Prefixed to the failure detail. */
+  cloudExportPdfFailed: string;
   /** `{when}` is a relative time, such as "2 hours ago". */
   cloudSavedWhen: string;
   cloudSelectWorkbook: string;
