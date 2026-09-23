@@ -184,6 +184,8 @@ export interface I18nMessages {
   cloudEmpty: string;
   cloudEmptySearchTitle: string;
   cloudEmptySearch: string;
+  cloudClearSearch: string;
+  cloudSearchResults: string;
   cloudOpen: string;
   cloudDelete: string;
   cloudDeleteTitle: string;
@@ -215,6 +217,7 @@ export interface I18nMessages {
   cloudSortAsc: string;
   cloudSortDesc: string;
   cloudCancel: string;
+  /** File and folder name filter in the workspace top bar. */
   cloudSearchPlaceholder: string;
   cloudColDocument: string;
   cloudColEdited: string;

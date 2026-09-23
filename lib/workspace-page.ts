@@ -13,7 +13,23 @@ import { getTheme, initTheme, setTheme, type RanThemeName } from 'ranui/theme';
 import '../styles/workspace.css';
 import { applyDocumentLanguage, getLanguage, t, withLocale } from '@ranuts/shared/i18n';
 import { getCurrentUser, signOut, type AuthUser } from './appwrite/auth';
-import { createBlankFile, createFolder, createWorkbookFromFile, deleteVaultItem, ensureFormatName, getWorkbook, isUnderFolder, listVaultItems, placeVaultItem, renameVaultItem, reorderVaultSiblings, compareVaultOrder, nextSortOrder, type VaultItem, type Workbook } from './appwrite/workbooks';
+import {
+  createBlankFile,
+  createFolder,
+  createWorkbookFromFile,
+  deleteVaultItem,
+  ensureFormatName,
+  getWorkbook,
+  isUnderFolder,
+  listVaultItems,
+  placeVaultItem,
+  renameVaultItem,
+  reorderVaultSiblings,
+  compareVaultOrder,
+  nextSortOrder,
+  type VaultItem,
+  type Workbook,
+} from './appwrite/workbooks';
 import type { VaultFormat } from './appwrite/ids';
 import { formatFromTitle, MAX_WORKBOOK_BYTES } from './appwrite/ids';
 import { confirmDialog } from './confirm-dialog';
@@ -87,9 +103,7 @@ function readBrowserSort(): { key: BrowserSortKey; dir: BrowserSortDir } {
     const raw = localStorage.getItem(BROWSER_SORT_STORAGE_KEY);
     if (!raw) return { key: 'created', dir: 'desc' };
     const parsed = JSON.parse(raw) as { key?: string; dir?: string };
-    const key = BROWSER_SORT_KEYS.includes(parsed.key as BrowserSortKey)
-      ? (parsed.key as BrowserSortKey)
-      : 'created';
+    const key = BROWSER_SORT_KEYS.includes(parsed.key as BrowserSortKey) ? (parsed.key as BrowserSortKey) : 'created';
     const dir: BrowserSortDir = parsed.dir === 'asc' ? 'asc' : 'desc';
     return { key, dir };
   } catch {
@@ -142,6 +156,97 @@ function compareBrowserItems(a: VaultItem, b: VaultItem): number {
 
 function browserChildrenOf(parentId: string): VaultItem[] {
   return rows.filter((row) => (row.parentId || '') === parentId).sort(compareBrowserItems);
+}
+
+function searchNeedle(): string {
+  return query.trim().toLowerCase();
+}
+
+/** Title substring matches across the cached vault (files + folders). */
+function searchMatches(): VaultItem[] {
+  const needle = searchNeedle();
+  if (!needle) return [];
+  return rows.filter((row) => row.title.toLowerCase().includes(needle)).sort(compareBrowserItems);
+}
+
+/** Stage list source: folder children, or flat search hits. */
+function visibleBrowserItems(): VaultItem[] {
+  return searchNeedle() ? searchMatches() : browserChildrenOf(currentFolderId);
+}
+
+/** Ancestor folder titles joined with " / ", or empty at vault root. */
+function itemParentPath(item: VaultItem): string {
+  const parts: string[] = [];
+  let parentId = item.parentId || '';
+  const seen = new Set<string>();
+  while (parentId && !seen.has(parentId)) {
+    seen.add(parentId);
+    const parent = rows.find((row) => row.id === parentId);
+    if (!parent) break;
+    parts.unshift(parent.title);
+    parentId = parent.parentId || '';
+  }
+  return parts.join(' / ');
+}
+
+function isMacPlatform(): boolean {
+  const nav = navigator as Navigator & { userAgentData?: { platform?: string } };
+  const platform = nav.userAgentData?.platform || navigator.platform || '';
+  return /Mac|iPhone|iPad|iPod/i.test(platform);
+}
+
+function searchShortcutLabel(): string {
+  return isMacPlatform() ? '⌘K' : 'Ctrl+K';
+}
+
+function searchInputEl(): (HTMLElement & { value: string; focus: () => void }) | null {
+  return root().querySelector('r-input.workspace-search');
+}
+
+function setSearchInputValue(value: string): void {
+  const el = searchInputEl();
+  if (el) el.value = value;
+}
+
+function updateSearchChrome(): void {
+  const wrap = root().querySelector('.vault-search');
+  if (!wrap) return;
+  const hasQuery = Boolean(query.trim());
+  const focused = wrap.classList.contains('is-focused');
+  wrap.classList.toggle('has-query', hasQuery);
+  const clearBtn = wrap.querySelector<HTMLElement>('.vault-search-clear');
+  if (clearBtn) clearBtn.hidden = !hasQuery;
+  const kbd = wrap.querySelector<HTMLElement>('.vault-kbd');
+  if (kbd) kbd.hidden = hasQuery || focused;
+}
+
+function applySearchQuery(value: string, options: { syncInput?: boolean; syncUrlNow?: boolean } = {}): void {
+  query = value;
+  if (options.syncInput) setSearchInputValue(value);
+  clearBrowserSelection();
+  updateSearchChrome();
+  window.clearTimeout(searchTimer);
+  if (options.syncUrlNow) {
+    syncUrl();
+  } else {
+    searchTimer = window.setTimeout(() => syncUrl(), SEARCH_DEBOUNCE_MS);
+  }
+  paintDocs();
+  paintStage();
+}
+
+function clearSearch(): void {
+  applySearchQuery('', { syncInput: true, syncUrlNow: true });
+}
+
+function isSearchFocused(): boolean {
+  const host = searchInputEl();
+  if (!host) return false;
+  const active = document.activeElement;
+  if (!active) return false;
+  if (active === host || host.contains(active)) return true;
+  const rootNode = active.getRootNode();
+  return rootNode instanceof ShadowRoot && rootNode.host === host;
 }
 /** Inline rename target ('' = not renaming). */
 let renamingId = '';
@@ -272,7 +377,10 @@ function failOpen(workbookId: string, message: string): void {
 }
 
 /** Mount (or remount) the long-lived `?shell=1` editor frame. */
-function mountWarmEditorFrame(frame: HTMLIFrameElement, options: { bootToken?: number; watchBoot?: boolean } = {}): void {
+function mountWarmEditorFrame(
+  frame: HTMLIFrameElement,
+  options: { bootToken?: number; watchBoot?: boolean } = {},
+): void {
   resetShellFrameReady();
   frame.dataset.warm = '1';
   const watchBoot = options.watchBoot !== false;
@@ -486,29 +594,20 @@ function syncStatusIcon(state: ShellSaveState): SVGElement {
   if (state === 'local') {
     // Cloud + upload arrow: on this device, account upload still in flight.
     return svgIconPaths(
-      [
-        'M7 18h9.5a3.5 3.5 0 0 0 .5-6.97 5 5 0 0 0-9.7-1.53A3.5 3.5 0 0 0 7 18z',
-        'M12 16V10M9.5 12.5 12 10l2.5 2.5',
-      ],
+      ['M7 18h9.5a3.5 3.5 0 0 0 .5-6.97 5 5 0 0 0-9.7-1.53A3.5 3.5 0 0 0 7 18z', 'M12 16V10M9.5 12.5 12 10l2.5 2.5'],
       'vault-icon vault-sync-icon',
     );
   }
   if (state === 'saved') {
     // Cloud + check: Appwrite has the revision.
     return svgIconPaths(
-      [
-        'M7 18h9.5a3.5 3.5 0 0 0 .5-6.97 5 5 0 0 0-9.7-1.53A3.5 3.5 0 0 0 7 18z',
-        'M9.5 13.5 11.5 15.5 15 12',
-      ],
+      ['M7 18h9.5a3.5 3.5 0 0 0 .5-6.97 5 5 0 0 0-9.7-1.53A3.5 3.5 0 0 0 7 18z', 'M9.5 13.5 11.5 15.5 15 12'],
       'vault-icon vault-sync-icon',
     );
   }
   // Warning triangle.
   return svgIconPaths(
-    [
-      'M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z',
-      'M12 9v4M12 17h.01',
-    ],
+    ['M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z', 'M12 9v4M12 17h.01'],
     'vault-icon vault-sync-icon',
   );
 }
@@ -566,7 +665,9 @@ async function refresh(): Promise<void> {
   renameSurface = 'tree';
   paint();
   try {
-    rows = await listVaultItems({ search: query });
+    // Always load the full vault; the search box filters `rows` locally so
+    // keystrokes never flash a skeleton or re-hit Appwrite.
+    rows = await listVaultItems();
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);
     notifyError(message);
@@ -584,7 +685,7 @@ async function refresh(): Promise<void> {
         stageStatus = 'idle';
         stageError = '';
         clearOpenWatchers();
-      } else if (!query) {
+      } else if (!searchNeedle()) {
         currentFolderId = selected.parentId || '';
       }
     }
@@ -661,6 +762,12 @@ function selectWorkbook(id: string): void {
 }
 
 function openFolder(id: string): void {
+  // Leaving search mode so the stage returns to a normal folder browse.
+  if (searchNeedle()) {
+    query = '';
+    setSearchInputValue('');
+    updateSearchChrome();
+  }
   currentFolderId = id;
   selectedId = '';
   openWorkbook = null;
@@ -722,10 +829,7 @@ type FileSystemEntryLike = {
   name: string;
   file: (ok: (file: File) => void, err?: (error: DOMException) => void) => void;
   createReader: () => {
-    readEntries: (
-      ok: (entries: FileSystemEntryLike[]) => void,
-      err?: (error: DOMException) => void,
-    ) => void;
+    readEntries: (ok: (entries: FileSystemEntryLike[]) => void, err?: (error: DOMException) => void) => void;
   };
 };
 
@@ -735,32 +839,24 @@ function readEntryFile(entry: FileSystemEntryLike): Promise<File> {
   });
 }
 
-function readDirectoryEntries(
-  reader: ReturnType<FileSystemEntryLike['createReader']>,
-): Promise<FileSystemEntryLike[]> {
+function readDirectoryEntries(reader: ReturnType<FileSystemEntryLike['createReader']>): Promise<FileSystemEntryLike[]> {
   return new Promise((resolve, reject) => {
     const all: FileSystemEntryLike[] = [];
     const pump = (): void => {
-      reader.readEntries(
-        (batch) => {
-          if (batch.length === 0) {
-            resolve(all);
-            return;
-          }
-          all.push(...batch);
-          pump();
-        },
-        reject,
-      );
+      reader.readEntries((batch) => {
+        if (batch.length === 0) {
+          resolve(all);
+          return;
+        }
+        all.push(...batch);
+        pump();
+      }, reject);
     };
     pump();
   });
 }
 
-async function collectFromFileEntry(
-  entry: FileSystemEntryLike,
-  relativeDir: string,
-): Promise<DroppedUpload[]> {
+async function collectFromFileEntry(entry: FileSystemEntryLike, relativeDir: string): Promise<DroppedUpload[]> {
   if (entry.isFile) {
     const file = await readEntryFile(entry);
     return [{ file, relativeDir }];
@@ -808,9 +904,8 @@ function captureDropPayload(dataTransfer: DataTransfer): {
   const entries: FileSystemEntryLike[] = [];
   for (const item of dataTransfer.items) {
     if (item.kind !== 'file') continue;
-    const asEntry = (
-      item as DataTransferItem & { webkitGetAsEntry?: () => FileSystemEntryLike | null }
-    ).webkitGetAsEntry;
+    const asEntry = (item as DataTransferItem & { webkitGetAsEntry?: () => FileSystemEntryLike | null })
+      .webkitGetAsEntry;
     const entry = typeof asEntry === 'function' ? asEntry.call(item) : null;
     if (entry) entries.push(entry);
   }
@@ -825,9 +920,7 @@ async function ensureFolderPath(parentId: string, segments: string[]): Promise<s
   for (const raw of segments) {
     const name = raw.trim();
     if (!name) continue;
-    let folder = rows.find(
-      (row) => row.kind === 'folder' && (row.parentId || '') === cursor && row.title === name,
-    );
+    let folder = rows.find((row) => row.kind === 'folder' && (row.parentId || '') === cursor && row.title === name);
     if (!folder) {
       const sortOrder = nextSortOrder(childrenOf(cursor));
       folder = await createFolder(name, cursor, sortOrder);
@@ -1129,7 +1222,10 @@ function buildUploadQueueCard(item: UploadQueueItem): HTMLElement {
 
 async function onUploadFiles(fileList: FileList | null): Promise<void> {
   if (!fileList || fileList.length === 0) return;
-  await uploadOfficeItems([...fileList].map((file) => ({ file, relativeDir: '' })), currentFolderId);
+  await uploadOfficeItems(
+    [...fileList].map((file) => ({ file, relativeDir: '' })),
+    currentFolderId,
+  );
 }
 
 async function onDropUpload(
@@ -1137,8 +1233,7 @@ async function onDropUpload(
   parentId = currentFolderId,
 ): Promise<void> {
   if (!payload) return;
-  const items =
-    payload.entries.length > 0 ? await expandDroppedEntries(payload.entries) : payload.files;
+  const items = payload.entries.length > 0 ? await expandDroppedEntries(payload.entries) : payload.files;
   await uploadOfficeItems(items, parentId);
 }
 
@@ -1197,17 +1292,11 @@ async function uploadOfficeItems(items: DroppedUpload[], baseParentId: string): 
         const parentId = await ensureFolderPath(baseParentId, segments);
         item.folderLabel = folderLabelFor(parentId, '');
         const sortOrder = nextSortOrder(childrenOf(parentId));
-        const workbook = await createWorkbookFromFile(
-          item.file,
-          item.file.name,
-          parentId,
-          sortOrder,
-          (progress) => {
-            item.progress = progress.progress;
-            item.sizeUploaded = progress.sizeUploaded;
-            scheduleUploadProgressPaint();
-          },
-        );
+        const workbook = await createWorkbookFromFile(item.file, item.file.name, parentId, sortOrder, (progress) => {
+          item.progress = progress.progress;
+          item.sizeUploaded = progress.sizeUploaded;
+          scheduleUploadProgressPaint();
+        });
         rows = [workbook, ...rows.filter((row) => row.id !== workbook.id)];
         item.state = 'done';
         item.progress = 100;
@@ -1272,7 +1361,7 @@ function paintDocsAndBrowser(): void {
   paintDocs();
   const browser = document.getElementById('workspace-stage-browser');
   if (browser && !browser.hidden) {
-    paintStageBrowser(browserChildrenOf(currentFolderId));
+    paintStageBrowser(visibleBrowserItems(), { searching: Boolean(searchNeedle()) });
   }
 }
 
@@ -1313,9 +1402,7 @@ function focusRenameInput(id: string, surface: RenameSurface): void {
   const item = rows.find((row) => row.id === id);
   if (item?.kind === 'file' && item.format) {
     const suffix = `.${item.format}`;
-    const end = item.title.toLowerCase().endsWith(suffix)
-      ? item.title.length - suffix.length
-      : item.title.length;
+    const end = item.title.toLowerCase().endsWith(suffix) ? item.title.length - suffix.length : item.title.length;
     input.setSelectionRange(0, Math.max(0, end));
   } else {
     input.select();
@@ -1325,10 +1412,7 @@ function focusRenameInput(id: string, surface: RenameSurface): void {
 function startRename(id: string, surface: RenameSurface = 'tree'): void {
   if (!rows.some((row) => row.id === id)) return;
   let nextSurface = surface;
-  if (
-    nextSurface === 'browser' &&
-    !browserChildrenOf(currentFolderId).some((row) => row.id === id)
-  ) {
+  if (nextSurface === 'browser' && !browserChildrenOf(currentFolderId).some((row) => row.id === id)) {
     nextSurface = 'tree';
   }
   renamingId = id;
@@ -1361,8 +1445,7 @@ async function commitRename(id: string, raw: string): Promise<void> {
     paintDocsAndBrowser();
     return;
   }
-  const nextTitle =
-    item.kind === 'folder' ? trimmed : ensureFormatName(trimmed, item.format || 'xlsx');
+  const nextTitle = item.kind === 'folder' ? trimmed : ensureFormatName(trimmed, item.format || 'xlsx');
   if (nextTitle === item.title) {
     paintDocsAndBrowser();
     return;
@@ -1473,11 +1556,12 @@ function defaultDirForSortKey(key: BrowserSortKey): BrowserSortDir {
 }
 
 function setBrowserSort(key: BrowserSortKey, dir?: BrowserSortDir): void {
-  const nextDir = dir ?? (browserSort.key === key ? (browserSort.dir === 'asc' ? 'desc' : 'asc') : defaultDirForSortKey(key));
+  const nextDir =
+    dir ?? (browserSort.key === key ? (browserSort.dir === 'asc' ? 'desc' : 'asc') : defaultDirForSortKey(key));
   browserSort = { key, dir: nextDir };
   persistBrowserSort();
   closeBrowserSortMenu();
-  paintStageBrowser(browserChildrenOf(currentFolderId));
+  paintStageBrowser(visibleBrowserItems(), { searching: Boolean(searchNeedle()) });
 }
 
 function paintBrowserSortControl(): void {
@@ -1652,7 +1736,7 @@ async function batchMoveSelected(): Promise<void> {
     }
     if (moved === 0) {
       clearBrowserSelection();
-      paintStageBrowser(browserChildrenOf(currentFolderId));
+      paintStageBrowser(visibleBrowserItems(), { searching: Boolean(searchNeedle()) });
       return;
     }
     rows = working;
@@ -1709,12 +1793,7 @@ function onContextMenuKeyDown(event: KeyboardEvent): void {
   }
 }
 
-function openContextMenu(
-  item: VaultItem,
-  clientX: number,
-  clientY: number,
-  surface: RenameSurface = 'tree',
-): void {
+function openContextMenu(item: VaultItem, clientX: number, clientY: number, surface: RenameSurface = 'tree'): void {
   closeNewMenu();
   closeContextMenu();
   closeBrowserSortMenu();
@@ -1953,8 +2032,7 @@ function openNewMenuForFolder(folderId: string, anchor: HTMLElement): void {
   syncUrl();
   paintDocs();
   const liveAnchor =
-    document.querySelector<HTMLElement>(`.vault-tree-add[data-folder="${CSS.escape(folderId)}"]`) ||
-    anchor;
+    document.querySelector<HTMLElement>(`.vault-tree-add[data-folder="${CSS.escape(folderId)}"]`) || anchor;
   openNewMenuAt(liveAnchor, { key });
 }
 
@@ -2001,17 +2079,42 @@ function mountShell(): void {
   const search = View('r-input')
     .attr('placeholder', t('cloudSearchPlaceholder'))
     .attr('value', query)
+    .attr('aria-label', t('cloudSearchPlaceholder'))
     .class('workspace-search')
-    .on('change', (event) => {
-      const value = (event as CustomEvent<{ value?: string }>).detail?.value ?? '';
-      window.clearTimeout(searchTimer);
-      searchTimer = window.setTimeout(() => {
-        query = value;
-        syncUrl();
-        void refresh();
-      }, SEARCH_DEBOUNCE_MS);
+    .on('input', (event) => {
+      const value = (event as unknown as CustomEvent<{ value?: string }>).detail?.value ?? '';
+      applySearchQuery(value);
     })
     .build();
+  search.addEventListener('focusin', () => {
+    search.closest('.vault-search')?.classList.add('is-focused');
+    updateSearchChrome();
+  });
+  search.addEventListener('focusout', () => {
+    // Defer so a clear-button click can run before we hide chrome.
+    window.setTimeout(() => {
+      if (isSearchFocused()) return;
+      search.closest('.vault-search')?.classList.remove('is-focused');
+      updateSearchChrome();
+    }, 0);
+  });
+
+  const searchClear = document.createElement('button');
+  searchClear.type = 'button';
+  searchClear.className = 'vault-search-clear';
+  searchClear.setAttribute('aria-label', t('cloudClearSearch'));
+  searchClear.hidden = !query.trim();
+  searchClear.append(svgIcon('M18 6L6 18M6 6l12 12', 'vault-icon vault-search-clear-icon'));
+  searchClear.addEventListener('click', () => {
+    clearSearch();
+    searchInputEl()?.focus();
+  });
+
+  const searchKbd = document.createElement('span');
+  searchKbd.className = 'vault-kbd';
+  searchKbd.textContent = searchShortcutLabel();
+  searchKbd.hidden = Boolean(query.trim());
+  searchKbd.setAttribute('aria-hidden', 'true');
 
   const langLinks = LOCALES.map((locale) => {
     const href = new URL('/workspace', window.location.origin);
@@ -2130,19 +2233,18 @@ function mountShell(): void {
       Div()
         .class('vault-search-wrap')
         .children(
-          Div().class('vault-search').children(search, View('span').class('vault-kbd').text('⌘K').build()).build(),
+          (() => {
+            const searchWrap = Div()
+              .class(`vault-search${query.trim() ? ' has-query' : ''}`)
+              .children(search)
+              .build();
+            searchWrap.append(searchClear, searchKbd);
+            return searchWrap;
+          })(),
         )
         .build(),
-      View('div')
-        .class('vault-sync')
-        .id('workspace-sync')
-        .attr('role', 'status')
-        .attr('aria-live', 'polite')
-        .build(),
-      Div()
-        .class('vault-tools')
-        .children(langMenu, themeMenu, userMenu)
-        .build(),
+      View('div').class('vault-sync').id('workspace-sync').attr('role', 'status').attr('aria-live', 'polite').build(),
+      Div().class('vault-tools').children(langMenu, themeMenu, userMenu).build(),
     )
     .build();
 
@@ -2155,11 +2257,7 @@ function mountShell(): void {
   newTrigger.setAttribute('aria-controls', 'workspace-new-menu');
   const newChevron = svgIcon('M6 9l6 6 6-6');
   newChevron.classList.add('vault-new-chevron');
-  newTrigger.append(
-    svgIcon('M12 5v14M5 12h14'),
-    document.createTextNode(t('cloudNew')),
-    newChevron,
-  );
+  newTrigger.append(svgIcon('M12 5v14M5 12h14'), document.createTextNode(t('cloudNew')), newChevron);
   newTrigger.addEventListener('click', () => {
     openNewMenuAt(newTrigger, { matchWidth: true, key: 'workspace-new' });
   });
@@ -2177,7 +2275,10 @@ function mountShell(): void {
             .class('vault-space-text')
             .children(
               View('div').class('vault-space-name').text(t('cloudWorkspaceMine')).build(),
-              View('div').class('vault-space-meta').text(`EditXLSX / ${t('cloudFilesTitle')}`).build(),
+              View('div')
+                .class('vault-space-meta')
+                .text(`EditXLSX / ${t('cloudFilesTitle')}`)
+                .build(),
             )
             .build(),
         )
@@ -2202,10 +2303,7 @@ function mountShell(): void {
           Div()
             .class('vault-storage-head')
             .children(
-              iconSlot(
-                'M6 18a4 4 0 0 1 .4-7.9A6 6 0 0 1 18 9a4.5 4.5 0 0 1 .2 9H6z',
-                'vault-storage-icon',
-              ),
+              iconSlot('M6 18a4 4 0 0 1 .4-7.9A6 6 0 0 1 18 9a4.5 4.5 0 0 1 .2 9H6z', 'vault-storage-icon'),
               View('div').class('vault-storage-label').text(t('cloudStorage')).build(),
             )
             .build(),
@@ -2302,9 +2400,26 @@ function mountShell(): void {
 
             actions.append(uploadBtn, newBtn, fileInput);
 
-            const searchEmpty = document.createElement('p');
+            const searchEmpty = document.createElement('div');
             searchEmpty.id = 'workspace-stage-search-empty';
+            searchEmpty.className = 'vault-stage-search-empty';
             searchEmpty.hidden = true;
+            const searchEmptyTitle = document.createElement('p');
+            searchEmptyTitle.className = 'vault-stage-search-empty-title';
+            searchEmptyTitle.id = 'workspace-stage-search-empty-title';
+            const searchEmptyBody = document.createElement('p');
+            searchEmptyBody.className = 'vault-stage-search-empty-body';
+            searchEmptyBody.id = 'workspace-stage-search-empty-body';
+            const searchEmptyClear = document.createElement('button');
+            searchEmptyClear.type = 'button';
+            searchEmptyClear.className = 'vault-stage-search-empty-clear';
+            searchEmptyClear.id = 'workspace-stage-search-empty-clear';
+            searchEmptyClear.textContent = t('cloudClearSearch');
+            searchEmptyClear.addEventListener('click', () => {
+              clearSearch();
+              searchInputEl()?.focus();
+            });
+            searchEmpty.append(searchEmptyTitle, searchEmptyBody, searchEmptyClear);
 
             copy.append(buildEmptyDropArt(), headline, buildDropFormatsLine(), actions, searchEmpty);
             return copy;
@@ -2370,9 +2485,7 @@ function mountShell(): void {
             selection.hidden = true;
             const selectionMeta = document.createElement('div');
             selectionMeta.className = 'vault-stage-browser-selection-meta';
-            selectionMeta.append(
-              svgIcon('M5 13l4 4L19 7', 'vault-icon vault-stage-browser-selection-mark'),
-            );
+            selectionMeta.append(svgIcon('M5 13l4 4L19 7', 'vault-icon vault-stage-browser-selection-mark'));
             const selectionCount = document.createElement('span');
             selectionCount.className = 'vault-stage-browser-selection-count';
             selectionCount.id = 'workspace-stage-browser-selection-count';
@@ -2389,10 +2502,7 @@ function mountShell(): void {
             moveBtn.className = 'vault-stage-browser-selection-btn';
             moveBtn.id = 'workspace-stage-browser-move';
             moveBtn.append(
-              svgIcon(
-                'M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7z',
-                'vault-icon',
-              ),
+              svgIcon('M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7z', 'vault-icon'),
               document.createTextNode(t('cloudBatchMove')),
             );
             const deleteBtn = document.createElement('button');
@@ -2538,9 +2648,7 @@ function mountShell(): void {
       event.preventDefault();
       event.stopPropagation();
       if (event.dataTransfer) event.dataTransfer.dropEffect = 'copy';
-      const folderRow = (event.target as Element | null)?.closest?.(
-        '.vault-stage-browser-row[data-kind="folder"]',
-      );
+      const folderRow = (event.target as Element | null)?.closest?.('.vault-stage-browser-row[data-kind="folder"]');
       setStageFileDropActive(true, folderRow instanceof HTMLElement ? folderRow : null);
     });
     emptyStage.addEventListener('dragleave', (event) => {
@@ -2569,7 +2677,12 @@ function mountShell(): void {
   window.addEventListener('keydown', (event) => {
     if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === 'k') {
       event.preventDefault();
-      root().querySelector<HTMLElement>('r-input.workspace-search')?.focus();
+      searchInputEl()?.focus();
+      return;
+    }
+    if (event.key === 'Escape' && searchNeedle() && isSearchFocused()) {
+      event.preventDefault();
+      clearSearch();
     }
   });
 
@@ -2728,9 +2841,11 @@ function itemIcon(item: VaultItem): SVGElement {
 function clearDropHintClasses(): void {
   const host = document.getElementById('workspace-docs');
   if (!host) return;
-  host.querySelectorAll('.vault-tree-row.is-drop-before, .vault-tree-row.is-drop-after, .vault-tree-row.is-drop-into').forEach((el) => {
-    el.classList.remove('is-drop-before', 'is-drop-after', 'is-drop-into');
-  });
+  host
+    .querySelectorAll('.vault-tree-row.is-drop-before, .vault-tree-row.is-drop-after, .vault-tree-row.is-drop-into')
+    .forEach((el) => {
+      el.classList.remove('is-drop-before', 'is-drop-after', 'is-drop-into');
+    });
 }
 
 function setDropHint(targetId: string, mode: DropMode): void {
@@ -2872,7 +2987,7 @@ function paintDocs(): void {
     return;
   }
   if (query.trim()) {
-    const matches = rows;
+    const matches = searchMatches();
     if (matches.length === 0) {
       const empty = document.createElement('p');
       empty.className = 'vault-empty';
@@ -2927,8 +3042,7 @@ function buildTreeRow(item: VaultItem, depth: number, options: { searchable?: bo
     });
   }
 
-  const isCurrent =
-    item.kind === 'file' ? item.id === selectedId : item.id === currentFolderId && !selectedId;
+  const isCurrent = item.kind === 'file' ? item.id === selectedId : item.id === currentFolderId && !selectedId;
   const isRenaming = renamingId === item.id && renameSurface === 'tree';
 
   if (isRenaming) {
@@ -2957,7 +3071,21 @@ function buildTreeRow(item: VaultItem, depth: number, options: { searchable?: bo
   const title = document.createElement('span');
   title.className = 'vault-tree-title';
   title.textContent = item.title;
-  buttonEl.append(itemIcon(item), title);
+  if (options.searchable) {
+    const meta = document.createElement('span');
+    meta.className = 'vault-tree-meta';
+    meta.append(title);
+    const path = itemParentPath(item);
+    if (path) {
+      const pathEl = document.createElement('span');
+      pathEl.className = 'vault-tree-path';
+      pathEl.textContent = path;
+      meta.append(pathEl);
+    }
+    buttonEl.append(itemIcon(item), meta);
+  } else {
+    buttonEl.append(itemIcon(item), title);
+  }
   let clickTimer = 0;
   buttonEl.addEventListener('click', () => {
     window.clearTimeout(clickTimer);
@@ -3077,11 +3205,7 @@ function revealOverlay(overlay: HTMLElement): void {
  * Play the leave animation, then hide. Content clear runs after hide so the
  * exit still shows the last title/progress.
  */
-function dismissOverlay(
-  overlay: HTMLElement,
-  afterHide: () => void,
-  options: { complete?: boolean } = {},
-): void {
+function dismissOverlay(overlay: HTMLElement, afterHide: () => void, options: { complete?: boolean } = {}): void {
   if (overlay.hidden && !overlay.classList.contains('is-leaving')) {
     afterHide();
     return;
@@ -3145,9 +3269,7 @@ function paintOverlay(): void {
   if (!overlay || !title || !body) return;
 
   const workbookTitle =
-    openWorkbook?.title ||
-    rows.find((row) => row.id === selectedId && row.kind === 'file')?.title ||
-    '';
+    openWorkbook?.title || rows.find((row) => row.id === selectedId && row.kind === 'file')?.title || '';
 
   const clearOverlayCopy = (): void => {
     overlay.dataset.state = stageStatus;
@@ -3214,7 +3336,21 @@ function paintFolderTitle(title: HTMLElement): void {
   title.append(folderIcon, label);
 }
 
-function paintStageBrowser(items: VaultItem[]): void {
+function paintSearchResultsTitle(title: HTMLElement): void {
+  title.replaceChildren();
+  title.classList.remove('is-root');
+  const icon = svgIcon(
+    'M11 19a8 8 0 1 0 0-16 8 8 0 0 0 0 16zM21 21l-4.3-4.3',
+    'vault-icon vault-stage-browser-folder-icon',
+  );
+  const label = document.createElement('span');
+  label.className = 'vault-stage-browser-title-text';
+  label.textContent = t('cloudSearchResults');
+  title.append(icon, label);
+}
+
+function paintStageBrowser(items: VaultItem[], options: { searching?: boolean } = {}): void {
+  const searching = Boolean(options.searching);
   const browser = document.getElementById('workspace-stage-browser');
   const title = document.getElementById('workspace-stage-browser-title');
   const list = document.getElementById('workspace-stage-browser-list');
@@ -3222,7 +3358,8 @@ function paintStageBrowser(items: VaultItem[]): void {
   const actions = document.getElementById('workspace-stage-empty-actions');
   if (!browser || !title || !list) return;
 
-  paintFolderTitle(title);
+  if (searching) paintSearchResultsTitle(title);
+  else paintFolderTitle(title);
   if (tools && actions && actions.parentElement !== tools) {
     tools.replaceChildren(actions);
   }
@@ -3245,9 +3382,9 @@ function paintStageBrowser(items: VaultItem[]): void {
   if (selectAllBtn && !selectAllBtn.dataset.bound) {
     selectAllBtn.dataset.bound = '1';
     selectAllBtn.addEventListener('click', () => {
-      const visible = browserChildrenOf(currentFolderId);
+      const visible = visibleBrowserItems();
       selectAllVisibleBrowserItems(visible);
-      paintStageBrowser(visible);
+      paintStageBrowser(visible, { searching: Boolean(searchNeedle()) });
     });
   }
   if (moveBtn && !moveBtn.dataset.bound) {
@@ -3262,7 +3399,7 @@ function paintStageBrowser(items: VaultItem[]): void {
     clearBtn.dataset.bound = '1';
     clearBtn.addEventListener('click', () => {
       clearBrowserSelection();
-      paintStageBrowser(browserChildrenOf(currentFolderId));
+      paintStageBrowser(visibleBrowserItems(), { searching: Boolean(searchNeedle()) });
     });
   }
 
@@ -3286,7 +3423,7 @@ function paintStageBrowser(items: VaultItem[]): void {
     check.addEventListener('click', (event) => event.stopPropagation());
     check.addEventListener('change', () => {
       toggleBrowserSelection(item.id);
-      paintStageBrowser(browserChildrenOf(currentFolderId));
+      paintStageBrowser(visibleBrowserItems(), { searching: Boolean(searchNeedle()) });
     });
 
     const isRenaming = renamingId === item.id && renameSurface === 'browser';
@@ -3316,10 +3453,25 @@ function paintStageBrowser(items: VaultItem[]): void {
 
     const open = document.createElement('button');
     open.type = 'button';
-    open.className = 'vault-stage-browser-open';
+    open.className = searching ? 'vault-stage-browser-open is-search' : 'vault-stage-browser-open';
     const name = document.createElement('span');
     name.className = 'vault-stage-browser-name';
-    name.append(itemIcon(item), document.createTextNode(item.title));
+    const stack = document.createElement('span');
+    stack.className = 'vault-stage-browser-name-stack';
+    const nameText = document.createElement('span');
+    nameText.className = 'vault-stage-browser-name-text';
+    nameText.textContent = item.title;
+    stack.append(nameText);
+    if (searching) {
+      const path = itemParentPath(item);
+      if (path) {
+        const pathEl = document.createElement('span');
+        pathEl.className = 'vault-stage-browser-path';
+        pathEl.textContent = path;
+        stack.append(pathEl);
+      }
+    }
+    name.append(itemIcon(item), stack);
     const size = document.createElement('span');
     size.className = 'vault-stage-browser-size';
     size.textContent = item.kind === 'file' ? formatBytes(item.sizeBytes) : '—';
@@ -3330,12 +3482,12 @@ function paintStageBrowser(items: VaultItem[]): void {
     open.addEventListener('click', (event) => {
       if (event.metaKey || event.ctrlKey) {
         toggleBrowserSelection(item.id);
-        paintStageBrowser(browserChildrenOf(currentFolderId));
+        paintStageBrowser(visibleBrowserItems(), { searching: Boolean(searchNeedle()) });
         return;
       }
       if (selectedBrowserIds.size > 0) {
         toggleBrowserSelection(item.id);
-        paintStageBrowser(browserChildrenOf(currentFolderId));
+        paintStageBrowser(visibleBrowserItems(), { searching: Boolean(searchNeedle()) });
         return;
       }
       if (item.kind === 'folder') openFolder(item.id);
@@ -3400,13 +3552,18 @@ function paintStage(): void {
     const browser = document.getElementById('workspace-stage-browser');
     const skeleton = document.getElementById('workspace-stage-skeleton');
     const searchEmpty = document.getElementById('workspace-stage-search-empty');
+    const searchEmptyTitle = document.getElementById('workspace-stage-search-empty-title');
+    const searchEmptyBody = document.getElementById('workspace-stage-search-empty-body');
     const dropArt = copy?.querySelector('.vault-stage-drop-art') as HTMLElement | null;
     const headline = document.getElementById('workspace-stage-drop-headline');
     const formats = document.getElementById('workspace-stage-drop-formats');
     const actions = document.getElementById('workspace-stage-empty-actions');
-    const searching = Boolean(query.trim());
-    const children = searching ? [] : browserChildrenOf(currentFolderId);
+    const searching = Boolean(searchNeedle());
+    const matches = searching ? searchMatches() : [];
+    const children = searching ? matches : browserChildrenOf(currentFolderId);
+    const noMatches = searching && matches.length === 0;
     const folderEmpty = !searching && children.length === 0;
+    const showBrowser = (!searching && !folderEmpty) || (searching && !noMatches);
 
     if (browser) browser.hidden = true;
     if (loading) {
@@ -3422,13 +3579,13 @@ function paintStage(): void {
 
     empty.classList.remove('is-skeleton');
     if (skeleton) skeleton.hidden = true;
-    empty.classList.toggle('is-browser', !searching && !folderEmpty);
-    empty.classList.toggle('is-empty', searching || folderEmpty);
+    empty.classList.toggle('is-browser', showBrowser);
+    empty.classList.toggle('is-empty', !showBrowser);
 
-    if (!searching && !folderEmpty) {
+    if (showBrowser) {
       if (copy) copy.hidden = true;
       if (emptyHead) emptyHead.hidden = true;
-      paintStageBrowser(children);
+      paintStageBrowser(children, { searching });
     } else {
       clearBrowserSelection();
       if (copy) copy.hidden = false;
@@ -3441,7 +3598,10 @@ function paintStage(): void {
       if (actions) actions.hidden = searching;
       if (searchEmpty) {
         searchEmpty.hidden = !searching;
-        searchEmpty.textContent = searching ? t('cloudEmptySearch') : '';
+        if (searching) {
+          if (searchEmptyTitle) searchEmptyTitle.textContent = t('cloudEmptySearchTitle');
+          if (searchEmptyBody) searchEmptyBody.textContent = t('cloudEmptySearch');
+        }
       }
     }
     document.title = t('cloudFilesTitle');

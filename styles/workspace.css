@@ -640,6 +640,25 @@ body {
   white-space: nowrap;
 }
 
+.vault-tree-meta {
+  flex: 1 1 auto;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  align-items: stretch;
+}
+
+.vault-tree-path {
+  font-size: 11px;
+  font-weight: 400;
+  line-height: 1.2;
+  color: var(--ran-color-text-secondary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 .vault-tree-item.is-renaming {
   cursor: text;
   gap: 7px;
@@ -772,6 +791,42 @@ body {
   width: 100%;
 }
 
+.vault-search r-input::part(content) {
+  padding-inline-end: 36px;
+}
+
+.vault-search-clear {
+  position: absolute;
+  right: 6px;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 1;
+  width: 28px;
+  height: 28px;
+  display: inline-grid;
+  place-items: center;
+  padding: 0;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--ran-color-text-secondary);
+  cursor: pointer;
+}
+
+.vault-search-clear[hidden] {
+  display: none;
+}
+
+.vault-search-clear:hover {
+  background: color-mix(in srgb, var(--ran-color-text-secondary) 12%, transparent);
+  color: var(--ran-color-text);
+}
+
+.vault-search-clear-icon {
+  width: 14px;
+  height: 14px;
+}
+
 .vault-kbd {
   position: absolute;
   right: 10px;
@@ -784,6 +839,10 @@ body {
   border-radius: 5px;
   padding: 1px 5px;
   background: var(--ran-color-bg);
+}
+
+.vault-kbd[hidden] {
+  display: none;
 }
 
 .vault-tools {
@@ -806,7 +865,9 @@ body {
   cursor: pointer;
   list-style: none;
   line-height: 0;
-  transition: background 0.12s ease, color 0.12s ease;
+  transition:
+    background 0.12s ease,
+    color 0.12s ease;
 }
 
 .vault-tool-btn::-webkit-details-marker {
@@ -1444,6 +1505,48 @@ body {
   color: var(--ran-color-text-secondary);
 }
 
+.vault-stage-search-empty {
+  display: grid;
+  gap: 8px;
+  justify-items: center;
+  text-align: center;
+  max-width: 36ch;
+}
+
+.vault-stage-search-empty[hidden] {
+  display: none;
+}
+
+.vault-stage-search-empty-title {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--ran-color-text);
+}
+
+.vault-stage-search-empty-body {
+  margin: 0;
+  font-size: 13.5px;
+  line-height: 1.45;
+  color: var(--ran-color-text-secondary);
+}
+
+.vault-stage-search-empty-clear {
+  margin-top: 4px;
+  padding: 6px 14px;
+  border: 1px solid var(--ran-color-border, rgba(0, 0, 0, 0.12));
+  border-radius: 8px;
+  background: var(--ran-color-bg);
+  color: var(--ran-color-text);
+  font: inherit;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.vault-stage-search-empty-clear:hover {
+  background: color-mix(in srgb, var(--ran-color-text-secondary) 8%, transparent);
+}
+
 .vault-stage-empty-actions {
   display: flex;
   flex-wrap: wrap;
@@ -1848,7 +1951,9 @@ body {
   font-size: 12.5px;
   font-weight: 550;
   cursor: pointer;
-  transition: background 0.12s ease, color 0.12s ease;
+  transition:
+    background 0.12s ease,
+    color 0.12s ease;
 }
 
 .vault-stage-browser-selection-btn .vault-icon {
@@ -1979,6 +2084,45 @@ body {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+.vault-stage-browser-name-stack {
+  flex: 1 1 auto;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  align-items: stretch;
+}
+
+.vault-stage-browser-name-text {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.vault-stage-browser-path {
+  font-size: 12px;
+  font-weight: 400;
+  line-height: 1.25;
+  color: var(--ran-color-text-secondary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.vault-stage-browser-open.is-search {
+  align-items: flex-start;
+  padding-block: 10px;
+}
+
+.vault-stage-browser-open.is-search .vault-stage-browser-name {
+  white-space: normal;
+  overflow: visible;
+}
+
+.vault-stage-browser-open.is-search .vault-icon {
+  margin-top: 2px;
 }
 
 .vault-stage-browser-row.is-renaming {
