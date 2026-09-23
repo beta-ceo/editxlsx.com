@@ -1094,14 +1094,56 @@ body {
   z-index: 2;
   display: grid;
   place-content: center;
-  gap: 8px;
   padding: 24px;
   text-align: center;
-  background: color-mix(in srgb, var(--ran-color-bg) 88%, transparent);
+  background: color-mix(in srgb, var(--ran-color-bg) 72%, transparent);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  animation: vault-overlay-in 180ms ease-out;
+}
+
+.vault-stage-overlay-panel {
+  display: grid;
+  justify-items: center;
+  gap: 10px;
+  width: min(100%, 320px);
+  padding: 28px 24px 22px;
+  border-radius: 14px;
+  background: var(--ran-color-bg);
+  border: 1px solid var(--ran-color-border, rgba(0, 0, 0, 0.08));
+  box-shadow: 0 10px 28px color-mix(in srgb, var(--ran-color-text) 6%, transparent);
+}
+
+.vault-stage-overlay-mark {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  margin-bottom: 2px;
+  color: var(--ran-blue-700, #006bff);
+}
+
+.vault-stage-overlay-mark[data-kind='error'] {
+  color: var(--ran-color-danger, #c62828);
+}
+
+.vault-stage-overlay-mark .vault-icon {
+  width: 28px;
+  height: 28px;
+}
+
+.vault-stage-overlay-spinner {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: 2.5px solid color-mix(in srgb, var(--ran-blue-700, #006bff) 18%, transparent);
+  border-top-color: var(--ran-blue-700, #006bff);
+  animation: vault-overlay-spin 0.75s linear infinite;
 }
 
 .vault-stage-overlay[data-state='loading'] .vault-stage-overlay-title {
-  color: var(--ran-color-text-secondary);
+  color: var(--ran-color-text);
+  font-weight: 600;
 }
 
 .vault-stage-overlay[data-state='error'] .vault-stage-overlay-title {
@@ -1111,14 +1153,168 @@ body {
 
 .vault-stage-overlay-title {
   margin: 0;
+  max-width: 100%;
   font-size: 15px;
+  line-height: 1.35;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .vault-stage-overlay-body {
   margin: 0;
-  max-width: 42ch;
+  max-width: 36ch;
   font-size: 13px;
+  line-height: 1.45;
   color: var(--ran-color-text-secondary);
+  transition: opacity 120ms ease;
+}
+
+.vault-stage-overlay-steps {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0;
+  width: 100%;
+  margin: 6px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.vault-stage-overlay-steps[hidden] {
+  display: none;
+}
+
+.vault-stage-overlay-step {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin: 0;
+  padding: 0 8px;
+  color: var(--ran-color-text-secondary);
+  font-size: 12px;
+  line-height: 1;
+  opacity: 0.55;
+}
+
+.vault-stage-overlay-step + .vault-stage-overlay-step {
+  position: relative;
+}
+
+.vault-stage-overlay-step + .vault-stage-overlay-step::before {
+  content: '';
+  position: absolute;
+  left: -10px;
+  top: 50%;
+  width: 12px;
+  height: 1px;
+  background: color-mix(in srgb, var(--ran-color-border, rgba(0, 0, 0, 0.12)) 80%, transparent);
+  transform: translateY(-50%);
+}
+
+.vault-stage-overlay-step-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: currentColor;
+  opacity: 0.45;
+  flex: none;
+}
+
+.vault-stage-overlay-step.is-active {
+  color: var(--ran-blue-700, #006bff);
+  opacity: 1;
+  font-weight: 600;
+}
+
+.vault-stage-overlay-step.is-active .vault-stage-overlay-step-dot {
+  opacity: 1;
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--ran-blue-700, #006bff) 16%, transparent);
+}
+
+.vault-stage-overlay-step.is-done {
+  color: var(--ran-color-text);
+  opacity: 0.78;
+}
+
+.vault-stage-overlay-step.is-done .vault-stage-overlay-step-dot {
+  background: var(--ran-blue-700, #006bff);
+  opacity: 1;
+}
+
+.vault-stage-overlay-bar {
+  position: relative;
+  width: 100%;
+  height: 3px;
+  margin-top: 4px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--ran-blue-700, #006bff) 10%, transparent);
+}
+
+.vault-stage-overlay-bar[hidden] {
+  display: none;
+}
+
+.vault-stage-overlay-bar-fill {
+  display: block;
+  width: 40%;
+  height: 100%;
+  border-radius: inherit;
+  background: var(--ran-blue-700, #006bff);
+  animation: vault-overlay-bar 1.1s ease-in-out infinite;
+}
+
+.vault-stage-overlay[data-phase='editor'] .vault-stage-overlay-bar-fill {
+  width: 70%;
+  animation-duration: 0.85s;
+}
+
+@keyframes vault-overlay-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes vault-overlay-bar {
+  0% {
+    transform: translateX(-120%);
+  }
+  100% {
+    transform: translateX(280%);
+  }
+}
+
+@keyframes vault-overlay-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .vault-stage-overlay {
+    animation: none;
+  }
+
+  .vault-stage-overlay-spinner {
+    animation: none;
+    border-top-color: color-mix(in srgb, var(--ran-blue-700, #006bff) 55%, transparent);
+    opacity: 0.85;
+  }
+
+  .vault-stage-overlay-bar-fill {
+    animation: none;
+    width: 55%;
+    margin-inline: auto;
+    opacity: 0.7;
+  }
+
+  .vault-stage-overlay-body {
+    transition: none;
+  }
 }
 
 .vault-stage-empty {

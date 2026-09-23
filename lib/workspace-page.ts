@@ -13,7 +13,7 @@ import { getTheme, initTheme, setTheme, type RanThemeName } from 'ranui/theme';
 import '../styles/workspace.css';
 import { applyDocumentLanguage, getLanguage, t, withLocale } from '@ranuts/shared/i18n';
 import { getCurrentUser, signOut, type AuthUser } from './appwrite/auth';
-import { createBlankFile, createFolder, createWorkbookFromFile, deleteVaultItem, ensureFormatName, isUnderFolder, listVaultItems, placeVaultItem, renameVaultItem, reorderVaultSiblings, compareVaultOrder, nextSortOrder, type VaultItem, type Workbook } from './appwrite/workbooks';
+import { createBlankFile, createFolder, createWorkbookFromFile, deleteVaultItem, ensureFormatName, getWorkbook, isUnderFolder, listVaultItems, placeVaultItem, renameVaultItem, reorderVaultSiblings, compareVaultOrder, nextSortOrder, type VaultItem, type Workbook } from './appwrite/workbooks';
 import type { VaultFormat } from './appwrite/ids';
 import { formatFromTitle, MAX_WORKBOOK_BYTES } from './appwrite/ids';
 import { confirmDialog } from './confirm-dialog';
@@ -22,12 +22,20 @@ import { DEFAULT_UI_THEME } from './onlyoffice/ui-theme';
 import {
   isShellBridgeMessage,
   SHELL_FAILED,
+  SHELL_FRAME_READY,
   SHELL_NEED_PAYLOAD,
   SHELL_READY,
   SHELL_SAVE_STATE,
 } from './shell-bridge';
 import type { ShellSaveState } from './shell-bridge';
-import { beginShellOpenHandoff, clearShellOpenHandoff, onShellNeedPayload } from './shell-open-handoff';
+import {
+  beginShellOpenHandoff,
+  clearShellOpenHandoff,
+  isShellFrameReady,
+  onShellFrameReady,
+  onShellNeedPayload,
+  resetShellFrameReady,
+} from './shell-open-handoff';
 import { mergeShellOverlayTiming, publishOpenTiming, type OpenTimingReport } from './open-timing';
 
 const SEARCH_DEBOUNCE_MS = 200;
@@ -77,6 +85,8 @@ let shellReady = false;
 /** Editor pane while a framed workbook is opening. */
 let stageStatus: 'idle' | 'loading' | 'ready' | 'error' = 'idle';
 let stageError = '';
+/** Sub-status under loading: download vs handing bytes to the editor. */
+let stagePhase: 'download' | 'editor' = 'download';
 let bridgeListening = false;
 /** Sync chip: icon for saving / local / synced / error (label in title). */
 let saveStatus: ShellSaveState | 'idle' = 'idle';
@@ -102,8 +112,9 @@ function loginUrl(): string {
   return locale ? `/login?locale=${encodeURIComponent(locale)}` : '/login';
 }
 
-function editorFrameUrl(workbookId: string, bootToken?: number): string {
-  const base = withLocale(`/editor?workbook=${encodeURIComponent(workbookId)}&shell=1`, getLanguage());
+function editorFrameUrl(bootToken?: number): string {
+  // Warm host: no workbook in the iframe URL — switches push open-payload.
+  const base = withLocale(`/editor?shell=1`, getLanguage());
   return typeof bootToken === 'number' ? `${base}&_boot=${bootToken}` : base;
 }
 
@@ -161,10 +172,30 @@ function editorBundleBooted(frame: HTMLIFrameElement): boolean {
     const body = frame.contentDocument?.body;
     if (!body) return false;
     // index.ts adds these synchronously once the module graph evaluates.
-    return body.classList.contains('opening-document') || body.classList.contains('embed-mode');
+    return (
+      body.classList.contains('opening-document') ||
+      body.classList.contains('embed-mode') ||
+      body.classList.contains('shell-warm')
+    );
   } catch {
     return false;
   }
+}
+
+function handoffMeta(): {
+  onMeta: (fresh: Workbook) => void;
+  onPhase: (phase: 'download' | 'editor') => void;
+} {
+  return {
+    onMeta: (fresh) => {
+      rows = rows.map((row) => (row.id === fresh.id ? fresh : row));
+    },
+    onPhase: (phase) => {
+      if (stageStatus !== 'loading') return;
+      stagePhase = phase;
+      paintOverlay();
+    },
+  };
 }
 
 function failOpen(workbookId: string, message: string): void {
@@ -176,31 +207,34 @@ function failOpen(workbookId: string, message: string): void {
   paintOverlay();
 }
 
+/** Mount (or remount) the long-lived `?shell=1` editor frame. */
+function mountWarmEditorFrame(frame: HTMLIFrameElement, options: { bootToken?: number; watchBoot?: boolean } = {}): void {
+  resetShellFrameReady();
+  frame.dataset.warm = '1';
+  const watchBoot = options.watchBoot !== false;
+  if (watchBoot && selectedId) {
+    watchEditorOpen(frame, selectedId, { watchBoot: true, preserveRetries: options.bootToken !== undefined });
+  }
+  frame.src = editorFrameUrl(options.bootToken);
+}
+
 function remountEditorFrame(frame: HTMLIFrameElement, workbookId: string): void {
   stageStatus = 'loading';
   stageError = '';
+  stagePhase = 'download';
   frame.dataset.workbook = workbookId;
   frame.title = rows.find((row) => row.id === workbookId)?.title || workbookId;
-  // Bust the URL so the browser remounts even when workbook+shell are unchanged.
-  // Attach the load watcher before assigning src so a cached document cannot
-  // finish loading before we are listening.
   const workbook = rows.find((row): row is Workbook => row.id === workbookId && row.kind === 'file');
-  if (workbook) {
-    beginShellOpenHandoff(workbook, {
-      onMeta: (fresh) => {
-        rows = rows.map((row) => (row.id === fresh.id ? fresh : row));
-      },
-    });
-  }
-  watchEditorOpen(frame, workbookId, { preserveRetries: true });
-  frame.src = editorFrameUrl(workbookId, Date.now());
+  if (workbook) beginShellOpenHandoff(workbook, handoffMeta());
+  // Bust the URL so the browser remounts even when shell=1 is unchanged.
+  mountWarmEditorFrame(frame, { bootToken: Date.now(), watchBoot: true });
   paintOverlay();
 }
 
 function watchEditorOpen(
   frame: HTMLIFrameElement,
   workbookId: string,
-  options: { preserveRetries?: boolean } = {},
+  options: { preserveRetries?: boolean; watchBoot?: boolean } = {},
 ): void {
   clearOpenWatchers();
   const generation = ++openGeneration;
@@ -213,6 +247,11 @@ function watchEditorOpen(
     if (generation !== openGeneration) return;
     failOpen(workbookId, t('cloudOpenTimedOut'));
   }, OPEN_TIMEOUT_MS);
+
+  if (options.watchBoot === false) {
+    // Warm swap: iframe already booted; only the open timeout applies.
+    return;
+  }
 
   frameLoadHandler = () => {
     if (generation !== openGeneration) return;
@@ -526,16 +565,30 @@ function selectWorkbook(id: string): void {
   // navigation can leave a blank editor (Vite 504 on a stale optimized dep)
   // that never posts shell:workbook-ready; without this, clicking the current
   // item is a no-op and the overlay spins forever.
-  if (!same || stageStatus === 'loading' || stageStatus === 'error') {
+  if (same && (stageStatus === 'loading' || stageStatus === 'error')) {
     stageStatus = 'loading';
     stageError = '';
-    if (same) {
-      const frame = document.getElementById('workspace-editor-frame') as HTMLIFrameElement | null;
-      if (frame) frame.dataset.workbook = '';
-      clearOpenWatchers();
+    stagePhase = 'download';
+    clearOpenWatchers();
+    const frame = document.getElementById('workspace-editor-frame') as HTMLIFrameElement | null;
+    const workbook = rows.find((row): row is Workbook => row.id === id && row.kind === 'file');
+    if (frame && workbook) {
+      frame.dataset.workbook = id;
+      frame.title = workbook.title;
+      remountEditorFrame(frame, id);
+      syncUrl();
+      paintDocs();
+      paintStorage();
+      paintSaveStatus();
+      return;
     }
   }
-  if (!same) setSaveStatus('idle');
+  if (!same) {
+    stageStatus = 'loading';
+    stageError = '';
+    stagePhase = 'download';
+    setSaveStatus('idle');
+  }
   selectedId = id;
   const item = rows.find((row) => row.id === id);
   if (item?.kind === 'file') currentFolderId = item.parentId || '';
@@ -1940,15 +1993,63 @@ function mountShell(): void {
             return frame;
           })(),
           (() => {
-            const overlay = Div()
-              .class('vault-stage-overlay')
-              .id('workspace-stage-overlay')
-              .children(
-                View('p').class('vault-stage-overlay-title').id('workspace-stage-overlay-title').text('').build(),
-                View('p').class('vault-stage-overlay-body').id('workspace-stage-overlay-body').text('').build(),
-              )
-              .build();
+            const overlay = document.createElement('div');
+            overlay.className = 'vault-stage-overlay';
+            overlay.id = 'workspace-stage-overlay';
             overlay.hidden = true;
+            overlay.setAttribute('role', 'status');
+            overlay.setAttribute('aria-live', 'polite');
+            overlay.setAttribute('aria-busy', 'false');
+
+            const panel = document.createElement('div');
+            panel.className = 'vault-stage-overlay-panel';
+
+            const mark = document.createElement('div');
+            mark.className = 'vault-stage-overlay-mark';
+            mark.id = 'workspace-stage-overlay-mark';
+            mark.setAttribute('aria-hidden', 'true');
+            const spinner = document.createElement('span');
+            spinner.className = 'vault-stage-overlay-spinner';
+            mark.append(spinner);
+
+            const title = document.createElement('p');
+            title.className = 'vault-stage-overlay-title';
+            title.id = 'workspace-stage-overlay-title';
+
+            const body = document.createElement('p');
+            body.className = 'vault-stage-overlay-body';
+            body.id = 'workspace-stage-overlay-body';
+
+            const steps = document.createElement('ol');
+            steps.className = 'vault-stage-overlay-steps';
+            steps.id = 'workspace-stage-overlay-steps';
+            steps.setAttribute('aria-hidden', 'true');
+            for (const step of [
+              { id: 'download', label: t('cloudOpeningStepDownload') },
+              { id: 'editor', label: t('cloudOpeningStepEditor') },
+            ] as const) {
+              const li = document.createElement('li');
+              li.className = 'vault-stage-overlay-step';
+              li.dataset.step = step.id;
+              const dot = document.createElement('span');
+              dot.className = 'vault-stage-overlay-step-dot';
+              const label = document.createElement('span');
+              label.className = 'vault-stage-overlay-step-label';
+              label.textContent = step.label;
+              li.append(dot, label);
+              steps.append(li);
+            }
+
+            const bar = document.createElement('div');
+            bar.className = 'vault-stage-overlay-bar';
+            bar.id = 'workspace-stage-overlay-bar';
+            bar.setAttribute('aria-hidden', 'true');
+            const barFill = document.createElement('span');
+            barFill.className = 'vault-stage-overlay-bar-fill';
+            bar.append(barFill);
+
+            panel.append(mark, title, body, steps, bar);
+            overlay.append(panel);
             return overlay;
           })(),
         )
@@ -2038,6 +2139,11 @@ function mountShell(): void {
     window.addEventListener('message', (event) => {
       if (event.origin !== window.location.origin) return;
       if (!isShellBridgeMessage(event.data)) return;
+      if (event.data.type === SHELL_FRAME_READY) {
+        const frame = document.getElementById('workspace-editor-frame') as HTMLIFrameElement | null;
+        onShellFrameReady(frame || undefined);
+        return;
+      }
       if (event.data.workbookId !== selectedId) return;
       if (event.data.type === SHELL_NEED_PAYLOAD) {
         const frame = document.getElementById('workspace-editor-frame') as HTMLIFrameElement | null;
@@ -2091,6 +2197,19 @@ function mountShell(): void {
         paintOverlay();
       } else if (event.data.type === SHELL_SAVE_STATE) {
         setSaveStatus(event.data.state, event.data.message);
+        // Keep sidebar fileId in sync with Save rotations so the open cache
+        // (keyed by fileId) still hits after a round-trip.
+        if (event.data.state === 'saved') {
+          const id = event.data.workbookId;
+          void getWorkbook(id)
+            .then((fresh) => {
+              rows = rows.map((row) => (row.id === fresh.id ? fresh : row));
+              if (openWorkbook?.id === fresh.id) openWorkbook = fresh;
+            })
+            .catch(() => {
+              /* list refresh is best-effort */
+            });
+        }
       }
     });
   }
@@ -2507,25 +2626,83 @@ function paintOverlay(): void {
   const overlay = document.getElementById('workspace-stage-overlay');
   const title = document.getElementById('workspace-stage-overlay-title');
   const body = document.getElementById('workspace-stage-overlay-body');
+  const steps = document.getElementById('workspace-stage-overlay-steps');
+  const bar = document.getElementById('workspace-stage-overlay-bar');
+  const mark = document.getElementById('workspace-stage-overlay-mark');
   if (!overlay || !title || !body) return;
+
+  const workbookTitle =
+    openWorkbook?.title ||
+    rows.find((row) => row.id === selectedId && row.kind === 'file')?.title ||
+    '';
+
   if (stageStatus === 'loading') {
     overlay.hidden = false;
     overlay.dataset.state = 'loading';
-    title.textContent = t('cloudOpeningWorkbook');
-    body.textContent = '';
+    overlay.dataset.phase = stagePhase;
+    overlay.setAttribute('aria-busy', 'true');
+    overlay.setAttribute(
+      'aria-label',
+      workbookTitle ? `${t('cloudOpeningWorkbook')} ${workbookTitle}` : t('cloudOpeningWorkbook'),
+    );
+    title.textContent = workbookTitle || t('cloudOpeningWorkbook');
+    body.textContent =
+      stagePhase === 'editor' ? t('cloudOpeningEditor') : t('cloudOpeningDownload');
+    if (steps) {
+      steps.hidden = false;
+      for (const li of steps.querySelectorAll<HTMLElement>('.vault-stage-overlay-step')) {
+        const step = li.dataset.step;
+        li.classList.toggle('is-active', step === stagePhase);
+        li.classList.toggle(
+          'is-done',
+          stagePhase === 'editor' ? step === 'download' : false,
+        );
+        const label = li.querySelector('.vault-stage-overlay-step-label');
+        if (label) {
+          label.textContent =
+            step === 'editor' ? t('cloudOpeningStepEditor') : t('cloudOpeningStepDownload');
+        }
+      }
+    }
+    if (bar) bar.hidden = false;
+    if (mark && mark.dataset.kind !== 'loading') {
+      mark.dataset.kind = 'loading';
+      mark.replaceChildren();
+      const spinner = document.createElement('span');
+      spinner.className = 'vault-stage-overlay-spinner';
+      mark.append(spinner);
+    }
     return;
   }
+
   if (stageStatus === 'error') {
     overlay.hidden = false;
     overlay.dataset.state = 'error';
+    delete overlay.dataset.phase;
+    overlay.setAttribute('aria-busy', 'false');
+    overlay.setAttribute('aria-label', t('cloudOpenFailedTitle'));
     title.textContent = t('cloudOpenFailedTitle');
     body.textContent = stageError || t('cloudOpenFailed');
+    if (steps) steps.hidden = true;
+    if (bar) bar.hidden = true;
+    if (mark) {
+      mark.dataset.kind = 'error';
+      mark.replaceChildren(
+        svgIcon('M12 9v4M12 17h.01M10.3 4.3 2.6 18a1.5 1.5 0 0 0 1.3 2.25h16.2a1.5 1.5 0 0 0 1.3-2.25L13.7 4.3a1.5 1.5 0 0 0-2.6 0z'),
+      );
+    }
     return;
   }
+
   overlay.hidden = true;
   overlay.dataset.state = stageStatus;
+  delete overlay.dataset.phase;
+  overlay.setAttribute('aria-busy', 'false');
+  overlay.removeAttribute('aria-label');
   title.textContent = '';
   body.textContent = '';
+  if (steps) steps.hidden = true;
+  if (bar) bar.hidden = true;
 }
 
 function paintFolderTitle(title: HTMLElement): void {
@@ -2640,10 +2817,10 @@ function paintStage(): void {
     stageError = '';
     clearOpenWatchers();
     clearShellOpenHandoff();
-    if (frame.dataset.workbook) {
-      frame.dataset.workbook = '';
-      frame.removeAttribute('src');
-    }
+    // Keep a previously warmed editor alive (src stays) so the next open can
+    // push open-payload without remounting. Do not prefetch a cold frame here:
+    // that would consume the first navigation (and confuse boot remount tests).
+    frame.dataset.workbook = '';
     const copy = document.getElementById('workspace-stage-empty-copy');
     const emptyHead = document.getElementById('workspace-stage-empty-head');
     const emptyTitle = document.getElementById('workspace-stage-empty-title');
@@ -2706,23 +2883,30 @@ function paintStage(): void {
   frame.hidden = false;
   document.title = workbook.title;
 
-  if (frame.dataset.workbook === workbook.id) {
+  if (frame.dataset.workbook === workbook.id && stageStatus === 'ready') {
     paintOverlay();
     return;
   }
   stageStatus = 'loading';
   stageError = '';
+  stagePhase = 'download';
   frame.dataset.workbook = workbook.id;
   frame.title = workbook.title;
-  // Start Storage / pending fetch before the iframe navigates so Appwrite RTT
-  // overlaps editor module evaluation (see shell-open-handoff).
-  beginShellOpenHandoff(workbook, {
-    onMeta: (fresh) => {
-      rows = rows.map((row) => (row.id === fresh.id ? fresh : row));
-    },
-  });
-  watchEditorOpen(frame, workbook.id);
-  frame.src = editorFrameUrl(workbook.id);
+  // Start Storage / pending fetch immediately; the warm host receives bytes via
+  // open-payload once frame-ready (or immediately when already warm).
+  beginShellOpenHandoff(workbook, handoffMeta());
+  const warmMounted = frame.dataset.warm === '1' && Boolean(frame.getAttribute('src'));
+  if (warmMounted && isShellFrameReady()) {
+    watchEditorOpen(frame, workbook.id, { watchBoot: false });
+    onShellFrameReady(frame);
+  } else {
+    // Cold mount, or replace a stalled/blank warm frame (load already fired
+    // without frame-ready — remount so the boot watchdog can run).
+    mountWarmEditorFrame(frame, {
+      bootToken: warmMounted ? Date.now() : undefined,
+      watchBoot: true,
+    });
+  }
   paintOverlay();
 }
 

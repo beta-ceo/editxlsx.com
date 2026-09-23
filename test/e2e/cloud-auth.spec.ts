@@ -213,7 +213,7 @@ test.describe('cloud auth pages', () => {
     await expect(page.locator('#workspace-stage-browser')).toBeVisible();
     await expect(page.locator('.vault-stage-browser-row[data-id="wb1"]')).toBeVisible();
     await page.locator('.vault-stage-browser-row[data-id="wb1"]').click();
-    await expect(page.locator('#workspace-editor-frame')).toHaveAttribute('src', /\/editor\?workbook=wb1.*shell=1/);
+    await expect(page.locator('#workspace-editor-frame')).toHaveAttribute('src', /\/editor\?.*shell=1/);
     await expect(page.locator('#workspace-stage-overlay')).toBeVisible({ timeout: 30_000 });
     await expect(page.locator('#workspace-stage-overlay')).toHaveAttribute('data-state', 'error');
     await expect(page.locator('#workspace-stage-overlay-title')).not.toHaveText('');
@@ -351,7 +351,19 @@ test.describe('cloud auth pages', () => {
     });
 
     await page.goto('/login');
-    await mockAppwrite(page, { download: 'xlsx' });
+    await mockAppwrite(page, {
+      download: 'xlsx',
+      documents: [
+        WORKBOOK,
+        {
+          ...WORKBOOK,
+          $id: 'wb2',
+          fileId: 'wb2',
+          title: 'second.xlsx',
+          $updatedAt: '2026-09-21T13:00:00.000+00:00',
+        },
+      ],
+    });
     await page.goto('/workspace');
 
     await expect(page.locator('.vault-tree-title').first()).toHaveText('sample_data_3000x20.xlsx');
@@ -369,6 +381,12 @@ test.describe('cloud auth pages', () => {
     // Surface numbers in the Playwright report / CI log for open-path triage.
     console.log('[open-timing:e2e]', JSON.stringify(report, null, 2));
     expect(timingLines.some((line) => line.includes('total='))).toBe(true);
+
+    // Warm iframe: switching workbooks must not remount `/editor?shell=1`.
+    const srcBefore = await page.locator('#workspace-editor-frame').getAttribute('src');
+    await page.locator('.vault-tree-item[data-id="wb2"], .vault-stage-browser-row[data-id="wb2"]').first().click();
+    await expect(page.locator('#workspace-stage-overlay')).toBeHidden({ timeout: 90_000 });
+    await expect(page.locator('#workspace-editor-frame')).toHaveAttribute('src', srcBefore || /shell=1/);
   });
 
   test('blank editor boot auto-retries then opens', async ({ page, l0 }) => {

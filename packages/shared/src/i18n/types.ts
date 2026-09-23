@@ -218,6 +218,14 @@ export interface I18nMessages {
   cloudNew: string;
   cloudHelp: string;
   cloudOpeningWorkbook: string;
+  /** Overlay body while Storage / cache bytes are loading. */
+  cloudOpeningDownload: string;
+  /** Overlay body once bytes are handed to the warm editor. */
+  cloudOpeningEditor: string;
+  /** Short step label under the open overlay (download phase). */
+  cloudOpeningStepDownload: string;
+  /** Short step label under the open overlay (editor phase). */
+  cloudOpeningStepEditor: string;
   cloudOpenFailedTitle: string;
   /** Shown when the framed editor never posts shell:workbook-ready. */
   cloudOpenTimedOut: string;

@@ -18,6 +18,7 @@ import {
   getCloudPending,
   putCloudPending,
 } from './cloud-pending';
+import { forgetCachedWorkbookFile, putCachedWorkbookFile } from './workbook-file-cache';
 import { requestSaveDocument } from './onlyoffice/save-stream';
 import { getReadonlyMode } from './onlyoffice/readonly';
 import { postShellSaveState } from './shell-bridge';
@@ -167,6 +168,7 @@ export async function flushCloudPending(): Promise<void> {
           },
         });
         if (!binding || binding.id !== updated.id) break;
+        const previousFileId = active.fileId;
         binding = {
           id: updated.id,
           title: updated.title,
@@ -174,6 +176,10 @@ export async function flushCloudPending(): Promise<void> {
           userId: updated.userId,
           format: updated.format,
         };
+        if (previousFileId && previousFileId !== updated.fileId) {
+          forgetCachedWorkbookFile(previousFileId);
+        }
+        void putCachedWorkbookFile(updated.fileId, file, bindingFormat(binding));
         lastCloudSaveAt = Date.now();
         failures = 0;
         const still = await getCloudPending(updated.id);

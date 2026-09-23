@@ -6,6 +6,8 @@ const getWorkbook = vi.fn();
 const takeCloudPendingIfNewer = vi.fn();
 const postShellOpenPayload = vi.fn();
 const postShellOpenPayloadFailed = vi.fn();
+const getCachedWorkbookFile = vi.fn((): File | null => null);
+const putCachedWorkbookFile = vi.fn(async () => undefined);
 
 vi.mock('../../lib/appwrite/workbooks', () => ({
   downloadWorkbookFile: (...args: unknown[]) => downloadWorkbookFile(...args),
@@ -14,6 +16,11 @@ vi.mock('../../lib/appwrite/workbooks', () => ({
 
 vi.mock('../../lib/cloud-pending', () => ({
   takeCloudPendingIfNewer: (...args: unknown[]) => takeCloudPendingIfNewer(...args),
+}));
+
+vi.mock('../../lib/workbook-file-cache', () => ({
+  getCachedWorkbookFile: (...args: unknown[]) => getCachedWorkbookFile(...args),
+  putCachedWorkbookFile: (...args: unknown[]) => putCachedWorkbookFile(...args),
 }));
 
 vi.mock('../../lib/shell-bridge', async () => {
@@ -29,6 +36,7 @@ describe('shell open handoff', () => {
   afterEach(() => {
     vi.resetModules();
     vi.clearAllMocks();
+    getCachedWorkbookFile.mockReturnValue(null);
   });
 
   const listRow: Workbook = {
@@ -84,7 +92,9 @@ describe('shell open handoff', () => {
       .mockResolvedValueOnce(new File([new Uint8Array([9])], 'stale.xlsx'))
       .mockResolvedValueOnce(new File([new Uint8Array([1, 2])], 'a.xlsx'));
 
-    const { beginShellOpenHandoff, onShellNeedPayload } = await import('../../lib/shell-open-handoff');
+    const { beginShellOpenHandoff, onShellNeedPayload, resetShellFrameReady } =
+      await import('../../lib/shell-open-handoff');
+    resetShellFrameReady();
     beginShellOpenHandoff(listRow);
     onShellNeedPayload('wb1', { contentWindow: {} } as HTMLIFrameElement);
 
@@ -104,11 +114,48 @@ describe('shell open handoff', () => {
     takeCloudPendingIfNewer.mockResolvedValue(pending);
     downloadWorkbookFile.mockResolvedValue(new File([new Uint8Array([1])], 'a.xlsx'));
 
-    const { beginShellOpenHandoff, onShellNeedPayload } = await import('../../lib/shell-open-handoff');
+    const { beginShellOpenHandoff, onShellNeedPayload, resetShellFrameReady } =
+      await import('../../lib/shell-open-handoff');
+    resetShellFrameReady();
     beginShellOpenHandoff(listRow);
     onShellNeedPayload('wb1', { contentWindow: {} } as HTMLIFrameElement);
 
     await vi.waitFor(() => expect(postShellOpenPayload).toHaveBeenCalled());
     expect(postShellOpenPayload.mock.calls[0][1].source).toBe('pending');
+  });
+
+  it('pushes payload when the warm frame becomes ready after download', async () => {
+    getWorkbook.mockResolvedValue(listRow);
+    takeCloudPendingIfNewer.mockResolvedValue(null);
+    downloadWorkbookFile.mockResolvedValue(new File([new Uint8Array([1, 2, 3])], 'a.xlsx'));
+
+    const { beginShellOpenHandoff, onShellFrameReady, resetShellFrameReady } =
+      await import('../../lib/shell-open-handoff');
+    resetShellFrameReady();
+    beginShellOpenHandoff(listRow);
+    onShellFrameReady({ contentWindow: {} } as HTMLIFrameElement);
+
+    await vi.waitFor(() => expect(postShellOpenPayload).toHaveBeenCalled());
+    expect(postShellOpenPayload.mock.calls[0][1].workbookId).toBe('wb1');
+  });
+
+  it('serves a cached Storage revision without hitting download', async () => {
+    // Never resolves: proves the open path does not await Documents on a hit.
+    getWorkbook.mockReturnValue(new Promise(() => undefined));
+    takeCloudPendingIfNewer.mockResolvedValue(null);
+    getCachedWorkbookFile.mockReturnValue(new File([new Uint8Array([9, 9])], 'a.xlsx'));
+
+    const { beginShellOpenHandoff, onShellNeedPayload, resetShellFrameReady } =
+      await import('../../lib/shell-open-handoff');
+    resetShellFrameReady();
+    const onPhase = vi.fn();
+    beginShellOpenHandoff(listRow, { onPhase });
+    onShellNeedPayload('wb1', { contentWindow: {} } as HTMLIFrameElement);
+
+    await vi.waitFor(() => expect(postShellOpenPayload).toHaveBeenCalled());
+    expect(downloadWorkbookFile).not.toHaveBeenCalled();
+    expect(postShellOpenPayload.mock.calls[0][1].source).toBe('cache');
+    expect(onPhase).toHaveBeenCalledWith('download');
+    expect(onPhase).toHaveBeenCalledWith('editor');
   });
 });

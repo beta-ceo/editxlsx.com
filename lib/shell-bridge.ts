@@ -6,9 +6,9 @@
  * States: saving → local (on this device, account upload in flight) → saved
  * (synced to account) | error.
  *
- * Open handoff: the shell downloads (or takes IndexedDB pending) in parallel
- * with iframe boot, then posts `shell:open-payload` after the frame asks with
- * `shell:need-payload`. That overlaps Appwrite RTT with module evaluation.
+ * Open handoff: the shell keeps one warm `/editor?shell=1` iframe. It
+ * downloads in parallel with the first boot, then pushes `shell:open-payload`
+ * after the frame announces `shell:frame-ready` (and on every later switch).
  */
 import type { VaultFormat } from './appwrite/ids';
 import type { OpenTimingReport } from './open-timing';
@@ -16,7 +16,9 @@ import type { OpenTimingReport } from './open-timing';
 export const SHELL_READY = 'shell:workbook-ready';
 export const SHELL_FAILED = 'shell:workbook-failed';
 export const SHELL_SAVE_STATE = 'shell:save-state';
-/** iframe → parent: ready to receive bytes for this workbook. */
+/** iframe → parent: warm host is listening for open-payload pushes. */
+export const SHELL_FRAME_READY = 'shell:frame-ready';
+/** @deprecated Prefer frame-ready + parent push; kept for one-shot need. */
 export const SHELL_NEED_PAYLOAD = 'shell:need-payload';
 /** parent → iframe: workbook meta + file bytes (ArrayBuffer, transferable). */
 export const SHELL_OPEN_PAYLOAD = 'shell:open-payload';
@@ -45,6 +47,10 @@ export type ShellSaveStateMessage = {
   message?: string;
 };
 
+export type ShellFrameReadyMessage = {
+  type: typeof SHELL_FRAME_READY;
+};
+
 export type ShellNeedPayloadMessage = {
   type: typeof SHELL_NEED_PAYLOAD;
   workbookId: string;
@@ -69,7 +75,7 @@ export type ShellOpenPayloadMessage = {
   workbookId: string;
   workbook: ShellOpenWorkbookMeta;
   buffer: ArrayBuffer;
-  source: 'pending' | 'download';
+  source: 'pending' | 'download' | 'cache';
 };
 
 export type ShellOpenPayloadFailedMessage = {
@@ -83,6 +89,7 @@ export type ShellBridgeMessage =
   | ShellReadyMessage
   | ShellFailedMessage
   | ShellSaveStateMessage
+  | ShellFrameReadyMessage
   | ShellNeedPayloadMessage;
 
 /** Messages the editor iframe listens for from the workspace shell. */
@@ -91,6 +98,7 @@ export type ShellParentMessage = ShellOpenPayloadMessage | ShellOpenPayloadFaile
 export function isShellBridgeMessage(data: unknown): data is ShellBridgeMessage {
   if (!data || typeof data !== 'object') return false;
   const msg = data as Record<string, unknown>;
+  if (msg.type === SHELL_FRAME_READY) return true;
   if (msg.type === SHELL_READY || msg.type === SHELL_NEED_PAYLOAD) {
     return typeof msg.workbookId === 'string' && msg.workbookId.length > 0;
   }
@@ -115,7 +123,7 @@ export function isShellParentMessage(data: unknown): data is ShellParentMessage 
   }
   if (msg.type !== SHELL_OPEN_PAYLOAD) return false;
   if (typeof msg.workbookId !== 'string' || !msg.workbookId) return false;
-  if (msg.source !== 'pending' && msg.source !== 'download') return false;
+  if (msg.source !== 'pending' && msg.source !== 'download' && msg.source !== 'cache') return false;
   if (!(msg.buffer instanceof ArrayBuffer)) return false;
   const wb = msg.workbook;
   if (!wb || typeof wb !== 'object') return false;
@@ -151,6 +159,10 @@ export function postShellSaveState(workbookId: string, state: ShellSaveState, me
   postToParent(payload);
 }
 
+export function postShellFrameReady(): void {
+  postToParent({ type: SHELL_FRAME_READY });
+}
+
 export function postShellNeedPayload(workbookId: string): void {
   postToParent({ type: SHELL_NEED_PAYLOAD, workbookId });
 }
@@ -175,6 +187,7 @@ export function postShellOpenPayloadFailed(target: Window, workbookId: string, m
 /**
  * Ask the parent for open bytes and resolve when they arrive.
  * `null` means timeout — caller should fall back to self-fetch.
+ * @deprecated Warm host listens for pushes; kept for legacy `?workbook=` framed URLs.
  */
 export function waitForShellOpenPayload(
   workbookId: string,

@@ -3,11 +3,13 @@ import {
   isShellBridgeMessage,
   isShellParentMessage,
   postShellFailed,
+  postShellFrameReady,
   postShellNeedPayload,
   postShellOpenPayload,
   postShellReady,
   postShellSaveState,
   SHELL_FAILED,
+  SHELL_FRAME_READY,
   SHELL_NEED_PAYLOAD,
   SHELL_OPEN_PAYLOAD,
   SHELL_OPEN_PAYLOAD_FAILED,
@@ -20,11 +22,12 @@ describe('shell bridge', () => {
     vi.restoreAllMocks();
   });
 
-  it('accepts ready, failed, save-state, and need-payload from the iframe', () => {
+  it('accepts ready, failed, save-state, need-payload, and frame-ready from the iframe', () => {
     expect(isShellBridgeMessage({ type: SHELL_READY, workbookId: 'w1' })).toBe(true);
     expect(isShellBridgeMessage({ type: SHELL_FAILED, workbookId: 'w1', message: 'no' })).toBe(true);
     expect(isShellBridgeMessage({ type: SHELL_SAVE_STATE, workbookId: 'w1', state: 'saving' })).toBe(true);
     expect(isShellBridgeMessage({ type: SHELL_NEED_PAYLOAD, workbookId: 'w1' })).toBe(true);
+    expect(isShellBridgeMessage({ type: SHELL_FRAME_READY })).toBe(true);
     expect(isShellBridgeMessage({ type: SHELL_READY })).toBe(false);
     expect(isShellBridgeMessage({ type: SHELL_SAVE_STATE, workbookId: 'w1', state: 'nope' })).toBe(false);
     expect(isShellBridgeMessage({ type: 'document:ready' })).toBe(false);
@@ -73,6 +76,7 @@ describe('shell bridge', () => {
     postShellSaveState('w1', 'saving');
     postShellSaveState('w1', 'error', 'nope');
     postShellNeedPayload('w1');
+    postShellFrameReady();
     expect(postMessage).toHaveBeenCalledWith({ type: SHELL_READY, workbookId: 'w1' }, window.location.origin);
     expect(postMessage).toHaveBeenCalledWith(
       {
@@ -98,6 +102,7 @@ describe('shell bridge', () => {
       { type: SHELL_NEED_PAYLOAD, workbookId: 'w1' },
       window.location.origin,
     );
+    expect(postMessage).toHaveBeenCalledWith({ type: SHELL_FRAME_READY }, window.location.origin);
   });
 
   it('posts open-payload to the framed editor with a transferable buffer', () => {

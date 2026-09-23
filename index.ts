@@ -10,13 +10,10 @@ import { getAllQueryString } from 'ranuts/utils';
 import { View } from 'ranui/builder';
 import { initEmbedApi } from './lib/embed-api';
 import { isAppShellFrame } from './lib/embed-mode';
-import { postShellFailed, postShellReady, waitForShellOpenPayload } from './lib/shell-bridge';
 import { OpenTiming, publishOpenTiming } from './lib/open-timing';
 import { initEvents, setEventUICallbacks } from './lib/events';
 import { onCreateNew, onOpenDocument, openDocumentFromUrl, openLocalFile, setUICallbacks } from './lib/document';
 import { loadEditorApi } from './lib/converter';
-import { mimeForFormat, type VaultFormat } from './lib/appwrite/ids';
-import type { Workbook } from './lib/appwrite/workbooks';
 import { parseReadonly } from '@ranuts/shared/document-utils';
 import { applyDocumentLanguage } from '@ranuts/shared/i18n';
 import { getDocmentObj } from '@ranuts/shared/store';
@@ -96,8 +93,15 @@ window.showControlPanel = showControlPanel;
 // loading screen instead of racing to remove it afterwards.
 const params = getAllQueryString();
 const workbookParam = typeof params['workbook'] === 'string' ? params['workbook'] : '';
+const shellFrameEarly = isAppShellFrame();
 const opensSomething = Boolean(
-  params['file'] || params['src'] || params['new'] || params['saved'] || params['open'] === 'local' || workbookParam,
+  params['file'] ||
+    params['src'] ||
+    params['new'] ||
+    params['saved'] ||
+    params['open'] === 'local' ||
+    workbookParam ||
+    shellFrameEarly,
 );
 if (opensSomething) document.body.classList.add('opening-document');
 
@@ -171,7 +175,7 @@ const savedParam = params['saved'] ?? '';
 // still open `?workbook=` and keep cloud save. A foreign embed stays a blank
 // surface until the parent posts a document.
 const isEmbedded = document.body.classList.contains('embed-mode') && !isAppShellFrame();
-if (documentUrl || isEmbedded || createNewOnLoad || openLocalOnLoad || savedParam || workbookParam) {
+if (documentUrl || isEmbedded || createNewOnLoad || openLocalOnLoad || savedParam || workbookParam || shellFrameEarly) {
   hideLanding();
 } else {
   // Bare /editor with nothing to open: the landing lives at / now.
@@ -179,50 +183,21 @@ if (documentUrl || isEmbedded || createNewOnLoad || openLocalOnLoad || savedPara
 }
 
 void (async () => {
+  // /workspace warm host: one long-lived `?shell=1` frame accepts open-payload
+  // pushes for every workbook switch (no full remount).
+  if (shellFrameEarly && !isEmbedded) {
+    const { startShellWarmHost } = await import('./lib/shell-warm-host');
+    await startShellWarmHost();
+    return;
+  }
+
   // Cloud workbook (`?workbook=<id>`): download from Appwrite and bind Save to
   // the account. Wins over local `?saved=` -- the cloud row is the source of
-  // truth once the user opened it from /workspace.
+  // truth once the user opened it from /workspace. Direct /editor links only;
+  // the shell path above never reaches here.
   if (workbookParam && !isEmbedded) {
     const timing = new OpenTiming(workbookParam);
-    const shellFrame = isAppShellFrame();
-    /** How long the framed editor waits for /workspace to hand off bytes. */
-    const SHELL_PAYLOAD_TIMEOUT_MS = 60_000;
     try {
-      if (shellFrame) {
-        // Parent already required a session and started Storage download when
-        // the sidebar row was clicked. Wait for those bytes — skip a duplicate
-        // getCurrentUser / getWorkbook / download inside this frame.
-        const { bindCloudWorkbook, beginCloudAutosave } = await import('./lib/cloud-workbook');
-        timing.mark('imports');
-        const payload = await waitForShellOpenPayload(workbookParam, SHELL_PAYLOAD_TIMEOUT_MS);
-        timing.mark('payload');
-        timing.mark('synced');
-        if (payload) {
-          const format = payload.workbook.format as VaultFormat;
-          const workbook = {
-            ...payload.workbook,
-            kind: 'file' as const,
-            format,
-          } satisfies Workbook;
-          const file = new File([payload.buffer], workbook.title, {
-            type: mimeForFormat(format),
-          });
-          bindCloudWorkbook(workbook);
-          await loadEditorApi();
-          timing.mark('api');
-          await openLocalFile(file, { skipHistory: true });
-          timing.mark('mounted');
-          beginCloudAutosave();
-          timing.mark('ready');
-          const report = timing.buildReport();
-          publishOpenTiming(report);
-          postShellReady(workbook.id, report);
-          return;
-        }
-        // Parent never answered (orphan ?shell=1): fall through to self-fetch.
-        console.warn('[shell] open payload timed out; falling back to self-fetch');
-      }
-
       const [{ getCurrentUser }, { getWorkbook, downloadWorkbookFile }, { bindCloudWorkbook, beginCloudAutosave }] =
         await Promise.all([
           import('./lib/appwrite/auth'),
@@ -261,7 +236,6 @@ void (async () => {
       timing.mark('ready');
       const report = timing.buildReport();
       publishOpenTiming(report);
-      if (shellFrame) postShellReady(workbook.id, report);
       return;
     } catch (error) {
       console.error('Failed to open cloud workbook:', error);
@@ -270,14 +244,7 @@ void (async () => {
       (window as unknown as { message?: { error?: (msg: string) => void } }).message?.error?.(
         `${t('cloudOpenFailed')}${detail}`,
       );
-      // Inside the /workspace shell, replacing this frame with /workspace would nest
-      // another library under the editor pane. Tell the shell so it can show
-      // the failure over the blank pane instead.
-      if (isAppShellFrame()) {
-        postShellFailed(workbookParam, detail);
-      } else {
-        window.location.replace('/workspace');
-      }
+      window.location.replace('/workspace');
       return;
     }
   }
