@@ -1368,70 +1368,68 @@ body {
 
 /*
  * Scroll reveals (feature / bento / band). Only armed when home-scroll.js
- * marks #landing-hero with .has-scroll-reveal — so no-JS and reduced-motion
- * readers never see blank cards.
+ * marks #landing-hero with .has-scroll-reveal — so no-JS readers never see
+ * blank cards.
  */
-@media (prefers-reduced-motion: no-preference) {
-  #landing-hero.has-scroll-reveal .feat-card:not(.is-in),
-  #landing-hero.has-scroll-reveal .bento-card:not(.is-in),
-  #landing-hero.has-scroll-reveal .band:not(.is-in),
-  #landing-hero.has-scroll-reveal .section-head:not(.is-in),
-  #landing-hero.has-scroll-reveal .loved:not(.is-in) {
-    opacity: 0;
-    transform: translateY(22px);
-  }
+#landing-hero.has-scroll-reveal .feat-card:not(.is-in),
+#landing-hero.has-scroll-reveal .bento-card:not(.is-in),
+#landing-hero.has-scroll-reveal .band:not(.is-in),
+#landing-hero.has-scroll-reveal .section-head:not(.is-in),
+#landing-hero.has-scroll-reveal .loved:not(.is-in) {
+  opacity: 0;
+  transform: translateY(22px);
+}
 
-  #landing-hero.has-scroll-reveal .feat-card,
-  #landing-hero.has-scroll-reveal .bento-card,
-  #landing-hero.has-scroll-reveal .band,
-  #landing-hero.has-scroll-reveal .section-head,
-  #landing-hero.has-scroll-reveal .loved {
-    transition:
-      opacity 0.65s cubic-bezier(0.22, 1, 0.36, 1),
-      transform 0.65s cubic-bezier(0.22, 1, 0.36, 1),
-      box-shadow 0.2s ease,
-      border-color 0.2s ease;
-  }
+#landing-hero.has-scroll-reveal .feat-card,
+#landing-hero.has-scroll-reveal .bento-card,
+#landing-hero.has-scroll-reveal .band,
+#landing-hero.has-scroll-reveal .section-head,
+#landing-hero.has-scroll-reveal .loved {
+  transition:
+    opacity 0.65s cubic-bezier(0.22, 1, 0.36, 1),
+    transform 0.65s cubic-bezier(0.22, 1, 0.36, 1),
+    box-shadow 0.2s ease,
+    border-color 0.2s ease;
+}
 
-  #landing-hero.has-scroll-reveal .feat-card.is-in,
-  #landing-hero.has-scroll-reveal .bento-card.is-in,
-  #landing-hero.has-scroll-reveal .band.is-in,
-  #landing-hero.has-scroll-reveal .section-head.is-in,
-  #landing-hero.has-scroll-reveal .loved.is-in {
-    opacity: 1;
-    transform: none;
-  }
+#landing-hero.has-scroll-reveal .feat-card.is-in,
+#landing-hero.has-scroll-reveal .bento-card.is-in,
+#landing-hero.has-scroll-reveal .band.is-in,
+#landing-hero.has-scroll-reveal .section-head.is-in,
+#landing-hero.has-scroll-reveal .loved.is-in {
+  opacity: 1;
+  transform: none;
+}
 
-  /* Stagger siblings so a row of cards reads as a cascade, not a flash. */
-  #landing-hero.has-scroll-reveal .feat-grid .feat-card:nth-child(1) {
-    transition-delay: 0.02s;
-  }
-  #landing-hero.has-scroll-reveal .feat-grid .feat-card:nth-child(2) {
-    transition-delay: 0.1s;
-  }
-  #landing-hero.has-scroll-reveal .feat-grid .feat-card:nth-child(3) {
-    transition-delay: 0.18s;
-  }
-  #landing-hero.has-scroll-reveal .bento .bento-card:nth-child(1) {
-    transition-delay: 0.04s;
-  }
-  #landing-hero.has-scroll-reveal .bento .bento-card:nth-child(2) {
-    transition-delay: 0.12s;
-  }
-  #landing-hero.has-scroll-reveal .bento .bento-card:nth-child(3) {
-    transition-delay: 0.2s;
-  }
-  #landing-hero.has-scroll-reveal .bento .bento-card:nth-child(4) {
-    transition-delay: 0.28s;
-  }
+/* Stagger siblings so a row of cards reads as a cascade, not a flash. */
+#landing-hero.has-scroll-reveal .feat-grid .feat-card:nth-child(1) {
+  transition-delay: 0.02s;
+}
+#landing-hero.has-scroll-reveal .feat-grid .feat-card:nth-child(2) {
+  transition-delay: 0.1s;
+}
+#landing-hero.has-scroll-reveal .feat-grid .feat-card:nth-child(3) {
+  transition-delay: 0.18s;
+}
+#landing-hero.has-scroll-reveal .bento .bento-card:nth-child(1) {
+  transition-delay: 0.04s;
+}
+#landing-hero.has-scroll-reveal .bento .bento-card:nth-child(2) {
+  transition-delay: 0.12s;
+}
+#landing-hero.has-scroll-reveal .bento .bento-card:nth-child(3) {
+  transition-delay: 0.2s;
+}
+#landing-hero.has-scroll-reveal .bento .bento-card:nth-child(4) {
+  transition-delay: 0.28s;
+}
 
-  /* Hover lift still wins once the card is in. */
-  #landing-hero.has-scroll-reveal .feat-card.is-in:hover {
-    transform: translateY(-3px);
-  }
-  #landing-hero.has-scroll-reveal .bento-card.is-in:hover {
-    transform: translateY(-2px);
-  }
+/* Hover lift still wins once the card is in. */
+#landing-hero.has-scroll-reveal .feat-card.is-in:hover {
+  transform: translateY(-3px);
+}
+#landing-hero.has-scroll-reveal .bento-card.is-in:hover {
+  transform: translateY(-2px);
 }
 
 /* Dark theme: soft surfaces pick up inherited brand tokens from :root. */

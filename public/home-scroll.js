@@ -1,13 +1,11 @@
 /**
  * Homepage scroll reveals for feature / bento / band cards.
  *
- * Progressive: without this script (or with reduced motion) cards stay fully
- * visible. With motion allowed, `#landing-hero` gets `.has-scroll-reveal` and
- * cards wait for IntersectionObserver before `.is-in`.
+ * Progressive: without this script cards stay fully visible. With it,
+ * `#landing-hero` gets `.has-scroll-reveal` and cards wait for
+ * IntersectionObserver before `.is-in`.
  */
 (function () {
-  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-
   var root = document.getElementById('landing-hero');
   if (!root) return;
 
