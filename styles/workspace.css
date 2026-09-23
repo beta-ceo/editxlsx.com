@@ -805,6 +805,7 @@ body {
   color: var(--ran-color-text-secondary);
   cursor: pointer;
   list-style: none;
+  line-height: 0;
   transition: background 0.12s ease, color 0.12s ease;
 }
 
@@ -812,8 +813,14 @@ body {
   display: none;
 }
 
-.vault-tools .lang-menu {
+.vault-tools .lang-menu,
+.vault-tools .vault-theme {
   display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  flex: none;
 }
 
 .vault-tools .lang-trigger {
@@ -842,10 +849,19 @@ body {
 .vault-theme-icon .vault-icon {
   width: 18px;
   height: 18px;
+  display: block;
 }
 
 .vault-theme {
   position: relative;
+}
+
+.vault-theme-icon {
+  display: inline-grid;
+  place-items: center;
+  width: 18px;
+  height: 18px;
+  line-height: 0;
 }
 
 .vault-theme-menu {
