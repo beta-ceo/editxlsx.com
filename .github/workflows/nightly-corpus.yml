@@ -233,7 +233,7 @@ jobs:
         uses: actions/upload-artifact@v7
         with:
           name: ui-crawl-reports
-          path: test-results/ui-crawl-*.json
+          path: test-results/**/ui-crawl-*.json
           retention-days: 14
 
       # Cold open + first save under CDP network throttling (L4): the whole

@@ -26,6 +26,7 @@ export default defineConfig({
     timeout: 10_000,
   },
   fullyParallel: true,
+  outputDir: 'test-results/docker',
   reporter: [['list'], ['html', { outputFolder: 'playwright-report-docker', open: 'never' }]],
   use: {
     baseURL: 'http://127.0.0.1:8090',

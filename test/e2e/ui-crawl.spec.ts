@@ -1,6 +1,7 @@
 import { mkdirSync, writeFileSync } from 'node:fs';
 import { buildDocx, buildPptx, toBase64 } from './lib/ooxml';
 import { expect, test } from './lib/l0';
+import { e2eResultsDir } from './lib/results-dir';
 import { editorHealth, saveAndCapture, waitForEditorReady, SAVE_FORMAT_CODE } from './actions/editor';
 
 declare const XLSX: any;
@@ -174,7 +175,7 @@ test.describe('UI crawl', () => {
 
       // Still saves after the whole sweep.
       const saved = await saveAndCapture(page, c.code, 120_000);
-      const dir = process.env.E2E_PORT ? `test-results-${process.env.E2E_PORT}` : 'test-results';
+      const dir = e2eResultsDir();
       mkdirSync(dir, { recursive: true });
       writeFileSync(
         `${dir}/ui-crawl-${c.kind}.json`,

@@ -19,8 +19,16 @@ import { formatFromTitle, MAX_WORKBOOK_BYTES } from './appwrite/ids';
 import { confirmDialog } from './confirm-dialog';
 import { applySiteThemeToEditor } from './editor-theme';
 import { DEFAULT_UI_THEME } from './onlyoffice/ui-theme';
-import { isShellBridgeMessage, SHELL_FAILED, SHELL_READY, SHELL_SAVE_STATE } from './shell-bridge';
+import {
+  isShellBridgeMessage,
+  SHELL_FAILED,
+  SHELL_NEED_PAYLOAD,
+  SHELL_READY,
+  SHELL_SAVE_STATE,
+} from './shell-bridge';
 import type { ShellSaveState } from './shell-bridge';
+import { beginShellOpenHandoff, clearShellOpenHandoff, onShellNeedPayload } from './shell-open-handoff';
+import { mergeShellOverlayTiming, publishOpenTiming, type OpenTimingReport } from './open-timing';
 
 const SEARCH_DEBOUNCE_MS = 200;
 /** Visual scale for the sidebar meter. The client has no account quota. */
@@ -80,6 +88,10 @@ let openTimer = 0;
 let bootTimer = 0;
 let bootRetries = 0;
 let frameLoadHandler: (() => void) | null = null;
+/** Shell-side clocks for the in-flight framed open (performance.now()). */
+let shellOpenStartedAt = 0;
+let shellIframeLoadAt = 0;
+let shellBundleBootAt = 0;
 
 function root(): HTMLElement {
   return document.getElementById('workspace-root') as HTMLElement;
@@ -172,6 +184,14 @@ function remountEditorFrame(frame: HTMLIFrameElement, workbookId: string): void 
   // Bust the URL so the browser remounts even when workbook+shell are unchanged.
   // Attach the load watcher before assigning src so a cached document cannot
   // finish loading before we are listening.
+  const workbook = rows.find((row): row is Workbook => row.id === workbookId && row.kind === 'file');
+  if (workbook) {
+    beginShellOpenHandoff(workbook, {
+      onMeta: (fresh) => {
+        rows = rows.map((row) => (row.id === fresh.id ? fresh : row));
+      },
+    });
+  }
   watchEditorOpen(frame, workbookId, { preserveRetries: true });
   frame.src = editorFrameUrl(workbookId, Date.now());
   paintOverlay();
@@ -185,6 +205,9 @@ function watchEditorOpen(
   clearOpenWatchers();
   const generation = ++openGeneration;
   if (!options.preserveRetries) bootRetries = 0;
+  shellOpenStartedAt = performance.now();
+  shellIframeLoadAt = 0;
+  shellBundleBootAt = 0;
 
   openTimer = window.setTimeout(() => {
     if (generation !== openGeneration) return;
@@ -193,6 +216,7 @@ function watchEditorOpen(
 
   frameLoadHandler = () => {
     if (generation !== openGeneration) return;
+    if (!shellIframeLoadAt) shellIframeLoadAt = performance.now();
     if (bootTimer) window.clearTimeout(bootTimer);
     const startedAt = Date.now();
     const pollBoot = (): void => {
@@ -200,7 +224,10 @@ function watchEditorOpen(
       if (selectedId !== workbookId || stageStatus !== 'loading') return;
       // Module graph evaluated: still waiting for shell:workbook-ready (download /
       // OnlyOffice). Do not treat that as a boot failure.
-      if (editorBundleBooted(frame)) return;
+      if (editorBundleBooted(frame)) {
+        if (!shellBundleBootAt) shellBundleBootAt = performance.now();
+        return;
+      }
       if (Date.now() - startedAt < BOOT_GIVE_UP_MS) {
         bootTimer = window.setTimeout(pollBoot, BOOT_POLL_MS);
         return;
@@ -212,6 +239,13 @@ function watchEditorOpen(
       }
       failOpen(workbookId, t('cloudOpenBootFailed'));
     };
+    // Record boot immediately when the module graph beat iframe `load`
+    // (common on warm SW / cached bundles); otherwise the 500 ms poll delay
+    // races shell:workbook-ready and we never stamp bundleBootMs.
+    if (editorBundleBooted(frame)) {
+      if (!shellBundleBootAt) shellBundleBootAt = performance.now();
+      return;
+    }
     bootTimer = window.setTimeout(pollBoot, BOOT_POLL_MS);
   };
   frame.addEventListener('load', frameLoadHandler);
@@ -2005,11 +2039,48 @@ function mountShell(): void {
       if (event.origin !== window.location.origin) return;
       if (!isShellBridgeMessage(event.data)) return;
       if (event.data.workbookId !== selectedId) return;
+      if (event.data.type === SHELL_NEED_PAYLOAD) {
+        const frame = document.getElementById('workspace-editor-frame') as HTMLIFrameElement | null;
+        if (frame) onShellNeedPayload(event.data.workbookId, frame);
+        return;
+      }
       if (event.data.type === SHELL_READY) {
         clearOpenWatchers();
         stageStatus = 'ready';
         stageError = '';
         paintOverlay();
+        const overlayMs = shellOpenStartedAt ? Math.round(performance.now() - shellOpenStartedAt) : undefined;
+        const iframeLoadMs =
+          shellOpenStartedAt && shellIframeLoadAt ? Math.round(shellIframeLoadAt - shellOpenStartedAt) : undefined;
+        const bundleBootMs =
+          shellIframeLoadAt && shellBundleBootAt ? Math.round(shellBundleBootAt - shellIframeLoadAt) : undefined;
+        const frameTiming = event.data.timing;
+        if (frameTiming && typeof overlayMs === 'number') {
+          const merged = mergeShellOverlayTiming(frameTiming, {
+            overlayMs,
+            iframeLoadMs,
+            bundleBootMs,
+          });
+          publishOpenTiming(merged);
+        } else if (typeof overlayMs === 'number') {
+          const shellOnly: OpenTimingReport = {
+            workbookId: event.data.workbookId,
+            t0: shellOpenStartedAt,
+            marks: {},
+            segments: [
+              ...(typeof iframeLoadMs === 'number' ? [{ name: 'shell: iframe load', ms: iframeLoadMs }] : []),
+              ...(typeof bundleBootMs === 'number'
+                ? [{ name: 'shell: bundle boot (after load)', ms: bundleBootMs }]
+                : []),
+              { name: 'shell: overlay total', ms: overlayMs },
+            ],
+            totalMs: overlayMs,
+            overlayMs,
+            iframeLoadMs,
+            bundleBootMs,
+          };
+          publishOpenTiming(shellOnly);
+        }
         // Themes API is only ready after the frame boots — sync shell appearance.
         applySiteThemeToEditor(DEFAULT_UI_THEME, window, { force: true });
       } else if (event.data.type === SHELL_FAILED) {
@@ -2568,6 +2639,7 @@ function paintStage(): void {
     stageStatus = 'idle';
     stageError = '';
     clearOpenWatchers();
+    clearShellOpenHandoff();
     if (frame.dataset.workbook) {
       frame.dataset.workbook = '';
       frame.removeAttribute('src');
@@ -2642,6 +2714,13 @@ function paintStage(): void {
   stageError = '';
   frame.dataset.workbook = workbook.id;
   frame.title = workbook.title;
+  // Start Storage / pending fetch before the iframe navigates so Appwrite RTT
+  // overlaps editor module evaluation (see shell-open-handoff).
+  beginShellOpenHandoff(workbook, {
+    onMeta: (fresh) => {
+      rows = rows.map((row) => (row.id === fresh.id ? fresh : row));
+    },
+  });
   watchEditorOpen(frame, workbook.id);
   frame.src = editorFrameUrl(workbook.id);
   paintOverlay();

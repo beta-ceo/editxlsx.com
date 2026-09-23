@@ -1,5 +1,6 @@
 import { mkdirSync, writeFileSync } from 'node:fs';
 import { expect, test } from './lib/l0';
+import { e2eResultsDir } from './lib/results-dir';
 import { buildDocx, toBase64 } from './lib/ooxml';
 import { buildXlsx, buildPptx } from './actions/fixtures';
 import { waitForEditorReady, focusEditor, saveAndCapture, editorHealth, SAVE_FORMAT_CODE } from './actions/editor';
@@ -409,8 +410,9 @@ test.describe('seeded monkey', () => {
         restrictions: null,
       }));
 
-      mkdirSync('test-results', { recursive: true });
-      const report = `test-results/monkey-${doc.kind}-seed${SEED}.json`;
+      const dir = e2eResultsDir();
+      mkdirSync(dir, { recursive: true });
+      const report = `${dir}/monkey-${doc.kind}-seed${SEED}.json`;
       writeFileSync(
         report,
         JSON.stringify(

@@ -1,6 +1,7 @@
 import { readFileSync, readdirSync, statSync, mkdirSync, writeFileSync } from 'node:fs';
 import { join, extname, basename } from 'node:path';
 import { expect, test } from './lib/l0';
+import { e2eResultsDir } from './lib/results-dir';
 import { buildDocx, toBase64 } from './lib/ooxml';
 import { buildXlsx, buildPptx } from './actions/fixtures';
 import { waitForEditorReady, typeIntoDocument, saveAndCapture, editorHealth, SAVE_FORMAT_CODE } from './actions/editor';
@@ -18,8 +19,8 @@ import { waitForEditorReady, typeIntoDocument, saveAndCapture, editorHealth, SAV
  *
  * Documents: one synthetic per format by default (CI); with CORPUS_DIR set,
  * additionally the first real file of each format found there (local runs).
- * Output: test-results/api-surface-<kind>.json with per-method verdicts, and
- * a console summary of the ones that misbehaved.
+ * Output: test-results/e2e-<port>/api-surface-<kind>.json with per-method
+ * verdicts, and a console summary of the ones that misbehaved.
  */
 
 // Methods that legitimately change the world in ways a sweep must not:
@@ -388,8 +389,9 @@ test.describe('api surface sweep', () => {
         saveResult = { error: String((e as Error).message) };
       }
 
-      mkdirSync('test-results', { recursive: true });
-      const report = `test-results/api-surface-${doc.kind}-${doc.label.replace(/[^a-z0-9]+/gi, '_').slice(0, 40)}.json`;
+      const dir = e2eResultsDir();
+      mkdirSync(dir, { recursive: true });
+      const report = `${dir}/api-surface-${doc.kind}-${doc.label.replace(/[^a-z0-9]+/gi, '_').slice(0, 40)}.json`;
       writeFileSync(report, JSON.stringify({ doc: doc.label, kind: doc.kind, health, saveResult, verdicts }, null, 2));
 
       const counts = verdicts.reduce<Record<string, number>>(

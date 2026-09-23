@@ -123,7 +123,7 @@ const [getDocmentObj, setDocmentObj] = createSignal<{
 
 ### E2E（Playwright）
 
-`playwright.config.ts`（默认 4173；`E2E_PORT` 隔离 `dist-e2e-<port>/` 与 `test-results-<port>/`；`E2E_BASE_URL` 打已部署站）。另有 pages / docker / browsers / prod 配置。
+`playwright.config.ts`（默认 4173；`E2E_PORT` 隔离 `dist-e2e/<port>/` 与 `test-results/e2e-<port>/`；`E2E_BASE_URL` 打已部署站）。另有 pages / docker / browsers / prod 配置。
 
 主回归靠 `embed-regression`（真实编辑器 + 真实 x2t）。云鉴权冒烟：`cloud-auth.spec.ts`（匿名 `/workspace` → `/login` 等）。语料：`CORPUS_DIR=…` 才跑，未设则 skip。
 

@@ -10,9 +10,13 @@ import { getAllQueryString } from 'ranuts/utils';
 import { View } from 'ranui/builder';
 import { initEmbedApi } from './lib/embed-api';
 import { isAppShellFrame } from './lib/embed-mode';
-import { postShellFailed, postShellReady } from './lib/shell-bridge';
+import { postShellFailed, postShellReady, waitForShellOpenPayload } from './lib/shell-bridge';
+import { OpenTiming, publishOpenTiming } from './lib/open-timing';
 import { initEvents, setEventUICallbacks } from './lib/events';
 import { onCreateNew, onOpenDocument, openDocumentFromUrl, openLocalFile, setUICallbacks } from './lib/document';
+import { loadEditorApi } from './lib/converter';
+import { mimeForFormat, type VaultFormat } from './lib/appwrite/ids';
+import type { Workbook } from './lib/appwrite/workbooks';
 import { parseReadonly } from '@ranuts/shared/document-utils';
 import { applyDocumentLanguage } from '@ranuts/shared/i18n';
 import { getDocmentObj } from '@ranuts/shared/store';
@@ -179,14 +183,55 @@ void (async () => {
   // the account. Wins over local `?saved=` -- the cloud row is the source of
   // truth once the user opened it from /workspace.
   if (workbookParam && !isEmbedded) {
+    const timing = new OpenTiming(workbookParam);
+    const shellFrame = isAppShellFrame();
+    /** How long the framed editor waits for /workspace to hand off bytes. */
+    const SHELL_PAYLOAD_TIMEOUT_MS = 60_000;
     try {
+      if (shellFrame) {
+        // Parent already required a session and started Storage download when
+        // the sidebar row was clicked. Wait for those bytes — skip a duplicate
+        // getCurrentUser / getWorkbook / download inside this frame.
+        const { bindCloudWorkbook, beginCloudAutosave } = await import('./lib/cloud-workbook');
+        timing.mark('imports');
+        const payload = await waitForShellOpenPayload(workbookParam, SHELL_PAYLOAD_TIMEOUT_MS);
+        timing.mark('payload');
+        timing.mark('synced');
+        if (payload) {
+          const format = payload.workbook.format as VaultFormat;
+          const workbook = {
+            ...payload.workbook,
+            kind: 'file' as const,
+            format,
+          } satisfies Workbook;
+          const file = new File([payload.buffer], workbook.title, {
+            type: mimeForFormat(format),
+          });
+          bindCloudWorkbook(workbook);
+          await loadEditorApi();
+          timing.mark('api');
+          await openLocalFile(file, { skipHistory: true });
+          timing.mark('mounted');
+          beginCloudAutosave();
+          timing.mark('ready');
+          const report = timing.buildReport();
+          publishOpenTiming(report);
+          postShellReady(workbook.id, report);
+          return;
+        }
+        // Parent never answered (orphan ?shell=1): fall through to self-fetch.
+        console.warn('[shell] open payload timed out; falling back to self-fetch');
+      }
+
       const [{ getCurrentUser }, { getWorkbook, downloadWorkbookFile }, { bindCloudWorkbook, beginCloudAutosave }] =
         await Promise.all([
           import('./lib/appwrite/auth'),
           import('./lib/appwrite/workbooks'),
           import('./lib/cloud-workbook'),
         ]);
+      timing.mark('imports');
       const user = await getCurrentUser();
+      timing.mark('auth');
       if (!user) {
         const locale = params['locale'];
         const login = locale ? `/login?locale=${encodeURIComponent(String(locale))}` : '/login';
@@ -194,18 +239,29 @@ void (async () => {
         return;
       }
       const workbook = await getWorkbook(workbookParam);
+      timing.mark('meta');
       const { takeCloudPendingIfNewer } = await import('./lib/cloud-pending');
       const pendingFile = await takeCloudPendingIfNewer(workbook.id, workbook.updatedAt);
+      timing.mark('pending');
       const file =
         pendingFile ??
         (await downloadWorkbookFile(workbook.fileId, workbook.title, {
           cacheBust: workbook.updatedAt,
           format: workbook.format,
         }));
+      timing.mark('download');
       bindCloudWorkbook(workbook);
+      // Prefetch DocsAPI here so the open-timing split separates network API
+      // load from buffer prep + DocEditor construction inside openLocalFile.
+      await loadEditorApi();
+      timing.mark('api');
       await openLocalFile(file, { skipHistory: true });
+      timing.mark('mounted');
       beginCloudAutosave();
-      if (isAppShellFrame()) postShellReady(workbook.id);
+      timing.mark('ready');
+      const report = timing.buildReport();
+      publishOpenTiming(report);
+      if (shellFrame) postShellReady(workbook.id, report);
       return;
     } catch (error) {
       console.error('Failed to open cloud workbook:', error);

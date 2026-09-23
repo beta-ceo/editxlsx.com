@@ -2,20 +2,44 @@
 // Merge the per-worker corpus row files (JSON lines) written by test/e2e/corpus.spec.ts into
 // one JSON + a markdown table (stdout, and $GITHUB_STEP_SUMMARY when set).
 // Usage: node bin/corpus-report.mjs [test-results]
-import { readdirSync, readFileSync, writeFileSync, appendFileSync } from 'node:fs';
-import { join, basename } from 'node:path';
+// Accepts the tree root (`test-results`) or a single run dir (`test-results/e2e-4173`).
+import { readdirSync, readFileSync, writeFileSync, appendFileSync, statSync } from 'node:fs';
+import { join, basename, dirname } from 'node:path';
 
-const dir = process.argv[2] || 'test-results';
-const parts = readdirSync(dir).filter((f) => /^corpus-rows-\d+\.jsonl$/.test(f));
+const root = process.argv[2] || 'test-results';
+
+function listCorpusRows(dir) {
+  /** @type {string[]} */
+  const files = [];
+  for (const name of readdirSync(dir)) {
+    const path = join(dir, name);
+    let st;
+    try {
+      st = statSync(path);
+    } catch {
+      continue;
+    }
+    if (st.isDirectory()) {
+      for (const nested of readdirSync(path)) {
+        if (/^corpus-rows-\d+\.jsonl$/.test(nested)) files.push(join(path, nested));
+      }
+    } else if (/^corpus-rows-\d+\.jsonl$/.test(name)) {
+      files.push(path);
+    }
+  }
+  return files;
+}
+
+const parts = listCorpusRows(root);
 if (parts.length === 0) {
-  console.log('corpus-report: no per-worker row files found in ' + dir);
+  console.log('corpus-report: no per-worker row files found in ' + root);
   process.exit(0);
 }
 let total = 0;
 let kept = 0;
 const rows = [];
 for (const f of parts) {
-  for (const line of readFileSync(join(dir, f), 'utf8').split('\n')) {
+  for (const line of readFileSync(f, 'utf8').split('\n')) {
     if (!line.trim()) continue;
     const r = JSON.parse(line);
     total = Math.max(total, r.total || 0);
@@ -43,10 +67,11 @@ for (const r of rows) {
   byExt[ext].total++;
   if (isBad(r)) byExt[ext].bad++;
 }
-writeFileSync(
-  join(dir, 'corpus-report.json'),
-  JSON.stringify({ total, kept, ran: rows.length, findings: bad.length, rows }, null, 2),
-);
+const report = JSON.stringify({ total, kept, ran: rows.length, findings: bad.length, rows }, null, 2);
+// Prefer the shared tree root when scanning; otherwise the run dir that held the rows.
+const runDir = parts.every((p) => dirname(p) === dirname(parts[0])) ? dirname(parts[0]) : root;
+writeFileSync(join(runDir, 'corpus-report.json'), report);
+if (runDir !== root) writeFileSync(join(root, 'corpus-report.json'), report);
 
 // L4 timing (strategy section 3): open seconds parsed from "ok (load Ns)",
 // save milliseconds from "ok (NNNms, ...)". Reported, not yet thresholded.

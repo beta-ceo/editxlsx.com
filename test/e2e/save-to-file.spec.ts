@@ -4,6 +4,7 @@ import type { Page } from '@playwright/test';
 import { readHistoryKeys } from './lib/history-db';
 import { buildDocx, ooxmlText, zipEntryText } from './lib/ooxml';
 import { expect, test } from './lib/l0';
+import { e2eResultsDir } from './lib/results-dir';
 
 /**
  * Saving writes back into the document's own file instead of downloading a new
@@ -161,7 +162,7 @@ test.describe('saving into the document own file (real editor)', () => {
   });
 
   test('picks a file once, then writes to it on every later save', async ({ page }) => {
-    const dir = join('test-results', 'save-to-file');
+    const dir = join(e2eResultsDir(), 'save-to-file');
     mkdirSync(dir, { recursive: true });
     const path = join(dir, 'WriteBack.docx');
     writeFileSync(path, buildDocx('first paragraph'));
@@ -199,7 +200,7 @@ test.describe('saving into the document own file (real editor)', () => {
   });
 
   test('still writes to the same file after a reload', async ({ page }) => {
-    const dir = join('test-results', 'save-to-file');
+    const dir = join(e2eResultsDir(), 'save-to-file');
     mkdirSync(dir, { recursive: true });
     const path = join(dir, 'Reopened.docx');
     writeFileSync(path, buildDocx('before reload'));

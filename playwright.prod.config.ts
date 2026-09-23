@@ -28,7 +28,7 @@ export default defineConfig({
   fullyParallel: false,
   workers: 1,
   retries: 1,
-  outputDir: 'test-results-prod',
+  outputDir: 'test-results/prod',
   reporter: [['list'], ['html', { outputFolder: 'playwright-report-prod', open: 'never' }]],
   use: {
     baseURL: PROD_URL,

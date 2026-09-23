@@ -111,8 +111,8 @@ gh workflow run nightly-corpus.yml -f limit=300     # 手动触发夜间
   夜间 workflow 默认开启（可 dispatch 关闭）。
 - **corpus 报告改 JSONL 逐条追加**（`test-results/corpus-rows-<worker>.jsonl`）：
   afterAll 落盘在 worker 重启时会丢行；`bin/corpus-report.mjs [dir]` 合并。
-- **多会话隔离**：`E2E_PORT` 非默认时 Playwright 同时使用 `dist-e2e-<port>/`
-  与 `test-results-<port>/`——两会话共用 dist/test-results 会互相清空
+- **多会话隔离**：`E2E_PORT` 非默认时 Playwright 同时使用 `dist-e2e/<port>/`
+  与 `test-results/e2e-<port>/`——两会话共用 dist 或同一 results 子目录会互相清空
   （这就是本晚"页面 60s 起不来 / 报告少行"的来源，非产品缺陷）。
 - 跨浏览器与视觉部分见上文"现状数字"。
 - **SW 升级策略（用户 P0 的最可能机制）**：原 sw.js `install` 即 `skipWaiting()`，

@@ -141,7 +141,7 @@ if [ -f "$SW_PATH" ]; then
         # Hashed from inside $DIST_DIR, with RELATIVE paths: `shasum` prints the
         # path next to each digest, so hashing "$DIST_DIR/sdkjs/..." would fold
         # the output directory's own name into the stamp -- the same vendor tree
-        # built into `dist-e2e-4174/` would name a different runtime cache than
+        # built into `dist-e2e/4174/` would name a different runtime cache than
         # the one built into `dist/`. What this stamp claims to be, and what
         # sw.js relies on, is the content of the tree.
         # shellcheck disable=SC2086 # deliberate word splitting: a list of dirs

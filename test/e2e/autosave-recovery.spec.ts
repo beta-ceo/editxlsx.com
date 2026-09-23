@@ -4,6 +4,7 @@ import type { Page } from '@playwright/test';
 import { readHistoryDocs } from './lib/history-db';
 import { buildDocx, ooxmlText, zipEntryText } from './lib/ooxml';
 import { expect, test } from './lib/l0';
+import { e2eResultsDir } from './lib/results-dir';
 
 declare const XLSX: any;
 /**
@@ -44,7 +45,7 @@ test.describe('autosave and recovery (real editor)', () => {
   });
 
   test('edits survive the tab going away and come back through the saved documents list', async ({ page }) => {
-    const dir = join('test-results', 'autosave-recovery');
+    const dir = join(e2eResultsDir(), 'autosave-recovery');
     mkdirSync(dir, { recursive: true });
     const path = join(dir, 'Recovery.docx');
     writeFileSync(path, buildDocx('original paragraph'));

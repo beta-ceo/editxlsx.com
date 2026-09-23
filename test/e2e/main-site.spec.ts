@@ -2,6 +2,7 @@ import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { buildDocx, ooxmlText, zipEntryText } from './lib/ooxml';
 import { expect, test } from './lib/l0';
+import { e2eResultsDir } from './lib/results-dir';
 
 /**
  * The standalone site (index.html), not the embed demo: what users actually
@@ -31,7 +32,7 @@ test.describe('standalone site (real editor)', () => {
     );
 
   test('open a local docx from the hero button, type, Ctrl+S downloads the edited file', async ({ page }) => {
-    const dir = join('test-results', 'main-site');
+    const dir = join(e2eResultsDir(), 'main-site');
     mkdirSync(dir, { recursive: true });
     const path = join(dir, '主站打开 (1).docx');
     writeFileSync(path, buildDocx('main site paragraph'));

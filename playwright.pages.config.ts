@@ -35,7 +35,7 @@ export default defineConfig({
   // Declared here rather than on the CI command line so a local run of this
   // config means the same thing CI's does.
   grepInvert: /@serial/,
-  outputDir: 'test-results-pages',
+  outputDir: 'test-results/pages',
   reporter: [['list'], ['html', { outputFolder: 'playwright-report-pages', open: 'never' }]],
   fullyParallel: false,
   workers: 1,

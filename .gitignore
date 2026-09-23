@@ -18,19 +18,16 @@ dist
 coverage/
 playwright-report/
 playwright-report-docker/
+playwright-report-browsers/
+playwright-report-prod/
+playwright-report-pages/
 test-results/
 public/fonts/__fallback__/
 
 # Nightly public corpus checkout (never committed)
 corpus/
 corpus-src/
-dist-e2e-*/
-test-results-*/
-playwright-report-browsers/
-test-results-prod/
-playwright-report-prod/
-test-results-pages/
-playwright-report-pages/
+dist-e2e/
 .wrangler/
 
 # Pages rendered from markdown at build/dev time by bin/build-pages.mjs (vite

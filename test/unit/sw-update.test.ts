@@ -530,7 +530,7 @@ describe('bin/build.sh stamps both versions into sw.js', () => {
     expect(script).toContain('LC_ALL=C sort');
     // From INSIDE $DIST_DIR, so the digests carry relative paths. Hashing
     // `$DIST_DIR/sdkjs/...` would fold the output directory's name into the
-    // stamp, and the same vendor tree built into `dist-e2e-4174/` would name a
+    // stamp, and the same vendor tree built into `dist-e2e/4174/` would name a
     // different runtime cache than the one built into `dist/`.
     expect(script).toMatch(/VENDOR_VERSION=\$\(cd "\$DIST_DIR" && find \$VENDOR_DIRS/);
     for (const dir of ['sdkjs', 'web-apps', 'fonts']) {

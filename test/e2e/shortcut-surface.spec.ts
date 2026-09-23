@@ -1,5 +1,6 @@
 import { mkdirSync, writeFileSync } from 'node:fs';
 import { expect, test } from './lib/l0';
+import { e2eResultsDir } from './lib/results-dir';
 import { buildDocx, toBase64 } from './lib/ooxml';
 import { buildXlsx, buildPptx } from './actions/fixtures';
 import {
@@ -458,8 +459,9 @@ test.describe('shortcut surface sweep', () => {
         saveResult = { error: String((e as Error).message) };
       }
 
-      mkdirSync('test-results', { recursive: true });
-      const report = `test-results/shortcut-surface-${doc.kind}.json`;
+      const dir = e2eResultsDir();
+      mkdirSync(dir, { recursive: true });
+      const report = `${dir}/shortcut-surface-${doc.kind}.json`;
       writeFileSync(report, JSON.stringify({ doc: doc.label, kind: doc.kind, health, saveResult, verdicts }, null, 2));
       const counts = verdicts.reduce<Record<string, number>>(
         (acc, v) => ((acc[v.status] = (acc[v.status] || 0) + 1), acc),

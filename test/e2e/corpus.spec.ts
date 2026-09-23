@@ -1,6 +1,7 @@
 import { appendFileSync, mkdirSync, readdirSync, statSync, writeFileSync } from 'node:fs';
 import { join, extname, basename } from 'node:path';
 import { expect, test } from './lib/l0';
+import { e2eResultsDir } from './lib/results-dir';
 import { pixelDiff, settleEditor } from './lib/visual';
 import { ooxmlDocumentText, textCoverage } from './lib/ooxml';
 
@@ -135,8 +136,8 @@ test.describe('real-document corpus matrix', () => {
     const row = rows[rows.length - 1];
     if (!row || (row as Row & { __written?: boolean }).__written) return;
     (row as Row & { __written?: boolean }).__written = true;
-    // Mirrors playwright.config.ts outputDir (isolated per E2E_PORT).
-    const dir = process.env.E2E_PORT ? `test-results-${process.env.E2E_PORT}` : 'test-results';
+    // Same tree as playwright.config.ts outputDir (per-port under test-results/).
+    const dir = e2eResultsDir();
     mkdirSync(dir, { recursive: true });
     const { __written: _w, ...clean } = row as Row & { __written?: boolean };
     appendFileSync(
@@ -572,7 +573,7 @@ test.describe('real-document corpus matrix', () => {
           if (!visualOk) {
             // Keep both renderings next to the report so a reviewer can judge
             // the difference (conversion artifact vs real damage).
-            const dir = process.env.E2E_PORT ? `test-results-${process.env.E2E_PORT}` : 'test-results';
+            const dir = e2eResultsDir();
             const stem = `${dir}/visual-${index}-${name.replace(/[^\w.-]+/g, '_')}`;
             await test.info().attach('visual-original', { body: shotA, contentType: 'image/png' });
             await test.info().attach('visual-resaved', { body: shotB, contentType: 'image/png' });

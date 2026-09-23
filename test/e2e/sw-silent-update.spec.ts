@@ -1,6 +1,7 @@
 import { existsSync, readFileSync, writeFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { expect, test } from './lib/l0';
+import { e2eDistDir } from './lib/results-dir';
 import { settleEditor } from './lib/visual';
 
 /**
@@ -28,9 +29,7 @@ import { settleEditor } from './lib/visual';
  * served files are not on this disk -- the Docker image and any run against a
  * deployed site.
  */
-const PORT = process.env.E2E_PORT ?? '4173';
-const OUT_DIR = process.env.E2E_PORT ? `dist-e2e-${PORT}` : 'dist';
-const SW_PATH = resolve(process.cwd(), OUT_DIR, 'sw.js');
+const SW_PATH = resolve(process.cwd(), e2eDistDir(), 'sw.js');
 
 /** Ask whichever worker controls this page which build it is. */
 const controllerVendorVersion = (page: import('@playwright/test').Page) =>

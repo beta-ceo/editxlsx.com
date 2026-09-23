@@ -342,6 +342,13 @@ test.describe('cloud auth pages', () => {
   test('signed-in /workspace opens a workbook in the editor pane', async ({ page, l0 }) => {
     test.setTimeout(120_000);
     l0.allowConsole(/Failed to load resource|net::ERR_/i);
+    l0.allowConsole(/\[open-timing\]/);
+
+    const timingLines: string[] = [];
+    page.on('console', (msg) => {
+      const text = msg.text();
+      if (text.startsWith('[open-timing]')) timingLines.push(text);
+    });
 
     await page.goto('/login');
     await mockAppwrite(page, { download: 'xlsx' });
@@ -354,6 +361,14 @@ test.describe('cloud auth pages', () => {
     // OnlyOffice ribbon lives in a nested iframe, so we do not probe Asc here.
     await expect(page.locator('#workspace-stage-overlay')).toBeHidden({ timeout: 90_000 });
     await expect(page.locator('#workspace-stage-overlay')).not.toHaveAttribute('data-state', 'error');
+
+    const report = await page.evaluate(() => {
+      return (window as unknown as { __openTiming?: unknown }).__openTiming ?? null;
+    });
+    expect(report).toBeTruthy();
+    // Surface numbers in the Playwright report / CI log for open-path triage.
+    console.log('[open-timing:e2e]', JSON.stringify(report, null, 2));
+    expect(timingLines.some((line) => line.includes('total='))).toBe(true);
   });
 
   test('blank editor boot auto-retries then opens', async ({ page, l0 }) => {
