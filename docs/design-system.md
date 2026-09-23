@@ -117,7 +117,19 @@ Notion 正文 708）。**不存在"一个正确的宽度"，只存在按内容�
 
 页面中性色（背景、正文、边框、成功/危险）一律走 `--ran-*`，暗色模式由 token 层翻转。
 
-**首页营销层另有一套品牌色**（声明在 `public/home.css` 的 `#landing-hero`），
+**Sheet Green** 是产品面语言（卖产品 / 用产品），不是内容面语言（读文档）。
+
+| 产品面（用品牌绿） | 内容面（保持中性 + 链接蓝） |
+| --- | --- |
+| `/` hero CTA / 徽章 / Logo | SEO 内容页 `landing.css` |
+| `/workspace` 选中、主按钮、focus、存储条、spinner、drop | `/history`、正文链接、`--ran-color-link` |
+| `/login` 主按钮；`confirm-dialog` / folder-picker 选中态 | Vendor OnlyOffice / `ran-tokens.css` |
+
+Token 文件（两份字节一致，由 `design-contract` 钉住）：
+
+- `styles/brand-tokens.css` — Vite 入口（`workspace.css` / `auth.css` `@import`）
+- `public/brand-tokens.css` — 静态页 `<link>`（首页 / workspace / login）
+
 命名 **Sheet Green**——Excel 优先 + 每年 $5 的价值感，又不抄 Microsoft Office 绿
 （`#217346`）。主色与工作区 `.xlsx` 图标同源（`#0f8a5f`），营销与产品共用一管墨。
 
@@ -125,15 +137,17 @@ Notion 正文 708）。**不存在"一个正确的宽度"，只存在按内容�
 | ----- | ---- | ---- |
 | `--brand` | `#0f8a5f` | CTA、Logo 方标、h1 accent、勾选点 |
 | `--brand-strong` | `#0a6e4b` | hover / pressed |
-| `--brand-soft` | `#e8f6ef` | 徽章底、band 铺底 |
+| `--brand-soft` | `#e8f6ef` | 徽章底、band 铺底、壳层 soft 选中 |
 | `--brand-mid` | `#9dd4b8` | soft 表面的描边 |
 | `--brand-ink` | `#0a5439` | soft 上的文字 |
 | `--brand-glow` | brand @ ~32% | hero 近场氛围光 |
 | `--brand-air-glow` | 冷灰蓝 @ ~16% | 远场陪衬，避免整页单色绿 |
 
-暗色下同一组变量被覆写成更亮的绿（`--brand: #3ecf8e` 等），仍只改 token，不改选择器。
-内容页 / `/history` 暂不引入品牌绿——它们继续用 ranui 中性 + 链接蓝；品牌绿是
-「卖产品」的语言，不是「读文档」的语言。
+亮色声明在 `:root`；暗色覆写在 `[data-ran-theme='dark']` / `html[theme='dark']` /
+`prefers-color-scheme`（`--brand: #3ecf8e` 等），仍只改 token，不改选择器。
+`/workspace` 在 `.vault` 上把 `--ran-color-primary` 指到 `--brand`；格式色保留：
+xlsx → brand，docx → 蓝，pptx → 橙。同步态继续用 `--ran-color-success`，不要混成
+`--brand`。不要编辑 vendored `public/ran-tokens.css`。
 
 ## 七、已知的合理例外
 

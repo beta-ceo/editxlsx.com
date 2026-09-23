@@ -11,7 +11,7 @@ import 'ranui/message';
 import { Div, View } from 'ranui/builder';
 import { getTheme, initTheme, setTheme, type RanThemeName } from 'ranui/theme';
 import '../styles/workspace.css';
-import { applyDocumentLanguage, getLanguage, t, withLocale } from '@ranuts/shared/i18n';
+import { applyDocumentLanguage, getLanguage, localeHomePath, t, withLocale } from '@ranuts/shared/i18n';
 import { getCurrentUser, signOut, type AuthUser } from './appwrite/auth';
 import {
   createBlankFile,
@@ -2270,7 +2270,12 @@ function mountShell(): void {
       Div()
         .class('vault-space')
         .children(
-          View('span').class('vault-space-avatar').text(initials(account)).build(),
+          View('a')
+            .class('vault-space-avatar')
+            .attr('href', localeHomePath(getLanguage()))
+            .attr('aria-label', 'EditXLSX')
+            .attr('title', 'EditXLSX')
+            .build(),
           Div()
             .class('vault-space-text')
             .children(

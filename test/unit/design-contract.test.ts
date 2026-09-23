@@ -206,6 +206,20 @@ describe('design audit coverage', () => {
 });
 
 /**
+ * EditXLSX brand tokens live in two places so static pages and Vite-bundled
+ * CSS both see them. They must stay byte-identical.
+ */
+describe('brand tokens parity', () => {
+  it('keeps styles/brand-tokens.css and public/brand-tokens.css in lockstep', () => {
+    const fromStyles = read('styles/brand-tokens.css');
+    const fromPublic = read('public/brand-tokens.css');
+    expect(fromPublic).toBe(fromStyles);
+    expect(fromStyles).toMatch(/--brand:\s*#0f8a5f/);
+    expect(fromStyles).toMatch(/Sheet Green/);
+  });
+});
+
+/**
  * Small text needs a stronger green than a dot does.
  *
  * `--ran-color-success` is ranui's green-700 (#28a948), which measures 3.06:1
@@ -213,7 +227,8 @@ describe('design audit coverage', () => {
  * for text -- and the homepage used it for four 10-12px labels (the chip's
  * "open source", the document window's badge and note headings, the step
  * markers), which is exactly the size where contrast matters most. They now
- * use `--success-text` (green-900, 5.2:1). Fills keep the base token.
+ * use `--success-text` (brand-ink via Sheet Green, ≥4.5:1). Fills keep the
+ * base success token where needed.
  */
 describe('success green', () => {
   const css = read('public/home.css');
@@ -223,8 +238,8 @@ describe('success green', () => {
     body: m[2],
   }));
 
-  it('defines a text-grade token', () => {
-    expect(declaration(css, '#landing-hero', '--success-text')).toBe('var(--ran-green-900)');
+  it('defines a text-grade token on the hero', () => {
+    expect(declaration(css, '#landing-hero', '--success-text')).toBe('var(--brand-ink)');
   });
 
   it('never paints small text with the fill-grade green', () => {

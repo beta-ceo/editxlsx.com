@@ -1,0 +1,54 @@
+/**
+ * EditXLSX brand — "Sheet Green"
+ *
+ * Why green: Excel-first product ($5/year cloud + local free). Reads as
+ * spreadsheet cells and value without copying Microsoft Office (#217346).
+ * Matches the workspace .xlsx icon (#0f8a5f) so marketing and the app share
+ * one ink.
+ *
+ * Roles:
+ *   --brand          primary actions, logo mark, h1 accent
+ *   --brand-strong   hover / pressed
+ *   --brand-soft     tinted chips, badge fill, soft bands
+ *   --brand-mid      borders on soft surfaces
+ *   --brand-ink      text sitting on soft fills
+ *   --brand-glow     hero atmosphere (near-field)
+ *   --brand-air-glow cool companion wash so the page is not monochrome green
+ *
+ * Keep in sync: styles/brand-tokens.css ↔ public/brand-tokens.css
+ * (design-contract parity test). Do not edit public/ran-tokens.css.
+ */
+
+:root {
+  --brand: #0f8a5f;
+  --brand-strong: #0a6e4b;
+  --brand-soft: #e8f6ef;
+  --brand-mid: #9dd4b8;
+  --brand-ink: #0a5439;
+  --brand-glow: color-mix(in srgb, var(--brand) 32%, transparent);
+  --brand-air-glow: color-mix(in srgb, #6a8fa8 16%, transparent);
+}
+
+[data-ran-theme='dark'],
+html[theme='dark'],
+:root.dark {
+  --brand: #3ecf8e;
+  --brand-strong: #2fb87a;
+  --brand-soft: color-mix(in srgb, #0f8a5f 22%, var(--ran-color-bg, #000));
+  --brand-mid: color-mix(in srgb, #3ecf8e 40%, transparent);
+  --brand-ink: #9ee5c2;
+  --brand-glow: color-mix(in srgb, #3ecf8e 22%, transparent);
+  --brand-air-glow: color-mix(in srgb, #6a8fa8 12%, transparent);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-ran-theme='light']):not([theme='light']):not(.light) {
+    --brand: #3ecf8e;
+    --brand-strong: #2fb87a;
+    --brand-soft: color-mix(in srgb, #0f8a5f 22%, var(--ran-color-bg, #000));
+    --brand-mid: color-mix(in srgb, #3ecf8e 40%, transparent);
+    --brand-ink: #9ee5c2;
+    --brand-glow: color-mix(in srgb, #3ecf8e 22%, transparent);
+    --brand-air-glow: color-mix(in srgb, #6a8fa8 12%, transparent);
+  }
+}

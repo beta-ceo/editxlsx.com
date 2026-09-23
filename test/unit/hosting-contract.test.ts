@@ -49,6 +49,7 @@ describe('public/_headers', () => {
       // one combination caching cannot get right (see /ran-tokens above).
       '/open-local.js',
       '/landing-prefetch.js',
+      '/home-scroll.js',
       '/ranui-iife/*',
     ];
     for (const p of deployCoupled) {

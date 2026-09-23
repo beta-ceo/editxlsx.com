@@ -1,8 +1,13 @@
 /* /login -- centered auth form. Reading-column width; shared bar from landing.css. */
+@import './brand-tokens.css';
+
 .auth-shell {
   max-width: 420px;
   margin: 0 auto;
   padding: var(--ran-space-10) clamp(20px, 5vw, 56px) var(--ran-space-24);
+  --ran-color-primary: var(--brand);
+  --ran-color-primary-active: var(--brand-strong);
+  --ran-color-primary-text: #fff;
 }
 
 .auth-form {
@@ -43,4 +48,23 @@
 
 .auth-toggle {
   align-self: center;
+}
+
+/* Primary CTA matches homepage Sheet Green (defined + undefined custom element). */
+.auth-shell r-button[type='primary'],
+.auth-shell r-button[type='primary']:not(:defined) {
+  --ran-btn-background: var(--brand);
+  --ran-btn-border-color: var(--brand);
+  --ran-btn-color: #fff;
+  background: var(--brand);
+  border-color: var(--brand);
+  color: #fff;
+}
+
+.auth-shell r-button[type='primary']:hover,
+.auth-shell r-button[type='primary']:not(:defined):hover {
+  --ran-btn-background: var(--brand-strong);
+  --ran-btn-border-color: var(--brand-strong);
+  background: var(--brand-strong);
+  border-color: var(--brand-strong);
 }

@@ -253,6 +253,7 @@ ${alternates}
     </script>
     <link rel="stylesheet" href="/ran-fonts/fonts.css" />
     <link rel="stylesheet" href="/ran-tokens.css" />
+    <link rel="stylesheet" href="/brand-tokens.css" />
     <link rel="stylesheet" href="/home.css" />
 
     <meta property="og:type" content="website" />
@@ -280,6 +281,7 @@ ${jsonLd}
     <script src="/open-local.js" defer></script>
     <script src="/landing-prefetch.js" defer></script>
     <script src="/history-recent.js" defer></script>
+    <script src="/home-scroll.js" defer></script>
   </head>
 
   <body>

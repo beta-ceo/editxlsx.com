@@ -1,9 +1,8 @@
 /* Landing hero for the homepage (editxlsx.com) — mockup stack on ranui tokens.
-   home.css holds ONLY page layout/composition. Every design VALUE comes from
-   the ranui token layer (public/ran-tokens.css) or the EditXLSX brand tokens
-   declared on #landing-hero below. UI chrome uses real ranui components
-   (<r-button>). EVERY selector is scoped under #landing-hero; dark mode comes
-   from ranui for free. */
+   home.css holds ONLY page layout/composition. Design VALUES come from
+   public/ran-tokens.css and public/brand-tokens.css (Sheet Green on :root).
+   UI chrome uses real ranui components (<r-button>). EVERY selector is scoped
+   under #landing-hero; dark mode comes from ranui + brand-tokens for free. */
 
 body {
   margin: 0;
@@ -12,31 +11,7 @@ body {
 }
 
 #landing-hero {
-  /*
-   * EditXLSX brand — "Sheet Green"
-   *
-   * Why green: the product is Excel-first ($5/year cloud + local free). Green
-   * reads as spreadsheet cells and value, without copying Microsoft Office
-   * (#217346). --brand matches the workspace .xlsx icon (#0f8a5f) so marketing
-   * and the app share one ink.
-   *
-   * Roles:
-   *   --brand          primary actions, logo mark, h1 accent
-   *   --brand-strong   hover / pressed
-   *   --brand-soft     tinted chips, badge fill, soft bands
-   *   --brand-mid      borders on soft surfaces
-   *   --brand-ink      text sitting on soft fills
-   *   --brand-glow     hero atmosphere (near-field)
-   *   --brand-air-glow cool companion wash so the page is not monochrome green
-   */
-  --brand: #0f8a5f;
-  --brand-strong: #0a6e4b;
-  --brand-soft: #e8f6ef;
-  --brand-mid: #9dd4b8;
-  --brand-ink: #0a5439;
-  --brand-glow: color-mix(in srgb, var(--brand) 32%, transparent);
-  --brand-air-glow: color-mix(in srgb, #6a8fa8 16%, transparent);
-
+  /* Brand tokens (--brand*) inherit from :root via brand-tokens.css. */
   --sel: color-mix(in srgb, var(--brand) 28%, var(--ran-color-bg));
   --maxw: 1152px;
   --pad: clamp(20px, 5vw, 56px);
@@ -1391,17 +1366,75 @@ body {
   }
 }
 
-/* Dark theme: brand soft surfaces flip to deep green ink. */
-[data-ran-theme='dark'] #landing-hero,
-html[theme='dark'] #landing-hero {
-  --brand: #3ecf8e;
-  --brand-strong: #2fb87a;
-  --brand-soft: color-mix(in srgb, #0f8a5f 22%, var(--ran-color-bg));
-  --brand-mid: color-mix(in srgb, #3ecf8e 40%, transparent);
-  --brand-ink: #9ee5c2;
-  --brand-glow: color-mix(in srgb, #3ecf8e 22%, transparent);
-  --brand-air-glow: color-mix(in srgb, #6a8fa8 12%, transparent);
+/*
+ * Scroll reveals (feature / bento / band). Only armed when home-scroll.js
+ * marks #landing-hero with .has-scroll-reveal — so no-JS and reduced-motion
+ * readers never see blank cards.
+ */
+@media (prefers-reduced-motion: no-preference) {
+  #landing-hero.has-scroll-reveal .feat-card:not(.is-in),
+  #landing-hero.has-scroll-reveal .bento-card:not(.is-in),
+  #landing-hero.has-scroll-reveal .band:not(.is-in),
+  #landing-hero.has-scroll-reveal .section-head:not(.is-in),
+  #landing-hero.has-scroll-reveal .loved:not(.is-in) {
+    opacity: 0;
+    transform: translateY(22px);
+  }
+
+  #landing-hero.has-scroll-reveal .feat-card,
+  #landing-hero.has-scroll-reveal .bento-card,
+  #landing-hero.has-scroll-reveal .band,
+  #landing-hero.has-scroll-reveal .section-head,
+  #landing-hero.has-scroll-reveal .loved {
+    transition:
+      opacity 0.65s cubic-bezier(0.22, 1, 0.36, 1),
+      transform 0.65s cubic-bezier(0.22, 1, 0.36, 1),
+      box-shadow 0.2s ease,
+      border-color 0.2s ease;
+  }
+
+  #landing-hero.has-scroll-reveal .feat-card.is-in,
+  #landing-hero.has-scroll-reveal .bento-card.is-in,
+  #landing-hero.has-scroll-reveal .band.is-in,
+  #landing-hero.has-scroll-reveal .section-head.is-in,
+  #landing-hero.has-scroll-reveal .loved.is-in {
+    opacity: 1;
+    transform: none;
+  }
+
+  /* Stagger siblings so a row of cards reads as a cascade, not a flash. */
+  #landing-hero.has-scroll-reveal .feat-grid .feat-card:nth-child(1) {
+    transition-delay: 0.02s;
+  }
+  #landing-hero.has-scroll-reveal .feat-grid .feat-card:nth-child(2) {
+    transition-delay: 0.1s;
+  }
+  #landing-hero.has-scroll-reveal .feat-grid .feat-card:nth-child(3) {
+    transition-delay: 0.18s;
+  }
+  #landing-hero.has-scroll-reveal .bento .bento-card:nth-child(1) {
+    transition-delay: 0.04s;
+  }
+  #landing-hero.has-scroll-reveal .bento .bento-card:nth-child(2) {
+    transition-delay: 0.12s;
+  }
+  #landing-hero.has-scroll-reveal .bento .bento-card:nth-child(3) {
+    transition-delay: 0.2s;
+  }
+  #landing-hero.has-scroll-reveal .bento .bento-card:nth-child(4) {
+    transition-delay: 0.28s;
+  }
+
+  /* Hover lift still wins once the card is in. */
+  #landing-hero.has-scroll-reveal .feat-card.is-in:hover {
+    transform: translateY(-3px);
+  }
+  #landing-hero.has-scroll-reveal .bento-card.is-in:hover {
+    transform: translateY(-2px);
+  }
 }
+
+/* Dark theme: soft surfaces pick up inherited brand tokens from :root. */
 [data-ran-theme='dark'] #landing-hero .hero-badge,
 html[theme='dark'] #landing-hero .hero-badge {
   background: color-mix(in srgb, var(--brand) 18%, transparent);

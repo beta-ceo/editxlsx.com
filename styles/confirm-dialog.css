@@ -63,11 +63,11 @@
 }
 
 .folder-picker-option:hover {
-  background: color-mix(in srgb, var(--ran-blue-700, #006bff) 8%, transparent);
+  background: color-mix(in srgb, var(--ran-color-primary, var(--brand, #0f8a5f)) 8%, transparent);
 }
 
 .folder-picker-option.is-selected {
-  background: color-mix(in srgb, var(--ran-blue-700, #006bff) 12%, transparent);
-  color: var(--ran-blue-800, #0059ec);
+  background: color-mix(in srgb, var(--ran-color-primary, var(--brand, #0f8a5f)) 12%, transparent);
+  color: var(--ran-color-primary-active, var(--brand-strong, #0a6e4b));
   font-weight: 600;
 }
