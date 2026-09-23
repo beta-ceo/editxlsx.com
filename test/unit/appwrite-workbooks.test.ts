@@ -282,6 +282,87 @@ describe('appwrite workbooks', () => {
     expect(createFile).not.toHaveBeenCalled();
   });
 
+  it('reports byte progress via XHR for small files (SDK skips onProgress under 5 MiB)', async () => {
+    createDocument.mockResolvedValue({
+      $id: 'generated-id',
+      $createdAt: '2026-01-01',
+      $updatedAt: '2026-01-01',
+      userId: 'user-1',
+      title: 'Report.xlsx',
+      fileId: 'generated-id',
+      sizeBytes: 4,
+      kind: 'file',
+      format: 'xlsx',
+      parentId: '',
+      sortOrder: 0,
+    });
+
+    type ProgressListener = (event: ProgressEvent) => void;
+    let uploadProgress: ProgressListener | null = null;
+    let loadHandler: (() => void) | null = null;
+    const send = vi.fn(() => {
+      uploadProgress?.({ lengthComputable: true, loaded: 2, total: 4 } as ProgressEvent);
+      uploadProgress?.({ lengthComputable: true, loaded: 4, total: 4 } as ProgressEvent);
+      // Finish after microtasks so callers can attach handlers first.
+      queueMicrotask(() => loadHandler?.());
+    });
+    const open = vi.fn();
+    const setRequestHeader = vi.fn();
+    vi.stubGlobal(
+      'XMLHttpRequest',
+      vi.fn(function MockXHR(this: {
+        upload: { onprogress: ProgressListener | null };
+        status: number;
+        responseText: string;
+        withCredentials: boolean;
+        open: typeof open;
+        setRequestHeader: typeof setRequestHeader;
+        send: typeof send;
+        onload: (() => void) | null;
+      }) {
+        this.upload = {
+          get onprogress() {
+            return uploadProgress;
+          },
+          set onprogress(fn: ProgressListener | null) {
+            uploadProgress = fn;
+          },
+        };
+        this.status = 201;
+        this.responseText = JSON.stringify({ $id: 'generated-id' });
+        this.withCredentials = false;
+        this.open = open;
+        this.setRequestHeader = setRequestHeader;
+        this.send = send;
+        Object.defineProperty(this, 'onload', {
+          get: () => loadHandler,
+          set: (fn: (() => void) | null) => {
+            loadHandler = fn;
+          },
+        });
+      }),
+    );
+
+    const { createWorkbookFromFile } = await import('../../lib/appwrite/workbooks');
+    const file = new File([new Uint8Array([1, 2, 3, 4])], 'Report.xlsx', {
+      type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+    });
+    const ticks: number[] = [];
+    const workbook = await createWorkbookFromFile(file, undefined, '', 0, (progress) => {
+      ticks.push(progress.progress);
+    });
+
+    expect(createFile).not.toHaveBeenCalled();
+    expect(open).toHaveBeenCalledWith(
+      'POST',
+      expect.stringContaining('/storage/buckets/workbooks/files'),
+    );
+    expect(ticks.some((pct) => pct > 0 && pct < 100)).toBe(true);
+    expect(ticks.at(-1)).toBe(100);
+    expect(workbook.id).toBe('generated-id');
+    vi.unstubAllGlobals();
+  });
+
   it('creates a folder as metadata with no storage object', async () => {
     createDocument.mockResolvedValue({
       $id: 'generated-id',

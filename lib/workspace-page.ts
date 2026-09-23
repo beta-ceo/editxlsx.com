@@ -796,6 +796,17 @@ function cancelUploadQueueHide(): void {
   uploadQueueHideTimer = 0;
 }
 
+/** Coalesce rapid XHR progress events onto one paint per frame. */
+let uploadProgressPaintQueued = false;
+function scheduleUploadProgressPaint(): void {
+  if (uploadProgressPaintQueued) return;
+  uploadProgressPaintQueued = true;
+  requestAnimationFrame(() => {
+    uploadProgressPaintQueued = false;
+    paintUploadProgress();
+  });
+}
+
 /** Hide the panel once every row is finished (done/error) and nothing is uploading. */
 function scheduleUploadQueueHideIfIdle(): void {
   cancelUploadQueueHide();
@@ -1119,7 +1130,7 @@ async function uploadOfficeItems(items: DroppedUpload[], baseParentId: string): 
           (progress) => {
             item.progress = progress.progress;
             item.sizeUploaded = progress.sizeUploaded;
-            paintUploadProgress();
+            scheduleUploadProgressPaint();
           },
         );
         rows = [workbook, ...rows.filter((row) => row.id !== workbook.id)];

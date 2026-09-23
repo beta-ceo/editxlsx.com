@@ -50,6 +50,9 @@ export type VaultPlacementPatch = {
   sortOrder: number;
 };
 
+/** Appwrite Web SDK chunk size; files at or below this skip onProgress callbacks. */
+const APPWRITE_UPLOAD_CHUNK_BYTES = 5 * 1024 * 1024;
+
 type VaultDoc = Models.Document & {
   userId: string;
   title: string;
@@ -249,12 +252,91 @@ async function uploadFile(
 ): Promise<void> {
   assertCloudOfficeFile(file, format);
   const named = new File([file], ensureFormatName(file.name, format), { type: mimeForFormat(format) });
+  const permissions = ownerPermissions(userId);
+  // Appwrite Web SDK only emits onProgress for multi-chunk uploads (>5 MiB).
+  // Typical workbooks are smaller, so use XHR upload events for real progress.
+  if (onProgress && named.size <= APPWRITE_UPLOAD_CHUNK_BYTES) {
+    await uploadFileWithByteProgress(fileId, named, permissions, onProgress);
+    return;
+  }
   await getStorage().createFile({
     bucketId: BUCKET_WORKBOOKS,
     fileId,
     file: named,
-    permissions: ownerPermissions(userId),
+    permissions,
     onProgress,
+  });
+}
+
+/**
+ * Single-shot Storage createFile with browser upload progress.
+ * Mirrors Appwrite's multipart shape (fileId + file + permissions[]).
+ */
+function uploadFileWithByteProgress(
+  fileId: string,
+  file: File,
+  permissions: string[],
+  onProgress: (progress: UploadProgress) => void,
+): Promise<void> {
+  return new Promise((resolve, reject) => {
+    const client = getClient();
+    const endpoint = client.config.endpoint.replace(/\/$/, '');
+    const url = `${endpoint}/storage/buckets/${encodeURIComponent(BUCKET_WORKBOOKS)}/files`;
+    const form = new FormData();
+    form.append('fileId', fileId);
+    form.append('file', file, file.name);
+    for (const permission of permissions) {
+      form.append('permissions[]', permission);
+    }
+
+    const xhr = new XMLHttpRequest();
+    xhr.open('POST', url);
+    xhr.withCredentials = true;
+    xhr.setRequestHeader('X-Appwrite-Project', client.config.project);
+    xhr.setRequestHeader('Accept', 'application/json');
+    try {
+      const cookieFallback = window.localStorage?.getItem('cookieFallback');
+      if (cookieFallback) xhr.setRequestHeader('X-Fallback-Cookies', cookieFallback);
+    } catch {
+      /* private mode / missing localStorage */
+    }
+
+    const report = (sizeUploaded: number, progress: number, chunksUploaded: number): void => {
+      onProgress({
+        $id: fileId,
+        progress,
+        sizeUploaded,
+        chunksTotal: 1,
+        chunksUploaded,
+      });
+    };
+
+    xhr.upload.onprogress = (event) => {
+      if (!event.lengthComputable && file.size <= 0) return;
+      const total = event.lengthComputable && event.total > 0 ? event.total : file.size;
+      const loaded = event.loaded;
+      const pct = total > 0 ? Math.max(0, Math.min(100, Math.round((loaded / total) * 100))) : 0;
+      report(loaded, pct, loaded >= total ? 1 : 0);
+    };
+
+    xhr.onload = () => {
+      if (xhr.status >= 200 && xhr.status < 300) {
+        report(file.size, 100, 1);
+        resolve();
+        return;
+      }
+      let message = `Failed to upload workbook (${xhr.status})`;
+      try {
+        const body = JSON.parse(xhr.responseText) as { message?: string };
+        if (body.message) message = body.message;
+      } catch {
+        /* keep status message */
+      }
+      reject(new Error(message));
+    };
+    xhr.onerror = () => reject(new Error('Failed to upload workbook'));
+    xhr.onabort = () => reject(new Error('Upload cancelled'));
+    xhr.send(form);
   });
 }
 
