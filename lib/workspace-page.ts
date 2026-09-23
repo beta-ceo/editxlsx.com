@@ -85,8 +85,6 @@ let shellReady = false;
 /** Editor pane while a framed workbook is opening. */
 let stageStatus: 'idle' | 'loading' | 'ready' | 'error' = 'idle';
 let stageError = '';
-/** Sub-status under loading: download vs handing bytes to the editor. */
-let stagePhase: 'download' | 'editor' = 'download';
 let bridgeListening = false;
 /** Sync chip: icon for saving / local / synced / error (label in title). */
 let saveStatus: ShellSaveState | 'idle' = 'idle';
@@ -184,16 +182,10 @@ function editorBundleBooted(frame: HTMLIFrameElement): boolean {
 
 function handoffMeta(): {
   onMeta: (fresh: Workbook) => void;
-  onPhase: (phase: 'download' | 'editor') => void;
 } {
   return {
     onMeta: (fresh) => {
       rows = rows.map((row) => (row.id === fresh.id ? fresh : row));
-    },
-    onPhase: (phase) => {
-      if (stageStatus !== 'loading') return;
-      stagePhase = phase;
-      paintOverlay();
     },
   };
 }
@@ -221,7 +213,6 @@ function mountWarmEditorFrame(frame: HTMLIFrameElement, options: { bootToken?: n
 function remountEditorFrame(frame: HTMLIFrameElement, workbookId: string): void {
   stageStatus = 'loading';
   stageError = '';
-  stagePhase = 'download';
   frame.dataset.workbook = workbookId;
   frame.title = rows.find((row) => row.id === workbookId)?.title || workbookId;
   const workbook = rows.find((row): row is Workbook => row.id === workbookId && row.kind === 'file');
@@ -568,7 +559,6 @@ function selectWorkbook(id: string): void {
   if (same && (stageStatus === 'loading' || stageStatus === 'error')) {
     stageStatus = 'loading';
     stageError = '';
-    stagePhase = 'download';
     clearOpenWatchers();
     const frame = document.getElementById('workspace-editor-frame') as HTMLIFrameElement | null;
     const workbook = rows.find((row): row is Workbook => row.id === id && row.kind === 'file');
@@ -586,7 +576,6 @@ function selectWorkbook(id: string): void {
   if (!same) {
     stageStatus = 'loading';
     stageError = '';
-    stagePhase = 'download';
     setSaveStatus('idle');
   }
   selectedId = id;
@@ -2020,35 +2009,7 @@ function mountShell(): void {
             body.className = 'vault-stage-overlay-body';
             body.id = 'workspace-stage-overlay-body';
 
-            const steps = document.createElement('ol');
-            steps.className = 'vault-stage-overlay-steps';
-            steps.id = 'workspace-stage-overlay-steps';
-            steps.setAttribute('aria-hidden', 'true');
-            for (const step of [
-              { id: 'download', label: t('cloudOpeningStepDownload') },
-              { id: 'editor', label: t('cloudOpeningStepEditor') },
-            ] as const) {
-              const li = document.createElement('li');
-              li.className = 'vault-stage-overlay-step';
-              li.dataset.step = step.id;
-              const dot = document.createElement('span');
-              dot.className = 'vault-stage-overlay-step-dot';
-              const label = document.createElement('span');
-              label.className = 'vault-stage-overlay-step-label';
-              label.textContent = step.label;
-              li.append(dot, label);
-              steps.append(li);
-            }
-
-            const bar = document.createElement('div');
-            bar.className = 'vault-stage-overlay-bar';
-            bar.id = 'workspace-stage-overlay-bar';
-            bar.setAttribute('aria-hidden', 'true');
-            const barFill = document.createElement('span');
-            barFill.className = 'vault-stage-overlay-bar-fill';
-            bar.append(barFill);
-
-            panel.append(mark, title, body, steps, bar);
+            panel.append(mark, title, body);
             overlay.append(panel);
             return overlay;
           })(),
@@ -2622,12 +2583,108 @@ function paintStorage(): void {
   fill.style.width = `${Math.round(ratio * 1000) / 10}%`;
 }
 
+/** Cancels an in-flight overlay leave so a new open can enter cleanly. */
+let overlayLeaveGen = 0;
+let overlayLeaveTimer = 0;
+
+function prefersReducedMotion(): boolean {
+  try {
+    return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  } catch {
+    return false;
+  }
+}
+
+function cancelOverlayLeave(overlay: HTMLElement): void {
+  overlayLeaveGen += 1;
+  if (overlayLeaveTimer) {
+    window.clearTimeout(overlayLeaveTimer);
+    overlayLeaveTimer = 0;
+  }
+  overlay.classList.remove('is-leaving');
+}
+
+/** Show the overlay with an enter animation when coming from hidden/leaving. */
+function revealOverlay(overlay: HTMLElement): void {
+  const wasAway = overlay.hidden || overlay.classList.contains('is-leaving');
+  cancelOverlayLeave(overlay);
+  overlay.hidden = false;
+  if (wasAway) {
+    overlay.classList.remove('is-open');
+    // Force a style flush so the enter animation restarts.
+    void overlay.offsetWidth;
+  }
+  overlay.classList.add('is-open');
+}
+
+/**
+ * Play the leave animation, then hide. Content clear runs after hide so the
+ * exit still shows the last title/progress.
+ */
+function dismissOverlay(
+  overlay: HTMLElement,
+  afterHide: () => void,
+  options: { complete?: boolean } = {},
+): void {
+  if (overlay.hidden && !overlay.classList.contains('is-leaving')) {
+    afterHide();
+    return;
+  }
+  if (overlay.classList.contains('is-leaving')) return;
+
+  if (options.complete) {
+    const mark = document.getElementById('workspace-stage-overlay-mark');
+    if (mark && mark.dataset.kind !== 'done') {
+      mark.dataset.kind = 'done';
+      mark.replaceChildren(svgIcon('M5 12l5 5L20 7', 'vault-icon vault-stage-overlay-check'));
+    }
+  }
+
+  const token = ++overlayLeaveGen;
+  const finish = (): void => {
+    if (token !== overlayLeaveGen) return;
+    if (overlayLeaveTimer) {
+      window.clearTimeout(overlayLeaveTimer);
+      overlayLeaveTimer = 0;
+    }
+    overlay.hidden = true;
+    overlay.classList.remove('is-leaving', 'is-open');
+    afterHide();
+  };
+
+  if (prefersReducedMotion()) {
+    finish();
+    return;
+  }
+
+  const startLeave = (): void => {
+    if (token !== overlayLeaveGen) return;
+    // Keep `is-open` until finish so removing it does not snap opacity to 0
+    // before the leave animation can take over.
+    overlay.classList.add('is-leaving');
+    overlay.setAttribute('aria-busy', 'false');
+
+    const onEnd = (event: AnimationEvent): void => {
+      if (event.target !== overlay) return;
+      overlay.removeEventListener('animationend', onEnd);
+      finish();
+    };
+    overlay.addEventListener('animationend', onEnd);
+    overlayLeaveTimer = window.setTimeout(finish, 320);
+  };
+
+  // Brief beat so the checkmark reads before fade-out.
+  if (options.complete) {
+    overlayLeaveTimer = window.setTimeout(startLeave, 120);
+  } else {
+    startLeave();
+  }
+}
+
 function paintOverlay(): void {
   const overlay = document.getElementById('workspace-stage-overlay');
   const title = document.getElementById('workspace-stage-overlay-title');
   const body = document.getElementById('workspace-stage-overlay-body');
-  const steps = document.getElementById('workspace-stage-overlay-steps');
-  const bar = document.getElementById('workspace-stage-overlay-bar');
   const mark = document.getElementById('workspace-stage-overlay-mark');
   if (!overlay || !title || !body) return;
 
@@ -2636,35 +2693,24 @@ function paintOverlay(): void {
     rows.find((row) => row.id === selectedId && row.kind === 'file')?.title ||
     '';
 
+  const clearOverlayCopy = (): void => {
+    overlay.dataset.state = stageStatus;
+    overlay.setAttribute('aria-busy', 'false');
+    overlay.removeAttribute('aria-label');
+    title.textContent = '';
+    body.textContent = '';
+  };
+
   if (stageStatus === 'loading') {
-    overlay.hidden = false;
+    revealOverlay(overlay);
     overlay.dataset.state = 'loading';
-    overlay.dataset.phase = stagePhase;
     overlay.setAttribute('aria-busy', 'true');
     overlay.setAttribute(
       'aria-label',
       workbookTitle ? `${t('cloudOpeningWorkbook')} ${workbookTitle}` : t('cloudOpeningWorkbook'),
     );
     title.textContent = workbookTitle || t('cloudOpeningWorkbook');
-    body.textContent =
-      stagePhase === 'editor' ? t('cloudOpeningEditor') : t('cloudOpeningDownload');
-    if (steps) {
-      steps.hidden = false;
-      for (const li of steps.querySelectorAll<HTMLElement>('.vault-stage-overlay-step')) {
-        const step = li.dataset.step;
-        li.classList.toggle('is-active', step === stagePhase);
-        li.classList.toggle(
-          'is-done',
-          stagePhase === 'editor' ? step === 'download' : false,
-        );
-        const label = li.querySelector('.vault-stage-overlay-step-label');
-        if (label) {
-          label.textContent =
-            step === 'editor' ? t('cloudOpeningStepEditor') : t('cloudOpeningStepDownload');
-        }
-      }
-    }
-    if (bar) bar.hidden = false;
+    body.textContent = t('cloudOpeningWorkbook');
     if (mark && mark.dataset.kind !== 'loading') {
       mark.dataset.kind = 'loading';
       mark.replaceChildren();
@@ -2676,33 +2722,25 @@ function paintOverlay(): void {
   }
 
   if (stageStatus === 'error') {
-    overlay.hidden = false;
+    revealOverlay(overlay);
     overlay.dataset.state = 'error';
-    delete overlay.dataset.phase;
     overlay.setAttribute('aria-busy', 'false');
     overlay.setAttribute('aria-label', t('cloudOpenFailedTitle'));
     title.textContent = t('cloudOpenFailedTitle');
     body.textContent = stageError || t('cloudOpenFailed');
-    if (steps) steps.hidden = true;
-    if (bar) bar.hidden = true;
     if (mark) {
       mark.dataset.kind = 'error';
       mark.replaceChildren(
-        svgIcon('M12 9v4M12 17h.01M10.3 4.3 2.6 18a1.5 1.5 0 0 0 1.3 2.25h16.2a1.5 1.5 0 0 0 1.3-2.25L13.7 4.3a1.5 1.5 0 0 0-2.6 0z'),
+        svgIcon(
+          'M12 9v4M12 17h.01M10.3 4.3 2.6 18a1.5 1.5 0 0 0 1.3 2.25h16.2a1.5 1.5 0 0 0 1.3-2.25L13.7 4.3a1.5 1.5 0 0 0-2.6 0z',
+        ),
       );
     }
     return;
   }
 
-  overlay.hidden = true;
-  overlay.dataset.state = stageStatus;
-  delete overlay.dataset.phase;
-  overlay.setAttribute('aria-busy', 'false');
-  overlay.removeAttribute('aria-label');
-  title.textContent = '';
-  body.textContent = '';
-  if (steps) steps.hidden = true;
-  if (bar) bar.hidden = true;
+  // ready / idle — animate out, then clear.
+  dismissOverlay(overlay, clearOverlayCopy, { complete: stageStatus === 'ready' });
 }
 
 function paintFolderTitle(title: HTMLElement): void {
@@ -2889,7 +2927,6 @@ function paintStage(): void {
   }
   stageStatus = 'loading';
   stageError = '';
-  stagePhase = 'download';
   frame.dataset.workbook = workbook.id;
   frame.title = workbook.title;
   // Start Storage / pending fetch immediately; the warm host receives bytes via
