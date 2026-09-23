@@ -1652,6 +1652,62 @@ body {
   font-size: 13px;
 }
 
+.vault-stage-browser-selection {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 0 0 12px;
+  padding: 8px 12px;
+  border-radius: 10px;
+  background: color-mix(in srgb, var(--ran-blue-700, #006bff) 8%, transparent);
+  border: 1px solid color-mix(in srgb, var(--ran-blue-700, #006bff) 18%, transparent);
+}
+
+.vault-stage-browser-selection[hidden] {
+  display: none;
+}
+
+.vault-stage-browser-selection-count {
+  flex: 1 1 auto;
+  min-width: 0;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--ran-blue-800, #0059ec);
+}
+
+.vault-stage-browser-selection-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  flex: none;
+}
+
+.vault-stage-browser-selection-btn {
+  min-height: 30px;
+  padding: 0 10px;
+  border: 1px solid var(--ran-color-border, rgba(0, 0, 0, 0.08));
+  border-radius: 8px;
+  background: var(--ran-color-bg, #fff);
+  color: var(--ran-color-text);
+  font: inherit;
+  font-size: 12.5px;
+  cursor: pointer;
+}
+
+.vault-stage-browser-selection-btn:hover {
+  background: var(--ran-gray-100, #f2f2f2);
+}
+
+.vault-stage-browser-selection-btn.is-danger {
+  color: var(--ran-color-danger, #c62828);
+  border-color: color-mix(in srgb, var(--ran-color-danger, #c62828) 28%, transparent);
+}
+
+.vault-stage-browser-selection-btn.is-danger:hover {
+  background: color-mix(in srgb, var(--ran-color-danger, #c62828) 8%, #fff);
+}
+
 .vault-stage-browser-list {
   flex: 1 1 auto;
   min-height: 0;
@@ -1665,13 +1721,60 @@ body {
   box-sizing: border-box;
   width: 100%;
   display: grid;
+  grid-template-columns: 22px minmax(0, 1fr);
+  align-items: center;
+  gap: 2px;
+  margin: 0;
+  padding: 0 6px 0 8px;
+  border: 0;
+  border-bottom: 1px solid color-mix(in srgb, var(--ran-color-border, rgba(0, 0, 0, 0.08)) 80%, transparent);
+  background: transparent;
+  color: inherit;
+}
+
+.vault-stage-browser-row:last-child {
+  border-bottom: 0;
+}
+
+.vault-stage-browser-row.is-selected {
+  background: color-mix(in srgb, var(--ran-blue-700, #006bff) 8%, transparent);
+}
+
+.vault-stage-browser-row.is-file-drop {
+  background: color-mix(in srgb, var(--ran-blue-700, #006bff) 12%, transparent);
+  outline: 1px solid color-mix(in srgb, var(--ran-blue-700, #006bff) 45%, transparent);
+  outline-offset: -1px;
+}
+
+.vault-stage-browser-check {
+  width: 16px;
+  height: 16px;
+  margin: 0;
+  flex: none;
+  accent-color: var(--ran-blue-700, #006bff);
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity 0.12s ease;
+}
+
+.vault-stage-browser-row:hover .vault-stage-browser-check,
+.vault-stage-browser-row.is-selected .vault-stage-browser-check,
+.vault-stage-browser-check:checked,
+.vault-stage-browser-check:focus-visible {
+  opacity: 1;
+}
+
+.vault-stage-browser-open {
+  box-sizing: border-box;
+  width: 100%;
+  display: grid;
   grid-template-columns: minmax(0, 1fr) 88px 160px;
   align-items: center;
   gap: 12px;
   margin: 0;
-  padding: 11px 14px;
+  padding: 11px 8px 11px 0;
   border: 0;
-  border-bottom: 1px solid color-mix(in srgb, var(--ran-color-border, rgba(0, 0, 0, 0.08)) 80%, transparent);
+  border-radius: 8px;
   background: transparent;
   color: inherit;
   font: inherit;
@@ -1679,14 +1782,8 @@ body {
   cursor: pointer;
 }
 
-.vault-stage-browser-row:last-child {
-  border-bottom: 0;
-}
-
-.vault-stage-browser-row.is-file-drop {
-  background: color-mix(in srgb, var(--ran-blue-700, #006bff) 12%, transparent);
-  outline: 1px solid color-mix(in srgb, var(--ran-blue-700, #006bff) 45%, transparent);
-  outline-offset: -1px;
+.vault-stage-browser-open:hover {
+  background: color-mix(in srgb, var(--ran-blue-700, #006bff) 5%, transparent);
 }
 
 .vault-stage-browser-name {
@@ -1743,7 +1840,7 @@ body {
 }
 
 @media (max-width: 720px) {
-  .vault-stage-browser-row {
+  .vault-stage-browser-open {
     grid-template-columns: minmax(0, 1fr) 72px;
   }
 

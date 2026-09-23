@@ -189,6 +189,24 @@ export interface I18nMessages {
   cloudDeleteTitle: string;
   /** `{title}` is the workbook name. */
   cloudDeleteConfirm: string;
+  /** `{count}` is the number of selected items. */
+  cloudBatchSelected: string;
+  cloudBatchSelectAll: string;
+  cloudBatchClear: string;
+  cloudBatchMove: string;
+  cloudBatchDelete: string;
+  /** `{count}` selected count. */
+  cloudBatchDeleteTitle: string;
+  /** `{count}` selected count. */
+  cloudBatchDeleteConfirm: string;
+  /** `{count}` selected count. */
+  cloudBatchMoveTitle: string;
+  cloudBatchMoveBody: string;
+  cloudBatchMoveHere: string;
+  cloudBatchRoot: string;
+  cloudBatchMoveFailed: string;
+  /** `{done}` / `{total}` after partial batch delete. */
+  cloudBatchDeletePartial: string;
   cloudCancel: string;
   cloudSearchPlaceholder: string;
   cloudColDocument: string;

@@ -17,6 +17,7 @@ import { createBlankFile, createFolder, createWorkbookFromFile, deleteVaultItem,
 import type { VaultFormat } from './appwrite/ids';
 import { formatFromTitle, MAX_WORKBOOK_BYTES } from './appwrite/ids';
 import { confirmDialog } from './confirm-dialog';
+import { pickFolderDialog } from './folder-picker-dialog';
 import { applySiteThemeToEditor } from './editor-theme';
 import { DEFAULT_UI_THEME } from './onlyoffice/ui-theme';
 import {
@@ -74,6 +75,8 @@ let selectedId = '';
 let currentFolderId = '';
 /** Folder ids whose children are visible in the sidebar tree. */
 const expandedFolderIds = new Set<string>();
+/** Multi-select in the stage browser list (folder view). */
+const selectedBrowserIds = new Set<string>();
 /** Inline rename target in the sidebar tree ('' = not renaming). */
 let renamingId = '';
 /** HTML5 DnD: id being dragged (tree mode only). */
@@ -579,6 +582,7 @@ function selectWorkbook(id: string): void {
     setSaveStatus('idle');
   }
   selectedId = id;
+  clearBrowserSelection();
   const item = rows.find((row) => row.id === id);
   if (item?.kind === 'file') currentFolderId = item.parentId || '';
   revealTreeSelection();
@@ -594,6 +598,7 @@ function openFolder(id: string): void {
   stageError = '';
   setSaveStatus('idle');
   clearOpenWatchers();
+  clearBrowserSelection();
   expandedFolderIds.add(id);
   expandAncestors(id);
   syncUrl();
@@ -1291,6 +1296,7 @@ async function deleteItem(id: string): Promise<void> {
     await deleteVaultItem(id);
     rows = rows.filter((row) => row.id !== id);
     expandedFolderIds.delete(id);
+    selectedBrowserIds.delete(id);
     if (selectedId === id) {
       selectedId = '';
       openWorkbook = null;
@@ -1308,6 +1314,168 @@ async function deleteItem(id: string): Promise<void> {
     const message = error instanceof Error ? error.message : String(error);
     notifyError(/not empty/i.test(message) ? t('cloudFolderNotEmpty') : message);
   }
+}
+
+function clearBrowserSelection(): void {
+  if (selectedBrowserIds.size === 0) return;
+  selectedBrowserIds.clear();
+}
+
+function toggleBrowserSelection(id: string): void {
+  if (selectedBrowserIds.has(id)) selectedBrowserIds.delete(id);
+  else selectedBrowserIds.add(id);
+}
+
+function selectAllVisibleBrowserItems(items: VaultItem[]): void {
+  for (const item of items) selectedBrowserIds.add(item.id);
+}
+
+/** Folders eligible as Move destinations (excludes selected folders and their descendants). */
+function moveDestinationFolders(): { id: string; title: string; depth: number }[] {
+  const blocked = new Set<string>();
+  for (const id of selectedBrowserIds) {
+    const item = rows.find((row) => row.id === id);
+    if (item?.kind !== 'folder') continue;
+    blocked.add(id);
+    for (const row of rows) {
+      if (row.kind === 'folder' && isUnderFolder(rows, id, row.id)) blocked.add(row.id);
+    }
+  }
+
+  const out: { id: string; title: string; depth: number }[] = [];
+  const walk = (parentId: string, depth: number): void => {
+    for (const folder of childrenOf(parentId).filter((row) => row.kind === 'folder')) {
+      if (blocked.has(folder.id)) continue;
+      out.push({ id: folder.id, title: folder.title, depth });
+      walk(folder.id, depth + 1);
+    }
+  };
+  walk('', 0);
+  return out;
+}
+
+async function batchDeleteSelected(): Promise<void> {
+  const ids = [...selectedBrowserIds];
+  if (ids.length === 0) return;
+  const count = String(ids.length);
+  const ok = await confirmDialog({
+    title: t('cloudBatchDeleteTitle', { count }),
+    body: t('cloudBatchDeleteConfirm', { count }),
+    confirmLabel: t('cloudBatchDelete'),
+    cancelLabel: t('cloudCancel'),
+    danger: true,
+  });
+  if (!ok) return;
+
+  // Files first, then folders deepest-first so a selected parent is emptied
+  // before we try to remove it.
+  const ordered = ids
+    .map((id) => rows.find((row) => row.id === id))
+    .filter((row): row is VaultItem => Boolean(row))
+    .sort((a, b) => {
+      if (a.kind !== b.kind) return a.kind === 'file' ? -1 : 1;
+      if (a.kind === 'folder' && b.kind === 'folder') {
+        const aUnderB = isUnderFolder(rows, b.id, a.id);
+        const bUnderA = isUnderFolder(rows, a.id, b.id);
+        if (aUnderB) return -1;
+        if (bUnderA) return 1;
+      }
+      return compareVaultOrder(a, b);
+    });
+
+  let done = 0;
+  for (const item of ordered) {
+    const id = item.id;
+    try {
+      await deleteVaultItem(id);
+      rows = rows.filter((row) => row.id !== id);
+      expandedFolderIds.delete(id);
+      selectedBrowserIds.delete(id);
+      done += 1;
+      if (selectedId === id) {
+        selectedId = '';
+        openWorkbook = null;
+        stageStatus = 'idle';
+        stageError = '';
+        setSaveStatus('idle');
+        clearOpenWatchers();
+      }
+      if (currentFolderId === id) currentFolderId = item.parentId || '';
+    } catch {
+      /* keep failed ids selected so the user can retry or clear */
+    }
+  }
+  syncUrl();
+  paint();
+  if (done < ordered.length) {
+    notifyError(t('cloudBatchDeletePartial', { done: String(done), total: String(ordered.length) }));
+  }
+}
+
+async function batchMoveSelected(): Promise<void> {
+  const ids = [...selectedBrowserIds];
+  if (ids.length === 0) return;
+  const count = String(ids.length);
+  const destination = await pickFolderDialog({
+    title: t('cloudBatchMoveTitle', { count }),
+    body: t('cloudBatchMoveBody'),
+    confirmLabel: t('cloudBatchMoveHere'),
+    cancelLabel: t('cloudCancel'),
+    rootLabel: t('cloudBatchRoot'),
+    folders: moveDestinationFolders(),
+    initialId: currentFolderId,
+  });
+  if (destination === null) return;
+
+  const previous = rows;
+  let working = rows;
+  const byId = new Map<string, { id: string; parentId: string; sortOrder: number }>();
+  let moved = 0;
+  const ordered = ids
+    .map((id) => working.find((row) => row.id === id))
+    .filter((row): row is VaultItem => Boolean(row))
+    .sort(compareVaultOrder);
+
+  try {
+    for (const item of ordered) {
+      if ((item.parentId || '') === destination) continue;
+      if (item.kind === 'folder' && (destination === item.id || isUnderFolder(working, item.id, destination))) {
+        continue;
+      }
+      const { items, patches } = placeVaultItem(working, item.id, destination, null);
+      working = items;
+      for (const patch of patches) byId.set(patch.id, patch);
+      moved += 1;
+    }
+    if (moved === 0) {
+      clearBrowserSelection();
+      paintStageBrowser(childrenOf(currentFolderId));
+      return;
+    }
+    rows = working;
+    clearBrowserSelection();
+    paint();
+    await reorderVaultSiblings([...byId.values()]);
+  } catch (error) {
+    rows = previous;
+    paint();
+    const message = error instanceof Error ? error.message : String(error);
+    notifyError(`${t('cloudBatchMoveFailed')} ${message}`.trim());
+  }
+}
+
+function paintBrowserSelectionBar(visibleItems: VaultItem[]): void {
+  const bar = document.getElementById('workspace-stage-browser-selection');
+  const countEl = document.getElementById('workspace-stage-browser-selection-count');
+  if (!bar || !countEl) return;
+  // Drop ids that are no longer in the current folder listing.
+  const visible = new Set(visibleItems.map((item) => item.id));
+  for (const id of Array.from(selectedBrowserIds)) {
+    if (!visible.has(id)) selectedBrowserIds.delete(id);
+  }
+  const count = selectedBrowserIds.size;
+  bar.hidden = count === 0;
+  countEl.textContent = t('cloudBatchSelected', { count: String(count) });
 }
 
 function closeContextMenu(): void {
@@ -1925,11 +2093,42 @@ function mountShell(): void {
             tools.className = 'vault-stage-browser-tools';
             tools.id = 'workspace-stage-browser-tools';
             head.append(title, tools);
+            const selection = document.createElement('div');
+            selection.className = 'vault-stage-browser-selection';
+            selection.id = 'workspace-stage-browser-selection';
+            selection.hidden = true;
+            const selectionCount = document.createElement('span');
+            selectionCount.className = 'vault-stage-browser-selection-count';
+            selectionCount.id = 'workspace-stage-browser-selection-count';
+            const selectionActions = document.createElement('div');
+            selectionActions.className = 'vault-stage-browser-selection-actions';
+            const selectAllBtn = document.createElement('button');
+            selectAllBtn.type = 'button';
+            selectAllBtn.className = 'vault-stage-browser-selection-btn';
+            selectAllBtn.id = 'workspace-stage-browser-select-all';
+            selectAllBtn.textContent = t('cloudBatchSelectAll');
+            const moveBtn = document.createElement('button');
+            moveBtn.type = 'button';
+            moveBtn.className = 'vault-stage-browser-selection-btn';
+            moveBtn.id = 'workspace-stage-browser-move';
+            moveBtn.textContent = t('cloudBatchMove');
+            const deleteBtn = document.createElement('button');
+            deleteBtn.type = 'button';
+            deleteBtn.className = 'vault-stage-browser-selection-btn is-danger';
+            deleteBtn.id = 'workspace-stage-browser-delete';
+            deleteBtn.textContent = t('cloudBatchDelete');
+            const clearBtn = document.createElement('button');
+            clearBtn.type = 'button';
+            clearBtn.className = 'vault-stage-browser-selection-btn';
+            clearBtn.id = 'workspace-stage-browser-clear';
+            clearBtn.textContent = t('cloudBatchClear');
+            selectionActions.append(selectAllBtn, moveBtn, deleteBtn, clearBtn);
+            selection.append(selectionCount, selectionActions);
             const list = document.createElement('div');
             list.className = 'vault-stage-browser-list';
             list.id = 'workspace-stage-browser-list';
             list.setAttribute('role', 'list');
-            browser.append(head, list);
+            browser.append(head, selection, list);
             return browser;
           })(),
           (() => {
@@ -2766,37 +2965,90 @@ function paintStageBrowser(items: VaultItem[]): void {
     if (uploadLabel?.nodeType === Node.TEXT_NODE) uploadLabel.textContent = t('cloudUpload');
     actions.prepend(newBtn);
   }
+
+  const selectAllBtn = document.getElementById('workspace-stage-browser-select-all');
+  const moveBtn = document.getElementById('workspace-stage-browser-move');
+  const deleteBtn = document.getElementById('workspace-stage-browser-delete');
+  const clearBtn = document.getElementById('workspace-stage-browser-clear');
+  if (selectAllBtn && !selectAllBtn.dataset.bound) {
+    selectAllBtn.dataset.bound = '1';
+    selectAllBtn.addEventListener('click', () => {
+      const visible = childrenOf(currentFolderId);
+      selectAllVisibleBrowserItems(visible);
+      paintStageBrowser(visible);
+    });
+  }
+  if (moveBtn && !moveBtn.dataset.bound) {
+    moveBtn.dataset.bound = '1';
+    moveBtn.addEventListener('click', () => void batchMoveSelected());
+  }
+  if (deleteBtn && !deleteBtn.dataset.bound) {
+    deleteBtn.dataset.bound = '1';
+    deleteBtn.addEventListener('click', () => void batchDeleteSelected());
+  }
+  if (clearBtn && !clearBtn.dataset.bound) {
+    clearBtn.dataset.bound = '1';
+    clearBtn.addEventListener('click', () => {
+      clearBrowserSelection();
+      paintStageBrowser(childrenOf(currentFolderId));
+    });
+  }
+
+  paintBrowserSelectionBar(items);
   list.replaceChildren();
   for (const item of items) {
-    const row = document.createElement('button');
-    row.type = 'button';
+    const row = document.createElement('div');
     row.className = 'vault-stage-browser-row';
     row.dataset.kind = item.kind;
     row.dataset.id = item.id;
     if (item.format) row.dataset.format = item.format;
     row.setAttribute('role', 'listitem');
+    if (selectedBrowserIds.has(item.id)) row.classList.add('is-selected');
 
+    const check = document.createElement('input');
+    check.type = 'checkbox';
+    check.className = 'vault-stage-browser-check';
+    check.checked = selectedBrowserIds.has(item.id);
+    check.setAttribute('aria-label', item.title);
+    check.addEventListener('click', (event) => event.stopPropagation());
+    check.addEventListener('change', () => {
+      toggleBrowserSelection(item.id);
+      paintStageBrowser(childrenOf(currentFolderId));
+    });
+
+    const open = document.createElement('button');
+    open.type = 'button';
+    open.className = 'vault-stage-browser-open';
     const name = document.createElement('span');
     name.className = 'vault-stage-browser-name';
     name.append(itemIcon(item), document.createTextNode(item.title));
-
     const size = document.createElement('span');
     size.className = 'vault-stage-browser-size';
     size.textContent = item.kind === 'file' ? formatBytes(item.sizeBytes) : '—';
-
     const edited = document.createElement('span');
     edited.className = 'vault-stage-browser-edited';
     edited.textContent = formatEditedWhen(item.updatedAt);
-
-    row.append(name, size, edited);
-    row.addEventListener('click', () => {
+    open.append(name, size, edited);
+    open.addEventListener('click', (event) => {
+      if (event.metaKey || event.ctrlKey) {
+        toggleBrowserSelection(item.id);
+        paintStageBrowser(childrenOf(currentFolderId));
+        return;
+      }
+      if (selectedBrowserIds.size > 0) {
+        toggleBrowserSelection(item.id);
+        paintStageBrowser(childrenOf(currentFolderId));
+        return;
+      }
       if (item.kind === 'folder') openFolder(item.id);
       else selectWorkbook(item.id);
     });
-    row.addEventListener('contextmenu', (event) => {
+    open.addEventListener('contextmenu', (event) => {
       event.preventDefault();
       openContextMenu(item, event.clientX, event.clientY);
     });
+
+    row.append(check, open);
     list.append(row);
   }
   browser.hidden = false;
@@ -2880,6 +3132,7 @@ function paintStage(): void {
       if (emptyHead) emptyHead.hidden = true;
       paintStageBrowser(children);
     } else {
+      clearBrowserSelection();
       if (copy) copy.hidden = false;
       if (emptyHead) emptyHead.hidden = searching;
       if (emptyTitle && !searching) paintFolderTitle(emptyTitle);
@@ -2898,6 +3151,7 @@ function paintStage(): void {
     return;
   }
 
+  clearBrowserSelection();
   empty.hidden = true;
   empty.classList.remove('is-browser', 'is-empty', 'is-skeleton');
   const skeleton = document.getElementById('workspace-stage-skeleton');

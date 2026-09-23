@@ -29,3 +29,45 @@
   justify-content: flex-end;
   gap: var(--ran-space-2);
 }
+
+.folder-picker-dialog::part(dialog) {
+  max-width: 420px;
+}
+
+.folder-picker-list {
+  display: grid;
+  gap: 2px;
+  max-height: min(42vh, 320px);
+  overflow: auto;
+  margin: 12px 0 4px;
+  padding: 4px;
+  border: 1px solid var(--ran-color-border, rgba(0, 0, 0, 0.08));
+  border-radius: 10px;
+  background: color-mix(in srgb, var(--ran-color-bg) 92%, var(--ran-gray-100, #f2f2f2));
+}
+
+.folder-picker-option {
+  display: block;
+  width: 100%;
+  margin: 0;
+  padding: 8px 10px;
+  padding-inline-start: calc(10px + var(--folder-depth, 0) * 14px);
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--ran-color-text);
+  font: inherit;
+  font-size: 13.5px;
+  text-align: start;
+  cursor: pointer;
+}
+
+.folder-picker-option:hover {
+  background: color-mix(in srgb, var(--ran-blue-700, #006bff) 8%, transparent);
+}
+
+.folder-picker-option.is-selected {
+  background: color-mix(in srgb, var(--ran-blue-700, #006bff) 12%, transparent);
+  color: var(--ran-blue-800, #0059ec);
+  font-weight: 600;
+}
