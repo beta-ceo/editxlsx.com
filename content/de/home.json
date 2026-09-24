@@ -24,22 +24,22 @@
     "logIn": "Anmelden",
     "getStarted": "Starten — $5/Jahr"
   },
-  "badge": "$5/Jahr · Ohne Office-Installation · Lokal kostenlos",
+  "badge": "Lokal kostenlos · Ohne Office-Installation · Cloud $5/Jahr",
   "h1": {
     "plain": "Excel im Browser",
     "accent": "ohne Office zu installieren"
   },
-  "sub": "Cloud-Arbeitsmappen für $5 im Jahr. Lokale Dateien jederzeit kostenlos öffnen — Bearbeitung im Browser.",
+  "sub": "Lokale .xlsx kostenlos öffnen — kein Konto, Bearbeitung im Tab. Cloud-Sync für $5 im Jahr, wenn dieselbe Mappe auf jedem Gerät folgen soll.",
   "cta": {
-    "signIn": "Starten — $5/Jahr",
+    "signIn": "Cloud-Sync — $5/Jahr",
     "files": "Meine Arbeitsmappen",
-    "xlsx": "Neues Excel (lokal)",
+    "xlsx": "Neue Excel (lokal)",
     "open": "Lokale Datei öffnen"
   },
   "checks": [
-    "$5 pro Jahr für die Cloud",
-    "Lokal öffnen bleibt kostenlos",
-    "Keine Office-Installation"
+    "Lokales Öffnen bleibt kostenlos",
+    "Keine Office-Installation",
+    "$5/Jahr für Cloud-Sync"
   ],
   "recent": {
     "label": "Weiter bearbeiten",
@@ -98,7 +98,7 @@
   "features": {
     "eyebrow": "Leicht & effizient",
     "h2": "Schluss mit aufgeblähten Suites. Willkommen bei fokussierter Produktivität.",
-    "p": "OnlyOffice im Tab, Cloud-Arbeitsmappen nach Anmeldung und ein lokaler Pfad ohne Konto — sauberes Editieren ohne Desktop-Installation.",
+    "p": "OnlyOffice im Tab für kostenlose lokale Bearbeitung. Anmelden nur, wenn dieselbe Mappe auf jedem Gerät soll — $5 im Jahr.",
     "items": [
       {
         "tone": "blue",
@@ -107,16 +107,16 @@
         "tag": "Volles .xlsx-Editing im Tab"
       },
       {
-        "tone": "green",
-        "h3": "Cloud-Sync nach Anmeldung",
-        "p": "Arbeitsmappen im Konto reisen mit. Auf einem Gerät starten, auf einem anderen weitermachen.",
-        "tag": "Meine Arbeitsmappen · Autosave"
-      },
-      {
         "tone": "purple",
         "h3": "Lokaler Pfad immer da",
         "p": "Datei nur auf diesem Gerät öffnen oder lokalen Wiederherstellungsverlauf nutzen — ohne Konto.",
         "tag": "Funktioniert ohne Anmeldung"
+      },
+      {
+        "tone": "green",
+        "h3": "Cloud-Sync nach Anmeldung",
+        "p": "Arbeitsmappen im Konto reisen mit. Auf einem Gerät starten, auf einem anderen weitermachen.",
+        "tag": "Meine Arbeitsmappen · Autosave"
       }
     ]
   },
@@ -158,17 +158,17 @@
   "band": {
     "eyebrow": "In Sekunden starten",
     "h2": "Bereit für einen schnelleren, leichteren Tabellen-Workflow?",
-    "p": "Cloud-Arbeitsmappen für $5 im Jahr — oder lokale .xlsx kostenlos öffnen. OnlyOffice im Tab, ohne Installation.",
-    "primary": "Starten — $5/Jahr",
-    "secondary": "Meine Arbeitsmappen",
+    "p": "Lokale .xlsx kostenlos öffnen. Cloud-Sync für $5 im Jahr nur wenn die Mappe mitwandern soll.",
+    "primary": "Neue Excel — kostenlos",
+    "secondary": "Cloud-Sync — $5/Jahr",
     "checks": [
-      "$5/Jahr für die Cloud",
-      "Lokal öffnen kostenlos",
-      "Keine Office-Installation"
+      "Lokal kostenlos",
+      "Keine Installation",
+      "$5/Jahr Cloud"
     ]
   },
   "foot": {
-    "blurb": "Der schlanke Online-Excel- und Dokumenteneditor für moderne Teams — Cloud-Sync nach Anmeldung, lokales Editieren ohne.",
+    "blurb": "Der schlanke Online-Excel- und Dokumenteneditor — lokales Bearbeiten kostenlos, Cloud-Sync nach Anmeldung.",
     "columns": [
       {
         "title": "Produkt",
@@ -176,6 +176,14 @@
           {
             "href": "/open/xlsx",
             "label": "Tabellen"
+          },
+          {
+            "href": "/edit-xlsx-chromebook",
+            "label": "Auf Chromebook"
+          },
+          {
+            "href": "/compare/google-sheets",
+            "label": "vs Google Sheets"
           },
           {
             "href": "/open/docx",
@@ -213,6 +221,10 @@
           {
             "href": "/changelog",
             "label": "Changelog"
+          },
+          {
+            "href": "/compare/excel-online",
+            "label": "vs Excel Online"
           },
           {
             "href": "/convert/docx-to-pdf",
@@ -270,6 +282,10 @@
     {
       "q": "Brauche ich ein Konto?",
       "a": "Melden Sie sich an, um Arbeitsmappen zu synchronisieren und Meine Arbeitsmappen zu nutzen. Eine lokale .xlsx können Sie ohne Anmeldung öffnen; dieser Pfad bleibt auf dem Gerät (plus optionale lokale Wiederherstellungskopien)."
+    },
+    {
+      "q": "Ist dies ein vollständiger Excel-Ersatz?",
+      "a": "Nein. Für Anhänge öffnen, Alltagsformeln und formatgetreue Edits. Für VBA, schweres Power Query oder Live-Co-Editing bleiben Excel oder Google Sheets."
     },
     {
       "q": "Welche Formate kann ich bearbeiten?",

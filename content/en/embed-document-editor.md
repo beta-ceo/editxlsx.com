@@ -4,8 +4,8 @@ description: Embed a DOCX, XLSX, PPTX and CSV editor into your web app with one 
 eyebrow: Developers · Embed
 h1: Embed a Document Editor in Your Web App
 lead: Add a **DOCX, XLSX, PPTX and CSV** editor to your product with a single iframe and a **postMessage** API. Your app keeps auth, file access and upload — the editor just edits, and never sees your users' tokens.
-cta: Open the live demo →
-ctaHref: /embed-demo.html
+cta: Read the Embed API →
+ctaHref: /help/embed-api
 ogDescription: Drop a DOCX/XLSX/PPTX/CSV editor into your app with one iframe. Auth stays in your app; the editor never sees your tokens. Open source & self-hostable.
 breadcrumb: Embed Document Editor
 howTo: How to embed a document editor in your website
@@ -89,3 +89,7 @@ Add `embedOrigin` to the iframe URL to lock messaging to a specific origin, and 
 ### Can I show a document read-only, or lock it after a while?
 
 Yes. Pass `readonly: true` when opening, or send `document:set-readonly` at any time — it switches the live editor without reloading, and saves are refused while locked.
+
+## Who this is for
+
+A good fit for **file managers, LMS, CRM, and internal tools** that already own auth and storage: keep bytes on the integrator's side, drop in the iframe for editing only. Start with the [Embed API reference](/help/embed-api) and the [live demo](/embed-demo.html).

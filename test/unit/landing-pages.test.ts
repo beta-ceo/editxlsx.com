@@ -416,7 +416,14 @@ describe('landing pages', () => {
   });
 
   it('zh-CN CTAs stay in Chinese; "open your <format>" never lands on a blank new docx', () => {
-    const allowed = new Set(['/zh-CN/', '/editor?locale=zh-CN&amp;new=docx', '/embed-demo.html']);
+    const allowed = new Set([
+      '/zh-CN/',
+      '/editor?locale=zh-CN',
+      '/editor?locale=zh-CN&amp;new=docx',
+      '/editor?locale=zh-CN&amp;new=xlsx',
+      '/embed-demo.html',
+      '/zh-CN/help/embed-api',
+    ]);
     for (const { route, html } of pages.filter((p) => p.route.startsWith('/zh-CN/') && p.route !== '/zh-CN/')) {
       const m = html.match(/<a class="cta" href="([^"]+)"><r-button[^>]*>([^<]+)</);
       if (!m) continue;

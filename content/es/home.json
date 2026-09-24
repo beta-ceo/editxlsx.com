@@ -24,22 +24,22 @@
     "logIn": "Iniciar sesión",
     "getStarted": "Empezar — $5/año"
   },
-  "badge": "$5/año · Sin instalar Office · Local gratis",
+  "badge": "Local gratis · Sin instalar Office · Nube $5/año",
   "h1": {
     "plain": "Excel en el navegador",
     "accent": "sin instalar Office"
   },
-  "sub": "Libros en la nube por $5 al año. Abre un archivo local gratis cuando quieras — la edición corre en el navegador.",
+  "sub": "Abre un .xlsx local gratis — sin cuenta, la edición queda en la pestaña. La sincronización en la nube es $5 al año cuando el mismo libro debe seguirte en cada dispositivo.",
   "cta": {
-    "signIn": "Empezar — $5/año",
+    "signIn": "Nube — $5/año",
     "files": "Mis libros",
     "xlsx": "Nuevo Excel (local)",
     "open": "Abrir archivo local"
   },
   "checks": [
-    "$5 al año en la nube",
     "Abrir local sigue gratis",
-    "Sin instalar Office"
+    "Sin instalar Office",
+    "$5/año si quieres nube"
   ],
   "recent": {
     "label": "Seguir editando",
@@ -98,7 +98,7 @@
   "features": {
     "eyebrow": "Ligero y eficiente",
     "h2": "Adiós a las suites hinchadas. Hola a la productividad enfocada.",
-    "p": "OnlyOffice en la pestaña, libros en la nube al iniciar sesión y una ruta local sin cuenta — edición limpia sin instalar escritorio.",
+    "p": "OnlyOffice en la pestaña para editar en local gratis. Inicia sesión solo cuando quieras el mismo libro en cada dispositivo — $5 al año.",
     "items": [
       {
         "tone": "blue",
@@ -107,16 +107,16 @@
         "tag": "Edición .xlsx completa en la pestaña"
       },
       {
-        "tone": "green",
-        "h3": "Sync en la nube al iniciar sesión",
-        "p": "Los libros de tu cuenta viajan contigo. Empieza en un dispositivo, continúa en otro.",
-        "tag": "Mis libros · autoguardado"
-      },
-      {
         "tone": "purple",
         "h3": "Ruta local siempre disponible",
         "p": "Abre un archivo solo en este dispositivo o usa el historial de recuperación local — sin cuenta en esa ruta.",
         "tag": "Funciona sin iniciar sesión"
+      },
+      {
+        "tone": "green",
+        "h3": "Sync en la nube al iniciar sesión",
+        "p": "Los libros de tu cuenta viajan contigo. Empieza en un dispositivo, continúa en otro.",
+        "tag": "Mis libros · autoguardado"
       }
     ]
   },
@@ -158,17 +158,17 @@
   "band": {
     "eyebrow": "Empieza en segundos",
     "h2": "¿Listo para un flujo de hojas más rápido y ligero?",
-    "p": "Libros en la nube por $5 al año — o abre un .xlsx local gratis. OnlyOffice en la pestaña, sin instalar.",
-    "primary": "Empezar — $5/año",
-    "secondary": "Mis libros",
+    "p": "Abre un .xlsx local gratis. Añade nube por $5 al año solo cuando el libro deba seguirte.",
+    "primary": "Nuevo Excel — gratis",
+    "secondary": "Nube — $5/año",
     "checks": [
-      "$5/año en la nube",
       "Local gratis",
-      "Sin instalar Office"
+      "Sin instalar Office",
+      "$5/año nube"
     ]
   },
   "foot": {
-    "blurb": "El editor online de Excel y documentos ligero para equipos modernos — sync en la nube al iniciar sesión, edición local si no.",
+    "blurb": "El editor ligero de Excel y documentos en línea — edición local gratis, sincronización en la nube al iniciar sesión.",
     "columns": [
       {
         "title": "Producto",
@@ -176,6 +176,14 @@
           {
             "href": "/open/xlsx",
             "label": "Hojas de cálculo"
+          },
+          {
+            "href": "/edit-xlsx-chromebook",
+            "label": "En Chromebook"
+          },
+          {
+            "href": "/compare/google-sheets",
+            "label": "vs Google Sheets"
           },
           {
             "href": "/open/docx",
@@ -213,6 +221,10 @@
           {
             "href": "/changelog",
             "label": "Cambios"
+          },
+          {
+            "href": "/compare/excel-online",
+            "label": "vs Excel Online"
           },
           {
             "href": "/convert/docx-to-pdf",
@@ -270,6 +282,10 @@
     {
       "q": "¿Necesito una cuenta?",
       "a": "Inicie sesión para sincronizar libros y usar Mis libros. Aún puede abrir un .xlsx local sin cuenta; esa ruta se queda en este dispositivo (más copias de recuperación opcionales en el navegador)."
+    },
+    {
+      "q": "¿Reemplaza Excel por completo?",
+      "a": "No. Sirve para abrir adjuntos, fórmulas cotidianas y ediciones que conservan el formato. Para macros VBA, Power Query pesado o coedición en vivo, use Excel o Hojas de cálculo de Google."
     },
     {
       "q": "¿Qué formatos puedo editar?",

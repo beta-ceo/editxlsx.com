@@ -88,10 +88,21 @@ body {
   color: #fff;
 }
 #landing-hero .nav-cta r-button::part(content) {
-  padding: var(--ran-space-2) var(--ran-space-4);
+  padding: 7px 16px;
   font-size: 14px;
+  font-weight: 600;
+  line-height: 20px;
 }
 #landing-hero .cta a,
+#landing-hero .cta button {
+  text-decoration: none;
+  border: 0;
+  padding: 0;
+  margin: 0;
+  background: transparent;
+  cursor: pointer;
+  font: inherit;
+}
 #landing-hero .nav-cta {
   text-decoration: none;
 }
@@ -126,7 +137,8 @@ body {
   gap: var(--ran-space-2);
   padding: var(--ran-space-2) var(--ran-space-3);
   border-radius: var(--ran-radius-sm);
-  font-size: 14px;
+  font-size: 13.5px;
+  font-weight: 500;
   line-height: 22px;
   min-height: calc(22px + var(--ran-space-2) * 2);
   color: var(--ran-color-text-secondary);
@@ -222,8 +234,9 @@ body {
   display: flex;
   align-items: center;
   gap: var(--ran-space-4);
-  padding-top: var(--ran-space-4);
-  padding-bottom: var(--ran-space-4);
+  /* 12px — 16px felt tall for 14–17px type; keep sticky chrome compact. */
+  padding-top: 12px;
+  padding-bottom: 12px;
 }
 #landing-hero .brand {
   display: inline-flex;
@@ -231,12 +244,12 @@ body {
   gap: var(--ran-space-2);
   flex: none;
   font-weight: 700;
-  font-size: 16px;
-  letter-spacing: -0.01em;
+  font-size: 17px;
+  letter-spacing: -0.02em;
 }
 #landing-hero .brand .mark {
-  width: 22px;
-  height: 22px;
+  width: 24px;
+  height: 24px;
   border-radius: 6px;
   background: var(--brand);
   display: inline-grid;
@@ -263,8 +276,9 @@ body {
   min-width: 0;
 }
 #landing-hero .products .navlink {
-  font-size: 14px;
-  line-height: 22px;
+  font-size: 15.5px;
+  font-weight: 500;
+  line-height: 24px;
   color: var(--ran-color-text-secondary);
   white-space: nowrap;
   transition: color 0.15s ease;
@@ -280,7 +294,7 @@ body {
   margin-inline-start: auto;
 }
 #landing-hero .nav-login {
-  font-size: 14px;
+  font-size: 14.5px;
   font-weight: 500;
   color: var(--ran-color-text-secondary);
   white-space: nowrap;
@@ -474,33 +488,42 @@ body {
   border-radius: var(--ran-radius-full);
   font-size: 10.5px;
   font-weight: 600;
-  background: color-mix(in srgb, #fff 12%, transparent);
+  background: color-mix(in srgb, #fff 14%, transparent);
+  color: color-mix(in srgb, #fff 86%, transparent);
 }
+/* Status chips stay glass; mint labels hint brand without competing with Export. */
 #landing-hero .dw-pill.eng {
-  background: color-mix(in srgb, var(--ran-color-success) 55%, transparent);
-  color: #e8ffe8;
+  color: #c8f0dc;
 }
 #landing-hero .dw-pill.ok {
-  color: #dcefff;
+  color: #b8e6d0;
 }
 #landing-hero .dw-pill.mute {
-  opacity: 0.75;
+  color: color-mix(in srgb, #fff 62%, transparent);
 }
 #landing-hero .dw-actions {
   display: inline-flex;
   gap: 6px;
+  margin-inline-start: 4px;
+  padding-inline-start: 8px;
+  border-inline-start: 1px solid color-mix(in srgb, #fff 16%, transparent);
 }
 #landing-hero .dw-btn {
   padding: 3px 10px;
   border-radius: 6px;
   font-size: 11px;
   font-weight: 600;
+  line-height: 1.3;
 }
+/* Ghost secondary — one brand accent on the bar, not blue + green. */
 #landing-hero .dw-btn.share {
-  background: var(--ran-blue-600);
+  background: color-mix(in srgb, #fff 10%, transparent);
+  color: #fff;
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, #fff 28%, transparent);
 }
 #landing-hero .dw-btn.export {
-  background: var(--ran-color-success);
+  background: var(--brand);
+  color: #fff;
 }
 #landing-hero .dw-ribbon {
   display: flex;
@@ -788,16 +811,26 @@ body {
   }
 }
 
-/* ---------- essentials / bento ---------- */
+/* ---------- essentials / bento ----------
+   No section wash — sits on the page bg so it doesn't fight the hero atmosphere. */
 #landing-hero .essentials {
   position: relative;
   padding-top: clamp(56px, 8vw, 96px);
   padding-bottom: clamp(56px, 8vw, 96px);
-  background: color-mix(in srgb, var(--brand-soft) 55%, var(--ran-color-bg));
+  background: transparent;
+  border-block: 0;
+}
+#landing-hero .essentials > .wrap {
+  position: relative;
 }
 #landing-hero .essentials .section-head {
-  max-width: 34rem;
+  max-width: 36rem;
   margin-bottom: clamp(36px, 5vw, 56px);
+  text-align: start;
+  margin-inline: 0;
+}
+#landing-hero .essentials .eyebrow {
+  color: var(--brand-ink);
 }
 #landing-hero .essentials .section-head h2 {
   font-size: clamp(30px, 4vw, 40px);
@@ -807,13 +840,16 @@ body {
   font-size: 16px;
   line-height: 1.6;
   max-width: 48ch;
+  margin-inline: 0;
 }
 #landing-hero .bento {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: 1.2fr 0.8fr;
   grid-template-areas:
     'library formats'
-    'access offline';
+    'library offline'
+    'access access';
+  /* space-5 is not in the ran scale (4→6); use 6 = 24px. */
   gap: var(--ran-space-6);
 }
 #landing-hero .bento-card.snip-library {
@@ -829,46 +865,117 @@ body {
   grid-area: offline;
 }
 #landing-hero .bento-card {
+  position: relative;
   display: grid;
   grid-template-rows: auto auto 1fr auto;
   gap: 12px;
-  min-height: 320px;
-  padding: 22px 22px 18px;
-  border-radius: 16px;
-  border: 1px solid var(--ran-color-border);
-  background: var(--ran-color-bg-elevated);
-  box-shadow: 0 10px 28px -18px color-mix(in srgb, var(--ran-color-text) 16%, transparent);
+  min-height: 0;
+  padding: 24px 24px 20px;
+  border-radius: 18px;
+  border: 1px solid color-mix(in srgb, var(--ran-color-border) 85%, transparent);
+  background: color-mix(in srgb, var(--ran-color-bg-elevated) 92%, transparent);
+  box-shadow:
+    0 1px 0 color-mix(in srgb, var(--ran-color-text) 4%, transparent),
+    0 18px 40px -28px color-mix(in srgb, var(--ran-color-text) 22%, transparent);
   overflow: hidden;
   transition:
     transform 0.2s ease,
-    box-shadow 0.2s ease;
+    box-shadow 0.2s ease,
+    border-color 0.2s ease;
 }
 @media (prefers-reduced-motion: no-preference) {
   #landing-hero .bento-card:hover {
     transform: translateY(-2px);
-    box-shadow: 0 16px 36px -16px color-mix(in srgb, var(--ran-color-text) 20%, transparent);
+    border-color: color-mix(in srgb, var(--brand-mid) 55%, var(--ran-color-border));
+    box-shadow:
+      0 1px 0 color-mix(in srgb, var(--ran-color-text) 4%, transparent),
+      0 22px 48px -22px color-mix(in srgb, var(--brand) 22%, transparent);
   }
 }
+
+/* Featured cloud card — sole solid brand accent in the bento. */
+#landing-hero .bento-card.snip-library {
+  grid-template-rows: auto auto auto auto;
+  align-content: space-between;
+  padding: 28px 28px 22px;
+  border-color: color-mix(in srgb, var(--brand-mid) 55%, var(--ran-color-border));
+  background:
+    linear-gradient(
+      165deg,
+      color-mix(in srgb, var(--brand-soft) 70%, var(--ran-color-bg-elevated)) 0%,
+      var(--ran-color-bg-elevated) 55%
+    );
+  box-shadow:
+    0 1px 0 color-mix(in srgb, #fff 70%, transparent),
+    0 24px 52px -28px color-mix(in srgb, var(--brand) 32%, transparent);
+}
+#landing-hero .bento-card.snip-library::before {
+  content: '';
+  position: absolute;
+  inset-block: 18px;
+  inset-inline-start: 0;
+  width: 3px;
+  border-radius: 0 3px 3px 0;
+  background: var(--brand);
+}
+
+/* Honest-fit band — full width, quieter, ink not purple. */
+#landing-hero .bento-card.snip-access {
+  grid-template-rows: auto auto auto;
+  grid-template-columns: 1fr minmax(240px, 0.9fr);
+  grid-template-areas:
+    'label label'
+    'title snip'
+    'copy snip';
+  align-items: start;
+  column-gap: var(--ran-space-6);
+  min-height: 0;
+  padding: 22px 26px;
+  background: color-mix(in srgb, var(--ran-color-text) 3.5%, var(--ran-color-bg-elevated));
+}
+#landing-hero .bento-card.snip-access .bento-label {
+  grid-area: label;
+}
+#landing-hero .bento-card.snip-access h3 {
+  grid-area: title;
+  font-size: 20px;
+}
+#landing-hero .bento-card.snip-access > p {
+  grid-area: copy;
+  -webkit-line-clamp: 4;
+}
+#landing-hero .bento-card.snip-access > .snip {
+  grid-area: snip;
+  height: 100%;
+  min-height: 132px;
+  align-self: stretch;
+}
+
 #landing-hero .bento-label {
   justify-self: start;
   padding: 3px 10px;
   border-radius: 999px;
   font-size: 11px;
   font-weight: 700;
-  letter-spacing: 0.02em;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
   line-height: 1.4;
+  background: color-mix(in srgb, var(--ran-color-text) 6%, transparent);
+  color: var(--ran-color-text-secondary);
 }
+/* Remap legacy tones: purple→ink, blue→air, green→brand. */
 #landing-hero .bento-card.tone-purple .bento-label {
-  background: color-mix(in srgb, #7c5cff 14%, transparent);
-  color: #5a3fcf;
+  background: color-mix(in srgb, var(--ran-color-text) 8%, transparent);
+  color: var(--ran-color-text);
 }
 #landing-hero .bento-card.tone-blue .bento-label {
-  background: var(--ran-blue-200);
-  color: var(--ran-blue-800);
+  background: color-mix(in srgb, #6a8fa8 16%, transparent);
+  color: color-mix(in srgb, #3d5a6e 70%, var(--ran-color-text));
 }
-#landing-hero .bento-card.tone-green .bento-label {
-  background: color-mix(in srgb, var(--ran-color-success) 14%, transparent);
-  color: var(--success-text);
+#landing-hero .bento-card.tone-green .bento-label,
+#landing-hero .bento-card.snip-library .bento-label {
+  background: color-mix(in srgb, var(--brand) 16%, transparent);
+  color: var(--brand-ink);
 }
 #landing-hero .bento-card h3 {
   margin: 0;
@@ -878,9 +985,13 @@ body {
   line-height: 1.3;
   color: var(--ran-color-text);
 }
+#landing-hero .bento-card.snip-library h3 {
+  font-size: clamp(22px, 2.4vw, 26px);
+  letter-spacing: -0.03em;
+}
 #landing-hero .bento-card > p {
   margin: 0;
-  font-size: 13.5px;
+  font-size: 14px;
   line-height: 1.55;
   color: var(--ran-color-text-secondary);
   display: -webkit-box;
@@ -888,8 +999,12 @@ body {
   -webkit-box-orient: vertical;
   overflow: hidden;
 }
+#landing-hero .bento-card.snip-library > p {
+  font-size: 15px;
+  -webkit-line-clamp: 4;
+}
 
-/* Shared snip panel — fixed height so every card aligns */
+/* Unified snip panel — neutral glass; brand tint only on cloud card. */
 #landing-hero .bento-card > .snip {
   align-self: stretch;
   box-sizing: border-box;
@@ -897,22 +1012,23 @@ body {
   margin: 0;
   padding: 10px;
   border-radius: 12px;
-  border: 1px solid color-mix(in srgb, var(--ran-blue-300) 35%, transparent);
-  background: color-mix(in srgb, var(--ran-blue-100) 70%, var(--ran-color-bg));
+  border: 1px solid color-mix(in srgb, var(--ran-color-border) 80%, transparent);
+  background: color-mix(in srgb, var(--ran-color-text) 3%, var(--ran-color-bg));
   display: flex;
   align-items: stretch;
 }
-#landing-hero .bento-card.tone-purple > .snip {
-  border-color: color-mix(in srgb, #7c5cff 28%, transparent);
-  background: color-mix(in srgb, #7c5cff 8%, var(--ran-color-bg));
-}
+#landing-hero .bento-card.tone-purple > .snip,
 #landing-hero .bento-card.tone-blue > .snip {
-  border-color: color-mix(in srgb, var(--ran-blue-300) 45%, transparent);
-  background: color-mix(in srgb, var(--ran-blue-100) 70%, var(--ran-color-bg));
+  border-color: color-mix(in srgb, var(--ran-color-border) 80%, transparent);
+  background: color-mix(in srgb, var(--ran-color-text) 3%, var(--ran-color-bg));
 }
-#landing-hero .bento-card.tone-green > .snip {
-  border-color: color-mix(in srgb, var(--ran-color-success) 28%, transparent);
-  background: color-mix(in srgb, var(--ran-color-success) 8%, var(--ran-color-bg));
+#landing-hero .bento-card.tone-green > .snip,
+#landing-hero .bento-card.snip-library > .snip {
+  border-color: color-mix(in srgb, var(--brand-mid) 55%, transparent);
+  background: color-mix(in srgb, var(--brand-soft) 55%, var(--ran-color-bg));
+  height: 168px;
+  min-height: 168px;
+  margin-top: auto;
 }
 
 #landing-hero .snip-rows {
@@ -938,7 +1054,7 @@ body {
   height: 8px;
   border-radius: 50%;
   flex: none;
-  background: var(--ran-color-success);
+  background: var(--brand);
 }
 #landing-hero .snip-main {
   flex: 1;
@@ -957,10 +1073,10 @@ body {
   color: var(--ran-color-text-secondary);
 }
 #landing-hero .snip-side.accent {
-  color: var(--ran-blue-800);
+  color: var(--brand-ink);
 }
 #landing-hero .snip-side.ok {
-  color: var(--success-text);
+  color: var(--brand-ink);
 }
 
 #landing-hero .snip-chips {
@@ -981,6 +1097,11 @@ body {
   font-size: 12.5px;
   font-weight: 700;
   color: var(--ran-color-text);
+}
+#landing-hero .snip-chips span:first-child {
+  color: var(--brand-ink);
+  background: color-mix(in srgb, var(--brand-soft) 80%, var(--ran-color-bg-elevated));
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--brand-mid) 50%, transparent);
 }
 
 #landing-hero .snip-metrics {
@@ -1008,7 +1129,7 @@ body {
   font-weight: 700;
   letter-spacing: -0.02em;
   line-height: 1.1;
-  color: var(--ran-blue-800);
+  color: var(--brand-ink);
 }
 #landing-hero .snip-metrics em {
   font-style: normal;
@@ -1024,14 +1145,24 @@ body {
     grid-template-areas:
       'library'
       'formats'
-      'access'
-      'offline';
+      'offline'
+      'access';
   }
   #landing-hero .bento-card {
     min-height: 0;
   }
-  #landing-hero .bento-card > .snip {
+  #landing-hero .bento-card.snip-access {
+    grid-template-columns: 1fr;
+    grid-template-areas:
+      'label'
+      'title'
+      'copy'
+      'snip';
+  }
+  #landing-hero .bento-card > .snip,
+  #landing-hero .bento-card.snip-library > .snip {
     height: 140px;
+    min-height: 140px;
   }
   #landing-hero .snip-chips {
     grid-template-columns: 1fr 1fr;
@@ -1444,7 +1575,10 @@ html[theme='dark'] #landing-hero .hero-badge {
   color: var(--brand-ink);
 }
 [data-ran-theme='dark'] #landing-hero .bento-card.tone-purple .bento-label,
-html[theme='dark'] #landing-hero .bento-card.tone-purple .bento-label,
+html[theme='dark'] #landing-hero .bento-card.tone-purple .bento-label {
+  color: color-mix(in srgb, #fff 78%, transparent);
+  background: color-mix(in srgb, #fff 10%, transparent);
+}
 [data-ran-theme='dark'] #landing-hero .feat-card.tone-purple .feat-tag,
 html[theme='dark'] #landing-hero .feat-card.tone-purple .feat-tag,
 [data-ran-theme='dark'] #landing-hero .feat-card.tone-purple .feat-tag-ico,
@@ -1468,7 +1602,17 @@ html[theme='dark'] #landing-hero .feat-card.tone-purple .feat-icon {
 }
 [data-ran-theme='dark'] #landing-hero .essentials,
 html[theme='dark'] #landing-hero .essentials {
-  background: color-mix(in srgb, var(--ran-blue-1000) 38%, var(--ran-color-bg));
+  background: transparent;
+  border-block: 0;
+}
+[data-ran-theme='dark'] #landing-hero .bento-card.snip-library,
+html[theme='dark'] #landing-hero .bento-card.snip-library {
+  background:
+    linear-gradient(
+      165deg,
+      color-mix(in srgb, var(--brand) 14%, var(--ran-color-bg-elevated)) 0%,
+      var(--ran-color-bg-elevated) 60%
+    );
 }
 [data-ran-theme='dark'] #landing-hero .bento-card > .snip,
 html[theme='dark'] #landing-hero .bento-card > .snip,
@@ -1477,9 +1621,11 @@ html[theme='dark'] #landing-hero .bento-card.tone-purple > .snip,
 [data-ran-theme='dark'] #landing-hero .bento-card.tone-blue > .snip,
 html[theme='dark'] #landing-hero .bento-card.tone-blue > .snip,
 [data-ran-theme='dark'] #landing-hero .bento-card.tone-green > .snip,
-html[theme='dark'] #landing-hero .bento-card.tone-green > .snip {
-  background: color-mix(in srgb, var(--ran-blue-1000) 28%, var(--ran-color-bg));
-  border-color: color-mix(in srgb, var(--ran-blue-800) 40%, transparent);
+html[theme='dark'] #landing-hero .bento-card.tone-green > .snip,
+[data-ran-theme='dark'] #landing-hero .bento-card.snip-library > .snip,
+html[theme='dark'] #landing-hero .bento-card.snip-library > .snip {
+  background: color-mix(in srgb, var(--ran-color-text) 6%, var(--ran-color-bg));
+  border-color: color-mix(in srgb, var(--ran-color-border) 80%, transparent);
 }
 [data-ran-theme='dark'] #landing-hero .snip-row,
 html[theme='dark'] #landing-hero .snip-row,

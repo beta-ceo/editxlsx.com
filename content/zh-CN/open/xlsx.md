@@ -62,3 +62,22 @@ OnlyOffice 表格引擎被编译为 WebAssembly，运行在你的浏览器标签
 ### 支持含多个工作表的工作簿吗？
 
 支持。含多个标签页的工作簿会连同所有工作表一起打开。
+
+## 它不适合什么
+
+这个编辑器适合打开附件、改几个格、保留公式与格式，而不必安装 Office。它**不是** Excel 全部高级功能的替代品：VBA 宏、重度 Power Query / Power Pivot，或多人实时协同请继续用桌面 Excel 或 Google 表格。
+
+## 何时使用云同步（每年 $5）
+
+本地打开始终免费。当你需要**同一份**文件跟到另一台设备或另一个浏览器时，再[登录](/login)使用云工作簿。付费不会解锁宏或企业级协同——只是把工作簿同步到你的账号。
+
+## 相关指南
+
+- [不用 Microsoft 365 用 Excel](/zh-CN/excel-without-microsoft-365)
+- [在 Chromebook 上编辑 XLSX](/zh-CN/edit-xlsx-chromebook)
+- [在 Linux 上编辑 XLSX](/zh-CN/edit-xlsx-linux)
+- [对比 Excel 网页版](/zh-CN/compare/excel-online)
+- [对比 Google 表格](/zh-CN/compare/google-sheets)
+- [对比上传型转换工具](/zh-CN/compare/upload-converters)
+- [私密文档编辑器](/zh-CN/private-document-editor)
+- [离线文档编辑器](/zh-CN/offline-document-editor)

@@ -107,6 +107,7 @@ function render(): void {
       .class('auth-title')
       .text(mode === 'signin' ? t('cloudSignIn') : t('cloudSignUp'))
       .build(),
+    View('p').class('auth-lead').text(t('cloudAuthLead')).build(),
     field(t('cloudEmail'), emailInput),
   ];
   if (nameInput) children.push(field(t('cloudNameOptional'), nameInput));

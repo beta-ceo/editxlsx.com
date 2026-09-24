@@ -5,7 +5,7 @@ eyebrow: Open · .xlsx
 h1: Open an XLSX File Without Excel
 lead: Someone sent you an **.xlsx** spreadsheet but you do not have Excel — or you would rather not pay for 365? Open it in your browser and keep the formulas intact. Nothing to install, nothing uploaded.
 cta: Open your XLSX →
-ctaHref: /
+ctaHref: /editor
 ogDescription: Open and edit XLSX spreadsheets without Excel or an account. Formulas preserved, open source, nothing uploaded.
 breadcrumb: Open XLSX
 howTo: How to open an XLSX file without Excel
@@ -62,3 +62,22 @@ Yes. It is a real spreadsheet engine, so formulas recalculate as you edit — no
 ### Are workbooks with multiple sheets supported?
 
 Yes. Workbooks with several tabs open with all their sheets intact.
+
+## What this is not
+
+This editor is for opening attachments, fixing cells, and keeping formulas and formatting without installing Office. It is **not** a drop-in replacement for every Excel power feature: skip it for VBA macros, heavy Power Query / Power Pivot models, or live multi-user co-editing — use desktop Excel or Google Sheets for those.
+
+## When to use cloud sync ($5/year)
+
+Local open stays free. Sign in for [cloud workbooks](/login) when the **same** file needs to follow you across devices or browsers. Paying does not unlock macros or enterprise co-editing — it only syncs the workbook to your account.
+
+## Related guides
+
+- [Excel without Microsoft 365](/excel-without-microsoft-365)
+- [Edit XLSX on a Chromebook](/edit-xlsx-chromebook)
+- [Edit XLSX on Linux](/edit-xlsx-linux)
+- [vs Excel for the web](/compare/excel-online)
+- [vs Google Sheets](/compare/google-sheets)
+- [vs upload converters](/compare/upload-converters)
+- [Private document editor](/private-document-editor)
+- [Offline document editor](/offline-document-editor)

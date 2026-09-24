@@ -272,11 +272,15 @@ void (async () => {
       console.warn('Failed to decode URL, using original:', error);
       await openDocumentFromUrl(documentUrl, undefined, { readonly: isReadonly, docId: savedParam || undefined });
     }
+    const { maybeShowCloudNudge } = await import('./lib/cloud-nudge');
+    maybeShowCloudNudge();
     return;
   }
 
   if (createNewOnLoad && !isEmbedded) {
     await onCreateNew(`.${newExt}`, { docId: savedParam || undefined });
+    const { maybeShowCloudNudge } = await import('./lib/cloud-nudge');
+    maybeShowCloudNudge();
     return;
   }
 
@@ -290,6 +294,8 @@ void (async () => {
     window.history.replaceState(null, '', cleaned);
     if (file) {
       await openLocalFile(file, { historyId: savedParam || undefined });
+      const { maybeShowCloudNudge } = await import('./lib/cloud-nudge');
+      maybeShowCloudNudge();
       return;
     }
     // Stale deep link (reload, bookmarked URL): nothing pending -- back to the landing.

@@ -4,8 +4,8 @@ description: 用一个 iframe 加 postMessage API，把 DOCX、XLSX、PPTX、CSV
 eyebrow: 开发者 · 嵌入
 h1: 把文档编辑器嵌入你的 Web 应用
 lead: 用一个 iframe 加 **postMessage** API，把 **DOCX、XLSX、PPTX、CSV** 编辑器加进你的产品。鉴权、文件访问和上传都留在你的应用里——编辑器只负责编辑，永远看不到用户的 token。
-cta: 打开在线 demo →
-ctaHref: /embed-demo.html
+cta: 阅读 Embed API →
+ctaHref: /zh-CN/help/embed-api
 ogDescription: 用一个 iframe 把 DOCX/XLSX/PPTX/CSV 编辑器嵌入你的应用。鉴权留在你的应用里，编辑器看不到 token。开源、可自托管。
 breadcrumb: 嵌入文档编辑器
 howTo: 如何在网站里嵌入文档编辑器
@@ -89,3 +89,7 @@ DOCX、XLSX、PPTX 和 CSV，用 OnlyOffice WebAssembly 引擎在客户端编辑
 ### 能只读展示文档，或者过一会儿再锁定吗？
 
 能。打开时传 `readonly: true`，或随时发送 `document:set-readonly`——它直接切换正在运行的编辑器、不重新加载，锁定期间保存会被拒绝。
+
+## 适合谁
+
+适合**已经自有鉴权与存储**的网盘、LMS、CRM 与内部系统：字节留在集成方，iframe 只负责编辑。从 [Embed API 参考](/zh-CN/help/embed-api) 与[在线 demo](/embed-demo.html) 开始。

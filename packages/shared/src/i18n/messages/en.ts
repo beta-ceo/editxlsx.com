@@ -123,6 +123,8 @@ export const en: I18nMessages = {
   cloudPassword: 'Password',
   cloudNameOptional: 'Name (optional)',
   cloudPasswordHint: 'At least 8 characters',
+  cloudAuthLead:
+    'Cloud workbooks are $5 a year so the same file follows you across devices. Local open stays free forever — no account required.',
   cloudHaveAccount: 'Already have an account? Sign in',
   cloudNeedAccount: 'New here? Create an account',
   cloudAuthFailed: 'Could not sign in: ',
@@ -156,7 +158,8 @@ export const en: I18nMessages = {
   cloudDropFormats: 'Supports .xlsx, .docx, and .pptx up to {size} each',
   cloudBrowseLocal: 'Browse local files',
   cloudEmptyTitle: 'No workbooks yet',
-  cloudEmpty: 'Create a blank workbook or upload an .xlsx to get started.',
+  cloudEmpty:
+    '$5 a year keeps workbooks in your account across devices. Create a blank one or upload an .xlsx — local editing without an account stays free on the homepage.',
   cloudEmptySearchTitle: 'No matches',
   cloudEmptySearch: 'No workbook name contains that text.',
   cloudClearSearch: 'Clear search',
@@ -221,4 +224,8 @@ export const en: I18nMessages = {
   cloudSaveStatusLocal: 'Saved on this device · syncing to account…',
   cloudSaveStatusSaved: 'Synced to your account',
   cloudSaveStatusError: 'Could not save: ',
+  cloudCrossDeviceNudge:
+    'Need this workbook on another device? Sign in for $5/year cloud sync — local editing stays free.',
+  cloudCrossDeviceNudgeLink: 'Sign in',
+  cloudCrossDeviceNudgeDismiss: 'Dismiss',
 };

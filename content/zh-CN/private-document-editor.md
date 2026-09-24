@@ -51,3 +51,15 @@ appDescription: 一个 100% 在浏览器本地运行的隐私文档编辑器。�
 ### 没有网络连接时还能用吗？
 
 可以。它是可安装的 PWA，加载后可完全离线使用，让你的编辑过程始终在本机内完成。
+
+## 何时使用云同步（每年 $5）
+
+本地私密编辑保持免费。只有当**同一份**文件必须跟到另一台设备时，再[登录](/login)使用云工作簿——每年 $5，主动选择。付费不会改变你从未存进账号的文件的本地「不上传」路径。
+
+## 相关指南
+
+- [不装 Excel 打开 XLSX](/zh-CN/open/xlsx)
+- [对比上传型转换工具](/zh-CN/compare/upload-converters)
+- [对比 Google 表格](/zh-CN/compare/google-sheets)
+- [不用 Microsoft 365](/zh-CN/excel-without-microsoft-365)
+- [帮助](/zh-CN/help)

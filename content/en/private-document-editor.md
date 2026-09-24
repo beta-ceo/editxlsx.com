@@ -51,3 +51,15 @@ Yes. The whole editor is open source under the MIT license, so you can read the 
 ### Does it still work without an internet connection?
 
 Yes. It is an installable PWA and works fully offline once loaded, which keeps your editing self-contained on your machine.
+
+## When to use cloud sync ($5/year)
+
+Local private editing stays free. Sign in for [cloud workbooks](/login) only when the **same** file must follow you across devices — $5 a year, opt-in. Paying does not change the local no-upload path for files you never save to the account.
+
+## Related guides
+
+- [Open XLSX without Excel](/open/xlsx)
+- [vs upload converters](/compare/upload-converters)
+- [vs Google Sheets](/compare/google-sheets)
+- [Excel without Microsoft 365](/excel-without-microsoft-365)
+- [Help](/help)

@@ -24,22 +24,22 @@
     "logIn": "Entrar",
     "getStarted": "Começar — $5/ano"
   },
-  "badge": "$5/ano · Sem instalar o Office · Local grátis",
+  "badge": "Local grátis · Sem instalar o Office · Nuvem $5/ano",
   "h1": {
     "plain": "Excel no navegador",
     "accent": "sem instalar o Office"
   },
-  "sub": "Pastas na nuvem por $5 ao ano. Abra um arquivo local grátis quando quiser — a edição roda no navegador.",
+  "sub": "Abra um .xlsx local grátis — sem conta, a edição fica na aba. A sincronização na nuvem custa $5 por ano quando a mesma pasta precisa te acompanhar em cada dispositivo.",
   "cta": {
-    "signIn": "Começar — $5/ano",
+    "signIn": "Nuvem — $5/ano",
     "files": "Minhas pastas",
     "xlsx": "Novo Excel (local)",
     "open": "Abrir arquivo local"
   },
   "checks": [
-    "$5 por ano na nuvem",
     "Abrir local continua grátis",
-    "Sem instalar o Office"
+    "Sem instalar o Office",
+    "$5/ano se quiser nuvem"
   ],
   "recent": {
     "label": "Continuar editando",
@@ -98,7 +98,7 @@
   "features": {
     "eyebrow": "Leve e eficiente",
     "h2": "Adeus a suítes inchadas. Bem-vindo à produtividade focada.",
-    "p": "OnlyOffice na aba, pastas na nuvem ao entrar e um caminho local sem conta — edição limpa sem instalar o desktop.",
+    "p": "OnlyOffice na aba para editar local grátis. Entre só quando quiser a mesma pasta em cada dispositivo — $5 por ano.",
     "items": [
       {
         "tone": "blue",
@@ -107,16 +107,16 @@
         "tag": "Edição .xlsx completa na aba"
       },
       {
-        "tone": "green",
-        "h3": "Sync na nuvem ao entrar",
-        "p": "Pastas da conta viajam com você. Comece em um dispositivo, continue em outro.",
-        "tag": "Minhas pastas · autosalvar"
-      },
-      {
         "tone": "purple",
         "h3": "Caminho local sempre disponível",
         "p": "Abra um arquivo só neste dispositivo ou use o histórico de recuperação local — sem conta nesse caminho.",
         "tag": "Funciona sem entrar"
+      },
+      {
+        "tone": "green",
+        "h3": "Sync na nuvem ao entrar",
+        "p": "Pastas da conta viajam com você. Comece em um dispositivo, continue em outro.",
+        "tag": "Minhas pastas · autosalvar"
       }
     ]
   },
@@ -158,17 +158,17 @@
   "band": {
     "eyebrow": "Comece em segundos",
     "h2": "Pronto para um fluxo de planilhas mais rápido e leve?",
-    "p": "Pastas na nuvem por $5 ao ano — ou abra um .xlsx local grátis. OnlyOffice na aba, sem instalar.",
-    "primary": "Começar — $5/ano",
-    "secondary": "Minhas pastas",
+    "p": "Abra um .xlsx local grátis. Adicione nuvem por $5 ao ano só quando a pasta precisar te seguir.",
+    "primary": "Novo Excel — grátis",
+    "secondary": "Nuvem — $5/ano",
     "checks": [
-      "$5/ano na nuvem",
       "Local grátis",
-      "Sem instalar o Office"
+      "Sem instalar",
+      "$5/ano nuvem"
     ]
   },
   "foot": {
-    "blurb": "O editor online leve de Excel e documentos para times modernos — sync na nuvem ao entrar, edição local se não.",
+    "blurb": "O editor leve de Excel e documentos online — edição local grátis, sincronização na nuvem ao entrar.",
     "columns": [
       {
         "title": "Produto",
@@ -176,6 +176,14 @@
           {
             "href": "/open/xlsx",
             "label": "Planilhas"
+          },
+          {
+            "href": "/edit-xlsx-chromebook",
+            "label": "No Chromebook"
+          },
+          {
+            "href": "/compare/google-sheets",
+            "label": "vs Google Sheets"
           },
           {
             "href": "/open/docx",
@@ -213,6 +221,10 @@
           {
             "href": "/changelog",
             "label": "Changelog"
+          },
+          {
+            "href": "/compare/excel-online",
+            "label": "vs Excel Online"
           },
           {
             "href": "/convert/docx-to-pdf",
@@ -270,6 +282,10 @@
     {
       "q": "Preciso de uma conta?",
       "a": "Entre para sincronizar pastas e usar Minhas pastas. Ainda pode abrir um .xlsx local sem conta; esse caminho fica neste dispositivo (mais cópias de recuperação opcionais no navegador)."
+    },
+    {
+      "q": "Substitui o Excel por completo?",
+      "a": "Não. Serve para abrir anexos, fórmulas do dia a dia e edições que preservam formato. Para VBA, Power Query pesado ou coedição ao vivo, use Excel ou Planilhas Google."
     },
     {
       "q": "Quais formatos posso editar?",

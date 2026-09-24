@@ -24,22 +24,22 @@
     "logIn": "Log in",
     "getStarted": "Start — $5/year"
   },
-  "badge": "$5/year · No Office install · Local free",
+  "badge": "Local free · No Office install · Cloud $5/year",
   "h1": {
     "plain": "Excel in your browser",
     "accent": "without installing Office"
   },
-  "sub": "Cloud workbooks for $5 a year. Open a local file anytime for free — editing runs in your browser.",
+  "sub": "Open a local .xlsx free — no account, editing stays in your tab. Cloud sync is $5 a year when the same workbook needs to follow you across devices.",
   "cta": {
-    "signIn": "Start — $5/year",
+    "signIn": "Cloud sync — $5/year",
     "files": "My workbooks",
     "xlsx": "New Excel (local)",
     "open": "Open a local file"
   },
   "checks": [
-    "$5 per year for cloud",
     "Local open stays free",
-    "No Office install"
+    "No Office install",
+    "$5/year when you want cloud sync"
   ],
   "recent": {
     "label": "Continue editing",
@@ -98,7 +98,7 @@
   "features": {
     "eyebrow": "Lightweight & efficient",
     "h2": "Say goodbye to bloated suites. Welcome to focused productivity.",
-    "p": "OnlyOffice in the tab, cloud workbooks when you sign in, and a local path that never needs an account — clean editing without the desktop install.",
+    "p": "OnlyOffice in the tab for free local edits. Sign in only when you want the same workbook on every device — $5 a year, not another heavy suite.",
     "items": [
       {
         "tone": "blue",
@@ -107,30 +107,30 @@
         "tag": "Full .xlsx editing in the tab"
       },
       {
-        "tone": "green",
-        "h3": "Cloud sync when signed in",
-        "p": "Workbooks in your account travel with you. Start on one device, continue on another.",
-        "tag": "My workbooks · autosave"
+        "tone": "purple",
+        "h3": "Local first, always free",
+        "p": "Open a file on this device with no account. Edits stay in the tab; optional seven-day recovery copies stay in this browser.",
+        "tag": "Works without signing in"
       },
       {
-        "tone": "purple",
-        "h3": "Local fallback, always",
-        "p": "Open a file on this device only, or use local recovery history — no account required for that path.",
-        "tag": "Works without signing in"
+        "tone": "green",
+        "h3": "Cloud sync when you need it",
+        "p": "For $5 a year, workbooks in your account travel with you. Start on one device, continue on another.",
+        "tag": "My workbooks · autosave"
       }
     ]
   },
   "essentials": {
     "eyebrow": "Core essentials",
     "h2": "Minimalist interface, maximum editing power",
-    "p": "The editor stays out of the way: cloud library when you need it, local recovery when you do not, and formats beyond Excel when the job calls for them.",
+    "p": "Built for opening attachments, fixing cells, and keeping formulas intact — not for replacing every Excel power feature.",
     "items": [
       {
         "tone": "purple",
-        "label": "Cloud library",
-        "h3": "My workbooks, one account",
-        "p": "Sign in once. Browse, open, and autosave .xlsx files stored in your account — then pick up on another device.",
-        "snippet": "library"
+        "label": "Honest fit",
+        "h3": "Everyday .xlsx, not every Excel feature",
+        "p": "Great for open–edit–download and light formulas. For VBA macros, heavy Power Query, or live multi-user co-editing, stick with Excel or Google Sheets.",
+        "snippet": "access"
       },
       {
         "tone": "blue",
@@ -141,10 +141,10 @@
       },
       {
         "tone": "green",
-        "label": "Access",
-        "h3": "Sign in or stay local",
-        "p": "Cloud sync needs an account. Local open and seven-day recovery copies do not — choose the path that fits the file.",
-        "snippet": "access"
+        "label": "Cloud library",
+        "h3": "My workbooks, one account",
+        "p": "Sign in once for $5 a year. Browse, open, and autosave .xlsx files in your account — then pick up on another device.",
+        "snippet": "library"
       },
       {
         "tone": "blue",
@@ -158,17 +158,17 @@
   "band": {
     "eyebrow": "Get started in seconds",
     "h2": "Ready for a faster, lighter spreadsheet workflow?",
-    "p": "Cloud workbooks for $5 a year — or open a local .xlsx free. OnlyOffice in the tab, no install.",
-    "primary": "Start — $5/year",
-    "secondary": "My workbooks",
+    "p": "Open a local .xlsx free. Add cloud sync for $5 a year only when the workbook needs to follow you.",
+    "primary": "New Excel — free",
+    "secondary": "Cloud sync — $5/year",
     "checks": [
-      "$5/year for cloud",
       "Local open free",
-      "No Office install"
+      "No Office install",
+      "$5/year for cloud"
     ]
   },
   "foot": {
-    "blurb": "The lightweight online Excel and document editor for modern teams — cloud sync when you sign in, local editing when you do not.",
+    "blurb": "The lightweight online Excel and document editor — local editing free, cloud sync when you sign in.",
     "columns": [
       {
         "title": "Product",
@@ -176,6 +176,14 @@
           {
             "href": "/open/xlsx",
             "label": "Spreadsheets"
+          },
+          {
+            "href": "/edit-xlsx-chromebook",
+            "label": "On Chromebook"
+          },
+          {
+            "href": "/compare/google-sheets",
+            "label": "vs Google Sheets"
           },
           {
             "href": "/open/docx",
@@ -213,6 +221,10 @@
           {
             "href": "/changelog",
             "label": "Changelog"
+          },
+          {
+            "href": "/compare/excel-online",
+            "label": "vs Excel Online"
           },
           {
             "href": "/convert/docx-to-pdf",
@@ -264,12 +276,16 @@
   },
   "faqLd": [
     {
+      "q": "Do I need an account?",
+      "a": "No for local editing. Open a .xlsx free without signing in — the file stays in your browser tab. Sign in only for cloud workbooks ($5/year) so the same file follows you across devices."
+    },
+    {
       "q": "What happens if I close the tab?",
       "a": "Signed-in workbooks are written back by save and autosave. Separately, local recovery copies can stay in this browser for 7 days — see the history page. Cloud files remain in your account."
     },
     {
-      "q": "Do I need an account?",
-      "a": "Sign in to sync workbooks to your account and use My workbooks. You can still open a local .xlsx without signing in; that path stays on this device (plus optional local recovery copies in this browser)."
+      "q": "Is this a full Excel replacement?",
+      "a": "No. It is built for opening attachments, everyday formulas, and format-preserving edits without installing Office. For VBA macros, heavy Power Query, or live multi-user co-editing, use Excel or Google Sheets."
     },
     {
       "q": "Which formats can I edit?",

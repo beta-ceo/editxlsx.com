@@ -118,6 +118,7 @@ export const zhCN: I18nMessages = {
   cloudPassword: '密码',
   cloudNameOptional: '姓名（可选）',
   cloudPasswordHint: '至少 8 个字符',
+  cloudAuthLead: '云工作簿每年 $5，同一份表可跟账号跨设备。本地打开始终免费——不必注册。',
   cloudHaveAccount: '已有账号？去登录',
   cloudNeedAccount: '还没有账号？去注册',
   cloudAuthFailed: '登录失败：',
@@ -151,7 +152,8 @@ export const zhCN: I18nMessages = {
   cloudDropFormats: '支持 .xlsx、.docx、.pptx，单个最大 {size}',
   cloudBrowseLocal: '浏览本地文件',
   cloudEmptyTitle: '还没有工作簿',
-  cloudEmpty: '新建空白工作簿，或上传一个 .xlsx 开始。',
+  cloudEmpty:
+    '每年 $5，工作簿跟账号走、跨设备可用。新建空白表或上传 .xlsx——首页上的本地打开仍免费、无需账号。',
   cloudEmptySearchTitle: '没有匹配',
   cloudEmptySearch: '没有文件名包含这段文字。',
   cloudClearSearch: '清除搜索',
@@ -216,4 +218,7 @@ export const zhCN: I18nMessages = {
   cloudSaveStatusLocal: '已保存在本机 · 正在同步到账号…',
   cloudSaveStatusSaved: '已同步到账号',
   cloudSaveStatusError: '保存失败：',
+  cloudCrossDeviceNudge: '需要换设备继续改？登录后每年 $5 云同步——本地编辑仍免费。',
+  cloudCrossDeviceNudgeLink: '去登录',
+  cloudCrossDeviceNudgeDismiss: '关闭',
 };

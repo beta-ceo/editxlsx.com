@@ -179,6 +179,14 @@
             "mainEntity": [
               {
                 "@type": "Question",
+                "name": "Do I need an account?",
+                "acceptedAnswer": {
+                  "@type": "Answer",
+                  "text": "No for local editing. Open a .xlsx free without signing in — the file stays in your browser tab. Sign in only for cloud workbooks ($5/year) so the same file follows you across devices."
+                }
+              },
+              {
+                "@type": "Question",
                 "name": "What happens if I close the tab?",
                 "acceptedAnswer": {
                   "@type": "Answer",
@@ -187,10 +195,10 @@
               },
               {
                 "@type": "Question",
-                "name": "Do I need an account?",
+                "name": "Is this a full Excel replacement?",
                 "acceptedAnswer": {
                   "@type": "Answer",
-                  "text": "Sign in to sync workbooks to your account and use My workbooks. You can still open a local .xlsx without signing in; that path stays on this device (plus optional local recovery copies in this browser)."
+                  "text": "No. It is built for opening attachments, everyday formulas, and format-preserving edits without installing Office. For VBA macros, heavy Power Query, or live multi-user co-editing, use Excel or Google Sheets."
                 }
               },
               {
@@ -251,26 +259,22 @@
 
       <main>
       <div class="hero wrap">
-        <span class="hero-badge reveal d1">$5/year · No Office install · Local free</span>
+        <span class="hero-badge reveal d1">Local free · No Office install · Cloud $5/year</span>
         <h1 class="reveal d2">Excel in your browser <span class="accent">without installing Office</span></h1>
-        <p class="sub reveal d3">Cloud workbooks for $5 a year. Open a local file anytime for free — editing runs in your browser.</p>
+        <p class="sub reveal d3">Open a local .xlsx free — no account, editing stays in your tab. Cloud sync is $5 a year when the same workbook needs to follow you across devices.</p>
         <div class="cta reveal d4">
-          <a href="/login"
-            ><r-button type="primary" id="hero-sign-in">Start — $5/year</r-button></a
-          >
-          <a href="/workspace"
-            ><r-button id="hero-workspace">My workbooks</r-button></a
+          <button type="button" id="hero-open" data-open-local="/editor?open=local">
+            <r-button type="primary">Open a local file</r-button>
+          </button>
+          <a href="/editor?new=xlsx" data-prefetch="xlsx" id="hero-new-xlsx"
+            ><r-button>New Excel (local)</r-button></a
           >
         </div>
-        <div class="checks reveal d5"><span class="check"><i aria-hidden="true"></i>$5 per year for cloud</span><span class="check"><i aria-hidden="true"></i>Local open stays free</span><span class="check"><i aria-hidden="true"></i>No Office install</span></div>
+        <div class="checks reveal d5"><span class="check"><i aria-hidden="true"></i>Local open stays free</span><span class="check"><i aria-hidden="true"></i>No Office install</span><span class="check"><i aria-hidden="true"></i>$5/year when you want cloud sync</span></div>
         <div class="cta-local reveal d5">
-          <a class="cta-local-link" href="/editor?new=xlsx" data-prefetch="xlsx" id="hero-new-xlsx"
-            >New Excel (local)</a
-          >
+          <a class="cta-local-link" href="/login" id="hero-sign-in">Cloud sync — $5/year</a>
           <span class="cta-local-sep" aria-hidden="true">·</span>
-          <button type="button" class="cta-local-link" id="hero-open" data-open-local="/editor?open=local">
-            Open a local file
-          </button>
+          <a class="cta-local-link" href="/workspace" id="hero-workspace">My workbooks</a>
         </div>
         <div class="recent reveal d5">
           <span data-recent-slot data-recent-label="Continue editing" hidden></span>
@@ -324,7 +328,7 @@
         <div class="section-head center">
           <span class="eyebrow">Lightweight &amp; efficient</span>
           <h2>Say goodbye to bloated suites. Welcome to focused productivity.</h2>
-          <p class="head-note">OnlyOffice in the tab, cloud workbooks when you sign in, and a local path that never needs an account — clean editing without the desktop install.</p>
+          <p class="head-note">OnlyOffice in the tab for free local edits. Sign in only when you want the same workbook on every device — $5 a year, not another heavy suite.</p>
         </div>
         <div class="feat-grid">
           <article class="feat-card tone-blue">
@@ -333,38 +337,38 @@
             <p>Formulas, charts, sheets and formatting via OnlyOffice WebAssembly — no desktop Office required.</p>
             <span class="feat-tag"><span class="feat-tag-ico" aria-hidden="true"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M8.5 1.5 4 8h4l-.5 6.5L12 8H8l.5-6.5Z"/></svg></span>Full .xlsx editing in the tab</span>
           </article>
-          <article class="feat-card tone-green">
-            <span class="feat-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M7.5 18h9a4.5 4.5 0 0 0 .4-9 6 6 0 0 0-11.5 1.6A3.8 3.8 0 0 0 7.5 18Z"/></svg></span>
-            <h3>Cloud sync when signed in</h3>
-            <p>Workbooks in your account travel with you. Start on one device, continue on another.</p>
-            <span class="feat-tag"><span class="feat-tag-ico" aria-hidden="true"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M2.5 8a5.5 5.5 0 0 1 9.7-3.5A3.5 3.5 0 0 1 13 11.5H4.2A2.8 2.8 0 0 1 2.5 8Z"/><path d="M8 6.5v5M6 9.5l2 2 2-2"/></svg></span>My workbooks · autosave</span>
-          </article>
           <article class="feat-card tone-purple">
             <span class="feat-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3"/><circle cx="16.5" cy="9.5" r="2.5"/><path d="M3.5 18.5c.6-2.8 2.7-4.5 5.5-4.5s4.9 1.7 5.5 4.5"/><path d="M14 18.5c.4-1.8 1.7-3 3.5-3 1.3 0 2.4.6 3 1.7"/></svg></span>
-            <h3>Local fallback, always</h3>
-            <p>Open a file on this device only, or use local recovery history — no account required for that path.</p>
+            <h3>Local first, always free</h3>
+            <p>Open a file on this device with no account. Edits stay in the tab; optional seven-day recovery copies stay in this browser.</p>
             <span class="feat-tag"><span class="feat-tag-ico" aria-hidden="true"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="5.5" r="2"/><circle cx="11" cy="6.5" r="1.6"/><path d="M2.5 13c.4-1.8 1.8-3 3.5-3s3.1 1.2 3.5 3"/><path d="M9.5 13c.3-1.2 1.2-2 2.3-2 .9 0 1.6.4 2 1.1"/></svg></span>Works without signing in</span>
+          </article>
+          <article class="feat-card tone-green">
+            <span class="feat-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M7.5 18h9a4.5 4.5 0 0 0 .4-9 6 6 0 0 0-11.5 1.6A3.8 3.8 0 0 0 7.5 18Z"/></svg></span>
+            <h3>Cloud sync when you need it</h3>
+            <p>For $5 a year, workbooks in your account travel with you. Start on one device, continue on another.</p>
+            <span class="feat-tag"><span class="feat-tag-ico" aria-hidden="true"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M2.5 8a5.5 5.5 0 0 1 9.7-3.5A3.5 3.5 0 0 1 13 11.5H4.2A2.8 2.8 0 0 1 2.5 8Z"/><path d="M8 6.5v5M6 9.5l2 2 2-2"/></svg></span>My workbooks · autosave</span>
           </article>
         </div>
       </div>
 
       <div class="essentials" id="essentials">
         <div class="wrap">
-          <div class="section-head center">
+          <div class="section-head left">
             <span class="eyebrow">Core essentials</span>
             <h2>Minimalist interface, maximum editing power</h2>
-            <p class="head-note">The editor stays out of the way: cloud library when you need it, local recovery when you do not, and formats beyond Excel when the job calls for them.</p>
+            <p class="head-note">Built for opening attachments, fixing cells, and keeping formulas intact — not for replacing every Excel power feature.</p>
           </div>
           <div class="bento">
-          <article class="bento-card tone-purple snip-library">
-            <span class="bento-label">Cloud library</span>
-            <h3>My workbooks, one account</h3>
-            <p>Sign in once. Browse, open, and autosave .xlsx files stored in your account — then pick up on another device.</p>
+          <article class="bento-card tone-purple snip-access">
+            <span class="bento-label">Honest fit</span>
+            <h3>Everyday .xlsx, not every Excel feature</h3>
+            <p>Great for open–edit–download and light formulas. For VBA macros, heavy Power Query, or live multi-user co-editing, stick with Excel or Google Sheets.</p>
             <div class="snip">
               <div class="snip-rows">
-                <div class="snip-row"><span class="snip-ico sync" aria-hidden="true"></span><span class="snip-main">sample_workbook.xlsx</span><span class="snip-side">just now</span></div>
-                <div class="snip-row"><span class="snip-ico sync" aria-hidden="true"></span><span class="snip-main">Q3_forecast.xlsx</span><span class="snip-side">synced</span></div>
-                <div class="snip-row"><span class="snip-ico sync" aria-hidden="true"></span><span class="snip-main">hiring_plan.xlsx</span><span class="snip-side">autosaved</span></div>
+                <div class="snip-row"><span class="snip-main">Signed in</span><span class="snip-side accent">Cloud sync + autosave</span></div>
+                <div class="snip-row"><span class="snip-main">Local only</span><span class="snip-side ok">View &amp; edit on device</span></div>
+                <div class="snip-row"><span class="snip-main">Recovery</span><span class="snip-side">7-day local copies</span></div>
               </div>
             </div>
           </article>
@@ -378,15 +382,15 @@
               </div>
             </div>
           </article>
-          <article class="bento-card tone-green snip-access">
-            <span class="bento-label">Access</span>
-            <h3>Sign in or stay local</h3>
-            <p>Cloud sync needs an account. Local open and seven-day recovery copies do not — choose the path that fits the file.</p>
+          <article class="bento-card tone-green snip-library">
+            <span class="bento-label">Cloud library</span>
+            <h3>My workbooks, one account</h3>
+            <p>Sign in once for $5 a year. Browse, open, and autosave .xlsx files in your account — then pick up on another device.</p>
             <div class="snip">
               <div class="snip-rows">
-                <div class="snip-row"><span class="snip-main">Signed in</span><span class="snip-side accent">Cloud sync + autosave</span></div>
-                <div class="snip-row"><span class="snip-main">Local only</span><span class="snip-side ok">View &amp; edit on device</span></div>
-                <div class="snip-row"><span class="snip-main">Recovery</span><span class="snip-side">7-day local copies</span></div>
+                <div class="snip-row"><span class="snip-ico sync" aria-hidden="true"></span><span class="snip-main">sample_workbook.xlsx</span><span class="snip-side">just now</span></div>
+                <div class="snip-row"><span class="snip-ico sync" aria-hidden="true"></span><span class="snip-main">Q3_forecast.xlsx</span><span class="snip-side">synced</span></div>
+                <div class="snip-row"><span class="snip-ico sync" aria-hidden="true"></span><span class="snip-main">hiring_plan.xlsx</span><span class="snip-side">autosaved</span></div>
               </div>
             </div>
           </article>
@@ -411,12 +415,12 @@
           <div class="band-inner">
             <span class="band-eyebrow">Get started in seconds</span>
             <h2>Ready for a faster, lighter spreadsheet workflow?</h2>
-            <p>Cloud workbooks for $5 a year — or open a local .xlsx free. OnlyOffice in the tab, no install.</p>
+            <p>Open a local .xlsx free. Add cloud sync for $5 a year only when the workbook needs to follow you.</p>
             <div class="band-cta">
-              <a class="band-primary" href="/login">Start — $5/year</a>
-              <a class="band-secondary" href="/workspace">My workbooks</a>
+              <a class="band-primary" href="/editor?new=xlsx" data-prefetch="xlsx">New Excel — free</a>
+              <a class="band-secondary" href="/login">Cloud sync — $5/year</a>
             </div>
-            <div class="checks band-checks"><span class="check"><i aria-hidden="true"></i>$5/year for cloud</span><span class="check"><i aria-hidden="true"></i>Local open free</span><span class="check"><i aria-hidden="true"></i>No Office install</span></div>
+            <div class="checks band-checks"><span class="check"><i aria-hidden="true"></i>Local open free</span><span class="check"><i aria-hidden="true"></i>No Office install</span><span class="check"><i aria-hidden="true"></i>$5/year for cloud</span></div>
           </div>
         </div>
       </div>
@@ -428,13 +432,15 @@
           <div class="foot-top">
             <div class="foot-brand">
               <a class="brand" href="/"><span class="mark" aria-hidden="true"></span><span class="wordmark">EditXLSX</span></a>
-              <p>The lightweight online Excel and document editor for modern teams — cloud sync when you sign in, local editing when you do not.</p>
+              <p>The lightweight online Excel and document editor — local editing free, cloud sync when you sign in.</p>
             </div>
             <nav class="foot-cols" aria-label="Footer">
               <div class="foot-col">
                 <h3>Product</h3>
                 <ul>
                 <li><a href="/open/xlsx">Spreadsheets</a></li>
+                <li><a href="/edit-xlsx-chromebook">On Chromebook</a></li>
+                <li><a href="/compare/google-sheets">vs Google Sheets</a></li>
                 <li><a href="/open/docx">Document editor</a></li>
                 <li><a href="/open/pptx">Presentations</a></li>
                 <li><a href="/open/pdf">PDF</a></li>
@@ -448,6 +454,7 @@
                 <ul>
                 <li><a href="/help">Help</a></li>
                 <li><a href="/changelog">Changelog</a></li>
+                <li><a href="/compare/excel-online">vs Excel Online</a></li>
                 <li><a href="/convert/docx-to-pdf">DOCX to PDF</a></li>
                 <li><a href="/convert/xlsx-to-csv">XLSX to CSV</a></li>
                 </ul>

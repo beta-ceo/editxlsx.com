@@ -131,6 +131,8 @@ export interface I18nMessages {
   cloudPassword: string;
   cloudNameOptional: string;
   cloudPasswordHint: string;
+  /** Login page value prop under the title ($5/year dual-path). */
+  cloudAuthLead: string;
   cloudHaveAccount: string;
   cloudNeedAccount: string;
   cloudAuthFailed: string;
@@ -259,4 +261,8 @@ export interface I18nMessages {
   cloudSaveStatusLocal: string;
   cloudSaveStatusSaved: string;
   cloudSaveStatusError: string;
+  /** Soft banner on local /editor when cloud sync would help. */
+  cloudCrossDeviceNudge: string;
+  cloudCrossDeviceNudgeLink: string;
+  cloudCrossDeviceNudgeDismiss: string;
 }

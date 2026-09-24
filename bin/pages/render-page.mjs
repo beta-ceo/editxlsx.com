@@ -9,6 +9,18 @@ import { langMenu, routeFor } from './chrome.mjs';
 import { escapeHtml, renderInline } from './markdown.mjs';
 import { UI } from './ui.mjs';
 
+/**
+ * Landing CTAs often point at `/editor`. Non-English pages must carry
+ * `?locale=` so the app does not guess from the browser.
+ */
+function resolveCtaHref(href, locale) {
+  const raw = href || LOCALES[locale].home;
+  if (locale === DEFAULT_LOCALE) return raw;
+  if (!raw.startsWith('/editor')) return raw;
+  if (/[?&]locale=/.test(raw)) return raw;
+  return raw.includes('?') ? `${raw}&locale=${locale}` : `${raw}?locale=${locale}`;
+}
+
 export function renderPage({ page, locale, meta, body, headings, faq, steps, source }) {
   const L = LOCALES[locale];
   const ui = UI[locale];
@@ -95,9 +107,10 @@ export function renderPage({ page, locale, meta, body, headings, faq, steps, sou
   // The lead carries inline emphasis on a landing page ("Got a **.docx** file
   // but no Word installed"), so it is markdown rather than an escaped string.
   const lead = meta.lead ? `        <p class="lead">${renderInline(meta.lead)}</p>\n` : '';
+  const ctaHref = resolveCtaHref(meta.ctaHref, locale);
   const cta =
     isLanding && meta.cta
-      ? `        <a class="cta" href="${escapeHtml(meta.ctaHref || L.home)}"><r-button type="primary">${escapeHtml(meta.cta)}</r-button></a>\n`
+      ? `        <a class="cta" href="${escapeHtml(ctaHref)}"><r-button type="primary">${escapeHtml(meta.cta)}</r-button></a>\n`
       : '';
   // Every landing page ends on the same promise, so it belongs to the shell
   // rather than to eighteen copies of the same paragraph.
@@ -128,7 +141,7 @@ export function renderPage({ page, locale, meta, body, headings, faq, steps, sou
     .join('\n');
   const aside = `      <aside class="side" aria-label="${ui.onThisPage}">
         <div class="side-cta">
-          <a class="cta" href="${escapeHtml(meta.ctaHref || L.home)}"><r-button type="primary">${escapeHtml(meta.cta || `${ui.openEditor} \u2192`)}</r-button></a>
+          <a class="cta" href="${escapeHtml(ctaHref)}"><r-button type="primary">${escapeHtml(meta.cta || `${ui.openEditor} \u2192`)}</r-button></a>
           <span class="side-note">${ui.sideNote}</span>
         </div>
 ${toc}        <nav class="side-block">

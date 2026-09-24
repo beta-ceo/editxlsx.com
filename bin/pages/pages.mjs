@@ -19,6 +19,13 @@ export const LANDING_SLUGS = [
   'edit-documents-without-account',
   'embed-document-editor',
   'webmcp-document-editor',
+  // GTM: device / price / comparison intents (en + zh-CN first).
+  'excel-without-microsoft-365',
+  'edit-xlsx-chromebook',
+  'edit-xlsx-linux',
+  'compare/excel-online',
+  'compare/google-sheets',
+  'compare/upload-converters',
   'open/docx',
   'open/xlsx',
   'open/pptx',

@@ -5,7 +5,7 @@
  * the decoration around them is layout. content/<locale>/home.json holds the
  * strings; this holds the structure.
  */
-import { ORIGIN, REPO } from './constants.mjs';
+import { ORIGIN } from './constants.mjs';
 import { ID, appEntity, siteEntities, sourceEntity } from './entities.mjs';
 import { DEFAULT_LOCALE, LOCALES } from './locales.mjs';
 import { langMenu } from './chrome.mjs';
@@ -307,22 +307,18 @@ ${langMenu(locale, locales, ui, (l) => LOCALES[l].home)}
         <h1 class="reveal d2">${e(data.h1.plain)} <span class="accent">${e(data.h1.accent)}</span></h1>
         <p class="sub reveal d3">${e(data.sub)}</p>
         <div class="cta reveal d4">
-          <a href="${e(appPath('/login'))}"
-            ><r-button type="primary" id="hero-sign-in">${e(data.cta.signIn)}</r-button></a
-          >
-          <a href="${e(appPath('/workspace'))}"
-            ><r-button id="hero-workspace">${e(data.cta.files)}</r-button></a
+          <button type="button" id="hero-open" data-open-local="${editor('open=local')}">
+            <r-button type="primary">${e(data.cta.open)}</r-button>
+          </button>
+          <a href="${editor('new=xlsx')}" data-prefetch="xlsx" id="hero-new-xlsx"
+            ><r-button>${e(data.cta.xlsx)}</r-button></a
           >
         </div>
         <div class="checks reveal d5">${checks}</div>
         <div class="cta-local reveal d5">
-          <a class="cta-local-link" href="${editor('new=xlsx')}" data-prefetch="xlsx" id="hero-new-xlsx"
-            >${e(data.cta.xlsx)}</a
-          >
+          <a class="cta-local-link" href="${e(appPath('/login'))}" id="hero-sign-in">${e(data.cta.signIn)}</a>
           <span class="cta-local-sep" aria-hidden="true">·</span>
-          <button type="button" class="cta-local-link" id="hero-open" data-open-local="${editor('open=local')}">
-            ${e(data.cta.open)}
-          </button>
+          <a class="cta-local-link" href="${e(appPath('/workspace'))}" id="hero-workspace">${e(data.cta.files)}</a>
         </div>
         <div class="recent reveal d5">
           <span data-recent-slot data-recent-label="${e(data.recent.label)}" hidden></span>
@@ -383,7 +379,7 @@ ${featureCards}
 
       <div class="essentials" id="essentials">
         <div class="wrap">
-          <div class="section-head center">
+          <div class="section-head left">
             <span class="eyebrow">${e(data.essentials.eyebrow)}</span>
             <h2>${e(data.essentials.h2)}</h2>
             <p class="head-note">${e(data.essentials.p)}</p>
@@ -401,8 +397,8 @@ ${bentoCards}
             <h2>${e(data.band.h2)}</h2>
             <p>${e(data.band.p)}</p>
             <div class="band-cta">
-              <a class="band-primary" href="${e(appPath('/login'))}">${e(data.band.primary)}</a>
-              <a class="band-secondary" href="${e(appPath('/workspace'))}">${e(data.band.secondary)}</a>
+              <a class="band-primary" href="${editor('new=xlsx')}" data-prefetch="xlsx">${e(data.band.primary)}</a>
+              <a class="band-secondary" href="${e(appPath('/login'))}">${e(data.band.secondary)}</a>
             </div>
             <div class="checks band-checks">${bandChecks}</div>
           </div>

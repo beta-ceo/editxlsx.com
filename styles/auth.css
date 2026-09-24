@@ -25,6 +25,13 @@
   color: var(--ran-color-text);
 }
 
+.auth-lead {
+  margin: 0;
+  font-size: var(--ran-font-size-2);
+  line-height: 1.5;
+  color: var(--ran-color-text-secondary);
+}
+
 .auth-field {
   display: flex;
   flex-direction: column;
