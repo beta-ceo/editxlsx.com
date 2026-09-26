@@ -19,6 +19,8 @@ body {
   --success-text: var(--brand-ink);
   --glow-blue: var(--brand-air-glow);
   --glow-green: var(--brand-glow);
+  /* Drive ranui primary away from ink/black toward Sheet Green. */
+  --ran-color-primary: var(--brand);
 
   position: relative;
   z-index: 1;
@@ -315,15 +317,33 @@ body {
   }
 }
 
-/* ---------- hero (centered) ---------- */
+/* ---------- hero stage: copy left / product preview right ---------- */
+#landing-hero .hero-stage {
+  display: grid;
+  grid-template-columns: minmax(0, 0.92fr) minmax(0, 1.08fr);
+  gap: clamp(28px, 4vw, 56px);
+  align-items: center;
+  padding-top: clamp(40px, 7vw, 72px);
+  padding-bottom: clamp(40px, 6vw, 72px);
+}
+@media (max-width: 960px) {
+  #landing-hero .hero-stage {
+    grid-template-columns: 1fr;
+    gap: var(--ran-space-8);
+    padding-top: clamp(36px, 6vw, 56px);
+  }
+}
+
+/* ---------- hero (left-aligned — design-taste variance 8 bans centered heroes) ---------- */
 #landing-hero .hero {
   display: flex;
   flex-direction: column;
-  align-items: center;
-  text-align: center;
-  padding-top: clamp(48px, 8vw, 88px);
-  padding-bottom: var(--ran-space-8);
+  align-items: flex-start;
+  text-align: start;
+  padding-top: 0;
+  padding-bottom: 0;
   gap: var(--ran-space-4);
+  min-width: 0;
 }
 #landing-hero .hero-badge {
   display: inline-flex;
@@ -340,7 +360,7 @@ body {
 }
 #landing-hero .hero h1 {
   margin: 0;
-  max-width: 18ch;
+  max-width: 14ch;
   font-size: clamp(36px, 5.5vw, 56px);
   font-weight: 700;
   line-height: 1.12;
@@ -360,14 +380,14 @@ body {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-start;
   gap: var(--ran-space-3);
   margin-top: var(--ran-space-2);
 }
 #landing-hero .checks {
   display: flex;
   flex-wrap: wrap;
-  justify-content: center;
+  justify-content: flex-start;
   gap: var(--ran-space-4);
   margin-top: var(--ran-space-1);
 }
@@ -401,7 +421,7 @@ body {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-start;
   gap: var(--ran-space-2);
   font-size: 13px;
   color: var(--ran-color-text-secondary);
@@ -423,7 +443,7 @@ body {
   display: flex;
   flex-wrap: wrap;
   align-items: baseline;
-  justify-content: center;
+  justify-content: flex-start;
   gap: var(--ran-space-2);
   max-width: 62ch;
   font-size: 12.5px;
@@ -431,7 +451,7 @@ body {
 }
 #landing-hero .recent-note {
   flex: 1 1 100%;
-  text-align: center;
+  text-align: start;
 }
 #landing-hero .recent-all {
   color: var(--brand-ink);
@@ -440,7 +460,21 @@ body {
 
 /* ---------- product preview ---------- */
 #landing-hero .preview {
-  padding-bottom: clamp(40px, 6vw, 72px);
+  padding-bottom: 0;
+  min-width: 0;
+}
+#landing-hero .hero-stage .preview {
+  justify-self: stretch;
+}
+@media (prefers-reduced-motion: no-preference) and (min-width: 961px) {
+  #landing-hero .hero-stage .preview {
+    transform: translateY(12px);
+  }
+}
+@media (max-width: 960px) {
+  #landing-hero .hero-stage .preview {
+    transform: none;
+  }
 }
 #landing-hero .docwin {
   border-radius: 16px;
@@ -609,7 +643,7 @@ body {
 
 /* ---------- loved / trust strip ---------- */
 #landing-hero .loved {
-  text-align: center;
+  text-align: start;
   padding-bottom: clamp(40px, 6vw, 64px);
 }
 #landing-hero .loved-label {
@@ -623,7 +657,7 @@ body {
 #landing-hero .loved-chips {
   display: flex;
   flex-wrap: wrap;
-  justify-content: center;
+  justify-content: flex-start;
   gap: var(--ran-space-3);
 }
 #landing-hero .chip-logo {
@@ -661,7 +695,7 @@ body {
   font-weight: 700;
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: var(--ran-blue-700);
+  color: var(--brand-ink);
 }
 #landing-hero .section-head h2 {
   margin: 0 0 var(--ran-space-3);
@@ -680,7 +714,7 @@ body {
   margin-inline: auto;
 }
 
-/* Feature cards — soft tinted icons + foot tags, matching mock stack */
+/* Feature cards — asymmetric (no 3-equal SaaS row), brand/ink only — no purple. */
 #landing-hero .features-sec {
   padding-top: clamp(48px, 7vw, 88px);
   padding-bottom: clamp(48px, 7vw, 88px);
@@ -688,6 +722,8 @@ body {
 #landing-hero .features-sec .section-head {
   max-width: 38rem;
   margin-bottom: clamp(28px, 4vw, 48px);
+  text-align: start;
+  margin-inline: 0;
 }
 #landing-hero .features-sec .section-head h2 {
   font-size: clamp(30px, 4vw, 40px);
@@ -697,11 +733,24 @@ body {
   font-size: 16px;
   line-height: 1.6;
   max-width: 52ch;
+  margin-inline: 0;
 }
 #landing-hero .feat-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: 1.25fr 0.875fr;
+  grid-template-areas:
+    'engine local'
+    'engine cloud';
   gap: var(--ran-space-6);
+}
+#landing-hero .feat-card.tone-brand {
+  grid-area: engine;
+}
+#landing-hero .feat-card.tone-ink {
+  grid-area: local;
+}
+#landing-hero .feat-card.tone-soft {
+  grid-area: cloud;
 }
 #landing-hero .feat-card {
   display: flex;
@@ -713,19 +762,29 @@ body {
   background: var(--ran-color-bg-elevated);
   box-shadow:
     0 1px 0 color-mix(in srgb, var(--ran-color-text) 3%, transparent),
-    0 16px 40px -28px color-mix(in srgb, var(--ran-color-text) 22%, transparent);
+    0 16px 40px -28px color-mix(in srgb, var(--ran-color-text) 18%, transparent);
   transition:
     transform 0.2s ease,
     box-shadow 0.2s ease,
     border-color 0.2s ease;
 }
+#landing-hero .feat-card.tone-brand {
+  padding: 32px 28px 24px;
+  border-color: color-mix(in srgb, var(--brand-mid) 45%, var(--ran-color-border));
+  background:
+    linear-gradient(
+      165deg,
+      color-mix(in srgb, var(--brand-soft) 55%, var(--ran-color-bg-elevated)) 0%,
+      var(--ran-color-bg-elevated) 50%
+    );
+}
 @media (prefers-reduced-motion: no-preference) {
   #landing-hero .feat-card:hover {
     transform: translateY(-3px);
-    border-color: color-mix(in srgb, var(--ran-blue-400) 55%, var(--ran-color-border));
+    border-color: color-mix(in srgb, var(--brand-mid) 55%, var(--ran-color-border));
     box-shadow:
       0 1px 0 color-mix(in srgb, var(--ran-color-text) 3%, transparent),
-      0 22px 48px -24px color-mix(in srgb, var(--ran-blue-700) 28%, transparent);
+      0 22px 48px -24px color-mix(in srgb, var(--brand) 22%, transparent);
   }
 }
 #landing-hero .feat-icon {
@@ -735,22 +794,25 @@ body {
   flex: none;
   display: grid;
   place-items: center;
+  background: color-mix(in srgb, var(--ran-color-text) 6%, transparent);
+  color: var(--ran-color-text);
 }
 #landing-hero .feat-icon svg {
   width: 22px;
   height: 22px;
 }
-#landing-hero .feat-card.tone-blue .feat-icon {
-  background: var(--ran-blue-200);
-  color: var(--ran-blue-800);
+/* Remap legacy tones: blue→brand, purple→ink, green→brand soft. */
+#landing-hero .feat-card.tone-brand .feat-icon {
+  background: color-mix(in srgb, var(--brand) 16%, transparent);
+  color: var(--brand-ink);
 }
-#landing-hero .feat-card.tone-green .feat-icon {
-  background: color-mix(in srgb, var(--ran-color-success) 18%, var(--ran-color-bg));
-  color: var(--success-text);
+#landing-hero .feat-card.tone-soft .feat-icon {
+  background: color-mix(in srgb, var(--brand) 14%, transparent);
+  color: var(--brand-ink);
 }
-#landing-hero .feat-card.tone-purple .feat-icon {
-  background: color-mix(in srgb, #7c5cff 16%, var(--ran-color-bg));
-  color: #5b3fd4;
+#landing-hero .feat-card.tone-ink .feat-icon {
+  background: color-mix(in srgb, var(--ran-color-text) 8%, transparent);
+  color: var(--ran-color-text);
 }
 #landing-hero .feat-card h3 {
   margin: 4px 0 0;
@@ -758,6 +820,10 @@ body {
   font-weight: 700;
   letter-spacing: -0.015em;
   line-height: 1.3;
+}
+#landing-hero .feat-card.tone-brand h3 {
+  font-size: clamp(20px, 2.2vw, 24px);
+  letter-spacing: -0.025em;
 }
 #landing-hero .feat-card p {
   margin: 0;
@@ -769,7 +835,7 @@ body {
 #landing-hero .feat-tag {
   display: flex;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-start;
   gap: 8px;
   margin-top: var(--ran-space-3);
   padding: 10px 14px;
@@ -777,37 +843,43 @@ body {
   font-size: 12.5px;
   font-weight: 600;
   letter-spacing: 0.005em;
-  background: var(--ran-blue-100);
-  color: var(--ran-blue-900);
+  background: color-mix(in srgb, var(--ran-color-text) 5%, transparent);
+  color: var(--ran-color-text-secondary);
 }
 #landing-hero .feat-tag-ico {
   display: inline-grid;
   place-items: center;
   flex: none;
-  color: var(--ran-blue-700);
+  color: var(--ran-color-text-secondary);
 }
 #landing-hero .feat-tag-ico svg {
   width: 14px;
   height: 14px;
 }
-#landing-hero .feat-card.tone-green .feat-tag {
-  background: color-mix(in srgb, var(--ran-color-success) 12%, var(--ran-blue-100));
-  color: var(--success-text);
+#landing-hero .feat-card.tone-brand .feat-tag,
+#landing-hero .feat-card.tone-soft .feat-tag {
+  background: color-mix(in srgb, var(--brand) 12%, transparent);
+  color: var(--brand-ink);
 }
-#landing-hero .feat-card.tone-green .feat-tag-ico {
-  color: var(--success-text);
+#landing-hero .feat-card.tone-brand .feat-tag-ico,
+#landing-hero .feat-card.tone-soft .feat-tag-ico {
+  color: var(--brand-ink);
 }
-#landing-hero .feat-card.tone-purple .feat-tag {
-  background: color-mix(in srgb, #7c5cff 10%, var(--ran-blue-100));
-  color: #4b2db8;
+#landing-hero .feat-card.tone-ink .feat-tag {
+  background: color-mix(in srgb, var(--ran-color-text) 6%, transparent);
+  color: var(--ran-color-text);
 }
-#landing-hero .feat-card.tone-purple .feat-tag-ico {
-  color: #5b3fd4;
+#landing-hero .feat-card.tone-ink .feat-tag-ico {
+  color: var(--ran-color-text-secondary);
 }
 
 @media (max-width: 840px) {
   #landing-hero .feat-grid {
     grid-template-columns: 1fr;
+    grid-template-areas:
+      'engine'
+      'local'
+      'cloud';
   }
 }
 
@@ -964,15 +1036,15 @@ body {
   color: var(--ran-color-text-secondary);
 }
 /* Remap legacy tones: purple→ink, blue→air, green→brand. */
-#landing-hero .bento-card.tone-purple .bento-label {
+#landing-hero .bento-card.tone-ink .bento-label {
   background: color-mix(in srgb, var(--ran-color-text) 8%, transparent);
   color: var(--ran-color-text);
 }
-#landing-hero .bento-card.tone-blue .bento-label {
+#landing-hero .bento-card.tone-air .bento-label {
   background: color-mix(in srgb, #6a8fa8 16%, transparent);
   color: color-mix(in srgb, #3d5a6e 70%, var(--ran-color-text));
 }
-#landing-hero .bento-card.tone-green .bento-label,
+#landing-hero .bento-card.tone-brand .bento-label,
 #landing-hero .bento-card.snip-library .bento-label {
   background: color-mix(in srgb, var(--brand) 16%, transparent);
   color: var(--brand-ink);
@@ -1017,12 +1089,12 @@ body {
   display: flex;
   align-items: stretch;
 }
-#landing-hero .bento-card.tone-purple > .snip,
-#landing-hero .bento-card.tone-blue > .snip {
+#landing-hero .bento-card.tone-ink > .snip,
+#landing-hero .bento-card.tone-air > .snip {
   border-color: color-mix(in srgb, var(--ran-color-border) 80%, transparent);
   background: color-mix(in srgb, var(--ran-color-text) 3%, var(--ran-color-bg));
 }
-#landing-hero .bento-card.tone-green > .snip,
+#landing-hero .bento-card.tone-brand > .snip,
 #landing-hero .bento-card.snip-library > .snip {
   border-color: color-mix(in srgb, var(--brand-mid) 55%, transparent);
   background: color-mix(in srgb, var(--brand-soft) 55%, var(--ran-color-bg));
@@ -1574,31 +1646,29 @@ html[theme='dark'] #landing-hero .hero-badge {
   border-color: var(--brand-mid);
   color: var(--brand-ink);
 }
-[data-ran-theme='dark'] #landing-hero .bento-card.tone-purple .bento-label,
-html[theme='dark'] #landing-hero .bento-card.tone-purple .bento-label {
+[data-ran-theme='dark'] #landing-hero .bento-card.tone-ink .bento-label,
+html[theme='dark'] #landing-hero .bento-card.tone-ink .bento-label {
   color: color-mix(in srgb, #fff 78%, transparent);
   background: color-mix(in srgb, #fff 10%, transparent);
 }
-[data-ran-theme='dark'] #landing-hero .feat-card.tone-purple .feat-tag,
-html[theme='dark'] #landing-hero .feat-card.tone-purple .feat-tag,
-[data-ran-theme='dark'] #landing-hero .feat-card.tone-purple .feat-tag-ico,
-html[theme='dark'] #landing-hero .feat-card.tone-purple .feat-tag-ico,
-[data-ran-theme='dark'] #landing-hero .feat-card.tone-purple .feat-icon,
-html[theme='dark'] #landing-hero .feat-card.tone-purple .feat-icon {
-  color: #c4b5ff;
+[data-ran-theme='dark'] #landing-hero .feat-card.tone-ink .feat-tag,
+html[theme='dark'] #landing-hero .feat-card.tone-ink .feat-tag,
+[data-ran-theme='dark'] #landing-hero .feat-card.tone-ink .feat-tag-ico,
+html[theme='dark'] #landing-hero .feat-card.tone-ink .feat-tag-ico,
+[data-ran-theme='dark'] #landing-hero .feat-card.tone-ink .feat-icon,
+html[theme='dark'] #landing-hero .feat-card.tone-ink .feat-icon {
+  color: color-mix(in srgb, #fff 82%, transparent);
 }
-[data-ran-theme='dark'] #landing-hero .feat-card.tone-blue .feat-icon,
-html[theme='dark'] #landing-hero .feat-card.tone-blue .feat-icon {
-  background: color-mix(in srgb, var(--ran-blue-700) 35%, transparent);
-  color: var(--ran-blue-400);
+[data-ran-theme='dark'] #landing-hero .feat-card.tone-brand .feat-icon,
+html[theme='dark'] #landing-hero .feat-card.tone-brand .feat-icon,
+[data-ran-theme='dark'] #landing-hero .feat-card.tone-soft .feat-icon,
+html[theme='dark'] #landing-hero .feat-card.tone-soft .feat-icon {
+  background: color-mix(in srgb, var(--brand) 22%, transparent);
+  color: var(--brand-ink);
 }
-[data-ran-theme='dark'] #landing-hero .feat-card.tone-green .feat-icon,
-html[theme='dark'] #landing-hero .feat-card.tone-green .feat-icon {
-  background: color-mix(in srgb, var(--ran-color-success) 22%, transparent);
-}
-[data-ran-theme='dark'] #landing-hero .feat-card.tone-purple .feat-icon,
-html[theme='dark'] #landing-hero .feat-card.tone-purple .feat-icon {
-  background: color-mix(in srgb, #7c5cff 28%, transparent);
+[data-ran-theme='dark'] #landing-hero .feat-card.tone-ink .feat-icon,
+html[theme='dark'] #landing-hero .feat-card.tone-ink .feat-icon {
+  background: color-mix(in srgb, #fff 10%, transparent);
 }
 [data-ran-theme='dark'] #landing-hero .essentials,
 html[theme='dark'] #landing-hero .essentials {
@@ -1616,12 +1686,12 @@ html[theme='dark'] #landing-hero .bento-card.snip-library {
 }
 [data-ran-theme='dark'] #landing-hero .bento-card > .snip,
 html[theme='dark'] #landing-hero .bento-card > .snip,
-[data-ran-theme='dark'] #landing-hero .bento-card.tone-purple > .snip,
-html[theme='dark'] #landing-hero .bento-card.tone-purple > .snip,
-[data-ran-theme='dark'] #landing-hero .bento-card.tone-blue > .snip,
-html[theme='dark'] #landing-hero .bento-card.tone-blue > .snip,
-[data-ran-theme='dark'] #landing-hero .bento-card.tone-green > .snip,
-html[theme='dark'] #landing-hero .bento-card.tone-green > .snip,
+[data-ran-theme='dark'] #landing-hero .bento-card.tone-ink > .snip,
+html[theme='dark'] #landing-hero .bento-card.tone-ink > .snip,
+[data-ran-theme='dark'] #landing-hero .bento-card.tone-air > .snip,
+html[theme='dark'] #landing-hero .bento-card.tone-air > .snip,
+[data-ran-theme='dark'] #landing-hero .bento-card.tone-brand > .snip,
+html[theme='dark'] #landing-hero .bento-card.tone-brand > .snip,
 [data-ran-theme='dark'] #landing-hero .bento-card.snip-library > .snip,
 html[theme='dark'] #landing-hero .bento-card.snip-library > .snip {
   background: color-mix(in srgb, var(--ran-color-text) 6%, var(--ran-color-bg));

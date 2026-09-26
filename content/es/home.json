@@ -14,10 +14,6 @@
     {
       "href": "/help",
       "label": "Ayuda"
-    },
-    {
-      "href": "/changelog",
-      "label": "Cambios"
     }
   ],
   "navActions": {
@@ -101,19 +97,19 @@
     "p": "OnlyOffice en la pestaña para editar en local gratis. Inicia sesión solo cuando quieras el mismo libro en cada dispositivo — $5 al año.",
     "items": [
       {
-        "tone": "blue",
+        "tone": "brand",
         "h3": "Motor de hojas en el navegador",
         "p": "Fórmulas, gráficos, hojas y formato con OnlyOffice WebAssembly — sin Office de escritorio.",
         "tag": "Edición .xlsx completa en la pestaña"
       },
       {
-        "tone": "purple",
+        "tone": "ink",
         "h3": "Ruta local siempre disponible",
         "p": "Abre un archivo solo en este dispositivo o usa el historial de recuperación local — sin cuenta en esa ruta.",
         "tag": "Funciona sin iniciar sesión"
       },
       {
-        "tone": "green",
+        "tone": "soft",
         "h3": "Sync en la nube al iniciar sesión",
         "p": "Los libros de tu cuenta viajan contigo. Empieza en un dispositivo, continúa en otro.",
         "tag": "Mis libros · autoguardado"
@@ -126,28 +122,28 @@
     "p": "El editor no estorba: biblioteca en la nube cuando la necesitas, recuperación local cuando no, y formatos más allá de Excel cuando el trabajo lo pide.",
     "items": [
       {
-        "tone": "purple",
+        "tone": "ink",
         "label": "Biblioteca en la nube",
         "h3": "Mis libros, una cuenta",
         "p": "Inicia sesión una vez. Explora, abre y autoguarda .xlsx en tu cuenta — luego sigue en otro dispositivo.",
         "snippet": "library"
       },
       {
-        "tone": "blue",
+        "tone": "air",
         "label": "Organización",
         "h3": "Excel primero, docs cuando haga falta",
         "p": "Las hojas son el producto. El mismo motor abre Word, PowerPoint, PDF y OpenDocument.",
         "snippet": "formats"
       },
       {
-        "tone": "green",
+        "tone": "brand",
         "label": "Acceso",
         "h3": "Inicia sesión o quédate en local",
         "p": "La sync en la nube necesita cuenta. Abrir en local y las copias de 7 días no — elige la ruta según el archivo.",
         "snippet": "access"
       },
       {
-        "tone": "blue",
+        "tone": "air",
         "label": "Listo sin red",
         "h3": "Trabaja sin conexión, sincroniza después",
         "p": "Con los assets del editor en caché, sigue editando un archivo local sin red. El guardado en la nube espera a que vuelvas online.",

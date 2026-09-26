@@ -115,22 +115,22 @@ export function renderHome({ locale, data, locales }) {
   const lovedChips = data.loved.chips.map((c) => `<span class="chip-logo">${e(c)}</span>`).join('');
 
   const featIcons = {
-    blue: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z"/><path d="M12 3v2.2M12 18.8V21M4.9 4.9l1.6 1.6M17.5 17.5l1.6 1.6M3 12h2.2M18.8 12H21M4.9 19.1l1.6-1.6M17.5 6.5l1.6-1.6"/><path d="M12 12l3.2-3.2"/></svg>`,
-    green: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M7.5 18h9a4.5 4.5 0 0 0 .4-9 6 6 0 0 0-11.5 1.6A3.8 3.8 0 0 0 7.5 18Z"/></svg>`,
-    purple: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3"/><circle cx="16.5" cy="9.5" r="2.5"/><path d="M3.5 18.5c.6-2.8 2.7-4.5 5.5-4.5s4.9 1.7 5.5 4.5"/><path d="M14 18.5c.4-1.8 1.7-3 3.5-3 1.3 0 2.4.6 3 1.7"/></svg>`,
+    brand: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z"/><path d="M12 3v2.2M12 18.8V21M4.9 4.9l1.6 1.6M17.5 17.5l1.6 1.6M3 12h2.2M18.8 12H21M4.9 19.1l1.6-1.6M17.5 6.5l1.6-1.6"/><path d="M12 12l3.2-3.2"/></svg>`,
+    soft: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M7.5 18h9a4.5 4.5 0 0 0 .4-9 6 6 0 0 0-11.5 1.6A3.8 3.8 0 0 0 7.5 18Z"/></svg>`,
+    ink: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3"/><circle cx="16.5" cy="9.5" r="2.5"/><path d="M3.5 18.5c.6-2.8 2.7-4.5 5.5-4.5s4.9 1.7 5.5 4.5"/><path d="M14 18.5c.4-1.8 1.7-3 3.5-3 1.3 0 2.4.6 3 1.7"/></svg>`,
   };
   const tagIcons = {
-    blue: `<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M8.5 1.5 4 8h4l-.5 6.5L12 8H8l.5-6.5Z"/></svg>`,
-    green: `<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M2.5 8a5.5 5.5 0 0 1 9.7-3.5A3.5 3.5 0 0 1 13 11.5H4.2A2.8 2.8 0 0 1 2.5 8Z"/><path d="M8 6.5v5M6 9.5l2 2 2-2"/></svg>`,
-    purple: `<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="5.5" r="2"/><circle cx="11" cy="6.5" r="1.6"/><path d="M2.5 13c.4-1.8 1.8-3 3.5-3s3.1 1.2 3.5 3"/><path d="M9.5 13c.3-1.2 1.2-2 2.3-2 .9 0 1.6.4 2 1.1"/></svg>`,
+    brand: `<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M8.5 1.5 4 8h4l-.5 6.5L12 8H8l.5-6.5Z"/></svg>`,
+    soft: `<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M2.5 8a5.5 5.5 0 0 1 9.7-3.5A3.5 3.5 0 0 1 13 11.5H4.2A2.8 2.8 0 0 1 2.5 8Z"/><path d="M8 6.5v5M6 9.5l2 2 2-2"/></svg>`,
+    ink: `<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="5.5" r="2"/><circle cx="11" cy="6.5" r="1.6"/><path d="M2.5 13c.4-1.8 1.8-3 3.5-3s3.1 1.2 3.5 3"/><path d="M9.5 13c.3-1.2 1.2-2 2.3-2 .9 0 1.6.4 2 1.1"/></svg>`,
   };
   const featureCards = data.features.items
     .map(
       (item) => `          <article class="feat-card tone-${e(item.tone)}">
-            <span class="feat-icon" aria-hidden="true">${featIcons[item.tone] || featIcons.blue}</span>
+            <span class="feat-icon" aria-hidden="true">${featIcons[item.tone] || featIcons.brand}</span>
             <h3>${e(item.h3)}</h3>
             <p>${e(item.p)}</p>
-            <span class="feat-tag"><span class="feat-tag-ico" aria-hidden="true">${tagIcons[item.tone] || tagIcons.blue}</span>${e(item.tag)}</span>
+            <span class="feat-tag"><span class="feat-tag-ico" aria-hidden="true">${tagIcons[item.tone] || tagIcons.brand}</span>${e(item.tag)}</span>
           </article>`,
     )
     .join('\n');
@@ -302,7 +302,8 @@ ${langMenu(locale, locales, ui, (l) => LOCALES[l].home)}
       </header>
 
       <main>
-      <div class="hero wrap">
+      <div class="hero-stage wrap">
+      <div class="hero">
         <span class="hero-badge reveal d1">${e(data.badge)}</span>
         <h1 class="reveal d2">${e(data.h1.plain)} <span class="accent">${e(data.h1.accent)}</span></h1>
         <p class="sub reveal d3">${e(data.sub)}</p>
@@ -329,7 +330,7 @@ ${langMenu(locale, locales, ui, (l) => LOCALES[l].home)}
         </div>
       </div>
 
-      <div class="preview wrap reveal d3">
+      <div class="preview reveal d3">
         <div class="docwin" aria-hidden="true">
           <div class="dw-bar">
             <span class="dw-dots"><i></i><i></i><i></i></span>
@@ -360,6 +361,7 @@ ${docRows}
           </div>
         </div>
       </div>
+      </div>
 
       <div class="loved wrap">
         <p class="loved-label">${e(data.loved.label)}</p>
@@ -367,8 +369,8 @@ ${docRows}
       </div>
 
       <div class="section features-sec wrap" id="features">
-        <div class="section-head center">
-          <span class="eyebrow">${e(data.features.eyebrow)}</span>
+        <div class="section-head left">
+            <span class="eyebrow">${e(data.features.eyebrow)}</span>
           <h2>${e(data.features.h2)}</h2>
           <p class="head-note">${e(data.features.p)}</p>
         </div>

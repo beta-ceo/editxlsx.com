@@ -38,7 +38,8 @@ header.bar {
   display: flex;
   align-items: center;
   gap: var(--ran-space-4);
-  padding: var(--ran-space-4) clamp(20px, 5vw, 56px);
+  /* 12px vertical — same as #landing-hero .bar .wrap */
+  padding: 12px clamp(20px, 5vw, 56px);
   border-bottom: 1px solid var(--ran-color-border);
 }
 header.bar .brand {
@@ -47,10 +48,30 @@ header.bar .brand {
   gap: var(--ran-space-2);
   flex: none;
   font-weight: 700;
-  font-size: 16px;
-  letter-spacing: -0.01em;
+  font-size: 17px;
+  letter-spacing: -0.02em;
   color: var(--ran-color-text);
   text-decoration: none;
+}
+header.bar .brand .mark {
+  width: 24px;
+  height: 24px;
+  border-radius: 6px;
+  background: var(--brand, var(--ran-color-primary));
+  display: inline-grid;
+  place-items: center;
+  flex: none;
+}
+header.bar .brand .mark::after {
+  content: '';
+  width: 10px;
+  height: 12px;
+  border: 1.5px solid #fff;
+  border-radius: 2px;
+  box-shadow: inset 0 -4px 0 color-mix(in srgb, #fff 35%, transparent);
+}
+header.bar .brand .wordmark {
+  color: var(--ran-color-text);
 }
 header.bar .logo {
   width: 24px;
@@ -65,27 +86,29 @@ header.bar .logo {
   font-weight: 700;
 }
 header.bar .products {
-  display: inline-flex;
+  display: flex;
   align-items: center;
   justify-content: center;
-  gap: var(--ran-space-1);
+  gap: var(--ran-space-6);
   flex: 1 1 auto;
   min-width: 0;
 }
 header.bar .products .product {
   display: inline-flex;
   align-items: center;
-  padding: var(--ran-space-2) var(--ran-space-3);
-  border-radius: var(--ran-radius-sm);
-  font-size: 14px;
-  font-weight: 600;
-  line-height: 22px;
-  color: var(--ran-color-text);
+  padding: 0;
+  font-size: 15.5px;
+  font-weight: 500;
+  line-height: 24px;
+  color: var(--ran-color-text-secondary);
   text-decoration: none;
-  transition: 0.15s ease;
+  white-space: nowrap;
+  transition: color 0.15s ease;
 }
-header.bar .products .product:hover {
-  background: var(--ran-color-bg-hover);
+header.bar .products .product:hover,
+header.bar .products .product[aria-current='page'] {
+  color: var(--ran-color-text);
+  background: transparent;
 }
 header.bar .products-sep {
   width: 1px;
@@ -96,9 +119,61 @@ header.bar .products-sep {
 header.bar .utils {
   display: flex;
   align-items: center;
-  gap: var(--ran-space-1);
+  gap: var(--ran-space-3);
   flex: none;
   margin-left: auto;
+}
+header.bar .nav-login {
+  font-size: 14.5px;
+  font-weight: 500;
+  line-height: 24px;
+  color: var(--ran-color-text-secondary);
+  white-space: nowrap;
+  text-decoration: none;
+  padding: 0;
+}
+header.bar .nav-login:hover {
+  color: var(--ran-color-text);
+  background: transparent;
+}
+header.bar .nav-cta {
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+}
+header.bar .nav-cta r-button,
+header.bar .nav-cta r-button::part(button) {
+  --ran-btn-background: var(--brand, var(--ran-color-primary));
+  --ran-btn-border-color: var(--brand, var(--ran-color-primary));
+  --ran-btn-color: #fff;
+  border-radius: var(--ran-radius-full);
+}
+header.bar .nav-cta r-button::part(content) {
+  padding: 7px 16px;
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 20px;
+}
+header.bar .nav-cta r-button:not(:defined) {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 7px 16px;
+  border-radius: var(--ran-radius-full);
+  border: 1px solid var(--brand, var(--ran-color-primary));
+  background: var(--brand, var(--ran-color-primary));
+  color: #fff;
+  font-weight: 600;
+  font-size: 14px;
+  line-height: 20px;
+}
+@media (max-width: 900px) {
+  header.bar .products {
+    display: none;
+  }
+  header.bar .nav-login {
+    display: none;
+  }
 }
 /* Legacy single <nav> (login / history / files) until those pages pick up
    the products strip -- keep the old right-aligned utility row. */
@@ -108,7 +183,7 @@ header.bar > nav:not(.products):not(.utils) {
   gap: var(--ran-space-1);
   margin-left: auto;
 }
-header.bar .utils a,
+header.bar .utils a:not(.nav-cta):not(.nav-login),
 header.bar > nav:not(.products):not(.utils) a {
   display: inline-flex;
   align-items: center;
@@ -125,7 +200,7 @@ header.bar > nav:not(.products):not(.utils) a {
   text-decoration: none;
   transition: 0.15s ease;
 }
-header.bar .utils a:hover,
+header.bar .utils a:not(.nav-cta):not(.nav-login):hover,
 header.bar > nav:not(.products):not(.utils) a:hover {
   color: var(--ran-color-text);
   background: var(--ran-color-bg-hover);

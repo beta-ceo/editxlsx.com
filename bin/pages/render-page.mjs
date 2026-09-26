@@ -21,6 +21,13 @@ function resolveCtaHref(href, locale) {
   return raw.includes('?') ? `${raw}&locale=${locale}` : `${raw}?locale=${locale}`;
 }
 
+/** App routes that need `?locale=` when the page is not English. */
+function appPath(path, locale) {
+  if (locale === DEFAULT_LOCALE) return path;
+  const sep = path.includes('?') ? '&' : '?';
+  return `${path}${sep}locale=${locale}`;
+}
+
 export function renderPage({ page, locale, meta, body, headings, faq, steps, source }) {
   const L = LOCALES[locale];
   const ui = UI[locale];
@@ -122,6 +129,18 @@ export function renderPage({ page, locale, meta, body, headings, faq, steps, sou
     : `\n        <p class="source">${escapeHtml(ui.generatedNote(source))} · <a href="${REPO}/blob/main/${source}" rel="noopener">GitHub</a></p>\n`;
   const footer = ui.footer.map(([href, label]) => `        <a href="${href}">${label}</a>`).join('\n');
   const here = routeFor(locale, page.slug);
+  const loginHref = appPath('/login', locale);
+  const helpHref = routeFor(locale, 'help');
+  const productsNav = [
+    [`${L.home}#features`, ui.navFeatures],
+    [`${L.home}#essentials`, ui.navEssentials],
+    [helpHref, ui.navHelp],
+  ]
+    .map(([href, label]) => {
+      const current = href === helpHref && page.slug === 'help' ? ' aria-current="page"' : '';
+      return `          <a class="product" href="${escapeHtml(href)}"${current}>${escapeHtml(label)}</a>`;
+    })
+    .join('\n');
   const parentOf = (href) => href.replace(/\/[^/]*$/, '') || '/';
   // Siblings first: from a format page the useful next click is another
   // format, not the embed API. Help and the changelog are one row down in the
@@ -201,6 +220,7 @@ ${jsonLd}
     </script>
     <link rel="stylesheet" href="/ran-fonts/fonts.css" />
     <link rel="stylesheet" href="/ran-tokens.css" />
+    <link rel="stylesheet" href="/brand-tokens.css" />
     <link rel="stylesheet" href="/landing.css" />
     <script src="/ranui-iife/button.iife.js" defer></script>
     <script src="/ranui-iife/popover.iife.js" defer></script>
@@ -211,10 +231,15 @@ ${jsonLd}
 
   <body>
     <header class="bar">
-      <a class="brand" href="${L.home}"><span class="wordmark">${ui.siteName}</span></a>
+      <a class="brand" href="${L.home}"><span class="mark" aria-hidden="true"></span><span class="wordmark">${ui.siteName}</span></a>
+      <nav class="products" aria-label="${escapeHtml(ui.productsAria)}">
+${productsNav}
+      </nav>
       <nav class="utils">
 ${langMenu(locale, translations, ui, (l) => routeFor(l, page.slug))}
         <r-theme-switch class="theme-switch" label="${ui.themeLabel}"></r-theme-switch>
+        <a class="nav-login" href="${escapeHtml(loginHref)}">${escapeHtml(ui.logIn)}</a>
+        <a class="nav-cta" href="${escapeHtml(loginHref)}"><r-button type="primary">${escapeHtml(ui.getStarted)}</r-button></a>
       </nav>
     </header>
 

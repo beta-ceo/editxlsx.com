@@ -14,10 +14,6 @@
     {
       "href": "/help",
       "label": "Help"
-    },
-    {
-      "href": "/changelog",
-      "label": "Changelog"
     }
   ],
   "navActions": {
@@ -101,19 +97,19 @@
     "p": "OnlyOffice in the tab for free local edits. Sign in only when you want the same workbook on every device — $5 a year, not another heavy suite.",
     "items": [
       {
-        "tone": "blue",
+        "tone": "brand",
         "h3": "Browser spreadsheet engine",
         "p": "Formulas, charts, sheets and formatting via OnlyOffice WebAssembly — no desktop Office required.",
         "tag": "Full .xlsx editing in the tab"
       },
       {
-        "tone": "purple",
+        "tone": "ink",
         "h3": "Local first, always free",
         "p": "Open a file on this device with no account. Edits stay in the tab; optional seven-day recovery copies stay in this browser.",
         "tag": "Works without signing in"
       },
       {
-        "tone": "green",
+        "tone": "soft",
         "h3": "Cloud sync when you need it",
         "p": "For $5 a year, workbooks in your account travel with you. Start on one device, continue on another.",
         "tag": "My workbooks · autosave"
@@ -126,28 +122,28 @@
     "p": "Built for opening attachments, fixing cells, and keeping formulas intact — not for replacing every Excel power feature.",
     "items": [
       {
-        "tone": "purple",
+        "tone": "ink",
         "label": "Honest fit",
         "h3": "Everyday .xlsx, not every Excel feature",
         "p": "Great for open–edit–download and light formulas. For VBA macros, heavy Power Query, or live multi-user co-editing, stick with Excel or Google Sheets.",
         "snippet": "access"
       },
       {
-        "tone": "blue",
+        "tone": "air",
         "label": "Organization",
         "h3": "Excel first, docs when needed",
         "p": "Spreadsheets are the product. The same engine still opens Word, PowerPoint, PDF and OpenDocument when you need them.",
         "snippet": "formats"
       },
       {
-        "tone": "green",
+        "tone": "brand",
         "label": "Cloud library",
         "h3": "My workbooks, one account",
         "p": "Sign in once for $5 a year. Browse, open, and autosave .xlsx files in your account — then pick up on another device.",
         "snippet": "library"
       },
       {
-        "tone": "blue",
+        "tone": "air",
         "label": "Offline ready",
         "h3": "Work offline, sync later",
         "p": "Once editor assets are cached, keep editing a local file without the network. Cloud save waits until you are online.",

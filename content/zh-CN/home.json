@@ -14,10 +14,6 @@
     {
       "href": "/help",
       "label": "帮助"
-    },
-    {
-      "href": "/changelog",
-      "label": "更新日志"
     }
   ],
   "navActions": {
@@ -101,19 +97,19 @@
     "p": "浏览器里跑 OnlyOffice，本地编辑始终免费。只有需要同一本表跟账号走时，才付每年 $5。",
     "items": [
       {
-        "tone": "blue",
+        "tone": "brand",
         "h3": "浏览器表格引擎",
         "p": "公式、图表、多工作表与格式由 OnlyOffice WebAssembly 提供——不必安装桌面 Office。",
         "tag": "标签页内完整编辑 .xlsx"
       },
       {
-        "tone": "purple",
+        "tone": "ink",
         "h3": "本地优先，始终免费",
         "p": "在本机打开文件，无需账号。编辑留在标签页；可选的七天恢复副本只存在本浏览器。",
         "tag": "不登录也能用"
       },
       {
-        "tone": "green",
+        "tone": "soft",
         "h3": "需要时再云同步",
         "p": "每年 $5，账号里的工作簿跟你走。一台设备开始，另一台继续。",
         "tag": "我的工作簿 · 自动保存"
@@ -126,28 +122,28 @@
     "p": "为打开附件、改几个格、保留公式与格式而建——不是要取代 Excel 的全部高级功能。",
     "items": [
       {
-        "tone": "purple",
+        "tone": "ink",
         "label": "诚实边界",
         "h3": "日常 .xlsx，不是全部 Excel 能力",
         "p": "适合打开—编辑—下载与轻量公式。需要 VBA 宏、重度 Power Query 或多人实时协同时，请继续用 Excel 或 Google 表格。",
         "snippet": "access"
       },
       {
-        "tone": "blue",
+        "tone": "air",
         "label": "格式",
         "h3": "先 Excel，需要时再开文档",
         "p": "表格是主产品。同一引擎也能打开 Word、PowerPoint、PDF 与 OpenDocument。",
         "snippet": "formats"
       },
       {
-        "tone": "green",
+        "tone": "brand",
         "label": "云库",
         "h3": "一个账号，我的工作簿",
         "p": "登录后每年 $5。浏览、打开并自动保存账号中的 .xlsx，再换设备继续。",
         "snippet": "library"
       },
       {
-        "tone": "blue",
+        "tone": "air",
         "label": "离线",
         "h3": "可离线编辑，上线再同步",
         "p": "编辑器资源缓存后，本地文件可断网继续改。云保存等你重新联网。",

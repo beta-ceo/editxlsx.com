@@ -246,7 +246,6 @@
             <a class="navlink" href="#features">Features</a>
             <a class="navlink" href="#essentials">Essentials</a>
             <a class="navlink" href="/help">Help</a>
-            <a class="navlink" href="/changelog">Changelog</a>
           </nav>
           <nav class="utils">
 <r-popover class="lang-menu" placement="bottom" trigger="click" role="button" aria-label="Language"><span class="lang-trigger"><svg class="langmark" aria-hidden="true" viewBox="0 0 16 16"><circle cx="8" cy="8" r="6.25" fill="none" stroke="currentColor" stroke-width="1.5"></circle><path d="M1.75 8h12.5M8 1.75c1.7 1.8 2.6 3.9 2.6 6.25S9.7 12.45 8 14.25M8 1.75c-1.7 1.8-2.6 3.9-2.6 6.25s.9 4.45 2.6 6.25" fill="none" stroke="currentColor" stroke-width="1.2"></path></svg><span class="lang-current">English</span><svg class="lang-caret" aria-hidden="true" viewBox="0 0 12 12"><path d="M2.75 4.5 6 7.75 9.25 4.5" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"></path></svg></span><r-content><div class="lang-list"><a class="lang-option" href="/de/" lang="de" hreflang="de">Deutsch</a><a class="lang-option is-current" href="/" lang="en" hreflang="en" aria-current="page">English</a><a class="lang-option" href="/es/" lang="es" hreflang="es">Español</a><a class="lang-option" href="/pt/" lang="pt" hreflang="pt">Português</a><a class="lang-option" href="/zh-CN/" lang="zh-CN" hreflang="zh-CN">中文</a><a class="lang-option" href="/ja/" lang="ja" hreflang="ja">日本語</a><a class="lang-option" href="/ko/" lang="ko" hreflang="ko">한국어</a></div></r-content></r-popover>
@@ -258,7 +257,8 @@
       </header>
 
       <main>
-      <div class="hero wrap">
+      <div class="hero-stage wrap">
+      <div class="hero">
         <span class="hero-badge reveal d1">Local free · No Office install · Cloud $5/year</span>
         <h1 class="reveal d2">Excel in your browser <span class="accent">without installing Office</span></h1>
         <p class="sub reveal d3">Open a local .xlsx free — no account, editing stays in your tab. Cloud sync is $5 a year when the same workbook needs to follow you across devices.</p>
@@ -285,7 +285,7 @@
         </div>
       </div>
 
-      <div class="preview wrap reveal d3">
+      <div class="preview reveal d3">
         <div class="docwin" aria-hidden="true">
           <div class="dw-bar">
             <span class="dw-dots"><i></i><i></i><i></i></span>
@@ -318,6 +318,7 @@
           </div>
         </div>
       </div>
+      </div>
 
       <div class="loved wrap">
         <p class="loved-label">Built for creators, startups, and teams who want Excel in the browser</p>
@@ -325,25 +326,25 @@
       </div>
 
       <div class="section features-sec wrap" id="features">
-        <div class="section-head center">
-          <span class="eyebrow">Lightweight &amp; efficient</span>
+        <div class="section-head left">
+            <span class="eyebrow">Lightweight &amp; efficient</span>
           <h2>Say goodbye to bloated suites. Welcome to focused productivity.</h2>
           <p class="head-note">OnlyOffice in the tab for free local edits. Sign in only when you want the same workbook on every device — $5 a year, not another heavy suite.</p>
         </div>
         <div class="feat-grid">
-          <article class="feat-card tone-blue">
+          <article class="feat-card tone-brand">
             <span class="feat-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z"/><path d="M12 3v2.2M12 18.8V21M4.9 4.9l1.6 1.6M17.5 17.5l1.6 1.6M3 12h2.2M18.8 12H21M4.9 19.1l1.6-1.6M17.5 6.5l1.6-1.6"/><path d="M12 12l3.2-3.2"/></svg></span>
             <h3>Browser spreadsheet engine</h3>
             <p>Formulas, charts, sheets and formatting via OnlyOffice WebAssembly — no desktop Office required.</p>
             <span class="feat-tag"><span class="feat-tag-ico" aria-hidden="true"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M8.5 1.5 4 8h4l-.5 6.5L12 8H8l.5-6.5Z"/></svg></span>Full .xlsx editing in the tab</span>
           </article>
-          <article class="feat-card tone-purple">
+          <article class="feat-card tone-ink">
             <span class="feat-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3"/><circle cx="16.5" cy="9.5" r="2.5"/><path d="M3.5 18.5c.6-2.8 2.7-4.5 5.5-4.5s4.9 1.7 5.5 4.5"/><path d="M14 18.5c.4-1.8 1.7-3 3.5-3 1.3 0 2.4.6 3 1.7"/></svg></span>
             <h3>Local first, always free</h3>
             <p>Open a file on this device with no account. Edits stay in the tab; optional seven-day recovery copies stay in this browser.</p>
             <span class="feat-tag"><span class="feat-tag-ico" aria-hidden="true"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="5.5" r="2"/><circle cx="11" cy="6.5" r="1.6"/><path d="M2.5 13c.4-1.8 1.8-3 3.5-3s3.1 1.2 3.5 3"/><path d="M9.5 13c.3-1.2 1.2-2 2.3-2 .9 0 1.6.4 2 1.1"/></svg></span>Works without signing in</span>
           </article>
-          <article class="feat-card tone-green">
+          <article class="feat-card tone-soft">
             <span class="feat-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M7.5 18h9a4.5 4.5 0 0 0 .4-9 6 6 0 0 0-11.5 1.6A3.8 3.8 0 0 0 7.5 18Z"/></svg></span>
             <h3>Cloud sync when you need it</h3>
             <p>For $5 a year, workbooks in your account travel with you. Start on one device, continue on another.</p>
@@ -360,7 +361,7 @@
             <p class="head-note">Built for opening attachments, fixing cells, and keeping formulas intact — not for replacing every Excel power feature.</p>
           </div>
           <div class="bento">
-          <article class="bento-card tone-purple snip-access">
+          <article class="bento-card tone-ink snip-access">
             <span class="bento-label">Honest fit</span>
             <h3>Everyday .xlsx, not every Excel feature</h3>
             <p>Great for open–edit–download and light formulas. For VBA macros, heavy Power Query, or live multi-user co-editing, stick with Excel or Google Sheets.</p>
@@ -372,7 +373,7 @@
               </div>
             </div>
           </article>
-          <article class="bento-card tone-blue snip-formats">
+          <article class="bento-card tone-air snip-formats">
             <span class="bento-label">Organization</span>
             <h3>Excel first, docs when needed</h3>
             <p>Spreadsheets are the product. The same engine still opens Word, PowerPoint, PDF and OpenDocument when you need them.</p>
@@ -382,7 +383,7 @@
               </div>
             </div>
           </article>
-          <article class="bento-card tone-green snip-library">
+          <article class="bento-card tone-brand snip-library">
             <span class="bento-label">Cloud library</span>
             <h3>My workbooks, one account</h3>
             <p>Sign in once for $5 a year. Browse, open, and autosave .xlsx files in your account — then pick up on another device.</p>
@@ -394,7 +395,7 @@
               </div>
             </div>
           </article>
-          <article class="bento-card tone-blue snip-offline">
+          <article class="bento-card tone-air snip-offline">
             <span class="bento-label">Offline ready</span>
             <h3>Work offline, sync later</h3>
             <p>Once editor assets are cached, keep editing a local file without the network. Cloud save waits until you are online.</p>

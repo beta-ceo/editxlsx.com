@@ -14,10 +14,6 @@
     {
       "href": "/help",
       "label": "Hilfe"
-    },
-    {
-      "href": "/changelog",
-      "label": "Changelog"
     }
   ],
   "navActions": {
@@ -101,19 +97,19 @@
     "p": "OnlyOffice im Tab für kostenlose lokale Bearbeitung. Anmelden nur, wenn dieselbe Mappe auf jedem Gerät soll — $5 im Jahr.",
     "items": [
       {
-        "tone": "blue",
+        "tone": "brand",
         "h3": "Tabellenkalkulation im Browser",
         "p": "Formeln, Diagramme, Blätter und Formatierung per OnlyOffice WebAssembly — ohne Desktop-Office.",
         "tag": "Volles .xlsx-Editing im Tab"
       },
       {
-        "tone": "purple",
+        "tone": "ink",
         "h3": "Lokaler Pfad immer da",
         "p": "Datei nur auf diesem Gerät öffnen oder lokalen Wiederherstellungsverlauf nutzen — ohne Konto.",
         "tag": "Funktioniert ohne Anmeldung"
       },
       {
-        "tone": "green",
+        "tone": "soft",
         "h3": "Cloud-Sync nach Anmeldung",
         "p": "Arbeitsmappen im Konto reisen mit. Auf einem Gerät starten, auf einem anderen weitermachen.",
         "tag": "Meine Arbeitsmappen · Autosave"
@@ -126,28 +122,28 @@
     "p": "Der Editor hält sich zurück: Cloud-Bibliothek wenn nötig, lokale Wiederherstellung wenn nicht, und Formate jenseits von Excel wenn der Job es verlangt.",
     "items": [
       {
-        "tone": "purple",
+        "tone": "ink",
         "label": "Cloud-Bibliothek",
         "h3": "Meine Arbeitsmappen, ein Konto",
         "p": "Einmal anmelden. .xlsx im Konto browsen, öffnen und automatisch speichern — dann auf einem anderen Gerät weitermachen.",
         "snippet": "library"
       },
       {
-        "tone": "blue",
+        "tone": "air",
         "label": "Organisation",
         "h3": "Excel zuerst, Dokumente bei Bedarf",
         "p": "Tabellen sind das Produkt. Dieselbe Engine öffnet weiterhin Word, PowerPoint, PDF und OpenDocument.",
         "snippet": "formats"
       },
       {
-        "tone": "green",
+        "tone": "brand",
         "label": "Zugriff",
         "h3": "Anmelden oder lokal bleiben",
         "p": "Cloud-Sync braucht ein Konto. Lokales Öffnen und Sieben-Tage-Wiederherstellung nicht — wählen Sie den passenden Pfad.",
         "snippet": "access"
       },
       {
-        "tone": "blue",
+        "tone": "air",
         "label": "Offline-fähig",
         "h3": "Offline arbeiten, später syncen",
         "p": "Sind Editor-Assets gecacht, bearbeiten Sie eine lokale Datei ohne Netz. Cloud-Speichern wartet auf Online.",

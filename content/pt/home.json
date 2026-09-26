@@ -14,10 +14,6 @@
     {
       "href": "/help",
       "label": "Ajuda"
-    },
-    {
-      "href": "/changelog",
-      "label": "Changelog"
     }
   ],
   "navActions": {
@@ -101,19 +97,19 @@
     "p": "OnlyOffice na aba para editar local grátis. Entre só quando quiser a mesma pasta em cada dispositivo — $5 por ano.",
     "items": [
       {
-        "tone": "blue",
+        "tone": "brand",
         "h3": "Motor de planilhas no navegador",
         "p": "Fórmulas, gráficos, planilhas e formatação via OnlyOffice WebAssembly — sem Office de desktop.",
         "tag": "Edição .xlsx completa na aba"
       },
       {
-        "tone": "purple",
+        "tone": "ink",
         "h3": "Caminho local sempre disponível",
         "p": "Abra um arquivo só neste dispositivo ou use o histórico de recuperação local — sem conta nesse caminho.",
         "tag": "Funciona sem entrar"
       },
       {
-        "tone": "green",
+        "tone": "soft",
         "h3": "Sync na nuvem ao entrar",
         "p": "Pastas da conta viajam com você. Comece em um dispositivo, continue em outro.",
         "tag": "Minhas pastas · autosalvar"
@@ -126,28 +122,28 @@
     "p": "O editor fica de lado: biblioteca na nuvem quando precisa, recuperação local quando não, e formatos além do Excel quando o trabalho pede.",
     "items": [
       {
-        "tone": "purple",
+        "tone": "ink",
         "label": "Biblioteca na nuvem",
         "h3": "Minhas pastas, uma conta",
         "p": "Entre uma vez. Navegue, abra e autosalve .xlsx na conta — depois continue em outro dispositivo.",
         "snippet": "library"
       },
       {
-        "tone": "blue",
+        "tone": "air",
         "label": "Organização",
         "h3": "Excel primeiro, docs quando precisar",
         "p": "Planilhas são o produto. O mesmo motor ainda abre Word, PowerPoint, PDF e OpenDocument.",
         "snippet": "formats"
       },
       {
-        "tone": "green",
+        "tone": "brand",
         "label": "Acesso",
         "h3": "Entre ou fique no local",
         "p": "Sync na nuvem precisa de conta. Abrir local e cópias de 7 dias não — escolha o caminho do arquivo.",
         "snippet": "access"
       },
       {
-        "tone": "blue",
+        "tone": "air",
         "label": "Pronto offline",
         "h3": "Trabalhe offline, sincronize depois",
         "p": "Com os assets do editor em cache, continue editando um arquivo local sem rede. O salvamento na nuvem espera você online.",
