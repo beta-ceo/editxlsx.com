@@ -33,14 +33,24 @@ a:focus-visible {
   outline-offset: 2px;
 }
 
-/* ---------- top bar (mirrors the homepage bar) ---------- */
+/* ---------- top bar — same structure/metrics as homepage #landing-hero .bar ---------- */
 header.bar {
+  position: sticky;
+  top: 0;
+  z-index: 40;
+  border-bottom: 1px solid color-mix(in srgb, var(--ran-color-border) 70%, transparent);
+  background: color-mix(in srgb, var(--ran-color-bg) 78%, transparent);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+/* Not the article .wrap (720px): bar-inner matches homepage --maxw 1152. */
+header.bar > .bar-inner {
   display: flex;
   align-items: center;
   gap: var(--ran-space-4);
-  /* 12px vertical — same as #landing-hero .bar .wrap */
+  max-width: 1152px;
+  margin: 0 auto;
   padding: 12px clamp(20px, 5vw, 56px);
-  border-bottom: 1px solid var(--ran-color-border);
 }
 header.bar .brand {
   display: inline-flex;
@@ -90,10 +100,10 @@ header.bar .products {
   align-items: center;
   justify-content: center;
   gap: var(--ran-space-6);
-  flex: 1 1 auto;
+  flex: 1;
   min-width: 0;
 }
-header.bar .products .product {
+header.bar .products .navlink {
   display: inline-flex;
   align-items: center;
   padding: 0;
@@ -104,9 +114,10 @@ header.bar .products .product {
   text-decoration: none;
   white-space: nowrap;
   transition: color 0.15s ease;
+  background: transparent;
 }
-header.bar .products .product:hover,
-header.bar .products .product[aria-current='page'] {
+header.bar .products .navlink:hover,
+header.bar .products .navlink[aria-current='page'] {
   color: var(--ran-color-text);
   background: transparent;
 }
@@ -121,7 +132,7 @@ header.bar .utils {
   align-items: center;
   gap: var(--ran-space-3);
   flex: none;
-  margin-left: auto;
+  margin-inline-start: auto;
 }
 header.bar .nav-login {
   font-size: 14.5px;
@@ -153,6 +164,11 @@ header.bar .nav-cta r-button::part(content) {
   font-size: 14px;
   font-weight: 600;
   line-height: 20px;
+  color: #fff;
+}
+header.bar .nav-cta r-button[type='primary']::part(button) {
+  background: var(--brand, var(--ran-color-primary));
+  border-color: var(--brand, var(--ran-color-primary));
 }
 header.bar .nav-cta r-button:not(:defined) {
   display: inline-flex;

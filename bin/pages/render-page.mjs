@@ -138,7 +138,7 @@ export function renderPage({ page, locale, meta, body, headings, faq, steps, sou
   ]
     .map(([href, label]) => {
       const current = href === helpHref && page.slug === 'help' ? ' aria-current="page"' : '';
-      return `          <a class="product" href="${escapeHtml(href)}"${current}>${escapeHtml(label)}</a>`;
+      return `          <a class="navlink" href="${escapeHtml(href)}"${current}>${escapeHtml(label)}</a>`;
     })
     .join('\n');
   const parentOf = (href) => href.replace(/\/[^/]*$/, '') || '/';
@@ -231,16 +231,18 @@ ${jsonLd}
 
   <body>
     <header class="bar">
-      <a class="brand" href="${L.home}"><span class="mark" aria-hidden="true"></span><span class="wordmark">${ui.siteName}</span></a>
-      <nav class="products" aria-label="${escapeHtml(ui.productsAria)}">
+      <div class="bar-inner">
+        <a class="brand" href="${L.home}"><span class="mark" aria-hidden="true"></span><span class="wordmark">${ui.siteName}</span></a>
+        <nav class="products" aria-label="${escapeHtml(ui.productsAria)}">
 ${productsNav}
-      </nav>
-      <nav class="utils">
+        </nav>
+        <nav class="utils">
 ${langMenu(locale, translations, ui, (l) => routeFor(l, page.slug))}
-        <r-theme-switch class="theme-switch" label="${ui.themeLabel}"></r-theme-switch>
-        <a class="nav-login" href="${escapeHtml(loginHref)}">${escapeHtml(ui.logIn)}</a>
-        <a class="nav-cta" href="${escapeHtml(loginHref)}"><r-button type="primary">${escapeHtml(ui.getStarted)}</r-button></a>
-      </nav>
+          <r-theme-switch class="theme-switch" label="${ui.themeLabel}"></r-theme-switch>
+          <a class="nav-login" href="${escapeHtml(loginHref)}">${escapeHtml(ui.logIn)}</a>
+          <a class="nav-cta" href="${escapeHtml(loginHref)}"><r-button type="primary">${escapeHtml(ui.getStarted)}</r-button></a>
+        </nav>
+      </div>
     </header>
 
     <div class="page">
