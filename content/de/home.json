@@ -4,6 +4,10 @@
   "ogDescription": "Excel-Arbeitsmappen online bearbeiten — kostenlose lokale Bibliothek oder optionaler Cloud-Speicher.",
   "nav": [
     {
+      "href": "/",
+      "label": "Startseite"
+    },
+    {
       "href": "#features",
       "label": "Funktionen"
     },
@@ -156,16 +160,9 @@
     ]
   },
   "band": {
-    "eyebrow": "In Sekunden starten",
-    "h2": "Bereit für einen schnelleren, leichteren Tabellen-Workflow?",
-    "p": "Kostenlos in diesem Browser speichern. Cloud nur, wenn die Mappe mitwandern soll.",
-    "primary": "Neue Excel — kostenlos",
-    "secondary": "Preise ansehen",
-    "checks": [
-      "Lokale Bibliothek kostenlos",
-      "Keine Office-Installation",
-      "Cloud bei Bedarf"
-    ]
+    "h2": "Tabellen. Ohne Installation.",
+    "primary": "Workspace öffnen",
+    "secondary": "Preise"
   },
   "foot": {
     "blurb": "Der schlanke Online-Excel- und Dokumenteneditor — lokales Bearbeiten kostenlos, Cloud-Sync nach Anmeldung.",

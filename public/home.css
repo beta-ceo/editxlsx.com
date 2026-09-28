@@ -19,8 +19,12 @@ body {
   --success-text: var(--brand-ink);
   --glow-blue: var(--brand-air-glow);
   --glow-green: var(--brand-glow);
-  /* Drive ranui primary away from ink/black toward Sheet Green. */
+  /* Drive ranui primary away from ink/black toward Sheet Green.
+     Hover must use brand-strong — ranui falls back to #383838 otherwise. */
   --ran-color-primary: var(--brand);
+  --ran-color-primary-hover: var(--brand-strong);
+  --ran-color-primary-active: var(--brand-strong);
+  --ran-color-primary-text: #fff;
 
   position: relative;
   z-index: 1;
@@ -80,6 +84,15 @@ body {
   font-weight: 600;
 }
 /* Brand CTAs — Sheet Green, not ranui's default ink / blue. */
+#landing-hero .cta r-button[type='primary'],
+#landing-hero .nav-cta r-button[type='primary'] {
+  --ran-btn-background: var(--brand);
+  --ran-btn-border-color: var(--brand);
+  --ran-btn-color: var(--brand-on);
+  --ran-btn-hover-background: var(--brand-strong);
+  --ran-btn-hover-border-color: var(--brand-strong);
+  --ran-btn-hover-color: var(--brand-on);
+}
 #landing-hero .cta r-button[type='primary']::part(button),
 #landing-hero .nav-cta r-button[type='primary']::part(button) {
   background: var(--brand);
@@ -87,7 +100,7 @@ body {
 }
 #landing-hero .cta r-button[type='primary']::part(content),
 #landing-hero .nav-cta r-button[type='primary']::part(content) {
-  color: #fff;
+  color: var(--brand-on);
 }
 #landing-hero .nav-cta r-button::part(content) {
   padding: 7px 16px;
@@ -104,6 +117,43 @@ body {
   background: transparent;
   cursor: pointer;
   font: inherit;
+  display: inline-flex;
+  /* Hover lift lives on the wrapper so the whole pill moves as one. */
+  transition:
+    transform 0.18s cubic-bezier(0.22, 1, 0.36, 1),
+    filter 0.18s ease;
+}
+#landing-hero .cta r-button::part(button) {
+  transition:
+    box-shadow 0.18s cubic-bezier(0.22, 1, 0.36, 1),
+    background-color 0.15s ease,
+    border-color 0.15s ease,
+    transform 0.18s cubic-bezier(0.22, 1, 0.36, 1);
+}
+#landing-hero .cta r-button[type='primary']::part(button) {
+  box-shadow: 0 8px 22px -12px color-mix(in srgb, var(--brand) 50%, transparent);
+}
+#landing-hero .cta r-button:not([type='primary'])::part(button) {
+  box-shadow: 0 4px 14px -10px color-mix(in srgb, var(--ran-color-text) 18%, transparent);
+}
+@media (prefers-reduced-motion: no-preference) {
+  #landing-hero .cta > a:hover,
+  #landing-hero .cta > button:hover {
+    transform: translateY(-2px);
+  }
+  #landing-hero .cta > a:active,
+  #landing-hero .cta > button:active {
+    transform: translateY(0);
+  }
+  #landing-hero .cta > button:hover r-button[type='primary']::part(button),
+  #landing-hero .cta r-button[type='primary']:hover::part(button) {
+    box-shadow: 0 14px 30px -12px color-mix(in srgb, var(--brand) 58%, transparent);
+  }
+  #landing-hero .cta > a:hover r-button:not([type='primary'])::part(button),
+  #landing-hero .cta r-button:not([type='primary']):hover::part(button) {
+    box-shadow: 0 10px 22px -12px color-mix(in srgb, var(--ran-color-text) 22%, transparent);
+    border-color: color-mix(in srgb, var(--brand-mid) 55%, var(--ran-color-border));
+  }
 }
 #landing-hero .nav-cta {
   text-decoration: none;
@@ -125,7 +175,7 @@ body {
 #landing-hero r-button[type='primary']:not(:defined) {
   background: var(--brand);
   border-color: var(--brand);
-  color: #fff;
+  color: var(--brand-on);
 }
 
 /* Language switch — icon only (A文); name is aria-label + list aria-current. */
@@ -193,6 +243,41 @@ body {
 }
 .lang-option:hover {
   background: var(--ran-color-bg-hover);
+}
+.theme-list {
+  display: flex;
+  flex-direction: column;
+  width: max-content;
+  min-width: 8rem;
+}
+.theme-option {
+  display: flex;
+  align-items: center;
+  gap: var(--ran-space-1);
+  padding: 6px 10px;
+  border: 0;
+  border-radius: var(--ran-radius-sm);
+  background: transparent;
+  font: inherit;
+  font-size: 14px;
+  color: var(--ran-color-text);
+  text-align: start;
+  cursor: pointer;
+  width: 100%;
+}
+.theme-option:hover {
+  background: var(--ran-color-bg-hover);
+}
+.theme-option.is-current {
+  font-weight: 600;
+}
+.theme-option.is-current::after {
+  content: '';
+  margin-inline-start: auto;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--ran-color-primary, var(--brand));
 }
 .lang-option.is-current {
   font-weight: 600;
@@ -292,8 +377,40 @@ body {
 #landing-hero .nav-login:hover {
   color: var(--ran-color-text);
 }
-#landing-hero .theme-switch {
+#landing-hero .theme-menu {
+  display: inline-flex;
+  --ran-popover-content-padding: 4px;
+}
+#landing-hero .theme-trigger {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--ran-space-2);
+  border-radius: var(--ran-radius-sm);
+  line-height: 0;
+  min-height: calc(22px + var(--ran-space-2) * 2);
+  min-width: calc(22px + var(--ran-space-2) * 2);
+  color: var(--ran-color-text-secondary);
+  cursor: pointer;
+  transition: 0.15s ease;
+}
+#landing-hero .theme-menu:hover .theme-trigger,
+#landing-hero .theme-menu[open] .theme-trigger {
+  color: var(--ran-color-text);
+  background: var(--ran-color-bg-hover);
+}
+#landing-hero .theme-menu:focus-visible {
+  outline: none;
+}
+#landing-hero .theme-menu:focus-visible .theme-trigger {
+  outline: 2px solid var(--ran-color-focus-ring, var(--ran-color-primary));
+  outline-offset: 2px;
+}
+#landing-hero .thememark {
+  width: 18px;
+  height: 18px;
   flex: none;
+  display: block;
 }
 
 @media (max-width: 900px) {
@@ -312,7 +429,7 @@ body {
   gap: clamp(28px, 4vw, 56px);
   align-items: center;
   padding-top: clamp(40px, 7vw, 72px);
-  padding-bottom: clamp(40px, 6vw, 72px);
+  padding-bottom: clamp(24px, 4vw, 48px);
 }
 @media (max-width: 960px) {
   #landing-hero .hero-stage {
@@ -374,17 +491,29 @@ body {
 }
 #landing-hero .checks {
   display: flex;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
+  align-items: center;
   justify-content: flex-start;
   gap: var(--ran-space-4);
   margin-top: var(--ran-space-1);
+  white-space: nowrap;
 }
 #landing-hero .check {
   display: inline-flex;
   align-items: center;
   gap: 6px;
+  flex: none;
   font-size: 13px;
   color: var(--ran-color-text-secondary);
+  white-space: nowrap;
+}
+@media (max-width: 720px) {
+  #landing-hero .checks {
+    gap: var(--ran-space-3);
+  }
+  #landing-hero .check {
+    font-size: 12px;
+  }
 }
 #landing-hero .check i {
   width: 14px;
@@ -539,14 +668,17 @@ body {
   font-weight: 600;
   color: var(--ran-color-text-secondary);
   border-bottom: 1px solid var(--ran-color-border);
-  background: color-mix(in srgb, var(--ran-blue-100) 50%, transparent);
+  /* Tint from elevated + mid blue so both themes keep a readable header row
+     (blue-100 washes out to near-black under the dark palette). */
+  background: color-mix(in srgb, var(--ran-blue-700) 10%, var(--ran-color-bg-elevated));
 }
 #landing-hero .dw-table td {
   padding: 10px 12px;
   border-bottom: 1px solid var(--ran-color-border);
+  color: var(--ran-color-text);
 }
 #landing-hero .dw-table td.num {
-  color: var(--ran-blue-800);
+  color: var(--ran-blue-700);
   font-weight: 600;
   font-variant-numeric: tabular-nums;
 }
@@ -635,7 +767,7 @@ body {
 
 /* Feature cards — asymmetric (no 3-equal SaaS row), brand/ink only — no purple. */
 #landing-hero .features-sec {
-  padding-top: clamp(48px, 7vw, 88px);
+  padding-top: clamp(20px, 3vw, 40px);
   padding-bottom: clamp(48px, 7vw, 88px);
 }
 #landing-hero .features-sec .section-head {
@@ -1229,7 +1361,7 @@ body {
   color: var(--brand-ink);
 }
 #landing-hero .band h2 {
-  margin: 0 0 var(--ran-space-4);
+  margin: 0 0 var(--ran-space-6);
   font-size: clamp(28px, 3.8vw, 40px);
   font-weight: 700;
   letter-spacing: -0.03em;
@@ -1237,20 +1369,13 @@ body {
   text-wrap: balance;
   color: var(--ran-color-text);
 }
-#landing-hero .band p {
-  margin: 0 auto var(--ran-space-8);
-  max-width: 44ch;
-  font-size: 16px;
-  line-height: 1.6;
-  color: var(--ran-color-text-secondary);
-}
 #landing-hero .band-cta {
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
   align-items: center;
   gap: var(--ran-space-3);
-  margin-bottom: var(--ran-space-6);
+  margin-bottom: 0;
 }
 #landing-hero .band-primary {
   display: inline-flex;
@@ -1263,19 +1388,22 @@ body {
   font-size: 15.5px;
   font-weight: 600;
   line-height: 22px;
-  color: #fff;
+  color: var(--brand-on);
   text-decoration: none;
   box-shadow: 0 10px 28px -12px color-mix(in srgb, var(--brand) 55%, transparent);
   transition:
     transform 0.15s ease,
     box-shadow 0.15s ease,
-    background 0.15s ease;
+    background 0.15s ease,
+    border-color 0.15s ease,
+    color 0.15s ease;
 }
 @media (prefers-reduced-motion: no-preference) {
   #landing-hero .band-primary:hover {
     transform: translateY(-1px);
     background: var(--brand-strong);
     border-color: var(--brand-strong);
+    color: var(--brand-on);
     box-shadow: 0 14px 32px -12px color-mix(in srgb, var(--brand) 60%, transparent);
   }
 }
@@ -1286,7 +1414,7 @@ body {
   padding: var(--ran-space-3) var(--ran-space-6);
   border-radius: var(--ran-radius-full);
   border: 1px solid color-mix(in srgb, var(--brand-mid) 65%, var(--ran-color-border));
-  background: color-mix(in srgb, #fff 78%, transparent);
+  background: var(--ran-color-bg-elevated);
   font-size: 14.5px;
   font-weight: 600;
   line-height: 22px;
@@ -1294,13 +1422,16 @@ body {
   text-decoration: none;
   transition:
     background 0.15s ease,
-    border-color 0.15s ease;
+    border-color 0.15s ease,
+    color 0.15s ease;
 }
 #landing-hero .band-secondary:hover {
-  background: #fff;
+  background: color-mix(in srgb, var(--brand) 10%, var(--ran-color-bg-elevated));
   border-color: var(--brand);
+  color: var(--brand-ink);
 }
 #landing-hero .band-checks {
+  justify-content: center;
   gap: var(--ran-space-3);
   margin-top: 0;
   color: var(--ran-color-text-secondary);
@@ -1625,7 +1756,15 @@ html[theme='dark'] #landing-hero .snip-metrics span {
 html[theme='dark'] #landing-hero .snip-side.accent,
 [data-ran-theme='dark'] #landing-hero .snip-metrics b,
 html[theme='dark'] #landing-hero .snip-metrics b {
-  color: var(--ran-blue-400);
+  color: var(--ran-blue-600);
+}
+[data-ran-theme='dark'] #landing-hero .dw-table th,
+html[theme='dark'] #landing-hero .dw-table th {
+  background: color-mix(in srgb, var(--ran-blue-600) 22%, var(--ran-color-bg-elevated));
+}
+[data-ran-theme='dark'] #landing-hero .dw-table td.num,
+html[theme='dark'] #landing-hero .dw-table td.num {
+  color: var(--ran-blue-600);
 }
 [data-ran-theme='dark'] #landing-hero .band,
 html[theme='dark'] #landing-hero .band {
@@ -1639,12 +1778,6 @@ html[theme='dark'] #landing-hero .band {
 [data-ran-theme='dark'] #landing-hero .band-eyebrow,
 html[theme='dark'] #landing-hero .band-eyebrow {
   background: color-mix(in srgb, var(--brand) 16%, transparent);
-  border-color: var(--brand-mid);
-  color: var(--brand-ink);
-}
-[data-ran-theme='dark'] #landing-hero .band-secondary,
-html[theme='dark'] #landing-hero .band-secondary {
-  background: color-mix(in srgb, var(--ran-color-bg-elevated) 70%, transparent);
   border-color: var(--brand-mid);
   color: var(--brand-ink);
 }

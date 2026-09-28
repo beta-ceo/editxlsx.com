@@ -20,9 +20,9 @@ import { LOCALES, MENU_ORDER } from './locales.mjs';
  * rather than in the page's -- "日本語" read with English phonetics is noise, and
  * these labels exist precisely for readers who cannot read the current page.
  *
- * Icon-only trigger (Latin A + CJK 文). The current language lives in the open
- * list (`aria-current="page"`) and in the host's `aria-label`; spelling it on
- * the face cost width on phones and restated what the menu already says.
+ * Icon-only trigger: Lucide-style “Languages” (glyph + Latin A). The current
+ * language lives in the open list (`aria-current="page"`) and in the host's
+ * `aria-label`; spelling it on the face cost width and restated the menu.
  * Placement is `bottom` (leading edge): the panel hangs under the mark, and on
  * a phone the boundary shift pulls it back on screen.
  *
@@ -52,37 +52,63 @@ export const langMenu = (locale, locales, ui, hrefFor) =>
         .attrs({ class: 'lang-trigger' })
         .children(
           View('svg')
-            .attrs({ class: 'langmark', 'aria-hidden': 'true', viewBox: '0 0 16 16' })
+            .attrs({ class: 'langmark', 'aria-hidden': 'true', viewBox: '0 0 24 24' })
             .children(
-              // Latin A
               View('path')
                 .attrs({
-                  d: 'M1.75 12.5 4.25 4.75 6.75 12.5',
+                  d: 'm5 8 6 6',
                   fill: 'none',
                   stroke: 'currentColor',
-                  'stroke-width': '1.4',
+                  'stroke-width': '1.75',
                   'stroke-linecap': 'round',
                   'stroke-linejoin': 'round',
                 })
                 .build(),
               View('path')
                 .attrs({
-                  d: 'M2.7 9.85h3.1',
+                  d: 'm4 14 6-6 2-3',
                   fill: 'none',
                   stroke: 'currentColor',
-                  'stroke-width': '1.4',
+                  'stroke-width': '1.75',
+                  'stroke-linecap': 'round',
+                  'stroke-linejoin': 'round',
+                })
+                .build(),
+              View('path')
+                .attrs({
+                  d: 'M2 5h12',
+                  fill: 'none',
+                  stroke: 'currentColor',
+                  'stroke-width': '1.75',
                   'stroke-linecap': 'round',
                 })
                 .build(),
-              // Simplified 文: top bar, stem, crossbar, base
               View('path')
                 .attrs({
-                  d: 'M9 4.5h5.5M11.75 4.5v7.75M9.25 8.15h5M9.4 12.25h4.7',
+                  d: 'M7 2h1',
                   fill: 'none',
                   stroke: 'currentColor',
-                  'stroke-width': '1.35',
+                  'stroke-width': '1.75',
+                  'stroke-linecap': 'round',
+                })
+                .build(),
+              View('path')
+                .attrs({
+                  d: 'm22 22-5-10-5 10',
+                  fill: 'none',
+                  stroke: 'currentColor',
+                  'stroke-width': '1.75',
                   'stroke-linecap': 'round',
                   'stroke-linejoin': 'round',
+                })
+                .build(),
+              View('path')
+                .attrs({
+                  d: 'M14 18h6',
+                  fill: 'none',
+                  stroke: 'currentColor',
+                  'stroke-width': '1.75',
+                  'stroke-linecap': 'round',
                 })
                 .build(),
             )
@@ -105,6 +131,76 @@ export const langMenu = (locale, locales, ui, hrefFor) =>
                     'aria-current': l === locale ? 'page' : null,
                   })
                   .text(LOCALES[l].label)
+                  .build(),
+              ),
+            )
+            .build(),
+        )
+        .build(),
+    )
+    .serialize();
+
+/**
+ * Theme control: one icon face, same footprint as the language trigger, with a
+ * short list of System / Light / Dark. Preference is written by
+ * public/theme-toggle.js into localStorage `ran-theme` and
+ * <html data-ran-theme>, matching workspace / the editor.
+ */
+export const themeToggle = (ui) =>
+  View('r-popover')
+    .attrs({
+      class: 'theme-menu',
+      placement: 'bottom',
+      trigger: 'click',
+      role: 'button',
+      'aria-label': ui.themeLabel,
+    })
+    .children(
+      View('span')
+        .attrs({ class: 'theme-trigger' })
+        .children(
+          View('svg')
+            .attrs({
+              class: 'thememark',
+              'data-theme-icon': '',
+              'aria-hidden': 'true',
+              viewBox: '0 0 24 24',
+            })
+            .children(
+              View('path')
+                .attrs({
+                  // Default face is system; theme-toggle.js swaps `d` on boot.
+                  d: 'M4 5h16v10a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V5zM8 19h8M12 16v3',
+                  fill: 'none',
+                  stroke: 'currentColor',
+                  'stroke-width': '1.75',
+                  'stroke-linecap': 'round',
+                  'stroke-linejoin': 'round',
+                })
+                .build(),
+            )
+            .build(),
+        )
+        .build(),
+      View('r-content')
+        .children(
+          Div()
+            .class('theme-list')
+            .attrs({ role: 'listbox', 'aria-label': ui.themeLabel })
+            .children(
+              ...[
+                ['system', ui.themeSystem],
+                ['light', ui.themeLight],
+                ['dark', ui.themeDark],
+              ].map(([id, label]) =>
+                View('button')
+                  .attrs({
+                    type: 'button',
+                    class: 'theme-option',
+                    role: 'option',
+                    'data-theme': id,
+                  })
+                  .text(label)
                   .build(),
               ),
             )

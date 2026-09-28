@@ -8,7 +8,7 @@
 import { ORIGIN } from './constants.mjs';
 import { ID, appEntity, siteEntities, sourceEntity } from './entities.mjs';
 import { DEFAULT_LOCALE, LOCALES } from './locales.mjs';
-import { langMenu } from './chrome.mjs';
+import { langMenu, themeToggle } from './chrome.mjs';
 import { escapeHtml } from './markdown.mjs';
 import { UI } from './ui.mjs';
 
@@ -174,10 +174,6 @@ export function renderHome({ locale, data, locales }) {
     })
     .join('\n');
 
-  const bandChecks = data.band.checks
-    .map((t) => `<span class="check"><i aria-hidden="true"></i>${e(t)}</span>`)
-    .join('');
-
   const docRows = data.docwin.rows
     .map((row) => {
       const cells = row.map((c, i) => `<td class="${i === 3 ? 'num' : ''}">${e(c)}</td>`).join('');
@@ -274,8 +270,8 @@ ${jsonLd}
     <script src="/ranui-iife/button.iife.js" defer></script>
     <script src="/ranui-iife/popover.iife.js" defer></script>
     <script src="/ranui-iife/content.iife.js" defer></script>
-    <script src="/ranui-iife/theme-switch.iife.js" defer></script>
     <script src="/lang-switch.js" defer></script>
+    <script src="/theme-toggle.js" defer></script>
     <script src="/open-local.js" defer></script>
     <script src="/landing-prefetch.js" defer></script>
     <script src="/home-scroll.js" defer></script>
@@ -291,7 +287,7 @@ ${navLinks}
           </nav>
           <nav class="utils">
 ${langMenu(locale, locales, ui, (l) => LOCALES[l].home)}
-            <r-theme-switch class="theme-switch" label="${e(ui.themeLabel)}"></r-theme-switch>
+${themeToggle(ui)}
             <a class="nav-login" href="${e(appPath('/login'))}">${e(data.navActions.logIn)}</a>
             <a class="nav-cta" href="${e(appPath('/workspace'))}"><r-button type="primary">${e(data.navActions.getStarted)}</r-button></a>
           </nav>
@@ -375,14 +371,11 @@ ${bentoCards}
       <div class="wrap band-wrap">
         <div class="band">
           <div class="band-inner">
-            <span class="band-eyebrow">${e(data.band.eyebrow)}</span>
             <h2>${e(data.band.h2)}</h2>
-            <p>${e(data.band.p)}</p>
             <div class="band-cta">
-              <a class="band-primary" href="${editor('new=xlsx')}" data-prefetch="xlsx">${e(data.band.primary)}</a>
+              <a class="band-primary" href="${e(appPath('/workspace'))}">${e(data.band.primary)}</a>
               <a class="band-secondary" href="${e(appPath('/pricing'))}">${e(data.band.secondary)}</a>
             </div>
-            <div class="checks band-checks">${bandChecks}</div>
           </div>
         </div>
       </div>

@@ -28,6 +28,8 @@
   Cache-Control: no-cache
 /lang-switch.js
   Cache-Control: no-cache
+/theme-toggle.js
+  Cache-Control: no-cache
 /sw-register.js
   Cache-Control: no-cache
 /open-local.js

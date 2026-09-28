@@ -4,6 +4,10 @@
   "ogDescription": "Edite pastas Excel online — biblioteca local grátis, ou nuvem opcional entre dispositivos.",
   "nav": [
     {
+      "href": "/",
+      "label": "Início"
+    },
+    {
       "href": "#features",
       "label": "Recursos"
     },
@@ -156,16 +160,9 @@
     ]
   },
   "band": {
-    "eyebrow": "Comece em segundos",
-    "h2": "Pronto para um fluxo de planilhas mais rápido e leve?",
-    "p": "Salve de graça neste navegador. Adicione nuvem só quando a pasta precisar te seguir.",
-    "primary": "Novo Excel — grátis",
-    "secondary": "Ver preços",
-    "checks": [
-      "Biblioteca local grátis",
-      "Sem instalar o Office",
-      "Nuvem quando precisar"
-    ]
+    "h2": "Planilhas. Sem instalar.",
+    "primary": "Abrir espaço",
+    "secondary": "Preços"
   },
   "foot": {
     "blurb": "O editor leve de Excel e documentos online — edição local grátis, sincronização na nuvem ao entrar.",

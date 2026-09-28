@@ -156,7 +156,10 @@ header.bar .nav-cta r-button,
 header.bar .nav-cta r-button::part(button) {
   --ran-btn-background: var(--brand, var(--ran-color-primary));
   --ran-btn-border-color: var(--brand, var(--ran-color-primary));
-  --ran-btn-color: #fff;
+  --ran-btn-color: var(--brand-on, #fff);
+  --ran-btn-hover-background: var(--brand-strong, var(--ran-color-primary-hover));
+  --ran-btn-hover-border-color: var(--brand-strong, var(--ran-color-primary-hover));
+  --ran-btn-hover-color: var(--brand-on, #fff);
   border-radius: var(--ran-radius-full);
 }
 header.bar .nav-cta r-button::part(content) {
@@ -164,7 +167,7 @@ header.bar .nav-cta r-button::part(content) {
   font-size: 14px;
   font-weight: 600;
   line-height: 20px;
-  color: #fff;
+  color: var(--brand-on, #fff);
 }
 header.bar .nav-cta r-button[type='primary']::part(button) {
   background: var(--brand, var(--ran-color-primary));
@@ -178,11 +181,7 @@ header.bar .nav-cta r-button:not(:defined) {
   border-radius: var(--ran-radius-full);
   border: 1px solid var(--brand, var(--ran-color-primary));
   background: var(--brand, var(--ran-color-primary));
-  color: #fff;
-  font-weight: 600;
-  font-size: 14px;
-  line-height: 20px;
-}
+  color: var(--brand-on, #fff);
 @media (max-width: 900px) {
   header.bar .products {
     display: none;
@@ -617,22 +616,77 @@ footer a:hover {
   color: var(--ran-color-text);
 }
 
-/* ---------- theme switch (footer) ----------
-   Real ranui <r-theme-switch>. The pre-upgrade fallback reserves the pill's
-   exact footprint (3×28px buttons + gaps + padding + border) — no shift. */
-r-theme-switch.theme-switch {
-  vertical-align: middle;
+/* ---------- theme control (icon + list, same footprint as language) ---------- */
+.theme-menu {
+  display: inline-flex;
+  --ran-popover-content-padding: 4px;
 }
-r-theme-switch.theme-switch:not(:defined) {
-  display: inline-block;
-  width: 94px;
-  height: 34px;
-  border: 1px solid var(--ran-color-border);
-  border-radius: var(--ran-radius-full);
+.theme-trigger {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--ran-space-2);
+  border-radius: var(--ran-radius-sm);
+  line-height: 0;
+  min-height: calc(22px + var(--ran-space-2) * 2);
+  min-width: calc(22px + var(--ran-space-2) * 2);
+  color: var(--ran-color-text-secondary);
+  cursor: pointer;
+  transition: 0.15s ease;
 }
-/* footer rows on the satellites are plain text; give the pill its own line spacing */
-footer .theme-switch {
-  margin-top: var(--ran-space-4);
+.theme-menu:hover .theme-trigger,
+.theme-menu[open] .theme-trigger {
+  color: var(--ran-color-text);
+  background: var(--ran-color-bg-hover);
+}
+.theme-menu:focus-visible {
+  outline: none;
+}
+.theme-menu:focus-visible .theme-trigger {
+  outline: 2px solid var(--ran-color-focus-ring, var(--ran-color-primary));
+  outline-offset: 2px;
+}
+.thememark {
+  width: 18px;
+  height: 18px;
+  flex: none;
+  display: block;
+}
+.theme-list {
+  display: flex;
+  flex-direction: column;
+  width: max-content;
+  min-width: 8rem;
+}
+.theme-option {
+  display: flex;
+  align-items: center;
+  gap: var(--ran-space-1);
+  padding: 6px 10px;
+  border: 0;
+  border-radius: var(--ran-radius-sm);
+  background: transparent;
+  font: inherit;
+  font-size: 14px;
+  color: var(--ran-color-text);
+  text-align: start;
+  cursor: pointer;
+  width: 100%;
+}
+.theme-option:hover {
+  background: var(--ran-color-bg-hover);
+}
+.theme-option.is-current {
+  color: var(--ran-color-text);
+  font-weight: 600;
+}
+.theme-option.is-current::after {
+  content: '';
+  margin-inline-start: auto;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--ran-color-primary, var(--brand));
 }
 
 /* ---------- generated markdown pages (/help, /changelog; bin/build-pages.mjs) ----------

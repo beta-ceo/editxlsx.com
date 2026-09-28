@@ -2257,10 +2257,10 @@ function mountShell(): void {
 
   const langIcon = (() => {
     const slot = document.createElement('span');
-    // A文 — same mark as the site chrome language trigger (24px viewBox).
+    // Lucide “Languages” — same mark as site chrome (24px viewBox).
     slot.append(
       svgIconPaths(
-        ['M3 19.5 7 5.5 11 19.5', 'M4.6 14.5h4.8', 'M13.5 6h8M17.5 6v13M13.75 12.25h7.5M14 19.5h7'],
+        ['m5 8 6 6', 'm4 14 6-6 2-3', 'M2 5h12', 'M7 2h1', 'm22 22-5-10-5 10', 'M14 18h6'],
         'vault-icon',
       ),
     );

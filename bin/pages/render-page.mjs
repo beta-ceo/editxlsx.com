@@ -5,7 +5,7 @@
 import { ORIGIN, REPO } from './constants.mjs';
 import { ID, appEntity, appStub, siteEntities, sourceEntity } from './entities.mjs';
 import { DEFAULT_LOCALE, LOCALES } from './locales.mjs';
-import { langMenu, routeFor } from './chrome.mjs';
+import { langMenu, routeFor, themeToggle } from './chrome.mjs';
 import { escapeHtml, renderInline } from './markdown.mjs';
 import { UI } from './ui.mjs';
 
@@ -130,14 +130,21 @@ export function renderPage({ page, locale, meta, body, headings, faq, steps, sou
   const footer = ui.footer.map(([href, label]) => `        <a href="${href}">${label}</a>`).join('\n');
   const here = routeFor(locale, page.slug);
   const loginHref = appPath('/login', locale);
+  const workspaceHref = appPath('/workspace', locale);
   const helpHref = routeFor(locale, 'help');
+  const pricingHref = appPath('/pricing', locale);
   const productsNav = [
+    [L.home, ui.home],
     [`${L.home}#features`, ui.navFeatures],
     [`${L.home}#essentials`, ui.navEssentials],
+    [pricingHref, ui.navPricing],
     [helpHref, ui.navHelp],
   ]
     .map(([href, label]) => {
-      const current = href === helpHref && page.slug === 'help' ? ' aria-current="page"' : '';
+      const current =
+        (href === helpHref && page.slug === 'help') || (href === pricingHref && page.slug === 'pricing')
+          ? ' aria-current="page"'
+          : '';
       return `          <a class="navlink" href="${escapeHtml(href)}"${current}>${escapeHtml(label)}</a>`;
     })
     .join('\n');
@@ -225,8 +232,8 @@ ${jsonLd}
     <script src="/ranui-iife/button.iife.js" defer></script>
     <script src="/ranui-iife/popover.iife.js" defer></script>
     <script src="/ranui-iife/content.iife.js" defer></script>
-    <script src="/ranui-iife/theme-switch.iife.js" defer></script>
     <script src="/lang-switch.js" defer></script>
+    <script src="/theme-toggle.js" defer></script>
   </head>
 
   <body>
@@ -238,9 +245,9 @@ ${productsNav}
         </nav>
         <nav class="utils">
 ${langMenu(locale, translations, ui, (l) => routeFor(l, page.slug))}
-          <r-theme-switch class="theme-switch" label="${ui.themeLabel}"></r-theme-switch>
+${themeToggle(ui)}
           <a class="nav-login" href="${escapeHtml(loginHref)}">${escapeHtml(ui.logIn)}</a>
-          <a class="nav-cta" href="${escapeHtml(loginHref)}"><r-button type="primary">${escapeHtml(ui.getStarted)}</r-button></a>
+          <a class="nav-cta" href="${escapeHtml(workspaceHref)}"><r-button type="primary">${escapeHtml(ui.getStarted)}</r-button></a>
         </nav>
       </div>
     </header>

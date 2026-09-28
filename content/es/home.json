@@ -4,6 +4,10 @@
   "ogDescription": "Edita libros Excel online — biblioteca local gratis, o nube opcional entre dispositivos.",
   "nav": [
     {
+      "href": "/",
+      "label": "Inicio"
+    },
+    {
       "href": "#features",
       "label": "Funciones"
     },
@@ -156,16 +160,9 @@
     ]
   },
   "band": {
-    "eyebrow": "Empieza en segundos",
-    "h2": "¿Listo para un flujo de hojas más rápido y ligero?",
-    "p": "Guarda gratis en este navegador. Añade nube solo cuando el libro deba seguirte.",
-    "primary": "Nuevo Excel — gratis",
-    "secondary": "Ver precios",
-    "checks": [
-      "Biblioteca local gratis",
-      "Sin instalar Office",
-      "Nube cuando la necesites"
-    ]
+    "h2": "Hojas. Sin instalar.",
+    "primary": "Abrir espacio",
+    "secondary": "Precios"
   },
   "foot": {
     "blurb": "El editor ligero de Excel y documentos en línea — edición local gratis, sincronización en la nube al iniciar sesión.",

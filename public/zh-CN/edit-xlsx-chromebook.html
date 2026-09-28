@@ -227,8 +227,8 @@
     <script src="/ranui-iife/button.iife.js" defer></script>
     <script src="/ranui-iife/popover.iife.js" defer></script>
     <script src="/ranui-iife/content.iife.js" defer></script>
-    <script src="/ranui-iife/theme-switch.iife.js" defer></script>
     <script src="/lang-switch.js" defer></script>
+    <script src="/theme-toggle.js" defer></script>
   </head>
 
   <body>
@@ -236,15 +236,17 @@
       <div class="bar-inner">
         <a class="brand" href="/zh-CN/"><span class="mark" aria-hidden="true"></span><span class="wordmark">EditXLSX</span></a>
         <nav class="products" aria-label="产品">
+          <a class="navlink" href="/zh-CN/">首页</a>
           <a class="navlink" href="/zh-CN/#features">功能</a>
           <a class="navlink" href="/zh-CN/#essentials">核心能力</a>
+          <a class="navlink" href="/pricing?locale=zh-CN">价格</a>
           <a class="navlink" href="/zh-CN/help">帮助</a>
         </nav>
         <nav class="utils">
-<r-popover class="lang-menu" placement="bottom" trigger="click" role="button" aria-label="语言"><span class="lang-trigger"><svg class="langmark" aria-hidden="true" viewBox="0 0 16 16"><path d="M1.75 12.5 4.25 4.75 6.75 12.5" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"></path><path d="M2.7 9.85h3.1" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"></path><path d="M9 4.5h5.5M11.75 4.5v7.75M9.25 8.15h5M9.4 12.25h4.7" fill="none" stroke="currentColor" stroke-width="1.35" stroke-linecap="round" stroke-linejoin="round"></path></svg></span><r-content><div class="lang-list"><a class="lang-option" href="/edit-xlsx-chromebook" lang="en" hreflang="en">English</a><a class="lang-option is-current" href="/zh-CN/edit-xlsx-chromebook" lang="zh-CN" hreflang="zh-CN" aria-current="page">中文</a></div></r-content></r-popover>
-          <r-theme-switch class="theme-switch" label="主题"></r-theme-switch>
+<r-popover class="lang-menu" placement="bottom" trigger="click" role="button" aria-label="语言"><span class="lang-trigger"><svg class="langmark" aria-hidden="true" viewBox="0 0 24 24"><path d="m5 8 6 6" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"></path><path d="m4 14 6-6 2-3" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"></path><path d="M2 5h12" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"></path><path d="M7 2h1" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"></path><path d="m22 22-5-10-5 10" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"></path><path d="M14 18h6" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"></path></svg></span><r-content><div class="lang-list"><a class="lang-option" href="/edit-xlsx-chromebook" lang="en" hreflang="en">English</a><a class="lang-option is-current" href="/zh-CN/edit-xlsx-chromebook" lang="zh-CN" hreflang="zh-CN" aria-current="page">中文</a></div></r-content></r-popover>
+<r-popover class="theme-menu" placement="bottom" trigger="click" role="button" aria-label="主题"><span class="theme-trigger"><svg class="thememark" data-theme-icon="" aria-hidden="true" viewBox="0 0 24 24"><path d="M4 5h16v10a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V5zM8 19h8M12 16v3" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"></path></svg></span><r-content><div class="theme-list" role="listbox" aria-label="主题"><button type="button" class="theme-option" role="option" data-theme="system">跟随系统</button><button type="button" class="theme-option" role="option" data-theme="light">浅色</button><button type="button" class="theme-option" role="option" data-theme="dark">深色</button></div></r-content></r-popover>
           <a class="nav-login" href="/login?locale=zh-CN">登录</a>
-          <a class="nav-cta" href="/login?locale=zh-CN"><r-button type="primary">打开工作区</r-button></a>
+          <a class="nav-cta" href="/workspace?locale=zh-CN"><r-button type="primary">打开工作区</r-button></a>
         </nav>
       </div>
     </header>

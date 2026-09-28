@@ -229,8 +229,8 @@
     <script src="/ranui-iife/button.iife.js" defer></script>
     <script src="/ranui-iife/popover.iife.js" defer></script>
     <script src="/ranui-iife/content.iife.js" defer></script>
-    <script src="/ranui-iife/theme-switch.iife.js" defer></script>
     <script src="/lang-switch.js" defer></script>
+    <script src="/theme-toggle.js" defer></script>
     <script src="/open-local.js" defer></script>
     <script src="/landing-prefetch.js" defer></script>
     <script src="/home-scroll.js" defer></script>
@@ -242,14 +242,15 @@
         <div class="wrap">
           <a class="brand" href="/"><span class="mark" aria-hidden="true"></span><span class="wordmark">EditXLSX</span></a>
           <nav class="products" aria-label="Products">
+            <a class="navlink" href="/">Home</a>
             <a class="navlink" href="#features">Features</a>
             <a class="navlink" href="#essentials">Essentials</a>
             <a class="navlink" href="/pricing">Pricing</a>
             <a class="navlink" href="/help">Help</a>
           </nav>
           <nav class="utils">
-<r-popover class="lang-menu" placement="bottom" trigger="click" role="button" aria-label="Language"><span class="lang-trigger"><svg class="langmark" aria-hidden="true" viewBox="0 0 16 16"><path d="M1.75 12.5 4.25 4.75 6.75 12.5" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"></path><path d="M2.7 9.85h3.1" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"></path><path d="M9 4.5h5.5M11.75 4.5v7.75M9.25 8.15h5M9.4 12.25h4.7" fill="none" stroke="currentColor" stroke-width="1.35" stroke-linecap="round" stroke-linejoin="round"></path></svg></span><r-content><div class="lang-list"><a class="lang-option" href="/de/" lang="de" hreflang="de">Deutsch</a><a class="lang-option is-current" href="/" lang="en" hreflang="en" aria-current="page">English</a><a class="lang-option" href="/es/" lang="es" hreflang="es">Español</a><a class="lang-option" href="/pt/" lang="pt" hreflang="pt">Português</a><a class="lang-option" href="/zh-CN/" lang="zh-CN" hreflang="zh-CN">中文</a><a class="lang-option" href="/ja/" lang="ja" hreflang="ja">日本語</a><a class="lang-option" href="/ko/" lang="ko" hreflang="ko">한국어</a></div></r-content></r-popover>
-            <r-theme-switch class="theme-switch" label="Theme"></r-theme-switch>
+<r-popover class="lang-menu" placement="bottom" trigger="click" role="button" aria-label="Language"><span class="lang-trigger"><svg class="langmark" aria-hidden="true" viewBox="0 0 24 24"><path d="m5 8 6 6" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"></path><path d="m4 14 6-6 2-3" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"></path><path d="M2 5h12" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"></path><path d="M7 2h1" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"></path><path d="m22 22-5-10-5 10" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"></path><path d="M14 18h6" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"></path></svg></span><r-content><div class="lang-list"><a class="lang-option" href="/de/" lang="de" hreflang="de">Deutsch</a><a class="lang-option is-current" href="/" lang="en" hreflang="en" aria-current="page">English</a><a class="lang-option" href="/es/" lang="es" hreflang="es">Español</a><a class="lang-option" href="/pt/" lang="pt" hreflang="pt">Português</a><a class="lang-option" href="/zh-CN/" lang="zh-CN" hreflang="zh-CN">中文</a><a class="lang-option" href="/ja/" lang="ja" hreflang="ja">日本語</a><a class="lang-option" href="/ko/" lang="ko" hreflang="ko">한국어</a></div></r-content></r-popover>
+<r-popover class="theme-menu" placement="bottom" trigger="click" role="button" aria-label="Theme"><span class="theme-trigger"><svg class="thememark" data-theme-icon="" aria-hidden="true" viewBox="0 0 24 24"><path d="M4 5h16v10a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V5zM8 19h8M12 16v3" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"></path></svg></span><r-content><div class="theme-list" role="listbox" aria-label="Theme"><button type="button" class="theme-option" role="option" data-theme="system">System</button><button type="button" class="theme-option" role="option" data-theme="light">Light</button><button type="button" class="theme-option" role="option" data-theme="dark">Dark</button></div></r-content></r-popover>
             <a class="nav-login" href="/login">Log in</a>
             <a class="nav-cta" href="/workspace"><r-button type="primary">Open workspace</r-button></a>
           </nav>
@@ -397,14 +398,11 @@
       <div class="wrap band-wrap">
         <div class="band">
           <div class="band-inner">
-            <span class="band-eyebrow">Get started in seconds</span>
-            <h2>Ready for a faster, lighter spreadsheet workflow?</h2>
-            <p>Save free in this browser. Add cloud storage only when the workbook needs to follow you across devices.</p>
+            <h2>Your spreadsheet. No install.</h2>
             <div class="band-cta">
-              <a class="band-primary" href="/editor?new=xlsx" data-prefetch="xlsx">Open workspace</a>
-              <a class="band-secondary" href="/pricing">View pricing</a>
+              <a class="band-primary" href="/workspace">Open workspace</a>
+              <a class="band-secondary" href="/pricing">Pricing</a>
             </div>
-            <div class="checks band-checks"><span class="check"><i aria-hidden="true"></i>Local library free</span><span class="check"><i aria-hidden="true"></i>No Office install</span><span class="check"><i aria-hidden="true"></i>Cloud when you need it</span></div>
           </div>
         </div>
       </div>

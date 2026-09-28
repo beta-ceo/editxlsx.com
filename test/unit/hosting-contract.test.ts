@@ -45,6 +45,7 @@ describe('public/_headers', () => {
       '/home.css',
       '/landing.css',
       '/lang-switch.js',
+      '/theme-toggle.js',
       // Stable-named landing scripts: content changes with the deploy, so the
       // one combination caching cannot get right (see /ran-tokens above).
       '/open-local.js',

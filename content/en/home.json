@@ -4,6 +4,10 @@
   "ogDescription": "Edit Excel workbooks online — free local library in this browser, or optional cloud storage across devices.",
   "nav": [
     {
+      "href": "/",
+      "label": "Home"
+    },
+    {
       "href": "#features",
       "label": "Features"
     },
@@ -156,16 +160,9 @@
     ]
   },
   "band": {
-    "eyebrow": "Get started in seconds",
-    "h2": "Ready for a faster, lighter spreadsheet workflow?",
-    "p": "Save free in this browser. Add cloud storage only when the workbook needs to follow you across devices.",
+    "h2": "Your spreadsheet. No install.",
     "primary": "Open workspace",
-    "secondary": "View pricing",
-    "checks": [
-      "Local library free",
-      "No Office install",
-      "Cloud when you need it"
-    ]
+    "secondary": "Pricing"
   },
   "foot": {
     "blurb": "The lightweight online Excel and document editor — free local library, optional cloud storage.",

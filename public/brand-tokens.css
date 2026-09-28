@@ -9,6 +9,7 @@
  * Roles:
  *   --brand          primary actions, logo mark, h1 accent
  *   --brand-strong   hover / pressed
+ *   --brand-on       text / icons sitting on solid --brand fills
  *   --brand-soft     tinted chips, badge fill, soft bands
  *   --brand-mid      borders on soft surfaces
  *   --brand-ink      text sitting on soft fills
@@ -22,6 +23,7 @@
 :root {
   --brand: #0f8a5f;
   --brand-strong: #0a6e4b;
+  --brand-on: #ffffff;
   --brand-soft: #e8f6ef;
   --brand-mid: #9dd4b8;
   --brand-ink: #0a5439;
@@ -34,6 +36,8 @@ html[theme='dark'],
 :root.dark {
   --brand: #3ecf8e;
   --brand-strong: #2fb87a;
+  /* Dark mint fill needs near-black type — white fails WCAG on #3ecf8e. */
+  --brand-on: #042016;
   --brand-soft: color-mix(in srgb, #0f8a5f 22%, var(--ran-color-bg, #000));
   --brand-mid: color-mix(in srgb, #3ecf8e 40%, transparent);
   --brand-ink: #9ee5c2;
@@ -45,6 +49,7 @@ html[theme='dark'],
   :root:not([data-ran-theme='light']):not([theme='light']):not(.light) {
     --brand: #3ecf8e;
     --brand-strong: #2fb87a;
+    --brand-on: #042016;
     --brand-soft: color-mix(in srgb, #0f8a5f 22%, var(--ran-color-bg, #000));
     --brand-mid: color-mix(in srgb, #3ecf8e 40%, transparent);
     --brand-ink: #9ee5c2;
