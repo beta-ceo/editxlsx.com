@@ -16,6 +16,10 @@ body {
   --sel: color-mix(in srgb, var(--brand) 28%, var(--ran-color-bg));
   --maxw: 1152px;
   --pad: clamp(20px, 5vw, 56px);
+  /* Vertical rhythm between major blocks: each section owns the same
+     top and bottom air, so adjacent blocks always read as one gap. */
+  --section-y: clamp(32px, 5vw, 56px);
+  --section-head-gap: clamp(28px, 4vw, 48px);
   --success-text: var(--brand-ink);
   --glow-blue: var(--brand-air-glow);
   --glow-green: var(--brand-glow);
@@ -429,7 +433,7 @@ body {
   gap: clamp(28px, 4vw, 56px);
   align-items: center;
   padding-top: clamp(40px, 7vw, 72px);
-  padding-bottom: clamp(24px, 4vw, 48px);
+  padding-bottom: var(--section-y);
 }
 @media (max-width: 960px) {
   #landing-hero .hero-stage {
@@ -723,13 +727,18 @@ body {
   }
 }
 
-/* ---------- sections ---------- */
-#landing-hero .section {
-  padding-top: clamp(40px, 6vw, 72px);
-  padding-bottom: clamp(40px, 6vw, 72px);
+/* ---------- sections ----------
+   One vertical token for every major block. Adjacent sections each
+   contribute --section-y, so the eye always sees the same gap. */
+#landing-hero .section,
+#landing-hero .features-sec,
+#landing-hero .essentials,
+#landing-hero .band-wrap {
+  padding-top: var(--section-y);
+  padding-bottom: var(--section-y);
 }
 #landing-hero .section-head {
-  margin-bottom: var(--ran-space-7);
+  margin-bottom: var(--section-head-gap);
   max-width: 40rem;
 }
 #landing-hero .section-head.left {
@@ -766,13 +775,9 @@ body {
 }
 
 /* Feature cards — asymmetric (no 3-equal SaaS row), brand/ink only — no purple. */
-#landing-hero .features-sec {
-  padding-top: clamp(20px, 3vw, 40px);
-  padding-bottom: clamp(48px, 7vw, 88px);
-}
 #landing-hero .features-sec .section-head {
   max-width: 38rem;
-  margin-bottom: clamp(28px, 4vw, 48px);
+  margin-bottom: var(--section-head-gap);
   text-align: start;
   margin-inline: 0;
 }
@@ -938,8 +943,6 @@ body {
    No section wash — sits on the page bg so it doesn't fight the hero atmosphere. */
 #landing-hero .essentials {
   position: relative;
-  padding-top: clamp(56px, 8vw, 96px);
-  padding-bottom: clamp(56px, 8vw, 96px);
   background: transparent;
   border-block: 0;
 }
@@ -948,7 +951,7 @@ body {
 }
 #landing-hero .essentials .section-head {
   max-width: 36rem;
-  margin-bottom: clamp(36px, 5vw, 56px);
+  margin-bottom: var(--section-head-gap);
   text-align: start;
   margin-inline: 0;
 }
@@ -1293,10 +1296,6 @@ body {
 }
 
 /* ---------- CTA band ---------- */
-#landing-hero .band-wrap {
-  padding-top: clamp(32px, 5vw, 56px);
-  padding-bottom: clamp(48px, 7vw, 88px);
-}
 #landing-hero .band {
   position: relative;
   isolation: isolate;
@@ -1471,8 +1470,8 @@ body {
    Four-up marketing footer: brand blurb + link columns on top, copyright /
    utility row below a hairline, trademark notice last (AGPL §7(e)). */
 #landing-hero .foot {
-  margin-top: clamp(48px, 8vw, 80px);
-  padding-top: clamp(40px, 6vw, 64px);
+  margin-top: 0;
+  padding-top: var(--section-y);
   padding-bottom: clamp(32px, 5vw, 48px);
   background: color-mix(in srgb, var(--ran-color-text) 3%, var(--ran-color-bg));
   box-shadow: inset 0 1px 0 var(--ran-color-border);
