@@ -1,7 +1,7 @@
 {
   "title": "Editor de Excel en línea — Edita libros XLSX en el navegador",
-  "description": "Editor de libros Excel en línea con OnlyOffice. Inicia sesión para sincronizar .xlsx en tu cuenta, ábrelos en cualquier lugar y guarda automáticamente mientras editas. La edición local sigue disponible sin cuenta.",
-  "ogDescription": "Edita libros Excel en línea — inicia sesión para sincronizar .xlsx, o abre un archivo local en el navegador.",
+  "description": "Editor de libros Excel online con OnlyOffice. Biblioteca local gratuita en este navegador; almacenamiento en la nube opcional cuando el mismo archivo deba seguirte en cada dispositivo.",
+  "ogDescription": "Edita libros Excel online — biblioteca local gratis, o nube opcional entre dispositivos.",
   "nav": [
     {
       "href": "#features",
@@ -12,30 +12,34 @@
       "label": "Esenciales"
     },
     {
+      "href": "/pricing",
+      "label": "Precios"
+    },
+    {
       "href": "/help",
       "label": "Ayuda"
     }
   ],
   "navActions": {
     "logIn": "Iniciar sesión",
-    "getStarted": "Empezar — $5/año"
+    "getStarted": "Abrir espacio de trabajo"
   },
-  "badge": "Local gratis · Sin instalar Office · Nube $5/año",
+  "badge": "Local gratis · Nube opcional",
   "h1": {
     "plain": "Excel en el navegador",
     "accent": "sin instalar Office"
   },
-  "sub": "Abre un .xlsx local gratis — sin cuenta, la edición queda en la pestaña. La sincronización en la nube es $5 al año cuando el mismo libro debe seguirte en cada dispositivo.",
+  "sub": "Sube y guarda libros en este navegador gratis. Añade almacenamiento en la nube solo cuando el mismo archivo deba seguirte en cada dispositivo.",
   "cta": {
-    "signIn": "Nube — $5/año",
+    "signIn": "Ver precios",
     "files": "Mis libros",
     "xlsx": "Nuevo Excel (local)",
     "open": "Abrir archivo local"
   },
   "checks": [
-    "Abrir local sigue gratis",
+    "La biblioteca local sigue gratis",
     "Sin instalar Office",
-    "$5/año si quieres nube"
+    "Nube cuando la necesites"
   ],
   "recent": {
     "label": "Seguir editando",
@@ -94,7 +98,7 @@
   "features": {
     "eyebrow": "Ligero y eficiente",
     "h2": "Adiós a las suites hinchadas. Hola a la productividad enfocada.",
-    "p": "OnlyOffice en la pestaña para editar en local gratis. Inicia sesión solo cuando quieras el mismo libro en cada dispositivo — $5 al año.",
+    "p": "OnlyOffice en la pestaña para editar en local gratis. Inicia sesión solo cuando quieras el mismo libro en cada dispositivo — ver Precios.",
     "items": [
       {
         "tone": "brand",
@@ -154,13 +158,13 @@
   "band": {
     "eyebrow": "Empieza en segundos",
     "h2": "¿Listo para un flujo de hojas más rápido y ligero?",
-    "p": "Abre un .xlsx local gratis. Añade nube por $5 al año solo cuando el libro deba seguirte.",
+    "p": "Guarda gratis en este navegador. Añade nube solo cuando el libro deba seguirte.",
     "primary": "Nuevo Excel — gratis",
-    "secondary": "Nube — $5/año",
+    "secondary": "Ver precios",
     "checks": [
-      "Local gratis",
+      "Biblioteca local gratis",
       "Sin instalar Office",
-      "$5/año nube"
+      "Nube cuando la necesites"
     ]
   },
   "foot": {
@@ -210,6 +214,10 @@
       {
         "title": "Recursos",
         "links": [
+          {
+            "href": "/pricing",
+            "label": "Precios"
+          },
           {
             "href": "/help",
             "label": "Ayuda"

@@ -1,7 +1,7 @@
 {
   "title": "Editor Excel online — Edite pastas XLSX no navegador",
-  "description": "Editor de pastas Excel online com OnlyOffice. Entre para sincronizar .xlsx na sua conta, abra em qualquer lugar e salve automaticamente enquanto edita. Edição local ainda disponível sem conta.",
-  "ogDescription": "Edite pastas Excel online — entre para sincronizar .xlsx ou abra um arquivo local no navegador.",
+  "description": "Editor de pastas Excel online com OnlyOffice. Biblioteca local gratuita neste navegador; armazenamento em nuvem opcional quando o mesmo arquivo precisar te acompanhar em cada dispositivo.",
+  "ogDescription": "Edite pastas Excel online — biblioteca local grátis, ou nuvem opcional entre dispositivos.",
   "nav": [
     {
       "href": "#features",
@@ -12,30 +12,34 @@
       "label": "Essenciais"
     },
     {
+      "href": "/pricing",
+      "label": "Preços"
+    },
+    {
       "href": "/help",
       "label": "Ajuda"
     }
   ],
   "navActions": {
     "logIn": "Entrar",
-    "getStarted": "Começar — $5/ano"
+    "getStarted": "Abrir espaço de trabalho"
   },
-  "badge": "Local grátis · Sem instalar o Office · Nuvem $5/ano",
+  "badge": "Local grátis · Nuvem opcional",
   "h1": {
     "plain": "Excel no navegador",
     "accent": "sem instalar o Office"
   },
-  "sub": "Abra um .xlsx local grátis — sem conta, a edição fica na aba. A sincronização na nuvem custa $5 por ano quando a mesma pasta precisa te acompanhar em cada dispositivo.",
+  "sub": "Envie e salve pastas neste navegador de graça. Adicione armazenamento em nuvem só quando o mesmo arquivo precisar te acompanhar em cada dispositivo.",
   "cta": {
-    "signIn": "Nuvem — $5/ano",
+    "signIn": "Ver preços",
     "files": "Minhas pastas",
     "xlsx": "Novo Excel (local)",
     "open": "Abrir arquivo local"
   },
   "checks": [
-    "Abrir local continua grátis",
+    "Biblioteca local continua grátis",
     "Sem instalar o Office",
-    "$5/ano se quiser nuvem"
+    "Nuvem quando precisar"
   ],
   "recent": {
     "label": "Continuar editando",
@@ -94,7 +98,7 @@
   "features": {
     "eyebrow": "Leve e eficiente",
     "h2": "Adeus a suítes inchadas. Bem-vindo à produtividade focada.",
-    "p": "OnlyOffice na aba para editar local grátis. Entre só quando quiser a mesma pasta em cada dispositivo — $5 por ano.",
+    "p": "OnlyOffice na aba para editar local grátis. Entre só quando quiser a mesma pasta em cada dispositivo — veja Preços.",
     "items": [
       {
         "tone": "brand",
@@ -154,13 +158,13 @@
   "band": {
     "eyebrow": "Comece em segundos",
     "h2": "Pronto para um fluxo de planilhas mais rápido e leve?",
-    "p": "Abra um .xlsx local grátis. Adicione nuvem por $5 ao ano só quando a pasta precisar te seguir.",
+    "p": "Salve de graça neste navegador. Adicione nuvem só quando a pasta precisar te seguir.",
     "primary": "Novo Excel — grátis",
-    "secondary": "Nuvem — $5/ano",
+    "secondary": "Ver preços",
     "checks": [
-      "Local grátis",
-      "Sem instalar",
-      "$5/ano nuvem"
+      "Biblioteca local grátis",
+      "Sem instalar o Office",
+      "Nuvem quando precisar"
     ]
   },
   "foot": {
@@ -210,6 +214,10 @@
       {
         "title": "Recursos",
         "links": [
+          {
+            "href": "/pricing",
+            "label": "Preços"
+          },
           {
             "href": "/help",
             "label": "Ajuda"

@@ -1,9 +1,7 @@
 /**
- * /workspace -- cloud workbook shell: sidebar library and the editor beside it.
- *
- * Requires a signed-in session; anonymous visitors are sent to /login.
- * The editor runs in a same-origin iframe (`?shell=1`) so Save still writes
- * to the account. See `isAppShellFrame`.
+ * /workspace -- dual-source workbook shell: This device (IndexedDB local vault,
+ * default, no auth) and Cloud (Appwrite, requires session + paid plan).
+ * The editor runs in a same-origin iframe (`?shell=1`).
  */
 import 'ranui/button';
 import 'ranui/input';
@@ -32,10 +30,22 @@ import {
 } from './appwrite/workbooks';
 import type { VaultFormat } from './appwrite/ids';
 import { formatFromTitle, MAX_WORKBOOK_BYTES } from './appwrite/ids';
+import { buildEmptyOfficeFile } from './appwrite/empty-office';
+import { entitlementFromUser, type CloudEntitlement } from './billing/entitlement';
 import { confirmDialog } from './confirm-dialog';
 import { pickFolderDialog } from './folder-picker-dialog';
 import { applySiteThemeToEditor } from './editor-theme';
 import { DEFAULT_UI_THEME } from './onlyoffice/ui-theme';
+import {
+  createLocalBlankFile,
+  createLocalFolder,
+  createLocalVaultFile,
+  deleteLocalVaultItem,
+  listLocalVaultItems,
+  localItemAsVault,
+  placeLocalVaultItem,
+  renameLocalVaultItem,
+} from './local-vault';
 import {
   isShellBridgeMessage,
   SHELL_FAILED,
@@ -52,12 +62,11 @@ import {
   onShellFrameReady,
   onShellNeedPayload,
   resetShellFrameReady,
+  type VaultSource,
 } from './shell-open-handoff';
 import { mergeShellOverlayTiming, publishOpenTiming, type OpenTimingReport } from './open-timing';
 
 const SEARCH_DEBOUNCE_MS = 200;
-/** Visual scale for the sidebar meter. The client has no account quota. */
-const STORAGE_SCALE_BYTES = 1024 * 1024 * 1024;
 /** Give up waiting for shell:workbook-ready / shell:workbook-failed. */
 const OPEN_TIMEOUT_MS = 90_000;
 /**
@@ -84,6 +93,9 @@ const LOCALES: Array<{ code: string; label: string }> = [
 let query = '';
 let searchTimer = 0;
 let user: AuthUser | null = null;
+let entitlement: CloudEntitlement = entitlementFromUser(null);
+/** Default library: durable IndexedDB on this device. */
+let vaultSource: 'local' | 'cloud' = 'local';
 let rows: VaultItem[] = [];
 let loading = true;
 let selectedId = '';
@@ -358,9 +370,13 @@ function editorBundleBooted(frame: HTMLIFrameElement): boolean {
 }
 
 function handoffMeta(): {
+  vaultSource: VaultSource;
+  quotaBytes: number;
   onMeta: (fresh: Workbook) => void;
 } {
   return {
+    vaultSource,
+    quotaBytes: vaultSource === 'cloud' ? entitlement.quotaBytes : 0,
     onMeta: (fresh) => {
       rows = rows.map((row) => (row.id === fresh.id ? fresh : row));
     },
@@ -475,18 +491,43 @@ function syncUrl(): void {
   const url = new URL(window.location.href);
   if (query) url.searchParams.set('q', query);
   else url.searchParams.delete('q');
-  if (selectedId) url.searchParams.set('workbook', selectedId);
-  else url.searchParams.delete('workbook');
+  url.searchParams.set('source', vaultSource);
+  if (selectedId) {
+    if (vaultSource === 'local') {
+      url.searchParams.set('local', selectedId);
+      url.searchParams.delete('workbook');
+    } else {
+      url.searchParams.set('workbook', selectedId);
+      url.searchParams.delete('local');
+    }
+  } else {
+    url.searchParams.delete('workbook');
+    url.searchParams.delete('local');
+  }
   if (currentFolderId) url.searchParams.set('folder', currentFolderId);
   else url.searchParams.delete('folder');
   window.history.replaceState(null, '', url);
 }
 
-function readUrl(): void {
+function readUrl(): 'local' | 'cloud' {
   const params = new URLSearchParams(window.location.search);
   query = params.get('q') ?? '';
-  selectedId = params.get('workbook') ?? '';
+  let source: 'local' | 'cloud' = 'local';
+  const sourceParam = params.get('source');
+  if (sourceParam === 'cloud' || sourceParam === 'local') source = sourceParam;
+  selectedId = params.get(source === 'local' ? 'local' : 'workbook') ?? '';
+  // Legacy / deep links: workbook id without source → cloud.
+  if (!selectedId && params.get('workbook')) {
+    source = 'cloud';
+    selectedId = params.get('workbook') ?? '';
+  }
+  if (!selectedId && params.get('local')) {
+    source = 'local';
+    selectedId = params.get('local') ?? '';
+  }
   currentFolderId = params.get('folder') ?? '';
+  vaultSource = source;
+  return source as 'local' | 'cloud';
 }
 
 function rememberLocale(locale: string): void {
@@ -665,9 +706,13 @@ async function refresh(): Promise<void> {
   renameSurface = 'tree';
   paint();
   try {
-    // Always load the full vault; the search box filters `rows` locally so
-    // keystrokes never flash a skeleton or re-hit Appwrite.
-    rows = await listVaultItems();
+    if (vaultSource === 'local') {
+      rows = (await listLocalVaultItems()).map(localItemAsVault);
+    } else {
+      // Always load the full vault; the search box filters `rows` locally so
+      // keystrokes never flash a skeleton or re-hit Appwrite.
+      rows = await listVaultItems();
+    }
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);
     notifyError(message);
@@ -693,6 +738,26 @@ async function refresh(): Promise<void> {
     syncUrl();
     paint();
   }
+}
+
+async function switchVaultSource(next: VaultSource): Promise<void> {
+  if (next === vaultSource) return;
+  if (next === 'cloud' && !user) {
+    window.location.assign(loginUrl());
+    return;
+  }
+  vaultSource = next;
+  selectedId = '';
+  openWorkbook = null;
+  currentFolderId = '';
+  stageStatus = 'idle';
+  stageError = '';
+  setSaveStatus('idle');
+  clearOpenWatchers();
+  clearShellOpenHandoff();
+  clearBrowserSelection();
+  syncUrl();
+  await refresh();
 }
 
 function childrenOf(parentId: string): VaultItem[] {
@@ -784,8 +849,24 @@ function openFolder(id: string): void {
 
 async function onNewFile(format: VaultFormat): Promise<void> {
   try {
+    if (vaultSource === 'cloud' && !entitlement.isPaid) {
+      notifyError(t('workspaceUpgradeLead'));
+      return;
+    }
     const sortOrder = nextSortOrder(childrenOf(currentFolderId));
-    const workbook = await createBlankFile(format, { parentId: currentFolderId, sortOrder });
+    let workbook: Workbook;
+    if (vaultSource === 'local') {
+      const blank = await buildEmptyOfficeFile(format);
+      const bytes = new Uint8Array(await blank.arrayBuffer());
+      const local = await createLocalBlankFile(format, {
+        parentId: currentFolderId,
+        sortOrder,
+        bytes,
+      });
+      workbook = localItemAsVault(local) as Workbook;
+    } else {
+      workbook = await createBlankFile(format, { parentId: currentFolderId, sortOrder });
+    }
     rows = [workbook, ...rows.filter((row) => row.id !== workbook.id)];
     stageStatus = 'loading';
     stageError = '';
@@ -802,9 +883,16 @@ async function onNewFile(format: VaultFormat): Promise<void> {
 
 async function onNewFolder(): Promise<void> {
   try {
+    if (vaultSource === 'cloud' && !entitlement.isPaid) {
+      notifyError(t('workspaceUpgradeLead'));
+      return;
+    }
     if (currentFolderId) expandedFolderIds.add(currentFolderId);
     const sortOrder = nextSortOrder(childrenOf(currentFolderId));
-    const folder = await createFolder(t('cloudFolderUntitled'), currentFolderId, sortOrder);
+    const folder =
+      vaultSource === 'local'
+        ? localItemAsVault(await createLocalFolder(t('cloudFolderUntitled'), currentFolderId, sortOrder))
+        : await createFolder(t('cloudFolderUntitled'), currentFolderId, sortOrder);
     rows = [folder, ...rows.filter((row) => row.id !== folder.id)];
     openFolder(folder.id);
     startRename(folder.id);
@@ -923,7 +1011,10 @@ async function ensureFolderPath(parentId: string, segments: string[]): Promise<s
     let folder = rows.find((row) => row.kind === 'folder' && (row.parentId || '') === cursor && row.title === name);
     if (!folder) {
       const sortOrder = nextSortOrder(childrenOf(cursor));
-      folder = await createFolder(name, cursor, sortOrder);
+      folder =
+        vaultSource === 'local'
+          ? localItemAsVault(await createLocalFolder(name, cursor, sortOrder))
+          : await createFolder(name, cursor, sortOrder);
       rows = [folder, ...rows.filter((row) => row.id !== folder!.id)];
     }
     if (cursor) expandedFolderIds.add(cursor);
@@ -931,6 +1022,18 @@ async function ensureFolderPath(parentId: string, segments: string[]): Promise<s
     cursor = folder.id;
   }
   return cursor;
+}
+
+async function persistPlacementPatches(
+  patches: Array<{ id: string; parentId: string; sortOrder: number }>,
+): Promise<void> {
+  if (vaultSource === 'local') {
+    for (const patch of patches) {
+      await placeLocalVaultItem(patch.id, patch.parentId, patch.sortOrder);
+    }
+    return;
+  }
+  await reorderVaultSiblings(patches);
 }
 
 let uploadBusy = false;
@@ -1239,6 +1342,10 @@ async function onDropUpload(
 
 async function uploadOfficeItems(items: DroppedUpload[], baseParentId: string): Promise<void> {
   if (uploadBusy || items.length === 0) return;
+  if (vaultSource === 'cloud' && !entitlement.isPaid) {
+    notifyError(t('workspaceUpgradeLead'));
+    return;
+  }
   const accepted = items.filter((item) => formatFromTitle(item.file.name));
   const skipped = items.length - accepted.length;
   if (accepted.length === 0) {
@@ -1292,11 +1399,20 @@ async function uploadOfficeItems(items: DroppedUpload[], baseParentId: string): 
         const parentId = await ensureFolderPath(baseParentId, segments);
         item.folderLabel = folderLabelFor(parentId, '');
         const sortOrder = nextSortOrder(childrenOf(parentId));
-        const workbook = await createWorkbookFromFile(item.file, item.file.name, parentId, sortOrder, (progress) => {
-          item.progress = progress.progress;
-          item.sizeUploaded = progress.sizeUploaded;
-          scheduleUploadProgressPaint();
-        });
+        const workbook =
+          vaultSource === 'local'
+            ? (localItemAsVault(
+                await createLocalVaultFile(item.file, item.file.name, parentId, sortOrder),
+              ) as Workbook)
+            : await createWorkbookFromFile(item.file, item.file.name, parentId, sortOrder, (progress) => {
+                item.progress = progress.progress;
+                item.sizeUploaded = progress.sizeUploaded;
+                scheduleUploadProgressPaint();
+              });
+        if (vaultSource === 'local') {
+          item.progress = 100;
+          item.sizeUploaded = item.file.size;
+        }
         rows = [workbook, ...rows.filter((row) => row.id !== workbook.id)];
         item.state = 'done';
         item.progress = 100;
@@ -1464,11 +1580,14 @@ async function commitRename(id: string, raw: string): Promise<void> {
   paintDocsAndBrowser();
 
   try {
-    const updated = await renameVaultItem(id, nextTitle, {
-      kind: item.kind,
-      format: item.format,
-      title: item.title,
-    });
+    const updated =
+      vaultSource === 'local'
+        ? localItemAsVault(await renameLocalVaultItem(id, nextTitle))
+        : await renameVaultItem(id, nextTitle, {
+            kind: item.kind,
+            format: item.format,
+            title: item.title,
+          });
     rows = rows.map((row) => (row.id === id ? updated : row));
   } catch (error) {
     rows = rows.map((row) => (row.id === id ? previous : row));
@@ -1498,7 +1617,8 @@ async function deleteItem(id: string): Promise<void> {
   });
   if (!ok) return;
   try {
-    await deleteVaultItem(id);
+    if (vaultSource === 'local') await deleteLocalVaultItem(id);
+    else await deleteVaultItem(id);
     rows = rows.filter((row) => row.id !== id);
     expandedFolderIds.delete(id);
     selectedBrowserIds.delete(id);
@@ -1674,7 +1794,8 @@ async function batchDeleteSelected(): Promise<void> {
   for (const item of ordered) {
     const id = item.id;
     try {
-      await deleteVaultItem(id);
+      if (vaultSource === 'local') await deleteLocalVaultItem(id);
+      else await deleteVaultItem(id);
       rows = rows.filter((row) => row.id !== id);
       expandedFolderIds.delete(id);
       selectedBrowserIds.delete(id);
@@ -1742,7 +1863,7 @@ async function batchMoveSelected(): Promise<void> {
     rows = working;
     clearBrowserSelection();
     paint();
-    await reorderVaultSiblings([...byId.values()]);
+    await persistPlacementPatches([...byId.values()]);
   } catch (error) {
     rows = previous;
     paint();
@@ -2038,7 +2159,10 @@ function openNewMenuForFolder(folderId: string, anchor: HTMLElement): void {
 
 async function onSignOut(): Promise<void> {
   await signOut();
-  window.location.replace(loginUrl());
+  user = null;
+  entitlement = entitlementFromUser(null);
+  await switchVaultSource('local');
+  window.location.reload();
 }
 
 function button(label: string, onClick: () => void, options: { type?: string; id?: string } = {}): HTMLElement {
@@ -2070,7 +2194,7 @@ function mountDocsSkeleton(host: HTMLElement): void {
 }
 
 function mountShell(): void {
-  if (shellReady || !user) return;
+  if (shellReady) return;
   shellReady = true;
   initTheme();
   const account = user;
@@ -2131,6 +2255,18 @@ function mountShell(): void {
     return link;
   });
 
+  const langIcon = (() => {
+    const slot = document.createElement('span');
+    // A文 — same mark as the site chrome language trigger (24px viewBox).
+    slot.append(
+      svgIconPaths(
+        ['M3 19.5 7 5.5 11 19.5', 'M4.6 14.5h4.8', 'M13.5 6h8M17.5 6v13M13.75 12.25h7.5M14 19.5h7'],
+        'vault-icon',
+      ),
+    );
+    return slot;
+  })();
+
   const langMenu = View('r-popover')
     .class('lang-menu vault-tool')
     .attr('placement', 'bottom-end')
@@ -2138,14 +2274,7 @@ function mountShell(): void {
     .attr('role', 'button')
     .attr('aria-label', 'Language')
     .children(
-      View('span')
-        .class('lang-trigger vault-tool-btn')
-        .children(
-          iconSlot(
-            'M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18zM3.5 12h17M12 3c2.2 2.4 3.3 5.2 3.3 9s-1.1 6.6-3.3 9c-2.2-2.4-3.3-5.2-3.3-9s1.1-6.6 3.3-9z',
-          ),
-        )
-        .build(),
+      View('span').class('lang-trigger vault-tool-btn').children(langIcon).build(),
       View('r-content')
         .children(
           Div()
@@ -2209,20 +2338,39 @@ function mountShell(): void {
   const summary = document.createElement('summary');
   const avatar = document.createElement('span');
   avatar.className = 'vault-avatar';
-  avatar.textContent = initials(account);
   const text = document.createElement('span');
   text.className = 'vault-user-text';
   const name = document.createElement('span');
   name.className = 'vault-user-name';
-  name.textContent = displayName(account);
   const mail = document.createElement('span');
   mail.className = 'vault-user-mail';
-  mail.textContent = account.email;
+  if (account) {
+    avatar.textContent = initials(account);
+    name.textContent = displayName(account);
+    mail.textContent = account.email;
+  } else {
+    avatar.textContent = '?';
+    name.textContent = t('workspaceSourceLocal');
+    mail.textContent = t('cloudSignIn');
+  }
   text.append(name, mail);
   summary.append(avatar, text, svgIcon('M6 9l6 6 6-6'));
   const menu = document.createElement('div');
   menu.className = 'vault-menu';
-  menu.append(button(t('cloudSignOut'), () => void onSignOut(), { type: 'text', id: 'workspace-sign-out' }));
+  if (account) {
+    menu.append(
+      button(t('workspaceUpgradeCta'), () => {
+        window.location.assign(withLocale('/pricing', getLanguage()));
+      }, { type: 'text', id: 'workspace-pricing' }),
+      button(t('cloudSignOut'), () => void onSignOut(), { type: 'text', id: 'workspace-sign-out' }),
+    );
+  } else {
+    menu.append(
+      button(t('cloudSignIn'), () => {
+        window.location.assign(loginUrl());
+      }, { type: 'text', id: 'workspace-sign-in' }),
+    );
+  }
   userMenu.append(summary, menu);
 
   // Sidebar is full-height (left column). Search + account tools sit only on
@@ -2289,6 +2437,42 @@ function mountShell(): void {
         )
         .build(),
       newTrigger,
+      Div()
+        .class('vault-source-switch')
+        .id('workspace-source-switch')
+        .attr('role', 'tablist')
+        .attr('aria-label', t('cloudNavWorkspace'))
+        .children(
+          (() => {
+            const localBtn = document.createElement('button');
+            localBtn.type = 'button';
+            localBtn.className = 'vault-source-btn';
+            localBtn.id = 'workspace-source-local';
+            localBtn.setAttribute('role', 'tab');
+            localBtn.textContent = t('workspaceSourceLocal');
+            localBtn.addEventListener('click', () => void switchVaultSource('local'));
+            const cloudBtn = document.createElement('button');
+            cloudBtn.type = 'button';
+            cloudBtn.className = 'vault-source-btn';
+            cloudBtn.id = 'workspace-source-cloud';
+            cloudBtn.setAttribute('role', 'tab');
+            cloudBtn.textContent = t('workspaceSourceCloud');
+            cloudBtn.addEventListener('click', () => void switchVaultSource('cloud'));
+            return Div().class('vault-source-switch-inner').children(localBtn, cloudBtn).build();
+          })(),
+        )
+        .build(),
+      Div()
+        .class('vault-upgrade')
+        .id('workspace-upgrade')
+        .attr('hidden', 'true')
+        .children(
+          View('p').class('vault-upgrade-lead').id('workspace-upgrade-lead').text(t('workspaceUpgradeLead')).build(),
+          button(t('workspaceUpgradeCta'), () => {
+            window.location.assign(withLocale('/pricing', getLanguage()));
+          }, { id: 'workspace-upgrade-cta' }),
+        )
+        .build(),
       Div()
         .class('vault-dir-head')
         .children(
@@ -2812,7 +2996,9 @@ function paintSaveStatus(): void {
       : saveStatus === 'local'
         ? t('cloudSaveStatusLocal')
         : saveStatus === 'saved'
-          ? t('cloudSaveStatusSaved')
+          ? vaultSource === 'local'
+            ? t('localSaveStatusSaved')
+            : t('cloudSaveStatusSaved')
           : saveStatusError
             ? `${t('cloudSaveStatusError')}${saveStatusError}`
             : t('cloudSaveStatusError');
@@ -2906,7 +3092,7 @@ async function commitVaultDrop(movedId: string, hint: { targetId: string; mode: 
     rows = items;
     if (hint.mode === 'into') expandedFolderIds.add(hint.targetId);
     paintDocs();
-    await reorderVaultSiblings(patches);
+    await persistPlacementPatches(patches);
   } catch (error) {
     rows = previous;
     paintDocs();
@@ -3006,7 +3192,7 @@ function paintDocs(): void {
   if (childrenOf('').length === 0) {
     const empty = document.createElement('p');
     empty.className = 'vault-empty';
-    empty.textContent = t('cloudEmpty');
+    empty.textContent = vaultSource === 'local' ? t('workspaceLocalEmpty') : t('cloudEmpty');
     host.append(empty);
     return;
   }
@@ -3167,9 +3353,35 @@ function paintStorage(): void {
   const fill = document.getElementById('workspace-storage-fill');
   if (!used || !fill) return;
   const bytes = rows.reduce((sum, row) => (row.kind === 'file' ? sum + row.sizeBytes : sum), 0);
-  used.textContent = t('cloudStorageUsed', { size: formatBytes(bytes) });
-  const ratio = Math.max(0, Math.min(1, bytes / STORAGE_SCALE_BYTES));
-  fill.style.width = `${Math.round(ratio * 1000) / 10}%`;
+  if (vaultSource === 'local') {
+    used.textContent = t('cloudStorageUsed', { size: formatBytes(bytes) });
+    fill.style.width = bytes > 0 ? '100%' : '0%';
+    fill.style.opacity = '0.35';
+  } else {
+    const quota = entitlement.quotaBytes;
+    used.textContent =
+      quota > 0
+        ? t('cloudStorageUsed', { size: `${formatBytes(bytes)} / ${formatBytes(quota)}` })
+        : t('cloudStorageUsed', { size: formatBytes(bytes) });
+    const ratio = quota > 0 ? Math.max(0, Math.min(1, bytes / quota)) : 0;
+    fill.style.width = `${Math.round(ratio * 1000) / 10}%`;
+    fill.style.opacity = '1';
+  }
+
+  const localBtn = document.getElementById('workspace-source-local');
+  const cloudBtn = document.getElementById('workspace-source-cloud');
+  if (localBtn && cloudBtn) {
+    localBtn.classList.toggle('is-active', vaultSource === 'local');
+    cloudBtn.classList.toggle('is-active', vaultSource === 'cloud');
+    localBtn.setAttribute('aria-selected', vaultSource === 'local' ? 'true' : 'false');
+    cloudBtn.setAttribute('aria-selected', vaultSource === 'cloud' ? 'true' : 'false');
+  }
+
+  const upgrade = document.getElementById('workspace-upgrade');
+  if (upgrade) {
+    const showUpgrade = vaultSource === 'cloud' && Boolean(user) && !entitlement.isPaid;
+    upgrade.hidden = !showUpgrade;
+  }
 }
 
 /** Cancels an in-flight overlay leave so a new open can enter cleanly. */
@@ -3650,7 +3862,6 @@ function paintStage(): void {
 }
 
 function paint(): void {
-  if (!user) return;
   mountShell();
   paintDocs();
   paintStorage();
@@ -3662,11 +3873,13 @@ applyDocumentLanguage();
 
 void (async () => {
   user = await getCurrentUser();
-  if (!user) {
+  entitlement = entitlementFromUser(user);
+  document.title = t('cloudFilesTitle');
+  const source = readUrl();
+  // Anonymous visitors stay on This device; cloud deep links need a session.
+  if (source === 'cloud' && !user) {
     window.location.replace(loginUrl());
     return;
   }
-  document.title = t('cloudFilesTitle');
-  readUrl();
   await refresh();
 })();

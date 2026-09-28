@@ -261,6 +261,16 @@ export interface I18nMessages {
   cloudSaveStatusLocal: string;
   cloudSaveStatusSaved: string;
   cloudSaveStatusError: string;
+  /** Local vault Save chip when bytes landed in IndexedDB. */
+  localSaveStatusSaved: string;
+  localSaveFailed: string;
+  /** Workspace source switcher. */
+  workspaceSourceLocal: string;
+  workspaceSourceCloud: string;
+  workspaceUpgradeCta: string;
+  workspaceUpgradeLead: string;
+  workspaceLocalEmptyTitle: string;
+  workspaceLocalEmpty: string;
   /** Soft banner on local /editor when cloud sync would help. */
   cloudCrossDeviceNudge: string;
   cloudCrossDeviceNudgeLink: string;

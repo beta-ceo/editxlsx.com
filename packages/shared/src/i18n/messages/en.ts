@@ -124,7 +124,7 @@ export const en: I18nMessages = {
   cloudNameOptional: 'Name (optional)',
   cloudPasswordHint: 'At least 8 characters',
   cloudAuthLead:
-    'Cloud workbooks are $5 a year so the same file follows you across devices. Local open stays free forever — no account required.',
+    'Local library is free forever in this browser. Optional cloud storage keeps the same file across devices — see Pricing for plans.',
   cloudHaveAccount: 'Already have an account? Sign in',
   cloudNeedAccount: 'New here? Create an account',
   cloudAuthFailed: 'Could not sign in: ',
@@ -157,9 +157,9 @@ export const en: I18nMessages = {
   cloudDropHeadline: 'Drag and drop documents or spreadsheets here',
   cloudDropFormats: 'Supports .xlsx, .docx, and .pptx up to {size} each',
   cloudBrowseLocal: 'Browse local files',
-  cloudEmptyTitle: 'No workbooks yet',
+  cloudEmptyTitle: 'No cloud workbooks yet',
   cloudEmpty:
-    '$5 a year keeps workbooks in your account across devices. Create a blank one or upload an .xlsx — local editing without an account stays free on the homepage.',
+    'Cloud storage keeps workbooks in your account across devices. Choose a plan on Pricing — local library on This device stays free.',
   cloudEmptySearchTitle: 'No matches',
   cloudEmptySearch: 'No workbook name contains that text.',
   cloudClearSearch: 'Clear search',
@@ -224,8 +224,18 @@ export const en: I18nMessages = {
   cloudSaveStatusLocal: 'Saved on this device · syncing to account…',
   cloudSaveStatusSaved: 'Synced to your account',
   cloudSaveStatusError: 'Could not save: ',
+  localSaveStatusSaved: 'Saved in this browser',
+  localSaveFailed: 'Could not save locally: ',
+  workspaceSourceLocal: 'This device',
+  workspaceSourceCloud: 'Cloud',
+  workspaceUpgradeCta: 'View plans',
+  workspaceUpgradeLead:
+    'Cloud storage needs an active plan. See Pricing for quotas, or keep using the free local library.',
+  workspaceLocalEmptyTitle: 'No files on this device yet',
+  workspaceLocalEmpty:
+    'Create a blank workbook or upload one — it stays in this browser until you delete it. No account required.',
   cloudCrossDeviceNudge:
-    'Need this workbook on another device? Sign in for $5/year cloud sync — local editing stays free.',
+    'Need this workbook on another device? Optional cloud plans are on Pricing — local editing stays free.',
   cloudCrossDeviceNudgeLink: 'Sign in',
   cloudCrossDeviceNudgeDismiss: 'Dismiss',
 };

@@ -465,14 +465,14 @@ async function render(): Promise<void> {
 
 /**
  * The chrome around this page is hand-written (history.html), so its <title>
- * and the language switch's current entry ship as English literals while the
+ * and the language switch's current option ship as English literals while the
  * body is translated at runtime -- a Chinese reader got a Chinese page whose
- * switch still read "English" and whose tab still read "Local history".
+ * menu still marked English and whose tab still read "Local history".
  *
  * The endonyms are already in the DOM, one per <a class="lang-option" lang>,
- * so the current entry is copied from the link that matches <html lang>
- * rather than from a second table that would have to be kept in step with
- * bin/pages/locales.mjs.
+ * so `aria-current` / `is-current` are copied from the link that matches
+ * `<html lang>` rather than from a second table that would have to be kept in
+ * step with bin/pages/locales.mjs. The trigger itself is icon-only.
  */
 function syncPageChrome(): void {
   document.title = t('historyTitle');
@@ -485,8 +485,6 @@ function syncPageChrome(): void {
     if (option === current) option.setAttribute('aria-current', 'page');
     else option.removeAttribute('aria-current');
   }
-  const label = document.querySelector('.lang-current');
-  if (label) label.textContent = current.textContent?.trim() ?? '';
 }
 
 applyDocumentLanguage();

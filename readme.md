@@ -1,10 +1,12 @@
 # editxlsx
 
-Online Excel and document editor powered by OnlyOffice. Sign in to sync `.xlsx`
-workbooks to your account, or open a local file in the browser with no account.
+Online Excel and document editor powered by OnlyOffice. Open and save workbooks
+in this browser for free (durable IndexedDB library), or subscribe for cloud
+storage across devices ($5/year · 1GB or $10/year · 10GB).
 
 Editing and conversion still run in the tab (OnlyOffice + WASM). Cloud storage
-uses [Appwrite](https://appwrite.io) Auth, Databases, and Storage.
+uses [Appwrite](https://appwrite.io) Auth, Databases, and Storage; billing uses
+Stripe via Appwrite Functions.
 
 **Live:** [editxlsx.com](https://editxlsx.com)
 
@@ -12,12 +14,12 @@ uses [Appwrite](https://appwrite.io) Auth, Databases, and Storage.
 
 ## Features
 
-- **Cloud workbooks** — sign in, browse `/workspace`, Save / Ctrl+S and autosave
-  sync `.xlsx` to your account (local-first: bytes land on device first, then
-  flush to the cloud)
-- **Local path stays** — open or create a file without an account; Chromium can
-  write back to the file you picked; recovery copies stay in this browser for
-  7 days ([details](#data))
+- **Free local library** — `/workspace` defaults to This device: upload, create,
+  and Save into IndexedDB on this browser (no account)
+- **Cloud workbooks** — optional paid vault ($5 / $10 per year for 1 / 10 GB);
+  Save is local-first then flushes to Appwrite
+- **AutoRecover** — crash recovery copies stay in this browser for 7 days at
+  `/history` ([details](#data)); that is not the durable library
 - **Real editing** — DOCX, XLSX, PPTX, CSV, ODF, RTF, TXT, legacy binaries; PDF
   annotate / fill / export
 - **Offline-capable** — installable PWA; local editing works after the first visit
@@ -70,12 +72,13 @@ Cloud sync today is **`.xlsx` workbooks** only.
 
 | Route                 | What it is                                      |
 | --------------------- | ----------------------------------------------- |
-| `/`                   | Landing page (no editor bundle)                 |
-| `/login`              | Sign in / sign up (Appwrite email + password)   |
-| `/workspace`          | Cloud workbook library (redirects if anonymous) |
-| `/editor`             | The editor                                      |
-| `/history`            | Local recovery copies in this browser           |
-| `/help`, `/changelog` | Generated from `content/`                       |
+| `/`                   | Landing page (no editor bundle)                      |
+| `/login`              | Sign in / sign up (Appwrite email + password)        |
+| `/workspace`          | Local library (default) + optional cloud vault       |
+| `/pricing`            | Cloud storage tiers + Checkout                       |
+| `/editor`             | The editor                                           |
+| `/history`            | 7-day AutoRecover copies in this browser             |
+| `/help`, `/changelog` | Generated from `content/`                            |
 
 ### `/editor` parameters
 
@@ -188,4 +191,4 @@ history for non-obvious choices: `docs/explorations/`.
 
 ## License
 
-Application code is [MIT](LICENSE). 
+Application code is [MIT](LICENSE). The embedded ONLYOFFICE editors remain AGPL-3.0 — see [NOTICE](NOTICE). 

@@ -241,20 +241,17 @@ header.bar > nav:not(.products):not(.utils) a:hover {
   --ran-popover-content-padding: 4px;
 }
 /* The face of the control. The button itself is the r-popover host (it carries
-   the role, the name and the state); this is the row of things inside it. */
+   the role, the name and the state); this is the icon face inside it. */
 .lang-trigger {
   display: inline-flex;
   align-items: center;
-  gap: var(--ran-space-2);
-  padding: var(--ran-space-2) var(--ran-space-3);
+  justify-content: center;
+  padding: var(--ran-space-2);
   border-radius: var(--ran-radius-sm);
-  font-size: 14px;
-  /* Same 22px as the nav links beside it -- see header.bar nav a. On a phone
-     the label is hidden and only the two icons are left, so the line box no
-     longer sets the height: hold it from below instead, or the pill shrinks to
-     31px next to a 38px GitHub link. */
-  line-height: 22px;
+  /* Match the 38px nav link / GitHub hit targets beside it. */
+  line-height: 0;
   min-height: calc(22px + var(--ran-space-2) * 2);
+  min-width: calc(22px + var(--ran-space-2) * 2);
   color: var(--ran-color-text-secondary);
   cursor: pointer;
   transition: 0.15s ease;
@@ -273,15 +270,10 @@ header.bar > nav:not(.products):not(.utils) a:hover {
   outline-offset: 2px;
 }
 .langmark {
-  width: 15px;
-  height: 15px;
+  width: 18px;
+  height: 18px;
   flex: none;
-}
-.lang-caret {
-  width: 12px;
-  height: 12px;
-  flex: none;
-  opacity: 0.75;
+  display: block;
 }
 .lang-list {
   display: flex;
@@ -350,14 +342,6 @@ header.bar > nav:not(.products):not(.utils) a:hover {
    the site, so scoping it there keeps a future tooltip's arrow intact. */
 .ran-popover-dropdown {
   --ran-dropdown-arrow-display: none;
-}
-
-@media (max-width: 620px) {
-  /* Phone: keep the globe + caret, drop the language name for width. Brand is
-     text-only now (no square mark), so the wordmark stays visible. */
-  .lang-current {
-    display: none;
-  }
 }
 
 /* ---------- article column ---------- */

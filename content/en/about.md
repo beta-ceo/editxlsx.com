@@ -11,15 +11,15 @@ lead: Who builds this, what it actually does, and how you can check both.
 
 An **in-browser editor for office documents**. You open a Word (DOCX), Excel (XLSX), PowerPoint (PPTX), CSV or PDF file and edit it directly in a browser tab.
 
-The part that matters most: **your file never leaves your device**. There is no upload step, no account, and no server-side copy of your document. The editing engine runs inside your browser, so the file goes from your disk to your tab and back — nothing in between.
+The part that matters most for the **local path**: **your file never leaves your device**. There is no upload step for local editing, and the editing engine runs inside your browser.
 
-That single property drives most of the design decisions here: no sign-up flow, no cloud storage, no telemetry that could carry document contents, and an offline mode that keeps working when the network does not.
+You can also keep a **durable library in this browser** (IndexedDB) without an account, or optionally subscribe to **cloud storage** so the same workbook follows your account across devices ($5/year · 1 GB or $10 · 10 GB). Cloud is opt-in; local editing stays free.
 
 ## Who builds it
 
 This site is built and maintained by **ranuts**, the same author behind the [`ranuts` GitHub account](https://github.com/ranuts) and the [ran component/utility libraries](https://ran.chaxus.com).
 
-It is a personal open-source project, not a company product. There is no sales team and no venture funding behind it — which is also why there is no upsell, no "free tier" that expires, and no reason for the site to want your files.
+It is a personal open-source project, not a company product. There is no sales team and no venture funding behind it — optional cloud storage is priced to cover hosting, not to gate the local editor.
 
 ## How you can verify all of this
 
@@ -41,7 +41,7 @@ Being built on an existing engine is deliberate. Document formats — especially
 An honest list, because a page that only lists strengths is not useful:
 
 - **Large files are bound by your device.** Everything runs in your browser, so a very large spreadsheet is limited by your own memory and CPU, not by a server you can pay to upgrade.
-- **No sync and no collaboration.** There is no server holding your document, which also means no real-time co-editing and no cross-device sync.
+- **Collaboration is not built-in.** Optional cloud storage syncs your own files across devices; it is not real-time co-editing.
 - **Fidelity is very good, not perfect.** Complex layouts, unusual fonts and macros can differ from a desktop suite.
 
 If any of these matter more to you than keeping the file local, a hosted suite is the better tool — and that is a reasonable choice.

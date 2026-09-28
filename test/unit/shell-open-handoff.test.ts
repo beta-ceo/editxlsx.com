@@ -23,6 +23,11 @@ vi.mock('../../lib/workbook-file-cache', () => ({
   putCachedWorkbookFile: (...args: unknown[]) => putCachedWorkbookFile(...args),
 }));
 
+vi.mock('../../lib/local-vault', () => ({
+  downloadLocalVaultFile: vi.fn(async () => null),
+  touchLocalVaultOpened: vi.fn(async () => undefined),
+}));
+
 vi.mock('../../lib/shell-bridge', async () => {
   const actual = await vi.importActual<typeof import('../../lib/shell-bridge')>('../../lib/shell-bridge');
   return {

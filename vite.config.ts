@@ -135,6 +135,7 @@ export default defineConfig(() => {
           history: resolve(__dirname, 'history.html'),
           login: resolve(__dirname, 'login.html'),
           workspace: resolve(__dirname, 'workspace.html'),
+          pricing: resolve(__dirname, 'pricing.html'),
         },
       },
     },

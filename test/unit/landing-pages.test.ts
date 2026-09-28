@@ -256,9 +256,11 @@ describe('landing pages', () => {
             `hreflang="${LOCALES[other].lang}"${other === locale ? ' aria-current="page"' : ''}>${LOCALES[other].label}</a>`,
           );
         }
-        // Exactly one row is the current one, and the trigger agrees with it.
+        // Exactly one row is the current one (marked in the open list).
         expect([...html.matchAll(/class="lang-option is-current"/g)]).toHaveLength(1);
-        expect(html).toContain(`<span class="lang-current">${LOCALES[locale].label}</span>`);
+        expect(html).toContain('class="langmark"');
+        expect(html).not.toContain('class="lang-current"');
+        expect(html).not.toContain('class="lang-caret"');
       });
 
       it('lives in the sitemap', () => {

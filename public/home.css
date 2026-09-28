@@ -128,7 +128,7 @@ body {
   color: #fff;
 }
 
-/* Language switch */
+/* Language switch — icon only (A文); name is aria-label + list aria-current. */
 #landing-hero .lang-menu {
   display: inline-flex;
   --ran-popover-content-padding: 4px;
@@ -136,13 +136,12 @@ body {
 #landing-hero .lang-trigger {
   display: inline-flex;
   align-items: center;
-  gap: var(--ran-space-2);
-  padding: var(--ran-space-2) var(--ran-space-3);
+  justify-content: center;
+  padding: var(--ran-space-2);
   border-radius: var(--ran-radius-sm);
-  font-size: 13.5px;
-  font-weight: 500;
-  line-height: 22px;
+  line-height: 0;
   min-height: calc(22px + var(--ran-space-2) * 2);
+  min-width: calc(22px + var(--ran-space-2) * 2);
   color: var(--ran-color-text-secondary);
   cursor: pointer;
   transition: 0.15s ease;
@@ -160,15 +159,10 @@ body {
   outline-offset: 2px;
 }
 #landing-hero .langmark {
-  width: 15px;
-  height: 15px;
+  width: 18px;
+  height: 18px;
   flex: none;
-}
-#landing-hero .lang-caret {
-  width: 12px;
-  height: 12px;
-  flex: none;
-  opacity: 0.75;
+  display: block;
 }
 .lang-list {
   display: flex;
@@ -214,12 +208,6 @@ body {
 }
 .ran-popover-dropdown {
   --ran-dropdown-arrow-display: none;
-}
-
-@media (max-width: 620px) {
-  #landing-hero .lang-current {
-    display: none;
-  }
 }
 
 /* ---------- top bar ---------- */
@@ -417,46 +405,6 @@ body {
   border-right: 0;
   transform: rotate(-45deg);
 }
-#landing-hero .cta-local {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: flex-start;
-  gap: var(--ran-space-2);
-  font-size: 13px;
-  color: var(--ran-color-text-secondary);
-}
-#landing-hero .cta-local-link {
-  background: none;
-  border: 0;
-  padding: 0;
-  font: inherit;
-  color: var(--brand-ink);
-  cursor: pointer;
-  text-decoration: underline;
-  text-underline-offset: 2px;
-}
-#landing-hero .cta-local-sep {
-  opacity: 0.45;
-}
-#landing-hero .recent {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: baseline;
-  justify-content: flex-start;
-  gap: var(--ran-space-2);
-  max-width: 62ch;
-  font-size: 12.5px;
-  color: var(--ran-color-text-secondary);
-}
-#landing-hero .recent-note {
-  flex: 1 1 100%;
-  text-align: start;
-}
-#landing-hero .recent-all {
-  color: var(--brand-ink);
-  font-weight: 500;
-}
 
 /* ---------- product preview ---------- */
 #landing-hero .preview {
@@ -490,7 +438,9 @@ body {
   align-items: center;
   gap: var(--ran-space-2);
   padding: 10px 14px;
-  background: color-mix(in srgb, var(--ran-color-text) 92%, transparent);
+  /* Fixed dark chrome — not derived from --ran-color-text, which flips to a
+     light ink in dark theme and washed the bar (white-on-white pills). */
+  background: #1c1c1e;
   color: #fff;
   font-size: 11.5px;
   flex-wrap: wrap;
@@ -639,37 +589,6 @@ body {
   #landing-hero .dw-actions {
     display: none;
   }
-}
-
-/* ---------- loved / trust strip ---------- */
-#landing-hero .loved {
-  text-align: start;
-  padding-bottom: clamp(40px, 6vw, 64px);
-}
-#landing-hero .loved-label {
-  margin: 0 0 var(--ran-space-4);
-  font-size: 11px;
-  font-weight: 700;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: var(--ran-color-text-secondary);
-}
-#landing-hero .loved-chips {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: flex-start;
-  gap: var(--ran-space-3);
-}
-#landing-hero .chip-logo {
-  padding: 8px 16px;
-  border-radius: var(--ran-radius-md);
-  border: 1px solid var(--ran-color-border);
-  background: var(--ran-color-bg-elevated);
-  font-size: 13px;
-  font-weight: 700;
-  letter-spacing: 0.04em;
-  color: var(--ran-color-text-secondary);
-  opacity: 0.85;
 }
 
 /* ---------- sections ---------- */
@@ -1581,8 +1500,7 @@ body {
 #landing-hero.has-scroll-reveal .feat-card:not(.is-in),
 #landing-hero.has-scroll-reveal .bento-card:not(.is-in),
 #landing-hero.has-scroll-reveal .band:not(.is-in),
-#landing-hero.has-scroll-reveal .section-head:not(.is-in),
-#landing-hero.has-scroll-reveal .loved:not(.is-in) {
+#landing-hero.has-scroll-reveal .section-head:not(.is-in) {
   opacity: 0;
   transform: translateY(22px);
 }
@@ -1590,8 +1508,7 @@ body {
 #landing-hero.has-scroll-reveal .feat-card,
 #landing-hero.has-scroll-reveal .bento-card,
 #landing-hero.has-scroll-reveal .band,
-#landing-hero.has-scroll-reveal .section-head,
-#landing-hero.has-scroll-reveal .loved {
+#landing-hero.has-scroll-reveal .section-head {
   transition:
     opacity 0.65s cubic-bezier(0.22, 1, 0.36, 1),
     transform 0.65s cubic-bezier(0.22, 1, 0.36, 1),
@@ -1602,8 +1519,7 @@ body {
 #landing-hero.has-scroll-reveal .feat-card.is-in,
 #landing-hero.has-scroll-reveal .bento-card.is-in,
 #landing-hero.has-scroll-reveal .band.is-in,
-#landing-hero.has-scroll-reveal .section-head.is-in,
-#landing-hero.has-scroll-reveal .loved.is-in {
+#landing-hero.has-scroll-reveal .section-head.is-in {
   opacity: 1;
   transform: none;
 }

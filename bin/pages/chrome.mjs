@@ -20,14 +20,11 @@ import { LOCALES, MENU_ORDER } from './locales.mjs';
  * rather than in the page's -- "日本語" read with English phonetics is noise, and
  * these labels exist precisely for readers who cannot read the current page.
  *
- * Aligned to the trigger's leading edge, so the panel's rows start where the
- * trigger's own label does -- 5px apart, which reads as one column rather than
- * two. It was `bottom-end` first, back when the panel was a guessed 152px wide:
- * that overhung the trigger by 67px on the left, and put the menu's labels 65px
- * off the trigger's. Sizing the panel to its content removed the reason for the
- * end alignment along with the overhang. There is 236px of room to the right of
- * the trigger at desktop width, and on a phone the boundary shift pulls the
- * panel back on screen by itself.
+ * Icon-only trigger (Latin A + CJK 文). The current language lives in the open
+ * list (`aria-current="page"`) and in the host's `aria-label`; spelling it on
+ * the face cost width on phones and restated what the menu already says.
+ * Placement is `bottom` (leading edge): the panel hangs under the mark, and on
+ * a phone the boundary shift pulls it back on screen.
  *
  * Built with ranui's builder, which runs here as well as in a browser: with no
  * `document` it falls back to ranui's own DOM mock, and `serialize()` returns
@@ -57,29 +54,33 @@ export const langMenu = (locale, locales, ui, hrefFor) =>
           View('svg')
             .attrs({ class: 'langmark', 'aria-hidden': 'true', viewBox: '0 0 16 16' })
             .children(
-              View('circle')
-                .attrs({ cx: '8', cy: '8', r: '6.25', fill: 'none', stroke: 'currentColor', 'stroke-width': '1.5' })
-                .build(),
+              // Latin A
               View('path')
                 .attrs({
-                  d: 'M1.75 8h12.5M8 1.75c1.7 1.8 2.6 3.9 2.6 6.25S9.7 12.45 8 14.25M8 1.75c-1.7 1.8-2.6 3.9-2.6 6.25s.9 4.45 2.6 6.25',
-                  fill: 'none',
-                  stroke: 'currentColor',
-                  'stroke-width': '1.2',
-                })
-                .build(),
-            )
-            .build(),
-          View('span').attrs({ class: 'lang-current' }).text(LOCALES[locale].label).build(),
-          View('svg')
-            .attrs({ class: 'lang-caret', 'aria-hidden': 'true', viewBox: '0 0 12 12' })
-            .children(
-              View('path')
-                .attrs({
-                  d: 'M2.75 4.5 6 7.75 9.25 4.5',
+                  d: 'M1.75 12.5 4.25 4.75 6.75 12.5',
                   fill: 'none',
                   stroke: 'currentColor',
                   'stroke-width': '1.4',
+                  'stroke-linecap': 'round',
+                  'stroke-linejoin': 'round',
+                })
+                .build(),
+              View('path')
+                .attrs({
+                  d: 'M2.7 9.85h3.1',
+                  fill: 'none',
+                  stroke: 'currentColor',
+                  'stroke-width': '1.4',
+                  'stroke-linecap': 'round',
+                })
+                .build(),
+              // Simplified 文: top bar, stem, crossbar, base
+              View('path')
+                .attrs({
+                  d: 'M9 4.5h5.5M11.75 4.5v7.75M9.25 8.15h5M9.4 12.25h4.7',
+                  fill: 'none',
+                  stroke: 'currentColor',
+                  'stroke-width': '1.35',
                   'stroke-linecap': 'round',
                   'stroke-linejoin': 'round',
                 })

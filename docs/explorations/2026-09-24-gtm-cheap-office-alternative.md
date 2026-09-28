@@ -1,12 +1,16 @@
 # 廉价 Office 替代：获客落地清单（2026-09-24）
 
-配套实现见首页双路径、SEO lander、`/help` 云/本地 FAQ、登录页 `$5` 文案与本地编辑器轻量云 nudge。
+> 2026-09-28 更新：产品已改为「本机持久库免费 + 云存储三档年付」。见
+> `docs/explorations/2026-09-28-local-vault-and-cloud-tiers.md`。下文漏斗中的
+> 单一 `$5/年` 表述以三档价目与 `/pricing` 为准。
+
+配套实现见首页双路径、SEO lander、`/help` 云/本地 FAQ、登录页文案与本地编辑器轻量云 nudge。
 
 ## 人群与漏斗
 
 ```
-搜索意图 → SEO lander → /editor 本地免费（激活）
-                      ↘ /login → /workspace（$5/年意向 → 付费价值）
+搜索意图 → SEO lander → /workspace 本机库免费（激活）
+                      ↘ /pricing → /login → /workspace?source=cloud（付费）
 ```
 
 | 人群 | 主路径 | 付费？ |

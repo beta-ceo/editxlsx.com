@@ -10,7 +10,7 @@
   if (!root) return;
 
   var targets = root.querySelectorAll(
-    '.feat-card, .bento-card, .band, .section-head, .loved',
+    '.feat-card, .bento-card, .band, .section-head',
   );
   if (!targets.length) return;
 

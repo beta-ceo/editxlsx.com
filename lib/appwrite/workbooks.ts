@@ -22,6 +22,7 @@ import {
   type VaultFormat,
   type VaultKind,
 } from './ids';
+import { assertWithinQuota, entitlementFromUser } from '../billing/entitlement';
 
 export type { VaultFormat, VaultKind };
 
@@ -233,7 +234,7 @@ export async function listVaultItems(options: { search?: string; pageSize?: numb
       collectionId: COLLECTION_WORKBOOKS,
       queries,
     });
-    const page = result.documents;
+    const page = result?.documents ?? [];
     if (page.length === 0) break;
 
     docs.push(...page.map(fromDocument));
@@ -248,6 +249,33 @@ export async function listVaultItems(options: { search?: string; pageSize?: numb
     return docs.filter((doc) => doc.title.toLowerCase().includes(needle));
   }
   return docs;
+}
+
+/** Sum of file sizeBytes for the signed-in user's vault (folders are 0). */
+export async function sumVaultFileBytes(): Promise<number> {
+  const items = await listVaultItems();
+  return items.reduce((sum, row) => (row.kind === 'file' ? sum + row.sizeBytes : sum), 0);
+}
+
+/** Gate create / growing saves against the account entitlement. */
+async function assertCloudQuotaForWrite(
+  nextBytes: number,
+  previousBytes = 0,
+  hot?: { quotaBytes?: number },
+): Promise<void> {
+  if (hot) {
+    // Interactive Save: only block when bind time cached an unpaid plan (0).
+    // Undefined quotaBytes means the caller omitted it (unit tests / legacy).
+    if (typeof hot.quotaBytes === 'number' && hot.quotaBytes <= 0) {
+      assertWithinQuota(0, nextBytes, 0);
+    }
+    return;
+  }
+  const user = await requireUser();
+  const entitlement = entitlementFromUser(user);
+  const used = await sumVaultFileBytes();
+  const usedWithoutPrevious = Math.max(0, used - Math.max(0, previousBytes));
+  assertWithinQuota(usedWithoutPrevious, nextBytes, entitlement.quotaBytes);
 }
 
 /** @deprecated Prefer listVaultItems — kept for call sites that only list files. */
@@ -377,6 +405,15 @@ export type SaveWorkbookHot = {
   fileId: string;
   title?: string;
   format?: VaultFormat;
+  /** Last known size of this workbook in the vault (for quota delta). */
+  sizeBytes?: number;
+  /**
+   * Account quota cached at bind time. When `hotGate` is true, Save skips
+   * Account.get + vault listing and only rejects unpaid (quotaBytes <= 0).
+   */
+  quotaBytes?: number;
+  /** True on the interactive editor Save path. */
+  hotGate?: boolean;
 };
 
 async function publishWorkbookBytes(
@@ -388,6 +425,11 @@ async function publishWorkbookBytes(
   assertCloudOfficeFile(file, format);
   const title = ensureFormatName(ctx.title || file.name || `Untitled.${format}`, format);
   const named = new File([file], title, { type: mimeForFormat(format) });
+  await assertCloudQuotaForWrite(
+    file.size,
+    ctx.sizeBytes ?? 0,
+    ctx.hotGate ? { quotaBytes: ctx.quotaBytes } : undefined,
+  );
   const nextFileId = ID.unique();
   const previousFileId = ctx.fileId;
 
@@ -460,6 +502,7 @@ export async function createWorkbookFromFile(
 ): Promise<Workbook> {
   const user = await requireUser();
   const format = assertCloudOfficeFile(file);
+  await assertCloudQuotaForWrite(file.size, 0);
   const id = ID.unique();
   const finalTitle = ensureFormatName(title || file.name || `Untitled.${format}`, format);
   await uploadFile(
@@ -588,6 +631,9 @@ export async function saveWorkbookBytes(
       fileId: options.hot.fileId,
       title: options.title || options.hot.title,
       format: options.hot.format || formatFromTitle(options.title || options.hot.title || file.name) || undefined,
+      sizeBytes: options.hot.sizeBytes,
+      quotaBytes: options.hot.quotaBytes,
+      hotGate: true,
     });
   }
 
@@ -601,6 +647,7 @@ export async function saveWorkbookBytes(
     fileId: existing.fileId,
     title: options.title || existing.title,
     format: existing.format,
+    sizeBytes: existing.sizeBytes,
   });
 }
 

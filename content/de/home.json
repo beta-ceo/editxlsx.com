@@ -1,7 +1,7 @@
 {
   "title": "Online-Excel-Editor — XLSX-Arbeitsmappen im Browser bearbeiten",
-  "description": "Online-Excel-Arbeitsmappen-Editor mit OnlyOffice. Anmelden, .xlsx in Ihr Konto synchronisieren, überall öffnen und während der Arbeit automatisch speichern. Lokales Bearbeiten ohne Konto weiterhin möglich.",
-  "ogDescription": "Excel-Arbeitsmappen online bearbeiten — anmelden und synchronisieren oder lokal im Browser öffnen.",
+  "description": "Online-Excel-Arbeitsmappen-Editor mit OnlyOffice. Kostenlose dauerhafte Bibliothek in diesem Browser; optionaler Cloud-Speicher, wenn dieselbe Datei geräteübergreifend folgen soll.",
+  "ogDescription": "Excel-Arbeitsmappen online bearbeiten — kostenlose lokale Bibliothek oder optionaler Cloud-Speicher.",
   "nav": [
     {
       "href": "#features",
@@ -12,30 +12,34 @@
       "label": "Essentials"
     },
     {
+      "href": "/pricing",
+      "label": "Preise"
+    },
+    {
       "href": "/help",
       "label": "Hilfe"
     }
   ],
   "navActions": {
     "logIn": "Anmelden",
-    "getStarted": "Starten — $5/Jahr"
+    "getStarted": "Workspace öffnen"
   },
-  "badge": "Lokal kostenlos · Ohne Office-Installation · Cloud $5/Jahr",
+  "badge": "Lokal kostenlos · Cloud optional",
   "h1": {
     "plain": "Excel im Browser",
     "accent": "ohne Office zu installieren"
   },
-  "sub": "Lokale .xlsx kostenlos öffnen — kein Konto, Bearbeitung im Tab. Cloud-Sync für $5 im Jahr, wenn dieselbe Mappe auf jedem Gerät folgen soll.",
+  "sub": "Arbeitsmappen in diesem Browser kostenlos hochladen und speichern. Optionalen Cloud-Speicher hinzufügen, wenn dieselbe Datei geräteübergreifend folgen soll.",
   "cta": {
-    "signIn": "Cloud-Sync — $5/Jahr",
+    "signIn": "Preise ansehen",
     "files": "Meine Arbeitsmappen",
     "xlsx": "Neue Excel (lokal)",
     "open": "Lokale Datei öffnen"
   },
   "checks": [
-    "Lokales Öffnen bleibt kostenlos",
+    "Lokale Bibliothek bleibt kostenlos",
     "Keine Office-Installation",
-    "$5/Jahr für Cloud-Sync"
+    "Cloud bei Bedarf"
   ],
   "recent": {
     "label": "Weiter bearbeiten",
@@ -94,7 +98,7 @@
   "features": {
     "eyebrow": "Leicht & effizient",
     "h2": "Schluss mit aufgeblähten Suites. Willkommen bei fokussierter Produktivität.",
-    "p": "OnlyOffice im Tab für kostenlose lokale Bearbeitung. Anmelden nur, wenn dieselbe Mappe auf jedem Gerät soll — $5 im Jahr.",
+    "p": "OnlyOffice im Tab für kostenlose lokale Bearbeitung. Anmelden nur, wenn dieselbe Mappe auf jedem Gerät soll — siehe Preise.",
     "items": [
       {
         "tone": "brand",
@@ -154,13 +158,13 @@
   "band": {
     "eyebrow": "In Sekunden starten",
     "h2": "Bereit für einen schnelleren, leichteren Tabellen-Workflow?",
-    "p": "Lokale .xlsx kostenlos öffnen. Cloud-Sync für $5 im Jahr nur wenn die Mappe mitwandern soll.",
+    "p": "Kostenlos in diesem Browser speichern. Cloud nur, wenn die Mappe mitwandern soll.",
     "primary": "Neue Excel — kostenlos",
-    "secondary": "Cloud-Sync — $5/Jahr",
+    "secondary": "Preise ansehen",
     "checks": [
-      "Lokal kostenlos",
-      "Keine Installation",
-      "$5/Jahr Cloud"
+      "Lokale Bibliothek kostenlos",
+      "Keine Office-Installation",
+      "Cloud bei Bedarf"
     ]
   },
   "foot": {
@@ -210,6 +214,10 @@
       {
         "title": "Ressourcen",
         "links": [
+          {
+            "href": "/pricing",
+            "label": "Preise"
+          },
           {
             "href": "/help",
             "label": "Hilfe"

@@ -44,25 +44,36 @@ async function openFromPayload(payload: ShellOpenPayloadMessage): Promise<void> 
 
   try {
     const { bindCloudWorkbook, beginCloudAutosave, unbindCloudWorkbook } = await import('./cloud-workbook');
+    const { bindLocalWorkbook, beginLocalAutosave, unbindLocalWorkbook } = await import('./local-workbook');
     if (generation !== openGeneration) return;
 
-    // Drop the previous cloud binding / metronome before the next DocEditor
-    // takes over — otherwise Save could land on the wrong workbook id.
+    // Drop the previous binding / metronome before the next DocEditor takes
+    // over — otherwise Save could land on the wrong workbook id.
     unbindCloudWorkbook();
+    unbindLocalWorkbook();
     activeWorkbookId = '';
 
     const workbook = workbookFromPayload(payload);
     const file = new File([payload.buffer], workbook.title, {
       type: mimeForFormat(workbook.format),
     });
-    bindCloudWorkbook(workbook);
+    const isLocal = payload.workbook.vaultSource === 'local';
+    if (isLocal) {
+      bindLocalWorkbook(workbook);
+    } else {
+      bindCloudWorkbook({
+        ...workbook,
+        quotaBytes: payload.workbook.quotaBytes ?? 0,
+      });
+    }
     await loadEditorApi();
     if (generation !== openGeneration) return;
     timing.mark('api');
     await openLocalFile(file, { skipHistory: true });
     if (generation !== openGeneration) return;
     timing.mark('mounted');
-    beginCloudAutosave();
+    if (isLocal) beginLocalAutosave();
+    else beginCloudAutosave();
     timing.mark('ready');
     activeWorkbookId = workbook.id;
     const report = timing.buildReport();

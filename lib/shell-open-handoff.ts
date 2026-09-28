@@ -1,14 +1,11 @@
 /**
- * /workspace open handoff: start Storage download as soon as a workbook is
- * selected (using the sidebar row), refresh Documents meta in parallel, then
- * push bytes into the warm editor iframe once it has posted `shell:frame-ready`
- * (or asked with `shell:need-payload`).
- *
- * Hits an in-tab fileId cache when the same Storage revision was opened or
- * saved earlier in this session (see workbook-file-cache).
+ * /workspace open handoff: start Storage download (cloud) or IndexedDB read
+ * (local vault) as soon as a workbook is selected, then push bytes into the
+ * warm editor iframe once it has posted `shell:frame-ready`.
  */
 import { downloadWorkbookFile, getWorkbook, type Workbook } from './appwrite/workbooks';
 import { takeCloudPendingIfNewer } from './cloud-pending';
+import { downloadLocalVaultFile, touchLocalVaultOpened } from './local-vault';
 import {
   postShellOpenPayload,
   postShellOpenPayloadFailed,
@@ -16,10 +13,13 @@ import {
 } from './shell-bridge';
 import { getCachedWorkbookFile, putCachedWorkbookFile } from './workbook-file-cache';
 
+export type VaultSource = 'local' | 'cloud';
+
 export type ShellHandoffResult = {
   workbook: Workbook;
   file: File;
   source: 'pending' | 'download' | 'cache';
+  vaultSource: VaultSource;
 };
 
 export type ShellOpenPhase = 'download' | 'editor';
@@ -31,6 +31,8 @@ type HandoffState = {
   promise: Promise<ShellHandoffResult>;
   /** iframe asked for bytes / frame-ready; deliver as soon as promise settles. */
   frameWaiting: boolean;
+  vaultSource: VaultSource;
+  quotaBytes: number;
   onMeta?: (workbook: Workbook) => void;
   onPhase?: (phase: ShellOpenPhase) => void;
 };
@@ -40,7 +42,7 @@ let current: HandoffState | null = null;
 /** Warm host has announced it can accept open-payload pushes. */
 let frameReady = false;
 
-function toMeta(workbook: Workbook): ShellOpenWorkbookMeta {
+function toMeta(workbook: Workbook, vaultSource: VaultSource, quotaBytes = 0): ShellOpenWorkbookMeta {
   return {
     id: workbook.id,
     userId: workbook.userId,
@@ -52,7 +54,23 @@ function toMeta(workbook: Workbook): ShellOpenWorkbookMeta {
     createdAt: workbook.createdAt,
     parentId: workbook.parentId,
     sortOrder: workbook.sortOrder,
+    vaultSource,
+    quotaBytes,
   };
+}
+
+async function resolveLocalHandoff(
+  listRow: Workbook,
+  onMeta?: (workbook: Workbook) => void,
+  onPhase?: (phase: ShellOpenPhase) => void,
+): Promise<ShellHandoffResult> {
+  onPhase?.('download');
+  const file = await downloadLocalVaultFile(listRow.id, listRow.title);
+  if (!file) throw new Error('Local workbook bytes missing');
+  void touchLocalVaultOpened(listRow.id);
+  onMeta?.(listRow);
+  onPhase?.('editor');
+  return { workbook: listRow, file, source: 'download', vaultSource: 'local' };
 }
 
 async function resolveHandoff(
@@ -72,7 +90,7 @@ async function resolveHandoff(
       .catch(() => {
         /* list row is enough to open */
       });
-    return { workbook: listRow, file: pending, source: 'pending' };
+    return { workbook: listRow, file: pending, source: 'pending', vaultSource: 'cloud' };
   }
 
   // Same Storage revision already in this tab: skip both download and Documents.
@@ -84,7 +102,7 @@ async function resolveHandoff(
       .catch(() => {
         /* ignore */
       });
-    return { workbook: listRow, file: cached, source: 'cache' };
+    return { workbook: listRow, file: cached, source: 'cache', vaultSource: 'cloud' };
   }
 
   // Kick Storage immediately so it overlaps getWorkbook.
@@ -108,35 +126,42 @@ async function resolveHandoff(
   const pendingFresh = await takeCloudPendingIfNewer(workbook.id, workbook.updatedAt);
   if (pendingFresh) {
     void putCachedWorkbookFile(workbook.fileId, pendingFresh, workbook.format);
-    return { workbook, file: pendingFresh, source: 'pending' };
+    return { workbook, file: pendingFresh, source: 'pending', vaultSource: 'cloud' };
   }
 
   if (workbook.fileId === listRow.fileId) {
     const file = await listFilePromise;
-    return { workbook, file, source: 'download' };
+    return { workbook, file, source: 'download', vaultSource: 'cloud' };
   }
 
   const cachedFresh = getCachedWorkbookFile(workbook.fileId, workbook.title, workbook.format);
-  if (cachedFresh) return { workbook, file: cachedFresh, source: 'cache' };
+  if (cachedFresh) return { workbook, file: cachedFresh, source: 'cache', vaultSource: 'cloud' };
 
   const file = await downloadWorkbookFile(workbook.fileId, workbook.title, {
     cacheBust: workbook.updatedAt,
     format: workbook.format,
   });
   void putCachedWorkbookFile(workbook.fileId, file, workbook.format);
-  return { workbook, file, source: 'download' };
+  return { workbook, file, source: 'download', vaultSource: 'cloud' };
 }
 
 /** Start (or replace) the in-flight open for this workbook. */
 export function beginShellOpenHandoff(
   workbook: Workbook,
   options: {
+    vaultSource?: VaultSource;
+    quotaBytes?: number;
     onMeta?: (workbook: Workbook) => void;
     onPhase?: (phase: ShellOpenPhase) => void;
   } = {},
 ): void {
+  const vaultSource = options.vaultSource ?? 'cloud';
+  const quotaBytes = options.quotaBytes ?? 0;
   const nextGen = ++generation;
-  const promise = resolveHandoff(workbook, options.onMeta, options.onPhase);
+  const promise =
+    vaultSource === 'local'
+      ? resolveLocalHandoff(workbook, options.onMeta, options.onPhase)
+      : resolveHandoff(workbook, options.onMeta, options.onPhase);
   current = {
     generation: nextGen,
     workbookId: workbook.id,
@@ -144,6 +169,8 @@ export function beginShellOpenHandoff(
     promise,
     // Warm host already listening: deliver as soon as bytes land.
     frameWaiting: frameReady,
+    vaultSource,
+    quotaBytes,
     onMeta: options.onMeta,
     onPhase: options.onPhase,
   };
@@ -211,7 +238,7 @@ async function deliverShellOpenPayload(workbookId: string, frameHint?: HTMLIFram
     if (current?.generation !== handoff.generation) return;
     postShellOpenPayload(target, {
       workbookId: result.workbook.id,
-      workbook: toMeta(result.workbook),
+      workbook: toMeta(result.workbook, result.vaultSource, handoff.quotaBytes),
       buffer,
       source: result.source,
     });

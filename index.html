@@ -29,7 +29,7 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black" />
 
     <title>Online Excel Editor — Edit XLSX Workbooks in Your Browser</title>
-    <meta name="description" content="Online Excel workbook editor powered by OnlyOffice. Sign in to sync .xlsx files to your account, open them anywhere, and autosave as you work. Local editing still available without an account." />
+    <meta name="description" content="Online Excel workbook editor powered by OnlyOffice. Free durable library in this browser; optional cloud storage when you need the same file across devices." />
     <link rel="canonical" href="https://edit.chaxus.com/" />
     <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
     <link rel="alternate" hreflang="en" href="https://edit.chaxus.com/" />
@@ -64,12 +64,12 @@
     <meta property="og:locale:alternate" content="ko_KR" />
     <meta property="og:locale:alternate" content="pt_BR" />
     <meta property="og:title" content="Online Excel Editor — Edit XLSX Workbooks in Your Browser" />
-    <meta property="og:description" content="Edit Excel workbooks online — sign in to sync .xlsx to your account, or open a file locally in the browser." />
+    <meta property="og:description" content="Edit Excel workbooks online — free local library in this browser, or optional cloud storage across devices." />
     <meta property="og:url" content="https://edit.chaxus.com/" />
     <meta property="og:image" content="https://edit.chaxus.com/img/pwa-512.png" />
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content="Online Excel Editor — Edit XLSX Workbooks in Your Browser" />
-    <meta name="twitter:description" content="Edit Excel workbooks online — sign in to sync .xlsx to your account, or open a file locally in the browser." />
+    <meta name="twitter:description" content="Edit Excel workbooks online — free local library in this browser, or optional cloud storage across devices." />
     <meta name="twitter:image" content="https://edit.chaxus.com/img/pwa-512.png" />
 
     <script type="application/ld+json">
@@ -145,7 +145,7 @@
                 "url": "https://ran.chaxus.com"
               }
             ],
-            "description": "Online Excel workbook editor powered by OnlyOffice. Sign in to sync .xlsx files to your account, open them anywhere, and autosave as you work. Local editing still available without an account.",
+            "description": "Online Excel workbook editor powered by OnlyOffice. Free durable library in this browser; optional cloud storage when you need the same file across devices.",
             "featureList": [
               "Online Excel (.xlsx) workbook editor in the browser",
               "Sign in to sync workbooks to your account",
@@ -162,7 +162,7 @@
             "@id": "https://edit.chaxus.com/#webpage",
             "url": "https://edit.chaxus.com/",
             "name": "Online Excel Editor — Edit XLSX Workbooks in Your Browser",
-            "description": "Online Excel workbook editor powered by OnlyOffice. Sign in to sync .xlsx files to your account, open them anywhere, and autosave as you work. Local editing still available without an account.",
+            "description": "Online Excel workbook editor powered by OnlyOffice. Free durable library in this browser; optional cloud storage when you need the same file across devices.",
             "inLanguage": "en",
             "isPartOf": {
               "@id": "https://edit.chaxus.com/#website"
@@ -182,7 +182,7 @@
                 "name": "Do I need an account?",
                 "acceptedAnswer": {
                   "@type": "Answer",
-                  "text": "No for local editing. Open a .xlsx free without signing in — the file stays in your browser tab. Sign in only for cloud workbooks ($5/year) so the same file follows you across devices."
+                  "text": "No for local editing. Open a .xlsx free without signing in — save into this browser's library, or use seven-day AutoRecover. Sign in and pick a cloud plan on the Pricing page only when the same file must follow you across devices."
                 }
               },
               {
@@ -190,7 +190,7 @@
                 "name": "What happens if I close the tab?",
                 "acceptedAnswer": {
                   "@type": "Answer",
-                  "text": "Signed-in workbooks are written back by save and autosave. Separately, local recovery copies can stay in this browser for 7 days — see the history page. Cloud files remain in your account."
+                  "text": "This-device library files stay until you delete them. Signed-in cloud workbooks are written back by save and autosave. Separately, crash recovery copies can stay for 7 days — see the history page."
                 }
               },
               {
@@ -233,7 +233,6 @@
     <script src="/lang-switch.js" defer></script>
     <script src="/open-local.js" defer></script>
     <script src="/landing-prefetch.js" defer></script>
-    <script src="/history-recent.js" defer></script>
     <script src="/home-scroll.js" defer></script>
   </head>
 
@@ -245,13 +244,14 @@
           <nav class="products" aria-label="Products">
             <a class="navlink" href="#features">Features</a>
             <a class="navlink" href="#essentials">Essentials</a>
+            <a class="navlink" href="/pricing">Pricing</a>
             <a class="navlink" href="/help">Help</a>
           </nav>
           <nav class="utils">
-<r-popover class="lang-menu" placement="bottom" trigger="click" role="button" aria-label="Language"><span class="lang-trigger"><svg class="langmark" aria-hidden="true" viewBox="0 0 16 16"><circle cx="8" cy="8" r="6.25" fill="none" stroke="currentColor" stroke-width="1.5"></circle><path d="M1.75 8h12.5M8 1.75c1.7 1.8 2.6 3.9 2.6 6.25S9.7 12.45 8 14.25M8 1.75c-1.7 1.8-2.6 3.9-2.6 6.25s.9 4.45 2.6 6.25" fill="none" stroke="currentColor" stroke-width="1.2"></path></svg><span class="lang-current">English</span><svg class="lang-caret" aria-hidden="true" viewBox="0 0 12 12"><path d="M2.75 4.5 6 7.75 9.25 4.5" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"></path></svg></span><r-content><div class="lang-list"><a class="lang-option" href="/de/" lang="de" hreflang="de">Deutsch</a><a class="lang-option is-current" href="/" lang="en" hreflang="en" aria-current="page">English</a><a class="lang-option" href="/es/" lang="es" hreflang="es">Español</a><a class="lang-option" href="/pt/" lang="pt" hreflang="pt">Português</a><a class="lang-option" href="/zh-CN/" lang="zh-CN" hreflang="zh-CN">中文</a><a class="lang-option" href="/ja/" lang="ja" hreflang="ja">日本語</a><a class="lang-option" href="/ko/" lang="ko" hreflang="ko">한국어</a></div></r-content></r-popover>
+<r-popover class="lang-menu" placement="bottom" trigger="click" role="button" aria-label="Language"><span class="lang-trigger"><svg class="langmark" aria-hidden="true" viewBox="0 0 16 16"><path d="M1.75 12.5 4.25 4.75 6.75 12.5" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"></path><path d="M2.7 9.85h3.1" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"></path><path d="M9 4.5h5.5M11.75 4.5v7.75M9.25 8.15h5M9.4 12.25h4.7" fill="none" stroke="currentColor" stroke-width="1.35" stroke-linecap="round" stroke-linejoin="round"></path></svg></span><r-content><div class="lang-list"><a class="lang-option" href="/de/" lang="de" hreflang="de">Deutsch</a><a class="lang-option is-current" href="/" lang="en" hreflang="en" aria-current="page">English</a><a class="lang-option" href="/es/" lang="es" hreflang="es">Español</a><a class="lang-option" href="/pt/" lang="pt" hreflang="pt">Português</a><a class="lang-option" href="/zh-CN/" lang="zh-CN" hreflang="zh-CN">中文</a><a class="lang-option" href="/ja/" lang="ja" hreflang="ja">日本語</a><a class="lang-option" href="/ko/" lang="ko" hreflang="ko">한국어</a></div></r-content></r-popover>
             <r-theme-switch class="theme-switch" label="Theme"></r-theme-switch>
             <a class="nav-login" href="/login">Log in</a>
-            <a class="nav-cta" href="/login"><r-button type="primary">Start — $5/year</r-button></a>
+            <a class="nav-cta" href="/workspace"><r-button type="primary">Open workspace</r-button></a>
           </nav>
         </div>
       </header>
@@ -259,9 +259,9 @@
       <main>
       <div class="hero-stage wrap">
       <div class="hero">
-        <span class="hero-badge reveal d1">Local free · No Office install · Cloud $5/year</span>
+        <span class="hero-badge reveal d1">Local free · Cloud optional</span>
         <h1 class="reveal d2">Excel in your browser <span class="accent">without installing Office</span></h1>
-        <p class="sub reveal d3">Open a local .xlsx free — no account, editing stays in your tab. Cloud sync is $5 a year when the same workbook needs to follow you across devices.</p>
+        <p class="sub reveal d3">Upload and save workbooks in this browser for free. Add optional cloud storage when the same file needs to follow you across devices.</p>
         <div class="cta reveal d4">
           <button type="button" id="hero-open" data-open-local="/editor?open=local">
             <r-button type="primary">Open a local file</r-button>
@@ -270,19 +270,7 @@
             ><r-button>New Excel (local)</r-button></a
           >
         </div>
-        <div class="checks reveal d5"><span class="check"><i aria-hidden="true"></i>Local open stays free</span><span class="check"><i aria-hidden="true"></i>No Office install</span><span class="check"><i aria-hidden="true"></i>$5/year when you want cloud sync</span></div>
-        <div class="cta-local reveal d5">
-          <a class="cta-local-link" href="/login" id="hero-sign-in">Cloud sync — $5/year</a>
-          <span class="cta-local-sep" aria-hidden="true">·</span>
-          <a class="cta-local-link" href="/workspace" id="hero-workspace">My workbooks</a>
-        </div>
-        <div class="recent reveal d5">
-          <span data-recent-slot data-recent-label="Continue editing" hidden></span>
-          <span class="recent-note">Cloud workbooks sync to your account when you are signed in. Local recovery copies still stay in this browser for 7 days — inspect them on the history page.</span>
-          <a class="recent-all" href="/history">Local history</a>
-          ·
-          <a class="recent-all" href="/workspace">Cloud workbooks</a>
-        </div>
+        <div class="checks reveal d5"><span class="check"><i aria-hidden="true"></i>Local library stays free</span><span class="check"><i aria-hidden="true"></i>No Office install</span><span class="check"><i aria-hidden="true"></i>Cloud when you need it</span></div>
       </div>
 
       <div class="preview reveal d3">
@@ -320,16 +308,11 @@
       </div>
       </div>
 
-      <div class="loved wrap">
-        <p class="loved-label">Built for creators, startups, and teams who want Excel in the browser</p>
-        <div class="loved-chips"><span class="chip-logo">OnlyOffice</span><span class="chip-logo">XLSX</span><span class="chip-logo">DOCX</span><span class="chip-logo">PPTX</span><span class="chip-logo">PDF</span><span class="chip-logo">MIT</span></div>
-      </div>
-
       <div class="section features-sec wrap" id="features">
         <div class="section-head left">
             <span class="eyebrow">Lightweight &amp; efficient</span>
           <h2>Say goodbye to bloated suites. Welcome to focused productivity.</h2>
-          <p class="head-note">OnlyOffice in the tab for free local edits. Sign in only when you want the same workbook on every device — $5 a year, not another heavy suite.</p>
+          <p class="head-note">OnlyOffice in the tab for free local edits. Sign in only when you want the same workbook on every device — see Pricing for cloud plans.</p>
         </div>
         <div class="feat-grid">
           <article class="feat-card tone-brand">
@@ -341,13 +324,13 @@
           <article class="feat-card tone-ink">
             <span class="feat-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3"/><circle cx="16.5" cy="9.5" r="2.5"/><path d="M3.5 18.5c.6-2.8 2.7-4.5 5.5-4.5s4.9 1.7 5.5 4.5"/><path d="M14 18.5c.4-1.8 1.7-3 3.5-3 1.3 0 2.4.6 3 1.7"/></svg></span>
             <h3>Local first, always free</h3>
-            <p>Open a file on this device with no account. Edits stay in the tab; optional seven-day recovery copies stay in this browser.</p>
+            <p>Upload and save into this browser's durable library with no account. Seven-day AutoRecover remains for crash recovery only.</p>
             <span class="feat-tag"><span class="feat-tag-ico" aria-hidden="true"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="5.5" r="2"/><circle cx="11" cy="6.5" r="1.6"/><path d="M2.5 13c.4-1.8 1.8-3 3.5-3s3.1 1.2 3.5 3"/><path d="M9.5 13c.3-1.2 1.2-2 2.3-2 .9 0 1.6.4 2 1.1"/></svg></span>Works without signing in</span>
           </article>
           <article class="feat-card tone-soft">
             <span class="feat-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M7.5 18h9a4.5 4.5 0 0 0 .4-9 6 6 0 0 0-11.5 1.6A3.8 3.8 0 0 0 7.5 18Z"/></svg></span>
-            <h3>Cloud sync when you need it</h3>
-            <p>For $5 a year, workbooks in your account travel with you. Start on one device, continue on another.</p>
+            <h3>Cloud when you need it</h3>
+            <p>Optional account storage so a workbook can follow you across devices. Plans and quotas live on the Pricing page.</p>
             <span class="feat-tag"><span class="feat-tag-ico" aria-hidden="true"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M2.5 8a5.5 5.5 0 0 1 9.7-3.5A3.5 3.5 0 0 1 13 11.5H4.2A2.8 2.8 0 0 1 2.5 8Z"/><path d="M8 6.5v5M6 9.5l2 2 2-2"/></svg></span>My workbooks · autosave</span>
           </article>
         </div>
@@ -386,7 +369,7 @@
           <article class="bento-card tone-brand snip-library">
             <span class="bento-label">Cloud library</span>
             <h3>My workbooks, one account</h3>
-            <p>Sign in once for $5 a year. Browse, open, and autosave .xlsx files in your account — then pick up on another device.</p>
+            <p>Sign in, choose a cloud plan on Pricing, then browse, open, and autosave files in your account — pick up on another device.</p>
             <div class="snip">
               <div class="snip-rows">
                 <div class="snip-row"><span class="snip-ico sync" aria-hidden="true"></span><span class="snip-main">sample_workbook.xlsx</span><span class="snip-side">just now</span></div>
@@ -416,12 +399,12 @@
           <div class="band-inner">
             <span class="band-eyebrow">Get started in seconds</span>
             <h2>Ready for a faster, lighter spreadsheet workflow?</h2>
-            <p>Open a local .xlsx free. Add cloud sync for $5 a year only when the workbook needs to follow you.</p>
+            <p>Save free in this browser. Add cloud storage only when the workbook needs to follow you across devices.</p>
             <div class="band-cta">
-              <a class="band-primary" href="/editor?new=xlsx" data-prefetch="xlsx">New Excel — free</a>
-              <a class="band-secondary" href="/login">Cloud sync — $5/year</a>
+              <a class="band-primary" href="/editor?new=xlsx" data-prefetch="xlsx">Open workspace</a>
+              <a class="band-secondary" href="/pricing">View pricing</a>
             </div>
-            <div class="checks band-checks"><span class="check"><i aria-hidden="true"></i>Local open free</span><span class="check"><i aria-hidden="true"></i>No Office install</span><span class="check"><i aria-hidden="true"></i>$5/year for cloud</span></div>
+            <div class="checks band-checks"><span class="check"><i aria-hidden="true"></i>Local library free</span><span class="check"><i aria-hidden="true"></i>No Office install</span><span class="check"><i aria-hidden="true"></i>Cloud when you need it</span></div>
           </div>
         </div>
       </div>
@@ -433,7 +416,7 @@
           <div class="foot-top">
             <div class="foot-brand">
               <a class="brand" href="/"><span class="mark" aria-hidden="true"></span><span class="wordmark">EditXLSX</span></a>
-              <p>The lightweight online Excel and document editor — local editing free, cloud sync when you sign in.</p>
+              <p>The lightweight online Excel and document editor — free local library, optional cloud storage.</p>
             </div>
             <nav class="foot-cols" aria-label="Footer">
               <div class="foot-col">
@@ -453,6 +436,7 @@
               <div class="foot-col">
                 <h3>Resources</h3>
                 <ul>
+                <li><a href="/pricing">Pricing</a></li>
                 <li><a href="/help">Help</a></li>
                 <li><a href="/changelog">Changelog</a></li>
                 <li><a href="/compare/excel-online">vs Excel Online</a></li>

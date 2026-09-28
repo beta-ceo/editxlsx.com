@@ -94,7 +94,11 @@ describe('appwrite auth', () => {
 });
 
 describe('appwrite workbooks', () => {
-  const user = { $id: 'user-1', email: 'a@b.co' };
+  const user = {
+    $id: 'user-1',
+    email: 'a@b.co',
+    prefs: { planId: 'gb1', quotaBytes: 1024 * 1024 * 1024 },
+  };
 
   beforeEach(async () => {
     vi.resetModules();
@@ -108,6 +112,8 @@ describe('appwrite workbooks', () => {
     getFileDownload.mockReset();
     get.mockReset();
     get.mockResolvedValue(user);
+    // Quota gate lists the vault before create/save.
+    listDocuments.mockImplementation(async () => ({ documents: [] }));
     const { resetAppwriteClientForTests } = await import('../../lib/appwrite/client');
     resetAppwriteClientForTests();
   });

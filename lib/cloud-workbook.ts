@@ -46,6 +46,9 @@ export interface CloudWorkbookBinding {
   fileId: string;
   userId: string;
   format: VaultFormat;
+  sizeBytes: number;
+  /** Cached from Account prefs at bind time (hot Save quota gate). */
+  quotaBytes: number;
 }
 
 let binding: CloudWorkbookBinding | null = null;
@@ -80,7 +83,11 @@ export function isCloudWorkbookBound(): boolean {
 }
 
 export function bindCloudWorkbook(
-  workbook: Pick<Workbook, 'id' | 'title' | 'fileId' | 'userId'> & { format?: VaultFormat },
+  workbook: Pick<Workbook, 'id' | 'title' | 'fileId' | 'userId'> & {
+    format?: VaultFormat;
+    sizeBytes?: number;
+    quotaBytes?: number;
+  },
 ): void {
   binding = {
     id: workbook.id,
@@ -88,6 +95,8 @@ export function bindCloudWorkbook(
     fileId: workbook.fileId,
     userId: workbook.userId,
     format: workbook.format || formatFromTitle(workbook.title) || 'xlsx',
+    sizeBytes: workbook.sizeBytes || 0,
+    quotaBytes: workbook.quotaBytes ?? 0,
   };
   stampWorkbookInUrl(workbook.id);
 }
@@ -117,7 +126,14 @@ function notify(kind: 'success' | 'error' | 'warning', message: string): void {
 
 function hotSaveOptions(active: CloudWorkbookBinding): {
   title: string;
-  hot: { userId: string; fileId: string; title: string; format: VaultFormat };
+  hot: {
+    userId: string;
+    fileId: string;
+    title: string;
+    format: VaultFormat;
+    sizeBytes: number;
+    quotaBytes: number;
+  };
 } {
   return {
     title: active.title,
@@ -126,6 +142,8 @@ function hotSaveOptions(active: CloudWorkbookBinding): {
       fileId: active.fileId,
       title: active.title,
       format: bindingFormat(active),
+      sizeBytes: active.sizeBytes,
+      quotaBytes: active.quotaBytes,
     },
   };
 }
@@ -165,6 +183,8 @@ export async function flushCloudPending(): Promise<void> {
             fileId: binding.fileId,
             title: pending.title,
             format: bindingFormat(binding),
+            sizeBytes: binding.sizeBytes,
+            quotaBytes: binding.quotaBytes,
           },
         });
         if (!binding || binding.id !== updated.id) break;
@@ -175,6 +195,8 @@ export async function flushCloudPending(): Promise<void> {
           fileId: updated.fileId,
           userId: updated.userId,
           format: updated.format,
+          sizeBytes: updated.sizeBytes,
+          quotaBytes: binding.quotaBytes,
         };
         if (previousFileId && previousFileId !== updated.fileId) {
           forgetCachedWorkbookFile(previousFileId);
@@ -246,6 +268,8 @@ export async function writeCloudWorkbook(file: File): Promise<boolean> {
         fileId: updated.fileId,
         userId: updated.userId,
         format: updated.format,
+        sizeBytes: updated.sizeBytes,
+        quotaBytes: active.quotaBytes,
       };
       markDocumentSaved();
       clearCloudSyncPending();
@@ -299,6 +323,8 @@ async function takeCloudSnapshot(): Promise<void> {
         fileId: updated.fileId,
         userId: updated.userId,
         format: updated.format,
+        sizeBytes: updated.sizeBytes,
+        quotaBytes: active.quotaBytes,
       };
       markDocumentSaved();
       clearCloudSyncPending();

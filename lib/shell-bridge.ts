@@ -63,7 +63,7 @@ export type ShellNeedPayloadMessage = {
   workbookId: string;
 };
 
-/** Serializable workbook fields the editor needs to bind cloud save. */
+/** Serializable workbook fields the editor needs to bind save. */
 export type ShellOpenWorkbookMeta = {
   id: string;
   userId: string;
@@ -75,6 +75,10 @@ export type ShellOpenWorkbookMeta = {
   createdAt: string;
   parentId: string;
   sortOrder: number;
+  /** Defaults to cloud when omitted (legacy payloads). */
+  vaultSource?: 'local' | 'cloud';
+  /** Paid cloud quota bytes cached for hot Save (0 = unpaid). */
+  quotaBytes?: number;
 };
 
 export type ShellOpenPayloadMessage = {

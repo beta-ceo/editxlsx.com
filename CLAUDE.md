@@ -2,12 +2,12 @@
 
 ## 项目概述
 
-基于 OnlyOffice 的浏览器文档编辑器。编辑与转换仍在访客设备上完成；登录后可把 **Excel 工作簿**存进 Appwrite（Auth + Databases + Storage）。本地打开 / 无账号路径仍然可用。
+基于 OnlyOffice 的浏览器文档编辑器。编辑与转换在访客设备上完成。**免费路径**：本地上传 / 编辑，并持久保存在浏览器 IndexedDB 本地库。**付费路径**：登录后云存储（Appwrite Auth + Databases + Storage），年付两档 $5/1GB · $10/10GB（Stripe）。`/history` 仍是七天 AutoRecover，不是本地库。
 
 - **线上**：https://editxlsx.com
-- **技术栈**：TypeScript + Vite + ranui（`--ran-*` / `r-*`，无 CSS 框架）+ OnlyOffice Web Apps v9 + Appwrite 客户端 SDK
-- **当前产品重心**：云工作簿壳 `/workspace`（侧栏库 + 右侧编辑器 iframe）、`/login`、编辑器 `?workbook=<id>` 的本地优先云同步。见 `docs/explorations/2026-09-21-excel-saas-mvp-appwrite.md` 与 `docs/explorations/2026-09-22-cloud-save-local-first.md`。
-- **未做**：计费 UI、分享 / 实时协同、把全部 SEO 落地页改成「必须登录」叙事。
+- **技术栈**：TypeScript + Vite + ranui（`--ran-*` / `r-*`，无 CSS 框架）+ OnlyOffice Web Apps v9 + Appwrite 客户端 SDK + Stripe（Appwrite Functions）
+- **当前产品重心**：`/workspace` 双源壳（本机库默认 + 云库）、`/pricing`、`/login`、编辑器 `?local=<id>` / `?workbook=<id>`。见 `docs/explorations/2026-09-28-local-vault-and-cloud-tiers.md`。
+- **未做**：分享 / 实时协同、把全部 SEO 落地页改成「必须登录」叙事、Storage 代理式配额硬闸（当前为客户端 + webhook prefs）。
 
 **多会话并行**：不要共用同一个 checkout（HEAD / index / dist / test-results 会互相干扰）。第二个及以后的会话用独立 worktree：`git worktree add .claude/worktrees/<name> -b <topic>`（`.claude/` 已在 `.gitignore`），各自 `pnpm install`、各占一个 `E2E_PORT`。
 
@@ -35,9 +35,13 @@ pnpm run lint                    # lint:ts + lint:docker
 
 ```
 lib/
-  appwrite/             # 客户端：client / auth / workbooks / empty-xlsx / ids
+  appwrite/             # 客户端：client / auth / workbooks / empty-office / ids
+  billing/              # plans + entitlement（配额 / Stripe prefs 读取）
+  local-vault/          # IndexedDB editxlsx-local-vault（持久本机库）
+  local-workbook.ts     # ?local= 绑定：Save → 本机 IDB
   auth-page.ts          # /login
-  workspace-page.ts     # /workspace：侧栏 + 编辑器 iframe（?shell=1）
+  pricing-page.ts       # /pricing：三档云存储 + Checkout
+  workspace-page.ts     # /workspace：本机库默认 + 云库（?shell=1）
   cloud-workbook.ts     # ?workbook= 绑定：Save / 节拍器 → 本地优先再 flush Appwrite
   cloud-pending.ts      # IndexedDB editxlsx-cloud-pending（按 workbookId 只留最新一版）
   shell-bridge.ts       # 壳 ↔ 编辑器 postMessage（ready / failed / save-state）
@@ -46,11 +50,12 @@ lib/
   embed-api.ts          # iframe postMessage API
   onlyoffice-editor.ts  # 编辑器生命周期门面（挂载 / 重建 / loadEditorApi）
   onlyoffice/           # 周边：guards/、open-state、save-stream、readonly、…
-  history/              # 本地 AutoRecover（IndexedDB，七天，非云盘）
+  history/              # 本地 AutoRecover（IndexedDB，七天，非本地库）
   history-page.ts       # /history
   agent-plugin/         # Agent 面板（editor-bridge / tools / ui）
   web-mcp.ts            # 浏览器 Agent 工具（已上线）
   sw-update.ts          # SW 更新：编辑器侧
+functions/billing/      # Appwrite Functions：Checkout / Portal / Stripe webhook
 packages/               # @ranuts/* workspace
   shared/               # 类型、store、i18n（messages/ 一语言一文件）
   converter/            # X2TConverter / SheetJS / PDF 字体（与 vendor x2t_helper 孪生语义）
@@ -62,18 +67,19 @@ content/<locale>/       # 生成页 markdown 源
 docs/                   # embed-api / fonts / plugins / explorations / design-system
 index.html              # `/` 静态落地页
 editor.html             # `/editor`
-login.html / workspace.html / history.html
+login.html / workspace.html / history.html / pricing.html
 ```
 
-## 路由与云工作簿
+## 路由与工作簿
 
 | 路由 | 作用 |
 | ---- | ---- |
 | `/` | 落地页（无编辑器 bundle） |
 | `/login` | Appwrite email/password |
-| `/workspace` | 已登录工作簿库；未登录重定向 `/login` |
-| `/editor` | 编辑器；`?workbook=<id>&shell=1` 由壳嵌入 |
-| `/history` | 本机 AutoRecover 列表（noindex） |
+| `/workspace` | 本机库（默认，无需登录）+ 云库（需登录与付费档） |
+| `/pricing` | 云存储三档 + Stripe Checkout |
+| `/editor` | 编辑器；`?local=<id>` / `?workbook=<id>&shell=1` 由壳嵌入 |
+| `/history` | 本机 AutoRecover 列表（noindex，七天） |
 | `/help` `/changelog` | 由 `content/` 生成 |
 
 **云保存（改这块前必读）**：

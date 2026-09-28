@@ -1,6 +1,6 @@
 /**
  * Soft, dismissible prompt on local /editor sessions: cross-device sync is
- * $5/year after sign-in. Never shown for embed, shell, or `?workbook=` binds.
+ * paid cloud after sign-in. Never shown for embed, shell, or bound vault ids.
  */
 import { getLanguage, t } from '@ranuts/shared/i18n';
 import { isEmbedMode, isAppShellFrame } from './embed-mode';
@@ -12,9 +12,10 @@ function loginHref(): string {
   return locale && locale !== 'en' ? `/login?locale=${encodeURIComponent(locale)}` : '/login';
 }
 
-function isWorkbookBound(): boolean {
+function isVaultBound(): boolean {
   try {
-    return new URLSearchParams(window.location.search).has('workbook');
+    const params = new URLSearchParams(window.location.search);
+    return params.has('workbook') || params.has('local');
   } catch {
     return false;
   }
@@ -22,7 +23,7 @@ function isWorkbookBound(): boolean {
 
 export function maybeShowCloudNudge(): void {
   if (typeof window === 'undefined') return;
-  if (isEmbedMode() || isAppShellFrame() || isWorkbookBound()) return;
+  if (isEmbedMode() || isAppShellFrame() || isVaultBound()) return;
   try {
     if (window.localStorage.getItem(STORAGE_KEY) === '1') return;
   } catch {

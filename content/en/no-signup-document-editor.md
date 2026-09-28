@@ -55,7 +55,7 @@ DOCX, XLSX, PPTX and CSV, powered by OnlyOffice. You can also export to PDF, TXT
 
 ### Is there a catch — a paywall or a premium tier?
 
-No. It is genuinely free and open source under MIT, with no paywall and no premium tier.
+Local editing and the This-device library stay free. Optional cloud storage across devices is paid ($5 / $10 a year for 1 / 10 GB). There is no paywall on opening a local file.
 
 ### Can I use it on my phone?
 

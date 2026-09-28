@@ -48,7 +48,7 @@ export function renderHome({ locale, data, locales }) {
       const q = href.includes('?') ? href.slice(href.indexOf('?') + 1) : '';
       return editor(q || 'new=xlsx');
     }
-    if (href === '/login' || href === '/workspace' || href === '/history') return appPath(href);
+    if (href === '/login' || href === '/workspace' || href === '/history' || href === '/pricing') return appPath(href);
     if (prefix && href.startsWith('/') && !href.startsWith(prefix + '/') && href !== prefix + '/') {
       return prefix + href;
     }
@@ -111,8 +111,6 @@ export function renderHome({ locale, data, locales }) {
     .join('\n');
 
   const checks = data.checks.map((t) => `<span class="check"><i aria-hidden="true"></i>${e(t)}</span>`).join('');
-
-  const lovedChips = data.loved.chips.map((c) => `<span class="chip-logo">${e(c)}</span>`).join('');
 
   const featIcons = {
     brand: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z"/><path d="M12 3v2.2M12 18.8V21M4.9 4.9l1.6 1.6M17.5 17.5l1.6 1.6M3 12h2.2M18.8 12H21M4.9 19.1l1.6-1.6M17.5 6.5l1.6-1.6"/><path d="M12 12l3.2-3.2"/></svg>`,
@@ -280,7 +278,6 @@ ${jsonLd}
     <script src="/lang-switch.js" defer></script>
     <script src="/open-local.js" defer></script>
     <script src="/landing-prefetch.js" defer></script>
-    <script src="/history-recent.js" defer></script>
     <script src="/home-scroll.js" defer></script>
   </head>
 
@@ -296,7 +293,7 @@ ${navLinks}
 ${langMenu(locale, locales, ui, (l) => LOCALES[l].home)}
             <r-theme-switch class="theme-switch" label="${e(ui.themeLabel)}"></r-theme-switch>
             <a class="nav-login" href="${e(appPath('/login'))}">${e(data.navActions.logIn)}</a>
-            <a class="nav-cta" href="${e(appPath('/login'))}"><r-button type="primary">${e(data.navActions.getStarted)}</r-button></a>
+            <a class="nav-cta" href="${e(appPath('/workspace'))}"><r-button type="primary">${e(data.navActions.getStarted)}</r-button></a>
           </nav>
         </div>
       </header>
@@ -316,18 +313,6 @@ ${langMenu(locale, locales, ui, (l) => LOCALES[l].home)}
           >
         </div>
         <div class="checks reveal d5">${checks}</div>
-        <div class="cta-local reveal d5">
-          <a class="cta-local-link" href="${e(appPath('/login'))}" id="hero-sign-in">${e(data.cta.signIn)}</a>
-          <span class="cta-local-sep" aria-hidden="true">·</span>
-          <a class="cta-local-link" href="${e(appPath('/workspace'))}" id="hero-workspace">${e(data.cta.files)}</a>
-        </div>
-        <div class="recent reveal d5">
-          <span data-recent-slot data-recent-label="${e(data.recent.label)}" hidden></span>
-          <span class="recent-note">${e(data.recent.note)}</span>
-          <a class="recent-all" href="${e(appPath('/history'))}">${e(data.recent.all)}</a>
-          ·
-          <a class="recent-all" href="${e(appPath('/workspace'))}">${e(data.recent.cloud)}</a>
-        </div>
       </div>
 
       <div class="preview reveal d3">
@@ -363,11 +348,6 @@ ${docRows}
       </div>
       </div>
 
-      <div class="loved wrap">
-        <p class="loved-label">${e(data.loved.label)}</p>
-        <div class="loved-chips">${lovedChips}</div>
-      </div>
-
       <div class="section features-sec wrap" id="features">
         <div class="section-head left">
             <span class="eyebrow">${e(data.features.eyebrow)}</span>
@@ -400,7 +380,7 @@ ${bentoCards}
             <p>${e(data.band.p)}</p>
             <div class="band-cta">
               <a class="band-primary" href="${editor('new=xlsx')}" data-prefetch="xlsx">${e(data.band.primary)}</a>
-              <a class="band-secondary" href="${e(appPath('/login'))}">${e(data.band.secondary)}</a>
+              <a class="band-secondary" href="${e(appPath('/pricing'))}">${e(data.band.secondary)}</a>
             </div>
             <div class="checks band-checks">${bandChecks}</div>
           </div>

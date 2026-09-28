@@ -7,6 +7,17 @@ notes. Entries describe what users experience, not internal refactors.
 
 ## [Unreleased]
 
+### Added
+
+- **Durable local library on This device.** `/workspace` defaults to an IndexedDB
+  vault (no account). Save writes into the browser; `?local=<id>` binds the
+  editor. Seven-day `/history` AutoRecover is unchanged.
+- **Tiered cloud billing.** Plans are $5/year · 1 GB and $10/year · 10 GB via
+  Stripe (Appwrite Functions). `/pricing` starts Checkout; unpaid accounts
+  cannot create or grow cloud files.
+- **Dual-source workspace.** Anonymous visitors stay on This device; Cloud tab
+  requires sign-in (and a plan to create files).
+
 ### Fixed
 
 - **Cloud Save names the two durable places honestly.** The sync chip uses
@@ -70,8 +81,8 @@ notes. Entries describe what users experience, not internal refactors.
 - **Cloud Excel workbooks SaaS MVP.** Sign in with email and password
   (Appwrite Auth), browse your account's `.xlsx` files at `/workspace`, open one in
   the OnlyOffice editor (`/editor?workbook=<id>`), and Save / autosave write
-  back to Appwrite Storage. Local-only editing and `/history` recovery remain
-  available; Stripe billing is not part of this release.
+  back to Appwrite Storage. Local durable library and `/history` recovery remain
+  available; Stripe billing ships with tiered annual plans.
 - **Saving now writes back into your own file.** Pick the file once and every
   save after that goes straight into it -- no "save as" dialog each time, and
   no "a file with that name already exists" prompt. The document ends up where

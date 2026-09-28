@@ -93,6 +93,7 @@ window.showControlPanel = showControlPanel;
 // loading screen instead of racing to remove it afterwards.
 const params = getAllQueryString();
 const workbookParam = typeof params['workbook'] === 'string' ? params['workbook'] : '';
+const localParam = typeof params['local'] === 'string' ? params['local'] : '';
 const shellFrameEarly = isAppShellFrame();
 const opensSomething = Boolean(
   params['file'] ||
@@ -101,6 +102,7 @@ const opensSomething = Boolean(
     params['saved'] ||
     params['open'] === 'local' ||
     workbookParam ||
+    localParam ||
     shellFrameEarly,
 );
 if (opensSomething) document.body.classList.add('opening-document');
@@ -148,11 +150,13 @@ window.addEventListener('message', (event: MessageEvent) => {
 // boots the editor UI in Chinese and drops the user directly into editing.
 const newExtRaw = params['new'];
 const newExt = typeof newExtRaw === 'string' ? newExtRaw.replace(/^\./, '').toLowerCase() : '';
-const createNewOnLoad = ['docx', 'xlsx', 'pptx'].includes(newExt) && !documentUrl && !workbookParam;
+const createNewOnLoad =
+  ['docx', 'xlsx', 'pptx'].includes(newExt) && !documentUrl && !workbookParam && !localParam;
 // `?open=local`: a static landing page (e.g. /zh-CN/) stashed a picked file in
 // IndexedDB via public/open-local.js — take it out and open it on boot.
 const openParam = params['open'];
-const openLocalOnLoad = openParam === 'local' && !documentUrl && !createNewOnLoad && !workbookParam;
+const openLocalOnLoad =
+  openParam === 'local' && !documentUrl && !createNewOnLoad && !workbookParam && !localParam;
 // `?saved=<id>`: which of this browser's saved documents to open. Every
 // editing session stamps its own id here (see lib/history/session.ts), so a
 // reload comes back to the same document instead of a second blank one, and
@@ -175,7 +179,16 @@ const savedParam = params['saved'] ?? '';
 // still open `?workbook=` and keep cloud save. A foreign embed stays a blank
 // surface until the parent posts a document.
 const isEmbedded = document.body.classList.contains('embed-mode') && !isAppShellFrame();
-if (documentUrl || isEmbedded || createNewOnLoad || openLocalOnLoad || savedParam || workbookParam || shellFrameEarly) {
+if (
+  documentUrl ||
+  isEmbedded ||
+  createNewOnLoad ||
+  openLocalOnLoad ||
+  savedParam ||
+  workbookParam ||
+  localParam ||
+  shellFrameEarly
+) {
   hideLanding();
 } else {
   // Bare /editor with nothing to open: the landing lives at / now.
@@ -225,7 +238,11 @@ void (async () => {
           format: workbook.format,
         }));
       timing.mark('download');
-      bindCloudWorkbook(workbook);
+      const { entitlementFromUser } = await import('./lib/billing/entitlement');
+      bindCloudWorkbook({
+        ...workbook,
+        quotaBytes: entitlementFromUser(user).quotaBytes,
+      });
       // Prefetch DocsAPI here so the open-timing split separates network API
       // load from buffer prep + DocEditor construction inside openLocalFile.
       await loadEditorApi();
@@ -239,6 +256,43 @@ void (async () => {
       return;
     } catch (error) {
       console.error('Failed to open cloud workbook:', error);
+      const { t } = await import('@ranuts/shared/i18n');
+      const detail = error instanceof Error ? error.message : String(error);
+      (window as unknown as { message?: { error?: (msg: string) => void } }).message?.error?.(
+        `${t('cloudOpenFailed')}${detail}`,
+      );
+      window.location.replace('/workspace');
+      return;
+    }
+  }
+
+  // Local vault workbook (`?local=<id>`): bytes from IndexedDB; Save writes back.
+  if (localParam && !isEmbedded) {
+    const timing = new OpenTiming(localParam);
+    try {
+      const [
+        { getLocalWorkbook, downloadLocalVaultFile, touchLocalVaultOpened },
+        { bindLocalWorkbook, beginLocalAutosave },
+      ] = await Promise.all([import('./lib/local-vault'), import('./lib/local-workbook')]);
+      timing.mark('imports');
+      const workbook = await getLocalWorkbook(localParam);
+      timing.mark('meta');
+      if (!workbook) throw new Error('Local workbook not found');
+      const file = await downloadLocalVaultFile(workbook.id, workbook.title);
+      timing.mark('download');
+      if (!file) throw new Error('Local workbook bytes missing');
+      bindLocalWorkbook(workbook);
+      await loadEditorApi();
+      timing.mark('api');
+      await openLocalFile(file, { skipHistory: true });
+      timing.mark('mounted');
+      beginLocalAutosave();
+      void touchLocalVaultOpened(workbook.id);
+      timing.mark('ready');
+      publishOpenTiming(timing.buildReport());
+      return;
+    } catch (error) {
+      console.error('Failed to open local workbook:', error);
       const { t } = await import('@ranuts/shared/i18n');
       const detail = error instanceof Error ? error.message : String(error);
       (window as unknown as { message?: { error?: (msg: string) => void } }).message?.error?.(

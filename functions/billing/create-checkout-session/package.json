@@ -1,0 +1,9 @@
+{
+  "name": "create-checkout-session",
+  "version": "1.0.0",
+  "main": "src/main.js",
+  "dependencies": {
+    "node-appwrite": "^14.1.0",
+    "stripe": "^17.0.0"
+  }
+}

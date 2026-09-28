@@ -22,7 +22,11 @@ const USER = {
   phone: '',
   emailVerification: true,
   phoneVerification: false,
-  prefs: {},
+  prefs: {
+    planId: 'gb1',
+    quotaBytes: 1024 * 1024 * 1024,
+    stripeCustomerId: 'cus_test',
+  },
   accessedAt: '2026-09-21T12:00:00.000+00:00',
 };
 
@@ -182,16 +186,19 @@ test.describe('cloud auth pages', () => {
     await expect(page.locator('.auth-submit')).toBeVisible();
   });
 
-  test('anonymous /workspace redirects to /login', async ({ page }) => {
+  test('anonymous /workspace stays on This device', async ({ page }) => {
     await page.goto('/workspace');
-    await page.waitForURL(/\/login/);
-    expect(page.url()).toMatch(/\/login/);
+    await expect(page.locator('.vault')).toBeVisible({ timeout: 15_000 });
+    await expect(page.locator('#workspace-source-local')).toHaveClass(/is-active/);
+    await expect(page).toHaveURL(/\/workspace/);
   });
 
-  test('homepage primary CTA points at sign-in', async ({ page }) => {
-    await page.goto('/');
-    await expect(page.locator('#hero-sign-in')).toBeVisible();
-    await expect(page.locator('#hero-workspace')).toBeVisible();
+  test('anonymous Cloud tab sends visitors to /login', async ({ page }) => {
+    await page.goto('/workspace');
+    await expect(page.locator('#workspace-source-cloud')).toBeVisible({ timeout: 15_000 });
+    await page.locator('#workspace-source-cloud').click();
+    await page.waitForURL(/\/login/);
+    expect(page.url()).toMatch(/\/login/);
   });
 
   test('signed-in /workspace is a sidebar + editor shell', async ({ page, l0 }) => {
@@ -204,7 +211,7 @@ test.describe('cloud auth pages', () => {
 
     await page.goto('/login');
     await mockAppwrite(page, { download: 'fail' });
-    await page.goto('/workspace');
+    await page.goto('/workspace?source=cloud');
 
     await expect(page.locator('.vault')).toBeVisible();
     await expect(page.locator('.vault-side')).toBeVisible();
@@ -226,7 +233,7 @@ test.describe('cloud auth pages', () => {
 
     await page.goto('/login');
     await mockAppwrite(page, { download: 'fail' });
-    await page.goto('/workspace');
+    await page.goto('/workspace?source=cloud');
 
     await expect(page.locator('#workspace-new')).toBeVisible();
     await page.locator('#workspace-new').click();
@@ -254,7 +261,7 @@ test.describe('cloud auth pages', () => {
 
     await page.goto('/login');
     await mockAppwrite(page, { download: 'fail', documents: [WORKBOOK, FOLDER, nested] });
-    await page.goto('/workspace');
+    await page.goto('/workspace?source=cloud');
 
     const folderRow = page.locator('.vault-tree-item[data-kind="folder"][data-id="folder1"]');
     await expect(folderRow).toBeVisible();
@@ -280,7 +287,7 @@ test.describe('cloud auth pages', () => {
 
     await page.goto('/login');
     await mockAppwrite(page, { download: 'fail', documents: [WORKBOOK, FOLDER] });
-    await page.goto('/workspace');
+    await page.goto('/workspace?source=cloud');
 
     const folderRow = page.locator('.vault-tree-row').filter({
       has: page.locator('.vault-tree-item[data-id="folder1"]'),
@@ -309,7 +316,7 @@ test.describe('cloud auth pages', () => {
 
     await page.goto('/login');
     await mockAppwrite(page, { download: 'fail', documents: [WORKBOOK, FOLDER] });
-    await page.goto('/workspace');
+    await page.goto('/workspace?source=cloud');
 
     const folder = page.locator('.vault-tree-item[data-kind="folder"][data-id="folder1"]');
     await folder.dblclick();
@@ -327,7 +334,7 @@ test.describe('cloud auth pages', () => {
 
     await page.goto('/login');
     await mockAppwrite(page, { download: 'fail', documents: [WORKBOOK, FOLDER] });
-    await page.goto('/workspace');
+    await page.goto('/workspace?source=cloud');
 
     const folder = page.locator('.vault-tree-item[data-id="folder1"]');
     await folder.click({ button: 'right' });
@@ -387,7 +394,7 @@ test.describe('cloud auth pages', () => {
         },
       ],
     });
-    await page.goto('/workspace');
+    await page.goto('/workspace?source=cloud');
 
     await expect(page.locator('.vault-tree-title').first()).toHaveText('sample_data_3000x20.xlsx');
     await page.locator('.vault-stage-browser-row[data-id="wb1"]').click();
@@ -436,7 +443,7 @@ test.describe('cloud auth pages', () => {
 
     await page.goto('/login');
     await mockAppwrite(page, { download: 'xlsx' });
-    await page.goto('/workspace');
+    await page.goto('/workspace?source=cloud');
 
     await expect(page.locator('.vault-tree-title').first()).toHaveText('sample_data_3000x20.xlsx');
     await page.locator('.vault-stage-browser-row[data-id="wb1"]').click();

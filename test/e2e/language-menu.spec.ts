@@ -63,10 +63,12 @@ test.describe('language menu', () => {
       expect(current).toHaveLength(1);
       expect(current[0].lang).toBe(label.replace(/\/$/, ''));
 
-      // The trigger names the language being read, so a reader who cannot read
-      // the page can still see which one they are on.
-      const triggerText = await page.locator('.lang-current').first().textContent();
-      expect(triggerText?.trim()).toBe(current[0].text);
+      // Trigger is icon-only; the accessible name stays on the host.
+      const trigger = page.locator('.lang-trigger').first();
+      await expect(trigger.locator('.langmark')).toBeVisible();
+      await expect(trigger.locator('.lang-current')).toHaveCount(0);
+      const name = await page.locator('r-popover.lang-menu').first().getAttribute('aria-label');
+      expect(name, 'the control has no accessible name').toBeTruthy();
     });
   }
 
@@ -113,13 +115,8 @@ test.describe('language menu', () => {
   });
 
   /**
-   * The panel lines up with the trigger's leading edge, so its rows start where
-   * the trigger's own label does and the two read as one column.
-   *
-   * It was end-aligned first, when the panel was a guessed 152px wide -- 67px
-   * wider than the trigger, all of it hanging off the left, with the menu's
-   * labels 65px away from the trigger's. Sizing the panel to its content took
-   * the overhang away and with it the reason for the end alignment.
+   * The panel lines up with the trigger's leading edge and stays on screen.
+   * (Icon-only face — no label column to line up with the option text.)
    */
   test('the panel lines up with its trigger, and stays on screen', async ({ page }) => {
     await page.goto('/pt/');
@@ -127,29 +124,16 @@ test.describe('language menu', () => {
     const triggerBox = (await trigger.boundingBox())!;
 
     const geometry = await page.evaluate(() => {
-      const trig = document.querySelector('.lang-trigger')!;
       const panel = document.querySelector('.ran-popover-dropdown')!.getBoundingClientRect();
-      const textStart = (el: Element) => {
-        const node = [...el.childNodes].find((n) => n.nodeType === 3)!;
-        const range = document.createRange();
-        range.selectNodeContents(node);
-        return range.getBoundingClientRect().left;
-      };
       return {
         panelLeft: panel.left,
         panelRight: panel.right,
         panelTop: panel.top,
         vw: window.innerWidth,
-        labelOffset:
-          textStart(trig.querySelector('.lang-current')!) - textStart(document.querySelector('.lang-option')!),
       };
     });
 
-    // Leading edges together.
     expect(Math.abs(geometry.panelLeft - triggerBox.x), 'panel is not aligned to the trigger').toBeLessThanOrEqual(1);
-    // And the labels land in one column: what is left is the difference between
-    // the globe's gutter and the check's, not a placement offset.
-    expect(Math.abs(geometry.labelOffset), 'the menu labels are off the trigger label').toBeLessThanOrEqual(8);
     expect(geometry.panelRight, 'the panel runs past the viewport').toBeLessThanOrEqual(geometry.vw);
     expect(geometry.panelTop, 'the panel does not hang below the trigger').toBeGreaterThan(triggerBox.y);
   });
@@ -173,9 +157,8 @@ test.describe('language menu', () => {
   });
 
   /**
-   * On a phone the trigger keeps the globe and the caret and drops the language
-   * name, which is the part that costs width. The bar used to drop the GitHub
-   * link instead, to make room for a trigger wide enough to hold "Português".
+   * On a phone the trigger is already icon-only, so the longest language name
+   * only costs width inside the open panel — not the bar.
    */
   test('fits on a phone, in the longest language, on both kinds of page', async ({ page }) => {
     await page.setViewportSize({ width: 390, height: 800 });
@@ -186,17 +169,16 @@ test.describe('language menu', () => {
         .first()
         .evaluate((el) => {
           const rect = el.getBoundingClientRect();
-          const name = el.querySelector('.lang-current');
           return {
             left: rect.left,
             right: rect.right,
             vw: window.innerWidth,
-            nameShown: name ? getComputedStyle(name).display !== 'none' : true,
+            hasLabel: Boolean(el.querySelector('.lang-current')),
           };
         });
       expect(box.right, `${route}: the language trigger runs past the viewport`).toBeLessThanOrEqual(box.vw);
       expect(box.left, `${route}: the language trigger starts off-screen`).toBeGreaterThanOrEqual(0);
-      expect(box.nameShown, `${route}: the language name should be hidden on a phone`).toBe(false);
+      expect(box.hasLabel, `${route}: the language trigger should be icon-only`).toBe(false);
     }
   });
 
@@ -244,12 +226,8 @@ test.describe('a chosen language follows the reader', () => {
     await page.waitForURL('**/ja/');
     expect(await page.evaluate(() => document.documentElement.lang)).toBe('ja');
 
-    // The link into the app carries it...
-    const historyHref = await page.locator('a.recent-all').getAttribute('href');
-    expect(historyHref).toContain('locale=ja');
-
-    // ...and so does the app itself, even at a bare URL, because the choice
-    // was remembered rather than only navigated to.
+    // The choice was remembered as a cookie, not only navigated into the path —
+    // so bare /history and /editor pick up Japanese too.
     await page.goto('/history');
     await expect.poll(() => page.evaluate(() => document.documentElement.lang)).toBe('ja');
     await page.goto('/editor?new=docx');

@@ -197,19 +197,6 @@ test.describe('local history page', () => {
     expect(await readHistoryKeys(page, 'docs')).toEqual(['kept']);
   });
 
-  test('the homepage says what autosave keeps, for how long, and where to look', async ({ page }) => {
-    // Served HTML, not drawn by script: a promise about someone's documents
-    // has to hold for a first-time visitor and with JavaScript off.
-    await page.goto('/');
-    const line = page.locator('#landing-hero .recent');
-    await expect(line).toContainText('7 days');
-    await expect(line.locator('a.recent-all')).toHaveAttribute('href', '/history');
-
-    await line.locator('a.recent-all').click();
-    await page.waitForURL(/\/history/);
-    await expect(page.locator('.history-title')).toBeVisible();
-  });
-
   test('takes no for an answer', async ({ page }) => {
     await seed(page, [{ id: 'stays', title: 'Stays.docx' }]);
     await page.reload();
@@ -321,8 +308,9 @@ test.describe('local history page', () => {
    * The page's own chrome is hand-written in history.html, so the tab title and
    * the language switch's current entry are English literals that the runtime
    * has to correct. It did not: /history?locale=zh-CN rendered a Chinese page
-   * whose switch still read "English" and whose tab still read "Local history"
-   * -- the reader is told they are on the English site while reading Chinese.
+   * whose switch still marked English as current and whose tab still read
+   * "Local history" -- the reader is told they are on the English site while
+   * reading Chinese.
    */
   test('the chrome follows the language, not just the body', async ({ page }) => {
     await page.goto('/history?locale=zh-CN');
@@ -331,12 +319,10 @@ test.describe('local history page', () => {
     const chrome = await page.evaluate(() => ({
       title: document.title,
       lang: document.documentElement.getAttribute('lang'),
-      current: document.querySelector('.lang-current')?.textContent?.trim(),
       marked: [...document.querySelectorAll('a.lang-option[aria-current="page"]')].map((a) => a.textContent?.trim()),
     }));
 
     expect(chrome.lang).toBe('zh-CN');
-    expect(chrome.current).toBe('\u4e2d\u6587');
     expect(chrome.marked).toEqual(['\u4e2d\u6587']);
     // The heading is translated already; the tab has to say the same thing.
     expect(chrome.title).toBe(await page.locator('.history-title').first().innerText());
