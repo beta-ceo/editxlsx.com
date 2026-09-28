@@ -1,7 +1,7 @@
 {
-  "title": "Editor de Excel en línea — Edita libros XLSX en el navegador",
-  "description": "Editor de libros Excel online con OnlyOffice. Biblioteca local gratuita en este navegador; almacenamiento en la nube opcional cuando el mismo archivo deba seguirte en cada dispositivo.",
-  "ogDescription": "Edita libros Excel online — biblioteca local gratis, o nube opcional entre dispositivos.",
+  "title": "Edita Excel en el navegador — sin instalar",
+  "description": "Abre .xlsx en una pestaña. Edita fórmulas y hojas sin instalar Office. Gratis en este dispositivo; nube cuando el mismo archivo deba seguirte.",
+  "ogDescription": "Tu hoja de cálculo. Sin instalar. Gratis en este dispositivo.",
   "nav": [
     {
       "href": "/",
@@ -13,7 +13,7 @@
     },
     {
       "href": "#essentials",
-      "label": "Esenciales"
+      "label": "Para qué"
     },
     {
       "href": "/pricing",
@@ -28,34 +28,34 @@
     "logIn": "Iniciar sesión",
     "getStarted": "Abrir espacio de trabajo"
   },
-  "badge": "Local gratis · Nube opcional",
+  "badge": "Sin instalación",
   "h1": {
-    "plain": "Excel en el navegador",
-    "accent": "sin instalar Office"
+    "plain": "Tu hoja de cálculo.",
+    "accent": "Sin instalar."
   },
-  "sub": "Sube y guarda libros en este navegador gratis. Añade almacenamiento en la nube solo cuando el mismo archivo deba seguirte en cada dispositivo.",
+  "sub": "Ese .xlsx del correo — ábrelo aquí, corrige y listo. Añade nube solo cuando el mismo archivo deba seguirte.",
   "cta": {
     "signIn": "Ver precios",
     "files": "Mis libros",
-    "xlsx": "Nuevo Excel (local)",
-    "open": "Abrir archivo local"
+    "xlsx": "Nueva hoja",
+    "open": "Abrir Excel"
   },
   "checks": [
-    "La biblioteca local sigue gratis",
-    "Sin instalar Office",
-    "Nube cuando la necesites"
+    "Abre cualquier .xlsx",
+    "Edita en esta pestaña",
+    "Listo cuando tú lo estés"
   ],
   "recent": {
     "label": "Seguir editando",
-    "note": "Los libros en la nube se sincronizan con tu cuenta al iniciar sesión. Las copias de recuperación local siguen 7 días en este navegador — revísalas en el historial.",
+    "note": "Los archivos de este dispositivo permanecen hasta que los borres. Las copias de recuperación caducan a los 7 días. Los libros en la nube se sincronizan con plan e inicio de sesión.",
     "all": "Historial local",
     "cloud": "Libros en la nube"
   },
   "docwin": {
     "file": "libro_ejemplo.xlsx",
-    "engine": "Motor OnlyOffice",
-    "encrypted": "Autoguardado en la nube",
-    "saved": "Guardado en la cuenta",
+    "engine": "En el navegador",
+    "encrypted": "Autoguardado",
+    "saved": "Guardado",
     "share": "Compartir",
     "export": "Exportar",
     "cols": [
@@ -89,7 +89,7 @@
     "sync": "Autoguardado activo"
   },
   "loved": {
-    "label": "Para creadores, startups y equipos que quieren Excel en el navegador",
+    "label": "Para quien necesita Excel sin instalar Office",
     "chips": [
       "OnlyOffice",
       "XLSX",
@@ -100,72 +100,72 @@
     ]
   },
   "features": {
-    "eyebrow": "Ligero y eficiente",
-    "h2": "Adiós a las suites hinchadas. Hola a la productividad enfocada.",
-    "p": "OnlyOffice en la pestaña para editar en local gratis. Inicia sesión solo cuando quieras el mismo libro en cada dispositivo — ver Precios.",
+    "eyebrow": "El producto",
+    "h2": "Una hoja de cálculo de verdad. En una pestaña.",
+    "p": "Abre adjuntos, corrige celdas, mantén las fórmulas. Inicia sesión solo cuando quieras el mismo libro en otro dispositivo.",
     "items": [
       {
         "tone": "brand",
-        "h3": "Motor de hojas en el navegador",
-        "p": "Fórmulas, gráficos, hojas y formato con OnlyOffice WebAssembly — sin Office de escritorio.",
-        "tag": "Edición .xlsx completa en la pestaña"
+        "h3": "Fórmulas, gráficos, hojas",
+        "p": "Edición completa de .xlsx en el navegador — sin Office de escritorio.",
+        "tag": "Excel en la pestaña"
       },
       {
         "tone": "ink",
-        "h3": "Ruta local siempre disponible",
-        "p": "Abre un archivo solo en este dispositivo o usa el historial de recuperación local — sin cuenta en esa ruta.",
-        "tag": "Funciona sin iniciar sesión"
+        "h3": "Se queda en este dispositivo",
+        "p": "Guarda aquí gratis. Sin cuenta. Nada sale de este navegador hasta que elijas la nube.",
+        "tag": "Sin iniciar sesión"
       },
       {
         "tone": "soft",
-        "h3": "Sync en la nube al iniciar sesión",
-        "p": "Los libros de tu cuenta viajan contigo. Empieza en un dispositivo, continúa en otro.",
-        "tag": "Mis libros · autoguardado"
+        "h3": "Nube cuando la necesites",
+        "p": "Un libro, cada dispositivo — cuando estés listo. Planes en Precios.",
+        "tag": "Continúa en cualquier sitio"
       }
     ]
   },
   "essentials": {
-    "eyebrow": "Esenciales",
-    "h2": "Interfaz minimalista, máxima potencia de edición",
-    "p": "El editor no estorba: biblioteca en la nube cuando la necesitas, recuperación local cuando no, y formatos más allá de Excel cuando el trabajo lo pide.",
+    "eyebrow": "Para qué sirve",
+    "h2": ".xlsx del día a día. No todas las funciones de Excel.",
+    "p": "Hecho para abrir adjuntos, corregir celdas y conservar fórmulas.",
     "items": [
       {
         "tone": "ink",
-        "label": "Biblioteca en la nube",
-        "h3": "Mis libros, una cuenta",
-        "p": "Inicia sesión una vez. Explora, abre y autoguarda .xlsx en tu cuenta — luego sigue en otro dispositivo.",
-        "snippet": "library"
-      },
-      {
-        "tone": "air",
-        "label": "Organización",
-        "h3": "Excel primero, docs cuando haga falta",
-        "p": "Las hojas son el producto. El mismo motor abre Word, PowerPoint, PDF y OpenDocument.",
-        "snippet": "formats"
-      },
-      {
-        "tone": "brand",
-        "label": "Acceso",
-        "h3": "Inicia sesión o quédate en local",
-        "p": "La sync en la nube necesita cuenta. Abrir en local y las copias de 7 días no — elige la ruta según el archivo.",
+        "label": "Encaje honesto",
+        "h3": "Abrir, editar, listo",
+        "p": "Ideal para adjuntos y fórmulas ligeras. Para VBA, Power Query pesado o coedición en vivo — Excel o Hojas de cálculo de Google.",
         "snippet": "access"
       },
       {
         "tone": "air",
-        "label": "Listo sin red",
-        "h3": "Trabaja sin conexión, sincroniza después",
-        "p": "Con los assets del editor en caché, sigue editando un archivo local sin red. El guardado en la nube espera a que vuelvas online.",
+        "label": "Formatos",
+        "h3": "Excel primero, documentos cuando haga falta",
+        "p": "Las hojas son el producto. Word, PowerPoint, PDF y OpenDocument se abren en el mismo editor.",
+        "snippet": "formats"
+      },
+      {
+        "tone": "brand",
+        "label": "Entre dispositivos",
+        "h3": "Mis libros, una cuenta",
+        "p": "Inicia sesión cuando un archivo deba viajar contigo. Explora, abre y autoguarda — sigue en otro dispositivo.",
+        "snippet": "library"
+      },
+      {
+        "tone": "air",
+        "label": "Sin conexión",
+        "h3": "Trabaja sin red, sincroniza después",
+        "p": "Con el editor en caché, sigue editando un archivo local sin red. El guardado en la nube espera a que vuelvas online.",
         "snippet": "offline"
       }
     ]
   },
   "band": {
-    "h2": "Hojas. Sin instalar.",
+    "h2": "Tu hoja de cálculo. Sin instalar.",
     "primary": "Abrir espacio",
     "secondary": "Precios"
   },
   "foot": {
-    "blurb": "El editor ligero de Excel y documentos en línea — edición local gratis, sincronización en la nube al iniciar sesión.",
+    "blurb": "Excel en el navegador — gratis en este dispositivo, nube cuando la necesites.",
     "columns": [
       {
         "title": "Producto",
@@ -277,30 +277,30 @@
   },
   "faqLd": [
     {
-      "q": "¿Qué pasa si cierro la pestaña?",
-      "a": "Los libros con sesión se escriben de vuelta con guardar y autoguardado. Por separado, las copias de recuperación local pueden quedarse 7 días en este navegador — vea el historial. Los archivos en la nube permanecen en su cuenta."
-    },
-    {
       "q": "¿Necesito una cuenta?",
-      "a": "Inicie sesión para sincronizar libros y usar Mis libros. Aún puede abrir un .xlsx local sin cuenta; esa ruta se queda en este dispositivo (más copias de recuperación opcionales en el navegador)."
+      "a": "No. Abre un .xlsx gratis sin iniciar sesión y guárdalo en este dispositivo. Inicia sesión y elige un plan en Precios solo cuando el mismo archivo deba seguirte entre dispositivos."
     },
     {
-      "q": "¿Reemplaza Excel por completo?",
-      "a": "No. Sirve para abrir adjuntos, fórmulas cotidianas y ediciones que conservan el formato. Para macros VBA, Power Query pesado o coedición en vivo, use Excel o Hojas de cálculo de Google."
+      "q": "¿Qué pasa si cierro la pestaña?",
+      "a": "Los archivos guardados aquí permanecen hasta que los borres. Los libros en la nube con sesión se escriben con guardar y autoguardado. Las copias de recuperación pueden durar 7 días — ver historial."
+    },
+    {
+      "q": "¿Es un reemplazo total de Excel?",
+      "a": "No. Está hecho para adjuntos, fórmulas cotidianas y ediciones que conservan el formato sin instalar Office. Para VBA, Power Query pesado o coedición en vivo, usa Excel o Hojas de cálculo de Google."
     },
     {
       "q": "¿Qué formatos puedo editar?",
-      "a": "Excel (.xlsx) es el producto principal. El mismo editor también abre Word (DOCX), PowerPoint (PPTX), PDF y CSV, con OnlyOffice en WebAssembly."
+      "a": "Excel (.xlsx) es el producto. El mismo editor también abre Word (DOCX), PowerPoint (PPTX), PDF y CSV."
     }
   ],
   "featureList": [
-    "Editor de libros Excel (.xlsx) en línea en el navegador",
-    "Inicia sesión para sincronizar libros en tu cuenta",
-    "Autoguardado para libros en la nube con sesión",
-    "Abrir en local sin cuenta",
-    "También abre DOCX, PPTX, PDF y CSV",
-    "PWA instalable con soporte offline para edición local",
-    "Embebible vía API postMessage",
+    "Editar Excel (.xlsx) en el navegador",
+    "Gratis en este dispositivo — sin cuenta",
+    "Sincronización en la nube opcional",
+    "Autoguardado para libros en la nube",
+    "También DOCX, PPTX, PDF y CSV",
+    "Sin conexión cuando el editor está en caché",
+    "Incrustable vía API postMessage",
     "Gratis y de código abierto (MIT)"
   ],
   "ecosystem": {

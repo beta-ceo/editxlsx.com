@@ -35,7 +35,7 @@ Word (`.docx`, legacy `.doc`), Excel (`.xlsx`, legacy `.xls`), PowerPoint (`.ppt
 
 ### How do I create a new document?
 
-Use **New Excel (local)** on the homepage, or open `/editor?new=docx`, `/editor?new=xlsx`, `/editor?new=pptx` directly. A local blank document exists only in your tab until you download it (or until you save it into a cloud workbook after signing in).
+Use **New spreadsheet** on the homepage, or open `/editor?new=docx`, `/editor?new=xlsx`, `/editor?new=pptx` directly. A local blank document exists only in your tab until you download it (or until you save it into a cloud workbook after signing in).
 
 ### Is there a file size limit?
 

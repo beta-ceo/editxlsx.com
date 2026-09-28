@@ -1,7 +1,7 @@
 {
-  "title": "Online-Excel-Editor — XLSX-Arbeitsmappen im Browser bearbeiten",
-  "description": "Online-Excel-Arbeitsmappen-Editor mit OnlyOffice. Kostenlose dauerhafte Bibliothek in diesem Browser; optionaler Cloud-Speicher, wenn dieselbe Datei geräteübergreifend folgen soll.",
-  "ogDescription": "Excel-Arbeitsmappen online bearbeiten — kostenlose lokale Bibliothek oder optionaler Cloud-Speicher.",
+  "title": "Excel im Browser bearbeiten — ohne Installation",
+  "description": "Öffnen Sie .xlsx in einem Tab. Formeln und Blätter bearbeiten, ohne Office zu installieren. Kostenlos auf diesem Gerät; Cloud, wenn dieselbe Datei folgen soll.",
+  "ogDescription": "Ihre Tabelle. Keine Installation. Kostenlos auf diesem Gerät.",
   "nav": [
     {
       "href": "/",
@@ -13,7 +13,7 @@
     },
     {
       "href": "#essentials",
-      "label": "Essentials"
+      "label": "Wofür"
     },
     {
       "href": "/pricing",
@@ -28,34 +28,34 @@
     "logIn": "Anmelden",
     "getStarted": "Workspace öffnen"
   },
-  "badge": "Lokal kostenlos · Cloud optional",
+  "badge": "Keine Installation nötig",
   "h1": {
-    "plain": "Excel im Browser",
-    "accent": "ohne Office zu installieren"
+    "plain": "Ihre Tabelle.",
+    "accent": "Keine Installation."
   },
-  "sub": "Arbeitsmappen in diesem Browser kostenlos hochladen und speichern. Optionalen Cloud-Speicher hinzufügen, wenn dieselbe Datei geräteübergreifend folgen soll.",
+  "sub": "Die .xlsx aus der Mail — hier öffnen, ändern, fertig. Cloud nur, wenn dieselbe Datei geräteübergreifend folgen muss.",
   "cta": {
     "signIn": "Preise ansehen",
     "files": "Meine Arbeitsmappen",
-    "xlsx": "Neue Excel (lokal)",
-    "open": "Lokale Datei öffnen"
+    "xlsx": "Neue Tabelle",
+    "open": "Excel öffnen"
   },
   "checks": [
-    "Lokale Bibliothek bleibt kostenlos",
-    "Keine Office-Installation",
-    "Cloud bei Bedarf"
+    "Beliebige .xlsx öffnen",
+    "Im Tab bearbeiten",
+    "Fertig, wenn Sie sind"
   ],
   "recent": {
     "label": "Weiter bearbeiten",
-    "note": "Cloud-Arbeitsmappen synchronisieren sich bei Anmeldung mit Ihrem Konto. Lokale Wiederherstellungskopien bleiben 7 Tage in diesem Browser — siehe Verlaufsseite.",
+    "note": "Dateien auf diesem Gerät bleiben, bis Sie sie löschen. Wiederherstellungskopien verfallen nach 7 Tagen. Cloud-Arbeitsmappen synchronisieren sich mit Plan und Anmeldung.",
     "all": "Lokaler Verlauf",
     "cloud": "Cloud-Arbeitsmappen"
   },
   "docwin": {
     "file": "beispiel_arbeitsmappe.xlsx",
-    "engine": "OnlyOffice-Engine",
-    "encrypted": "Cloud-Autosave",
-    "saved": "Im Konto gespeichert",
+    "engine": "Im Browser",
+    "encrypted": "Autosave",
+    "saved": "Gespeichert",
     "share": "Teilen",
     "export": "Export",
     "cols": [
@@ -89,7 +89,7 @@
     "sync": "Autosave an"
   },
   "loved": {
-    "label": "Für Creator, Startups und Teams, die Excel im Browser wollen",
+    "label": "Für alle, die Excel brauchen — ohne Office zu installieren",
     "chips": [
       "OnlyOffice",
       "XLSX",
@@ -100,72 +100,72 @@
     ]
   },
   "features": {
-    "eyebrow": "Leicht & effizient",
-    "h2": "Schluss mit aufgeblähten Suites. Willkommen bei fokussierter Produktivität.",
-    "p": "OnlyOffice im Tab für kostenlose lokale Bearbeitung. Anmelden nur, wenn dieselbe Mappe auf jedem Gerät soll — siehe Preise.",
+    "eyebrow": "Das Produkt",
+    "h2": "Eine echte Tabelle. In einem Tab.",
+    "p": "Anhänge öffnen, Zellen korrigieren, Formeln behalten. Anmelden nur, wenn dieselbe Mappe auf einem anderen Gerät weitergehen soll.",
     "items": [
       {
         "tone": "brand",
-        "h3": "Tabellenkalkulation im Browser",
-        "p": "Formeln, Diagramme, Blätter und Formatierung per OnlyOffice WebAssembly — ohne Desktop-Office.",
-        "tag": "Volles .xlsx-Editing im Tab"
+        "h3": "Formeln, Diagramme, Blätter",
+        "p": "Volles .xlsx-Editing im Browser — kein Desktop-Office.",
+        "tag": "Excel im Tab"
       },
       {
         "tone": "ink",
-        "h3": "Lokaler Pfad immer da",
-        "p": "Datei nur auf diesem Gerät öffnen oder lokalen Wiederherstellungsverlauf nutzen — ohne Konto.",
-        "tag": "Funktioniert ohne Anmeldung"
+        "h3": "Bleibt auf diesem Gerät",
+        "p": "Hier kostenlos speichern. Kein Konto. Nichts verlässt den Browser, bis Sie Cloud wählen.",
+        "tag": "Ohne Anmeldung"
       },
       {
         "tone": "soft",
-        "h3": "Cloud-Sync nach Anmeldung",
-        "p": "Arbeitsmappen im Konto reisen mit. Auf einem Gerät starten, auf einem anderen weitermachen.",
-        "tag": "Meine Arbeitsmappen · Autosave"
+        "h3": "Cloud bei Bedarf",
+        "p": "Eine Mappe, jedes Gerät — wenn Sie soweit sind. Pläne unter Preise.",
+        "tag": "Überall weitermachen"
       }
     ]
   },
   "essentials": {
-    "eyebrow": "Kernfunktionen",
-    "h2": "Minimalistische Oberfläche, maximale Bearbeitungsmacht",
-    "p": "Der Editor hält sich zurück: Cloud-Bibliothek wenn nötig, lokale Wiederherstellung wenn nicht, und Formate jenseits von Excel wenn der Job es verlangt.",
+    "eyebrow": "Wofür es ist",
+    "h2": "Alltags-.xlsx. Nicht jedes Excel-Feature.",
+    "p": "Gebaut zum Öffnen von Anhängen, Korrigieren von Zellen und Bewahren von Formeln.",
     "items": [
       {
         "tone": "ink",
-        "label": "Cloud-Bibliothek",
-        "h3": "Meine Arbeitsmappen, ein Konto",
-        "p": "Einmal anmelden. .xlsx im Konto browsen, öffnen und automatisch speichern — dann auf einem anderen Gerät weitermachen.",
-        "snippet": "library"
-      },
-      {
-        "tone": "air",
-        "label": "Organisation",
-        "h3": "Excel zuerst, Dokumente bei Bedarf",
-        "p": "Tabellen sind das Produkt. Dieselbe Engine öffnet weiterhin Word, PowerPoint, PDF und OpenDocument.",
-        "snippet": "formats"
-      },
-      {
-        "tone": "brand",
-        "label": "Zugriff",
-        "h3": "Anmelden oder lokal bleiben",
-        "p": "Cloud-Sync braucht ein Konto. Lokales Öffnen und Sieben-Tage-Wiederherstellung nicht — wählen Sie den passenden Pfad.",
+        "label": "Ehrliche Passung",
+        "h3": "Öffnen, ändern, fertig",
+        "p": "Gut für Anhänge und leichte Formeln. Für VBA, schweres Power Query oder Live-Co-Editing: Excel oder Google Sheets.",
         "snippet": "access"
       },
       {
         "tone": "air",
-        "label": "Offline-fähig",
+        "label": "Formate",
+        "h3": "Excel zuerst, Dokumente bei Bedarf",
+        "p": "Tabellen sind das Produkt. Word, PowerPoint, PDF und OpenDocument öffnen im selben Editor.",
+        "snippet": "formats"
+      },
+      {
+        "tone": "brand",
+        "label": "Geräteübergreifend",
+        "h3": "Meine Arbeitsmappen, ein Konto",
+        "p": "Anmelden, wenn eine Datei mitreisen muss. Browsern, öffnen, autospeichern — auf einem anderen Gerät weitermachen.",
+        "snippet": "library"
+      },
+      {
+        "tone": "air",
+        "label": "Offline",
         "h3": "Offline arbeiten, später syncen",
-        "p": "Sind Editor-Assets gecacht, bearbeiten Sie eine lokale Datei ohne Netz. Cloud-Speichern wartet auf Online.",
+        "p": "Ist der Editor gecacht, bearbeiten Sie lokale Dateien ohne Netz. Cloud-Speichern wartet auf Online.",
         "snippet": "offline"
       }
     ]
   },
   "band": {
-    "h2": "Tabellen. Ohne Installation.",
+    "h2": "Ihre Tabelle. Keine Installation.",
     "primary": "Workspace öffnen",
     "secondary": "Preise"
   },
   "foot": {
-    "blurb": "Der schlanke Online-Excel- und Dokumenteneditor — lokales Bearbeiten kostenlos, Cloud-Sync nach Anmeldung.",
+    "blurb": "Excel im Browser — kostenlos auf diesem Gerät, Cloud bei Bedarf.",
     "columns": [
       {
         "title": "Produkt",
@@ -277,30 +277,30 @@
   },
   "faqLd": [
     {
-      "q": "Was passiert, wenn ich den Tab schließe?",
-      "a": "Angemeldete Arbeitsmappen werden per Speichern und Autosave zurückgeschrieben. Separat können lokale Wiederherstellungskopien 7 Tage in diesem Browser bleiben — siehe Verlaufsseite. Cloud-Dateien bleiben im Konto."
-    },
-    {
       "q": "Brauche ich ein Konto?",
-      "a": "Melden Sie sich an, um Arbeitsmappen zu synchronisieren und Meine Arbeitsmappen zu nutzen. Eine lokale .xlsx können Sie ohne Anmeldung öffnen; dieser Pfad bleibt auf dem Gerät (plus optionale lokale Wiederherstellungskopien)."
+      "a": "Nein. Öffnen Sie .xlsx kostenlos ohne Anmeldung und speichern Sie auf diesem Gerät. Anmelden und einen Cloud-Plan wählen Sie nur, wenn dieselbe Datei geräteübergreifend folgen muss."
     },
     {
-      "q": "Ist dies ein vollständiger Excel-Ersatz?",
-      "a": "Nein. Für Anhänge öffnen, Alltagsformeln und formatgetreue Edits. Für VBA, schweres Power Query oder Live-Co-Editing bleiben Excel oder Google Sheets."
+      "q": "Was passiert beim Schließen des Tabs?",
+      "a": "Auf diesem Gerät gespeicherte Dateien bleiben, bis Sie sie löschen. Angemeldete Cloud-Mappen werden per Speichern und Autosave zurückgeschrieben. Wiederherstellungskopien können 7 Tage bleiben — siehe Verlauf."
+    },
+    {
+      "q": "Ist das ein voller Excel-Ersatz?",
+      "a": "Nein. Gebaut für Anhänge, Alltagformeln und formatgetreue Edits ohne Office-Installation. Für VBA, schweres Power Query oder Live-Co-Editing: Excel oder Google Sheets."
     },
     {
       "q": "Welche Formate kann ich bearbeiten?",
-      "a": "Excel (.xlsx) ist das Hauptprodukt. Derselbe Editor öffnet auch Word (DOCX), PowerPoint (PPTX), PDF und CSV, betrieben von OnlyOffice in WebAssembly."
+      "a": "Excel (.xlsx) ist das Produkt. Derselbe Editor öffnet auch Word (DOCX), PowerPoint (PPTX), PDF und CSV."
     }
   ],
   "featureList": [
-    "Online-Excel-(.xlsx)-Arbeitsmappen-Editor im Browser",
-    "Anmelden und Arbeitsmappen mit dem Konto synchronisieren",
-    "Autosave für angemeldete Cloud-Arbeitsmappen",
-    "Lokal öffnen ohne Konto",
-    "Auch DOCX, PPTX, PDF und CSV öffnen",
-    "Installierbare PWA mit Offline-Support für lokales Editieren",
-    "Einbettbar über postMessage-API",
+    "Excel (.xlsx) im Browser bearbeiten",
+    "Kostenlos auf diesem Gerät — kein Konto nötig",
+    "Optionaler Cloud-Sync über Geräte",
+    "Autosave für angemeldete Cloud-Mappen",
+    "Auch DOCX, PPTX, PDF und CSV",
+    "Offline, sobald der Editor gecacht ist",
+    "Einbettbar per postMessage-API",
     "Kostenlos und Open Source (MIT)"
   ],
   "ecosystem": {

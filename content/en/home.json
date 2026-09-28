@@ -1,7 +1,7 @@
 {
-  "title": "Online Excel Editor — Edit XLSX Workbooks in Your Browser",
-  "description": "Online Excel workbook editor powered by OnlyOffice. Free durable library in this browser; optional cloud storage when you need the same file across devices.",
-  "ogDescription": "Edit Excel workbooks online — free local library in this browser, or optional cloud storage across devices.",
+  "title": "Edit Excel in Your Browser — No Install",
+  "description": "Open .xlsx in a tab. Edit formulas and sheets without installing Office. Free on this device; cloud when the same file must follow you.",
+  "ogDescription": "Your spreadsheet. No install. Free on this device.",
   "nav": [
     {
       "href": "/",
@@ -13,7 +13,7 @@
     },
     {
       "href": "#essentials",
-      "label": "Essentials"
+      "label": "For you"
     },
     {
       "href": "/pricing",
@@ -28,34 +28,34 @@
     "logIn": "Log in",
     "getStarted": "Open workspace"
   },
-  "badge": "Local free · Cloud optional",
+  "badge": "No install required",
   "h1": {
-    "plain": "Excel in your browser",
-    "accent": "without installing Office"
+    "plain": "Your spreadsheet.",
+    "accent": "No install."
   },
-  "sub": "Upload and save workbooks in this browser for free. Add optional cloud storage when the same file needs to follow you across devices.",
+  "sub": "That .xlsx in your inbox — open it here, fix what you need, and go. Add cloud only when the same file must follow you.",
   "cta": {
     "signIn": "View pricing",
     "files": "My workbooks",
-    "xlsx": "New Excel (local)",
-    "open": "Open a local file"
+    "xlsx": "New spreadsheet",
+    "open": "Open Excel"
   },
   "checks": [
-    "Local library stays free",
-    "No Office install",
-    "Cloud when you need it"
+    "Open any .xlsx",
+    "Edit in this tab",
+    "Done when you are"
   ],
   "recent": {
     "label": "Continue editing",
-    "note": "This-device library stays in IndexedDB until you delete it. Crash recovery copies still expire after 7 days on the history page. Cloud workbooks sync when you are signed in with a plan.",
+    "note": "Files on this device stay until you delete them. Crash recovery copies expire after 7 days. Cloud workbooks sync when you are signed in with a plan.",
     "all": "Local history",
     "cloud": "Cloud workbooks"
   },
   "docwin": {
     "file": "sample_workbook.xlsx",
-    "engine": "OnlyOffice engine",
-    "encrypted": "Cloud autosave",
-    "saved": "Saved to account",
+    "engine": "In the browser",
+    "encrypted": "Autosave",
+    "saved": "Saved",
     "share": "Share",
     "export": "Export",
     "cols": [
@@ -89,7 +89,7 @@
     "sync": "Autosave on"
   },
   "loved": {
-    "label": "Built for creators, startups, and teams who want Excel in the browser",
+    "label": "For anyone who needs Excel without installing Office",
     "chips": [
       "OnlyOffice",
       "XLSX",
@@ -100,61 +100,61 @@
     ]
   },
   "features": {
-    "eyebrow": "Lightweight & efficient",
-    "h2": "Say goodbye to bloated suites. Welcome to focused productivity.",
-    "p": "OnlyOffice in the tab for free local edits. Sign in only when you want the same workbook on every device — see Pricing for cloud plans.",
+    "eyebrow": "The product",
+    "h2": "A real spreadsheet. In a tab.",
+    "p": "Open attachments, fix cells, keep formulas intact. Sign in only when you want the same workbook on another device.",
     "items": [
       {
         "tone": "brand",
-        "h3": "Browser spreadsheet engine",
-        "p": "Formulas, charts, sheets and formatting via OnlyOffice WebAssembly — no desktop Office required.",
-        "tag": "Full .xlsx editing in the tab"
+        "h3": "Formulas, charts, sheets",
+        "p": "Full .xlsx editing in the browser — no desktop Office.",
+        "tag": "Excel in the tab"
       },
       {
         "tone": "ink",
-        "h3": "Local first, always free",
-        "p": "Upload and save into this browser's durable library with no account. Seven-day AutoRecover remains for crash recovery only.",
-        "tag": "Works without signing in"
+        "h3": "Stays on this device",
+        "p": "Save here for free. No account. Nothing leaves this browser until you choose cloud.",
+        "tag": "No sign-in required"
       },
       {
         "tone": "soft",
         "h3": "Cloud when you need it",
-        "p": "Optional account storage so a workbook can follow you across devices. Plans and quotas live on the Pricing page.",
-        "tag": "My workbooks · autosave"
+        "p": "One workbook, every device — when you're ready. Plans live on Pricing.",
+        "tag": "Pick up anywhere"
       }
     ]
   },
   "essentials": {
-    "eyebrow": "Core essentials",
-    "h2": "Minimalist interface, maximum editing power",
-    "p": "Built for opening attachments, fixing cells, and keeping formulas intact — not for replacing every Excel power feature.",
+    "eyebrow": "What it's for",
+    "h2": "Everyday .xlsx. Not every Excel feature.",
+    "p": "Built for opening attachments, fixing cells, and keeping formulas intact.",
     "items": [
       {
         "tone": "ink",
         "label": "Honest fit",
-        "h3": "Everyday .xlsx, not every Excel feature",
-        "p": "Great for open–edit–download and light formulas. For VBA macros, heavy Power Query, or live multi-user co-editing, stick with Excel or Google Sheets.",
+        "h3": "Open, edit, done",
+        "p": "Great for attachments and light formulas. For VBA, heavy Power Query, or live co-editing — use Excel or Google Sheets.",
         "snippet": "access"
       },
       {
         "tone": "air",
-        "label": "Organization",
+        "label": "Formats",
         "h3": "Excel first, docs when needed",
-        "p": "Spreadsheets are the product. The same engine still opens Word, PowerPoint, PDF and OpenDocument when you need them.",
+        "p": "Spreadsheets are the product. Word, PowerPoint, PDF and OpenDocument open in the same editor when you need them.",
         "snippet": "formats"
       },
       {
         "tone": "brand",
-        "label": "Cloud library",
+        "label": "Across devices",
         "h3": "My workbooks, one account",
-        "p": "Sign in, choose a cloud plan on Pricing, then browse, open, and autosave files in your account — pick up on another device.",
+        "p": "Sign in when a file must travel with you. Browse, open, and autosave — pick up on another device.",
         "snippet": "library"
       },
       {
         "tone": "air",
-        "label": "Offline ready",
+        "label": "Offline",
         "h3": "Work offline, sync later",
-        "p": "Once editor assets are cached, keep editing a local file without the network. Cloud save waits until you are online.",
+        "p": "Once the editor is cached, keep editing a local file without the network. Cloud save waits until you're online.",
         "snippet": "offline"
       }
     ]
@@ -165,7 +165,7 @@
     "secondary": "Pricing"
   },
   "foot": {
-    "blurb": "The lightweight online Excel and document editor — free local library, optional cloud storage.",
+    "blurb": "Excel in the browser — free on this device, cloud when you need it.",
     "columns": [
       {
         "title": "Product",
@@ -278,28 +278,28 @@
   "faqLd": [
     {
       "q": "Do I need an account?",
-      "a": "No for local editing. Open a .xlsx free without signing in — save into this browser's library, or use seven-day AutoRecover. Sign in and pick a cloud plan on the Pricing page only when the same file must follow you across devices."
+      "a": "No. Open a .xlsx free without signing in and save on this device. Sign in and pick a cloud plan on Pricing only when the same file must follow you across devices."
     },
     {
       "q": "What happens if I close the tab?",
-      "a": "This-device library files stay until you delete them. Signed-in cloud workbooks are written back by save and autosave. Separately, crash recovery copies can stay for 7 days — see the history page."
+      "a": "Files saved on this device stay until you delete them. Signed-in cloud workbooks are written back by save and autosave. Crash recovery copies can stay for 7 days — see the history page."
     },
     {
       "q": "Is this a full Excel replacement?",
-      "a": "No. It is built for opening attachments, everyday formulas, and format-preserving edits without installing Office. For VBA macros, heavy Power Query, or live multi-user co-editing, use Excel or Google Sheets."
+      "a": "No. It is built for opening attachments, everyday formulas, and format-preserving edits without installing Office. For VBA, heavy Power Query, or live co-editing, use Excel or Google Sheets."
     },
     {
       "q": "Which formats can I edit?",
-      "a": "Excel (.xlsx) is the primary product. The same editor also opens Word (DOCX), PowerPoint (PPTX), PDF and CSV, powered by OnlyOffice in WebAssembly."
+      "a": "Excel (.xlsx) is the product. The same editor also opens Word (DOCX), PowerPoint (PPTX), PDF and CSV."
     }
   ],
   "featureList": [
-    "Online Excel (.xlsx) workbook editor in the browser",
-    "Sign in to sync workbooks to your account",
+    "Edit Excel (.xlsx) in the browser",
+    "Free on this device — no account required",
+    "Optional cloud sync across devices",
     "Autosave for signed-in cloud workbooks",
-    "Local open without an account",
     "Also open DOCX, PPTX, PDF and CSV",
-    "Installable PWA with offline support for local editing",
+    "Works offline once the editor is cached",
     "Embeddable via postMessage API",
     "Free and open source (MIT)"
   ],
