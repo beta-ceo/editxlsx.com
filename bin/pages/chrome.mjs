@@ -20,11 +20,11 @@ import { LOCALES, MENU_ORDER } from './locales.mjs';
  * rather than in the page's -- "日本語" read with English phonetics is noise, and
  * these labels exist precisely for readers who cannot read the current page.
  *
- * Icon-only trigger: Lucide-style “Languages” (glyph + Latin A). The current
- * language lives in the open list (`aria-current="page"`) and in the host's
- * `aria-label`; spelling it on the face cost width and restated the menu.
- * Placement is `bottom` (leading edge): the panel hangs under the mark, and on
- * a phone the boundary shift pulls it back on screen.
+ * Icon + chevron trigger: Lucide-style “Languages” mark, with a caret that
+ * flips when open. The current language lives in the open list
+ * (`aria-current="page"`) and in the host's `aria-label`. Placement is `bottom`
+ * (leading edge): the panel hangs under the mark, and on a phone the boundary
+ * shift pulls it back on screen.
  *
  * Built with ranui's builder, which runs here as well as in a browser: with no
  * `document` it falls back to ranui's own DOM mock, and `serialize()` returns
@@ -32,6 +32,27 @@ import { LOCALES, MENU_ORDER } from './locales.mjs';
  * same pages under jsdom. Attributes and text are escaped on the way out, which
  * is the part hand-written HTML gets wrong quietly.
  */
+const menuChevron = () =>
+  View('svg')
+    .attrs({
+      class: 'menu-caret',
+      'aria-hidden': 'true',
+      viewBox: '0 0 24 24',
+    })
+    .children(
+      View('path')
+        .attrs({
+          d: 'M6 9l6 6 6-6',
+          fill: 'none',
+          stroke: 'currentColor',
+          'stroke-width': '1.75',
+          'stroke-linecap': 'round',
+          'stroke-linejoin': 'round',
+        })
+        .build(),
+    )
+    .build();
+
 export const langMenu = (locale, locales, ui, hrefFor) =>
   View('r-popover')
     .attrs({
@@ -113,6 +134,7 @@ export const langMenu = (locale, locales, ui, hrefFor) =>
                 .build(),
             )
             .build(),
+          menuChevron(),
         )
         .build(),
       View('r-content')
@@ -146,6 +168,35 @@ export const langMenu = (locale, locales, ui, hrefFor) =>
  * public/theme-toggle.js into localStorage `ran-theme` and
  * <html data-ran-theme>, matching workspace / the editor.
  */
+const THEME_OPTION_ICONS = {
+  system: 'M4 5h16v10a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V5zM8 19h8M12 16v3',
+  light:
+    'M12 3v2M12 19v2M5.6 5.6l1.4 1.4M17 17l1.4 1.4M3 12h2M19 12h2M5.6 18.4l1.4-1.4M17 7l1.4-1.4M12 8a4 4 0 1 0 0 8 4 4 0 0 0 0-8z',
+  dark: 'M21 14.3A8.5 8.5 0 1 1 9.7 3a7 7 0 0 0 11.3 11.3z',
+};
+
+function themeOptionIcon(id) {
+  return View('svg')
+    .attrs({
+      class: 'theme-option-icon',
+      'aria-hidden': 'true',
+      viewBox: '0 0 24 24',
+    })
+    .children(
+      View('path')
+        .attrs({
+          d: THEME_OPTION_ICONS[id],
+          fill: 'none',
+          stroke: 'currentColor',
+          'stroke-width': '1.75',
+          'stroke-linecap': 'round',
+          'stroke-linejoin': 'round',
+        })
+        .build(),
+    )
+    .build();
+}
+
 export const themeToggle = (ui) =>
   View('r-popover')
     .attrs({
@@ -170,7 +221,7 @@ export const themeToggle = (ui) =>
               View('path')
                 .attrs({
                   // Default face is system; theme-toggle.js swaps `d` on boot.
-                  d: 'M4 5h16v10a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V5zM8 19h8M12 16v3',
+                  d: THEME_OPTION_ICONS.system,
                   fill: 'none',
                   stroke: 'currentColor',
                   'stroke-width': '1.75',
@@ -180,6 +231,7 @@ export const themeToggle = (ui) =>
                 .build(),
             )
             .build(),
+          menuChevron(),
         )
         .build(),
       View('r-content')
@@ -200,7 +252,7 @@ export const themeToggle = (ui) =>
                     role: 'option',
                     'data-theme': id,
                   })
-                  .text(label)
+                  .children(themeOptionIcon(id), View('span').text(label).build())
                   .build(),
               ),
             )

@@ -245,12 +245,12 @@ header.bar > nav:not(.products):not(.utils) a:hover {
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  gap: 2px;
   padding: var(--ran-space-2);
   border-radius: var(--ran-radius-sm);
   /* Match the 38px nav link / GitHub hit targets beside it. */
   line-height: 0;
   min-height: calc(22px + var(--ran-space-2) * 2);
-  min-width: calc(22px + var(--ran-space-2) * 2);
   color: var(--ran-color-text-secondary);
   cursor: pointer;
   transition: 0.15s ease;
@@ -273,6 +273,18 @@ header.bar > nav:not(.products):not(.utils) a:hover {
   height: 18px;
   flex: none;
   display: block;
+}
+.menu-caret {
+  width: 12px;
+  height: 12px;
+  flex: none;
+  display: block;
+  opacity: 0.75;
+  transition: transform 0.15s ease;
+}
+.lang-menu[open] .menu-caret,
+.theme-menu[open] .menu-caret {
+  transform: rotate(180deg);
 }
 .lang-list {
   display: flex;
@@ -625,11 +637,11 @@ footer a:hover {
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  gap: 2px;
   padding: var(--ran-space-2);
   border-radius: var(--ran-radius-sm);
   line-height: 0;
   min-height: calc(22px + var(--ran-space-2) * 2);
-  min-width: calc(22px + var(--ran-space-2) * 2);
   color: var(--ran-color-text-secondary);
   cursor: pointer;
   transition: 0.15s ease;
@@ -661,7 +673,7 @@ footer a:hover {
 .theme-option {
   display: flex;
   align-items: center;
-  gap: var(--ran-space-1);
+  gap: var(--ran-space-2);
   padding: 6px 10px;
   border: 0;
   border-radius: var(--ran-radius-sm);
@@ -673,12 +685,22 @@ footer a:hover {
   cursor: pointer;
   width: 100%;
 }
+.theme-option-icon {
+  width: 16px;
+  height: 16px;
+  flex: none;
+  display: block;
+  color: var(--ran-color-text-secondary);
+}
 .theme-option:hover {
   background: var(--ran-color-bg-hover);
 }
 .theme-option.is-current {
   color: var(--ran-color-text);
   font-weight: 600;
+}
+.theme-option.is-current .theme-option-icon {
+  color: var(--ran-color-text);
 }
 .theme-option.is-current::after {
   content: '';
