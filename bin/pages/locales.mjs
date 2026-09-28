@@ -2,17 +2,18 @@
  * The languages the site ships, and the order the language menu lists them in.
  */
 
-/** Locales the shell knows about. `prefix` is the URL directory; '' = root. */
+/** Locales the shell knows about. `prefix` is the URL directory; '' = root.
+ *  `mark` is the short glyph shown beside each language in the menu. */
 export const LOCALES = {
-  en: { prefix: '', lang: 'en', label: 'English', home: '/', dir: 'ltr', og: 'en_US' },
-  'zh-CN': { prefix: '/zh-CN', lang: 'zh-CN', label: '中文', home: '/zh-CN/', dir: 'ltr', og: 'zh_CN' },
-  ja: { prefix: '/ja', lang: 'ja', label: '日本語', home: '/ja/', dir: 'ltr', og: 'ja_JP' },
-  de: { prefix: '/de', lang: 'de', label: 'Deutsch', home: '/de/', dir: 'ltr', og: 'de_DE' },
-  es: { prefix: '/es', lang: 'es', label: 'Español', home: '/es/', dir: 'ltr', og: 'es_ES' },
-  ko: { prefix: '/ko', lang: 'ko', label: '한국어', home: '/ko/', dir: 'ltr', og: 'ko_KR' },
+  en: { prefix: '', lang: 'en', label: 'English', mark: 'EN', home: '/', dir: 'ltr', og: 'en_US' },
+  'zh-CN': { prefix: '/zh-CN', lang: 'zh-CN', label: '中文', mark: '中', home: '/zh-CN/', dir: 'ltr', og: 'zh_CN' },
+  ja: { prefix: '/ja', lang: 'ja', label: '日本語', mark: 'あ', home: '/ja/', dir: 'ltr', og: 'ja_JP' },
+  de: { prefix: '/de', lang: 'de', label: 'Deutsch', mark: 'DE', home: '/de/', dir: 'ltr', og: 'de_DE' },
+  es: { prefix: '/es', lang: 'es', label: 'Español', mark: 'ES', home: '/es/', dir: 'ltr', og: 'es_ES' },
+  ko: { prefix: '/ko', lang: 'ko', label: '한국어', mark: '한', home: '/ko/', dir: 'ltr', og: 'ko_KR' },
   // pt_BR, not pt_PT: the pages, the shell strings and the vendor locale the
   // editor loads (pt.json) are all Brazilian Portuguese.
-  pt: { prefix: '/pt', lang: 'pt', label: 'Português', home: '/pt/', dir: 'ltr', og: 'pt_BR' },
+  pt: { prefix: '/pt', lang: 'pt', label: 'Português', mark: 'PT', home: '/pt/', dir: 'ltr', og: 'pt_BR' },
 };
 export const DEFAULT_LOCALE = 'en';
 

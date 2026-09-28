@@ -245,15 +245,17 @@ describe('landing pages', () => {
       });
 
       it('names each language in its own words, and marks the one being read', () => {
-        // Endonyms, never abbreviations: this menu's whole audience is readers
-        // who cannot read the page it sits on, and "EN" is only legible to
-        // someone who already reads English. It used to be the one abbreviated
-        // entry among six full names.
+        // Endonyms, never abbreviations as the only label: this menu's whole
+        // audience is readers who cannot read the page it sits on. A short
+        // mark (EN / 中 / あ) may sit beside the name as an icon; the readable
+        // word must still be the endonym.
         for (const other of Object.keys(LOCALES)) {
           const target = routeIn(other, enRoute);
           if (!routes.has(target)) continue;
+          const lang = LOCALES[other].lang;
+          const current = other === locale ? ' aria-current="page"' : '';
           expect(html, `${route}: ${other} is not named in its own language`).toContain(
-            `hreflang="${LOCALES[other].lang}"${other === locale ? ' aria-current="page"' : ''}>${LOCALES[other].label}</a>`,
+            `hreflang="${lang}"${current}><span class="lang-option-icon" aria-hidden="true">${LOCALES[other].mark}</span><span>${LOCALES[other].label}</span></a>`,
           );
         }
         // Exactly one row is the current one (marked in the open list).

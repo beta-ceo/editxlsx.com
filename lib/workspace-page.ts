@@ -80,14 +80,14 @@ const BOOT_POLL_MS = 500;
 const BOOT_GIVE_UP_MS = 15_000;
 const BOOT_AUTO_RETRIES = 1;
 
-const LOCALES: Array<{ code: string; label: string }> = [
-  { code: 'de', label: 'Deutsch' },
-  { code: 'en', label: 'English' },
-  { code: 'es', label: 'Español' },
-  { code: 'pt', label: 'Português' },
-  { code: 'zh-CN', label: '中文' },
-  { code: 'ja', label: '日本語' },
-  { code: 'ko', label: '한국어' },
+const LOCALES: Array<{ code: string; label: string; mark: string }> = [
+  { code: 'de', label: 'Deutsch', mark: 'DE' },
+  { code: 'en', label: 'English', mark: 'EN' },
+  { code: 'es', label: 'Español', mark: 'ES' },
+  { code: 'pt', label: 'Português', mark: 'PT' },
+  { code: 'zh-CN', label: '中文', mark: '中' },
+  { code: 'ja', label: '日本語', mark: 'あ' },
+  { code: 'ko', label: '한국어', mark: '한' },
 ];
 
 let query = '';
@@ -2248,7 +2248,10 @@ function mountShell(): void {
       .attr('href', `${href.pathname}${href.search}`)
       .attr('lang', locale.code)
       .attr('hreflang', locale.code)
-      .text(locale.label)
+      .children(
+        View('span').class('lang-option-icon').attr('aria-hidden', 'true').text(locale.mark).build(),
+        View('span').text(locale.label).build(),
+      )
       .on('click', () => rememberLocale(locale.code))
       .build();
     if (locale.code === lang) link.setAttribute('aria-current', 'page');

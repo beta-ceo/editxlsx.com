@@ -152,7 +152,13 @@ export const langMenu = (locale, locales, ui, hrefFor) =>
                     // `attrs` drops null, so only the current entry carries this.
                     'aria-current': l === locale ? 'page' : null,
                   })
-                  .text(LOCALES[l].label)
+                  .children(
+                    View('span')
+                      .attrs({ class: 'lang-option-icon', 'aria-hidden': 'true' })
+                      .text(LOCALES[l].mark)
+                      .build(),
+                    View('span').text(LOCALES[l].label).build(),
+                  )
                   .build(),
               ),
             )

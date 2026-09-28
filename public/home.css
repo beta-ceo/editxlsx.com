@@ -238,7 +238,7 @@ body {
 .lang-option {
   display: flex;
   align-items: center;
-  gap: var(--ran-space-1);
+  gap: var(--ran-space-2);
   padding: 6px 10px;
   border-radius: var(--ran-radius-sm);
   font-size: 14px;
@@ -246,19 +246,37 @@ body {
   text-decoration: none;
   white-space: nowrap;
 }
-.lang-option::before {
-  content: '';
-  width: 11px;
+.lang-option-icon {
+  display: inline-grid;
+  place-items: center;
+  width: 1.5rem;
+  height: 1.5rem;
   flex: none;
-  font-size: 11px;
-  line-height: 1;
+  border-radius: 6px;
+  background: color-mix(in srgb, var(--ran-color-text) 6%, transparent);
   color: var(--ran-color-text-secondary);
-}
-.lang-option.is-current::before {
-  content: '✓';
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  line-height: 1;
 }
 .lang-option:hover {
   background: var(--ran-color-bg-hover);
+}
+.lang-option.is-current {
+  font-weight: 600;
+}
+.lang-option.is-current .lang-option-icon {
+  background: color-mix(in srgb, var(--brand) 16%, transparent);
+  color: var(--brand-ink);
+}
+.lang-option.is-current::after {
+  content: '';
+  margin-inline-start: auto;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--ran-color-primary, var(--brand));
 }
 .theme-list {
   display: flex;

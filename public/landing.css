@@ -298,7 +298,7 @@ header.bar > nav:not(.products):not(.utils) a:hover {
 .lang-option {
   display: flex;
   align-items: center;
-  gap: var(--ran-space-1);
+  gap: var(--ran-space-2);
   padding: 6px 10px;
   border-radius: var(--ran-radius-sm);
   font-size: 14px;
@@ -306,29 +306,40 @@ header.bar > nav:not(.products):not(.utils) a:hover {
   text-decoration: none;
   white-space: nowrap;
 }
-.lang-option::before {
-  /* A fixed gutter on every row, so the labels line up whether or not the row
-     carries the check. Sized to the tick and no wider: on a panel this narrow a
-     generous gutter is most of the left half of it. */
-  content: '';
-  width: 11px;
+.lang-option-icon {
+  display: inline-grid;
+  place-items: center;
+  width: 1.5rem;
+  height: 1.5rem;
   flex: none;
-  font-size: 11px;
-  line-height: 1;
+  border-radius: 6px;
+  background: color-mix(in srgb, var(--ran-color-text) 6%, transparent);
   color: var(--ran-color-text-secondary);
-}
-.lang-option.is-current::before {
-  content: '✓';
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  line-height: 1;
 }
 .lang-option:hover {
-  /* Hover is the moving highlight; the current language is marked by the check
-     and the weight. Giving the current row a background of its own would put
-     two near-identical greys in one menu, and the reader has to tell them
-     apart at a glance. */
+  /* Hover is the moving highlight; the current language is marked by the icon
+     tint and trailing dot. Giving the current row a background of its own would
+     put two near-identical greys in one menu. */
   background: var(--ran-color-bg-hover);
 }
 .lang-option.is-current {
   font-weight: 600;
+}
+.lang-option.is-current .lang-option-icon {
+  background: color-mix(in srgb, var(--brand) 16%, transparent);
+  color: var(--brand-ink);
+}
+.lang-option.is-current::after {
+  content: '';
+  margin-inline-start: auto;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--ran-color-primary, var(--brand));
 }
 
 /* ---------- language menu panel (ranui r-dropdown) ----------
