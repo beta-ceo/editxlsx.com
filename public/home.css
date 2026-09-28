@@ -733,6 +733,7 @@ body {
 #landing-hero .section,
 #landing-hero .features-sec,
 #landing-hero .essentials,
+#landing-hero .pricing-sec,
 #landing-hero .band-wrap {
   padding-top: var(--section-y);
   padding-bottom: var(--section-y);
@@ -1293,6 +1294,132 @@ body {
   #landing-hero .snip-chips {
     grid-template-columns: 1fr 1fr;
   }
+}
+
+#landing-hero .features-sec,
+#landing-hero .essentials,
+#landing-hero .pricing-sec {
+  scroll-margin-top: 72px;
+}
+#landing-hero .pricing-sec .section-head {
+  max-width: 36rem;
+  margin-bottom: var(--section-head-gap);
+  text-align: start;
+  margin-inline: 0;
+}
+#landing-hero .home-price-grid {
+  display: grid;
+  gap: var(--ran-space-4);
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  align-items: stretch;
+  padding-top: var(--ran-space-3);
+}
+@media (max-width: 900px) {
+  #landing-hero .home-price-grid {
+    grid-template-columns: 1fr;
+    max-width: 26rem;
+  }
+}
+#landing-hero .home-price-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: var(--ran-space-2);
+  padding: var(--ran-space-6);
+  border-radius: 20px;
+  border: 1px solid var(--ran-color-border);
+  background: var(--ran-color-bg-elevated, var(--ran-color-bg));
+  color: var(--ran-color-text);
+}
+#landing-hero .home-price-card.is-featured {
+  border-color: color-mix(in srgb, var(--brand) 45%, var(--ran-color-border));
+  box-shadow: 0 18px 40px -28px color-mix(in srgb, var(--brand) 55%, transparent);
+}
+#landing-hero .home-price-ribbon {
+  position: absolute;
+  top: -0.65rem;
+  inset-inline-end: var(--ran-space-5);
+  padding: 0.2rem 0.65rem;
+  border-radius: 999px;
+  background: var(--brand);
+  color: #fff;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+#landing-hero .home-price-eyebrow {
+  margin: 0;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--ran-color-text-secondary);
+}
+#landing-hero .home-price-title {
+  margin: 0;
+  font-size: 1.375rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+#landing-hero .home-price-amount {
+  margin: 0;
+  font-size: clamp(1.75rem, 3vw, 2.125rem);
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  line-height: 1.1;
+}
+#landing-hero .home-price-amount small {
+  margin-inline-start: 0.25rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--ran-color-text-secondary);
+}
+#landing-hero .home-price-value {
+  margin: 0;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--brand-ink);
+}
+#landing-hero .home-price-blurb {
+  margin: 0;
+  font-size: 0.9375rem;
+  line-height: 1.5;
+  color: var(--ran-color-text-secondary);
+}
+#landing-hero .home-price-list {
+  margin: var(--ran-space-2) 0 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+  flex: 1;
+}
+#landing-hero .home-price-list li {
+  position: relative;
+  padding-inline-start: 1rem;
+  font-size: 0.875rem;
+  line-height: 1.45;
+  color: var(--ran-color-text-secondary);
+}
+#landing-hero .home-price-list li::before {
+  content: '';
+  position: absolute;
+  inset-inline-start: 0;
+  top: 0.45em;
+  width: 0.4rem;
+  height: 0.4rem;
+  border-radius: 50%;
+  background: var(--brand);
+}
+#landing-hero .home-price-cta {
+  display: block;
+  margin-top: var(--ran-space-4);
+  text-decoration: none;
+}
+#landing-hero .home-price-cta r-button {
+  width: 100%;
 }
 
 /* ---------- CTA band ---------- */

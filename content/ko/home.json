@@ -16,7 +16,7 @@
       "label": "용도"
     },
     {
-      "href": "/pricing",
+      "href": "#pricing",
       "label": "요금"
     },
     {
@@ -302,5 +302,64 @@
   "ecosystem": {
     "name": "ran ecosystem",
     "url": "https://ran.chaxus.com"
+  },
+  "pricing": {
+    "eyebrow": "요금",
+    "h2": "파일이 따라와야 할 때만 클라우드.",
+    "p": "이 기기는 계속 무료. 기기 간 계정 저장만 연 단위로 결제.",
+    "plans": [
+      {
+        "id": "local",
+        "featured": false,
+        "eyebrow": "항상 포함",
+        "title": "이 기기",
+        "price": "$0",
+        "unit": "/ 평생",
+        "value": "포함 · 계정 불필요",
+        "blurb": "이 브라우저에서 편집하고 저장.",
+        "features": [
+          "로컬 업로드·편집·저장",
+          "캐시 후 오프라인",
+          "계정·연회비 없음"
+        ],
+        "cta": "워크스페이스 열기",
+        "href": "/workspace"
+      },
+      {
+        "id": "gb1",
+        "featured": false,
+        "eyebrow": "클라우드 · 기기 간",
+        "title": "1 GB",
+        "price": "$5",
+        "unit": "/ 년",
+        "value": "입문 · 가벼운 기기 간",
+        "blurb": "같은 통합 문서를 폰·노트북·회사 PC에서.",
+        "features": [
+          "1 GB 계정 저장",
+          "어디서든 열고 자동 저장",
+          "로컬 라이브러리는 계속 무료"
+        ],
+        "cta": "1 GB 시작",
+        "href": "/pricing"
+      },
+      {
+        "id": "gb10",
+        "featured": true,
+        "ribbon": "인기",
+        "eyebrow": "클라우드 · 기기 간",
+        "title": "10 GB",
+        "price": "$10",
+        "unit": "/ 년",
+        "value": "추천 · 가성비",
+        "blurb": "1 GB의 10배 용량, 가격은 두 배뿐.",
+        "features": [
+          "10 GB 계정 저장",
+          "일상 기기 간 라이브러리",
+          "Stripe에서 언제든 해지"
+        ],
+        "cta": "10 GB 시작",
+        "href": "/pricing"
+      }
+    ]
   }
 }

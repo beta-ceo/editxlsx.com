@@ -16,7 +16,7 @@
       "label": "For you"
     },
     {
-      "href": "/pricing",
+      "href": "#pricing",
       "label": "Pricing"
     },
     {
@@ -212,7 +212,7 @@
         "title": "Resources",
         "links": [
           {
-            "href": "/pricing",
+            "href": "#pricing",
             "label": "Pricing"
           },
           {
@@ -306,5 +306,64 @@
   "ecosystem": {
     "name": "ran ecosystem",
     "url": "https://ran.chaxus.com"
+  },
+  "pricing": {
+    "eyebrow": "Pricing",
+    "h2": "Cloud when a file must follow you.",
+    "p": "This device stays free. Pay yearly only for account storage across devices.",
+    "plans": [
+      {
+        "id": "local",
+        "featured": false,
+        "eyebrow": "Always included",
+        "title": "This device",
+        "price": "$0",
+        "unit": "/ forever",
+        "value": "Included · no account",
+        "blurb": "Edit and save in this browser.",
+        "features": [
+          "Upload, edit, and save locally",
+          "Works offline after cache",
+          "No account or yearly fee"
+        ],
+        "cta": "Open workspace",
+        "href": "/workspace"
+      },
+      {
+        "id": "gb1",
+        "featured": false,
+        "eyebrow": "Cloud · cross-device",
+        "title": "1 GB",
+        "price": "$5",
+        "unit": "/ year",
+        "value": "Starter · light cross-device",
+        "blurb": "Same workbook on phone, laptop, and work PC.",
+        "features": [
+          "1 GB account storage",
+          "Open and autosave anywhere",
+          "Local library stays free"
+        ],
+        "cta": "Get 1 GB",
+        "href": "/pricing"
+      },
+      {
+        "id": "gb10",
+        "featured": true,
+        "ribbon": "Popular",
+        "eyebrow": "Cloud · cross-device",
+        "title": "10 GB",
+        "price": "$10",
+        "unit": "/ year",
+        "value": "Recommended · best value",
+        "blurb": "10× the room of 1 GB for only twice the price.",
+        "features": [
+          "10 GB account storage",
+          "Day-to-day library across devices",
+          "Cancel anytime via Stripe"
+        ],
+        "cta": "Get 10 GB",
+        "href": "/pricing"
+      }
+    ]
   }
 }

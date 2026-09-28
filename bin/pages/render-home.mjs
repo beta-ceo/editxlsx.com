@@ -105,8 +105,16 @@ export function renderHome({ locale, data, locales }) {
 
   const navLinks = data.nav
     .map((item) => {
-      const href = pageHref(item.href);
-      return `            <a class="navlink" href="${e(href)}">${e(item.label)}</a>`;
+      let href = pageHref(item.href);
+      let current = '';
+      // Already on this homepage: a plain "/" reloads the document and the
+      // scroll-reveal script blanks cards again — feels like a jump. Stay
+      // in-document and scroll to the top instead.
+      if (href === home || href === '/' || item.href === '/' || item.href === home) {
+        href = '#landing-hero';
+        current = ' aria-current="page"';
+      }
+      return `            <a class="navlink" href="${e(href)}"${current}>${e(item.label)}</a>`;
     })
     .join('\n');
 
@@ -131,6 +139,24 @@ export function renderHome({ locale, data, locales }) {
             <span class="feat-tag"><span class="feat-tag-ico" aria-hidden="true">${tagIcons[item.tone] || tagIcons.brand}</span>${e(item.tag)}</span>
           </article>`,
     )
+    .join('\n');
+
+  const pricingCards = (data.pricing?.plans || [])
+    .map((plan) => {
+      const featured = plan.featured ? ' is-featured' : '';
+      const ribbon = plan.featured && plan.ribbon ? `<span class="home-price-ribbon">${e(plan.ribbon)}</span>` : '';
+      const features = (plan.features || []).map((f) => `<li>${e(f)}</li>`).join('');
+      return `          <article class="home-price-card${featured}" data-plan="${e(plan.id)}">
+            ${ribbon}
+            <p class="home-price-eyebrow">${e(plan.eyebrow)}</p>
+            <h3 class="home-price-title">${e(plan.title)}</h3>
+            <p class="home-price-amount">${e(plan.price)}<small>${e(plan.unit)}</small></p>
+            <p class="home-price-value">${e(plan.value)}</p>
+            <p class="home-price-blurb">${e(plan.blurb)}</p>
+            <ul class="home-price-list">${features}</ul>
+            <a class="home-price-cta" href="${e(pageHref(plan.href))}"><r-button${plan.featured || plan.id === 'local' ? ' type="primary"' : ''}>${e(plan.cta)}</r-button></a>
+          </article>`;
+    })
     .join('\n');
 
   const bentoSnippets = {
@@ -281,7 +307,7 @@ ${jsonLd}
     <section id="landing-hero">
       <header class="bar">
         <div class="wrap">
-          <a class="brand" href="${home}"><span class="mark" aria-hidden="true"></span><span class="wordmark">${e(ui.siteName)}</span></a>
+          <a class="brand" href="#landing-hero"><span class="mark" aria-hidden="true"></span><span class="wordmark">${e(ui.siteName)}</span></a>
           <nav class="products" aria-label="${e(ui.productsAria)}">
 ${navLinks}
           </nav>
@@ -368,13 +394,24 @@ ${bentoCards}
         </div>
       </div>
 
+      <div class="section pricing-sec wrap" id="pricing">
+        <div class="section-head left">
+          <span class="eyebrow">${e(data.pricing.eyebrow)}</span>
+          <h2>${e(data.pricing.h2)}</h2>
+          <p class="head-note">${e(data.pricing.p)}</p>
+        </div>
+        <div class="home-price-grid">
+${pricingCards}
+        </div>
+      </div>
+
       <div class="wrap band-wrap">
         <div class="band">
           <div class="band-inner">
             <h2>${e(data.band.h2)}</h2>
             <div class="band-cta">
               <a class="band-primary" href="${e(appPath('/workspace'))}">${e(data.band.primary)}</a>
-              <a class="band-secondary" href="${e(appPath('/pricing'))}">${e(data.band.secondary)}</a>
+              <a class="band-secondary" href="#pricing">${e(data.band.secondary)}</a>
             </div>
           </div>
         </div>

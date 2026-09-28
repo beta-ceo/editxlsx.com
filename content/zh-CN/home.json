@@ -16,7 +16,7 @@
       "label": "适合谁"
     },
     {
-      "href": "/pricing",
+      "href": "#pricing",
       "label": "价格"
     },
     {
@@ -212,7 +212,7 @@
         "title": "资源",
         "links": [
           {
-            "href": "/pricing",
+            "href": "#pricing",
             "label": "价格"
           },
           {
@@ -306,5 +306,64 @@
   "ecosystem": {
     "name": "ran ecosystem",
     "url": "https://ran.chaxus.com"
+  },
+  "pricing": {
+    "eyebrow": "价格",
+    "h2": "文件需要跟随时，再上云。",
+    "p": "本机始终免费。只有账号云存储按年付费。",
+    "plans": [
+      {
+        "id": "local",
+        "featured": false,
+        "eyebrow": "始终包含",
+        "title": "本机",
+        "price": "$0",
+        "unit": "/ 永久",
+        "value": "包含 · 无需账号",
+        "blurb": "在本浏览器编辑并保存。",
+        "features": [
+          "本地上传、编辑、保存",
+          "缓存后可离线",
+          "无需账号或年费"
+        ],
+        "cta": "打开工作区",
+        "href": "/workspace"
+      },
+      {
+        "id": "gb1",
+        "featured": false,
+        "eyebrow": "云 · 跨设备",
+        "title": "1 GB",
+        "price": "$5",
+        "unit": "/ 年",
+        "value": "入门 · 轻度跨设备",
+        "blurb": "同一本表，手机、笔记本、公司电脑都能开。",
+        "features": [
+          "1 GB 账号存储",
+          "随处打开并自动保存",
+          "本机库仍然免费"
+        ],
+        "cta": "开通 1 GB",
+        "href": "/pricing"
+      },
+      {
+        "id": "gb10",
+        "featured": true,
+        "ribbon": "热门",
+        "eyebrow": "云 · 跨设备",
+        "title": "10 GB",
+        "price": "$10",
+        "unit": "/ 年",
+        "value": "推荐 · 更划算",
+        "blurb": "容量是 1 GB 的十倍，价格只贵一倍。",
+        "features": [
+          "10 GB 账号存储",
+          "日常跨设备资料库",
+          "可随时在 Stripe 取消"
+        ],
+        "cta": "开通 10 GB",
+        "href": "/pricing"
+      }
+    ]
   }
 }

@@ -16,7 +16,7 @@
       "label": "Para qué"
     },
     {
-      "href": "/pricing",
+      "href": "#pricing",
       "label": "Precios"
     },
     {
@@ -212,7 +212,7 @@
         "title": "Recursos",
         "links": [
           {
-            "href": "/pricing",
+            "href": "#pricing",
             "label": "Precios"
           },
           {
@@ -306,5 +306,64 @@
   "ecosystem": {
     "name": "ran ecosystem",
     "url": "https://ran.chaxus.com"
+  },
+  "pricing": {
+    "eyebrow": "Precios",
+    "h2": "Nube cuando un archivo deba seguirte.",
+    "p": "Este dispositivo sigue gratis. Paga al año solo por almacenamiento en la cuenta entre dispositivos.",
+    "plans": [
+      {
+        "id": "local",
+        "featured": false,
+        "eyebrow": "Siempre incluido",
+        "title": "Este dispositivo",
+        "price": "$0",
+        "unit": "/ para siempre",
+        "value": "Incluido · sin cuenta",
+        "blurb": "Edita y guarda en este navegador.",
+        "features": [
+          "Sube, edita y guarda en local",
+          "Sin conexión tras la caché",
+          "Sin cuenta ni cuota anual"
+        ],
+        "cta": "Abrir espacio",
+        "href": "/workspace"
+      },
+      {
+        "id": "gb1",
+        "featured": false,
+        "eyebrow": "Nube · entre dispositivos",
+        "title": "1 GB",
+        "price": "$5",
+        "unit": "/ año",
+        "value": "Inicio · poco tráfico entre dispositivos",
+        "blurb": "El mismo libro en el móvil, el portátil y el PC del trabajo.",
+        "features": [
+          "1 GB de almacenamiento en la cuenta",
+          "Abre y autoguarda en cualquier sitio",
+          "La biblioteca local sigue gratis"
+        ],
+        "cta": "Conseguir 1 GB",
+        "href": "/pricing"
+      },
+      {
+        "id": "gb10",
+        "featured": true,
+        "ribbon": "Popular",
+        "eyebrow": "Nube · entre dispositivos",
+        "title": "10 GB",
+        "price": "$10",
+        "unit": "/ año",
+        "value": "Recomendado · mejor valor",
+        "blurb": "10× el espacio de 1 GB por solo el doble de precio.",
+        "features": [
+          "10 GB de almacenamiento en la cuenta",
+          "Biblioteca diaria entre dispositivos",
+          "Cancela cuando quieras en Stripe"
+        ],
+        "cta": "Conseguir 10 GB",
+        "href": "/pricing"
+      }
+    ]
   }
 }

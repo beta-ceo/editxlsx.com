@@ -240,12 +240,12 @@
     <section id="landing-hero">
       <header class="bar">
         <div class="wrap">
-          <a class="brand" href="/"><span class="mark" aria-hidden="true"></span><span class="wordmark">EditXLSX</span></a>
+          <a class="brand" href="#landing-hero"><span class="mark" aria-hidden="true"></span><span class="wordmark">EditXLSX</span></a>
           <nav class="products" aria-label="Products">
-            <a class="navlink" href="/">Home</a>
+            <a class="navlink" href="#landing-hero" aria-current="page">Home</a>
             <a class="navlink" href="#features">Features</a>
             <a class="navlink" href="#essentials">For you</a>
-            <a class="navlink" href="/pricing">Pricing</a>
+            <a class="navlink" href="#pricing">Pricing</a>
             <a class="navlink" href="/help">Help</a>
           </nav>
           <nav class="utils">
@@ -395,13 +395,53 @@
         </div>
       </div>
 
+      <div class="section pricing-sec wrap" id="pricing">
+        <div class="section-head left">
+          <span class="eyebrow">Pricing</span>
+          <h2>Cloud when a file must follow you.</h2>
+          <p class="head-note">This device stays free. Pay yearly only for account storage across devices.</p>
+        </div>
+        <div class="home-price-grid">
+          <article class="home-price-card" data-plan="local">
+            
+            <p class="home-price-eyebrow">Always included</p>
+            <h3 class="home-price-title">This device</h3>
+            <p class="home-price-amount">$0<small>/ forever</small></p>
+            <p class="home-price-value">Included · no account</p>
+            <p class="home-price-blurb">Edit and save in this browser.</p>
+            <ul class="home-price-list"><li>Upload, edit, and save locally</li><li>Works offline after cache</li><li>No account or yearly fee</li></ul>
+            <a class="home-price-cta" href="/workspace"><r-button type="primary">Open workspace</r-button></a>
+          </article>
+          <article class="home-price-card" data-plan="gb1">
+            
+            <p class="home-price-eyebrow">Cloud · cross-device</p>
+            <h3 class="home-price-title">1 GB</h3>
+            <p class="home-price-amount">$5<small>/ year</small></p>
+            <p class="home-price-value">Starter · light cross-device</p>
+            <p class="home-price-blurb">Same workbook on phone, laptop, and work PC.</p>
+            <ul class="home-price-list"><li>1 GB account storage</li><li>Open and autosave anywhere</li><li>Local library stays free</li></ul>
+            <a class="home-price-cta" href="/pricing"><r-button>Get 1 GB</r-button></a>
+          </article>
+          <article class="home-price-card is-featured" data-plan="gb10">
+            <span class="home-price-ribbon">Popular</span>
+            <p class="home-price-eyebrow">Cloud · cross-device</p>
+            <h3 class="home-price-title">10 GB</h3>
+            <p class="home-price-amount">$10<small>/ year</small></p>
+            <p class="home-price-value">Recommended · best value</p>
+            <p class="home-price-blurb">10× the room of 1 GB for only twice the price.</p>
+            <ul class="home-price-list"><li>10 GB account storage</li><li>Day-to-day library across devices</li><li>Cancel anytime via Stripe</li></ul>
+            <a class="home-price-cta" href="/pricing"><r-button type="primary">Get 10 GB</r-button></a>
+          </article>
+        </div>
+      </div>
+
       <div class="wrap band-wrap">
         <div class="band">
           <div class="band-inner">
             <h2>Your spreadsheet. No install.</h2>
             <div class="band-cta">
               <a class="band-primary" href="/workspace">Open workspace</a>
-              <a class="band-secondary" href="/pricing">Pricing</a>
+              <a class="band-secondary" href="#pricing">Pricing</a>
             </div>
           </div>
         </div>
@@ -434,7 +474,7 @@
               <div class="foot-col">
                 <h3>Resources</h3>
                 <ul>
-                <li><a href="/pricing">Pricing</a></li>
+                <li><a href="#pricing">Pricing</a></li>
                 <li><a href="/help">Help</a></li>
                 <li><a href="/changelog">Changelog</a></li>
                 <li><a href="/compare/excel-online">vs Excel Online</a></li>

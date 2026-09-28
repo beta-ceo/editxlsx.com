@@ -132,7 +132,7 @@ export function renderPage({ page, locale, meta, body, headings, faq, steps, sou
   const loginHref = appPath('/login', locale);
   const workspaceHref = appPath('/workspace', locale);
   const helpHref = routeFor(locale, 'help');
-  const pricingHref = appPath('/pricing', locale);
+  const pricingHref = `${L.home}#pricing`;
   const productsNav = [
     [L.home, ui.home],
     [`${L.home}#features`, ui.navFeatures],
@@ -141,10 +141,7 @@ export function renderPage({ page, locale, meta, body, headings, faq, steps, sou
     [helpHref, ui.navHelp],
   ]
     .map(([href, label]) => {
-      const current =
-        (href === helpHref && page.slug === 'help') || (href === pricingHref && page.slug === 'pricing')
-          ? ' aria-current="page"'
-          : '';
+      const current = href === helpHref && page.slug === 'help' ? ' aria-current="page"' : '';
       return `          <a class="navlink" href="${escapeHtml(href)}"${current}>${escapeHtml(label)}</a>`;
     })
     .join('\n');

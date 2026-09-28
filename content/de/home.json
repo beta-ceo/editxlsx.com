@@ -16,7 +16,7 @@
       "label": "Wofür"
     },
     {
-      "href": "/pricing",
+      "href": "#pricing",
       "label": "Preise"
     },
     {
@@ -212,7 +212,7 @@
         "title": "Ressourcen",
         "links": [
           {
-            "href": "/pricing",
+            "href": "#pricing",
             "label": "Preise"
           },
           {
@@ -306,5 +306,64 @@
   "ecosystem": {
     "name": "ran ecosystem",
     "url": "https://ran.chaxus.com"
+  },
+  "pricing": {
+    "eyebrow": "Preise",
+    "h2": "Cloud, wenn eine Datei mitreisen muss.",
+    "p": "Dieses Gerät bleibt kostenlos. Jährlich zahlen Sie nur für Kontospeicher über Geräte hinweg.",
+    "plans": [
+      {
+        "id": "local",
+        "featured": false,
+        "eyebrow": "Immer dabei",
+        "title": "Dieses Gerät",
+        "price": "$0",
+        "unit": "/ für immer",
+        "value": "Inbegriffen · kein Konto",
+        "blurb": "In diesem Browser bearbeiten und speichern.",
+        "features": [
+          "Lokal öffnen, bearbeiten, speichern",
+          "Offline nach dem Cache",
+          "Kein Konto, keine Jahresgebühr"
+        ],
+        "cta": "Workspace öffnen",
+        "href": "/workspace"
+      },
+      {
+        "id": "gb1",
+        "featured": false,
+        "eyebrow": "Cloud · geräteübergreifend",
+        "title": "1 GB",
+        "price": "$5",
+        "unit": "/ Jahr",
+        "value": "Einstieg · leicht geräteübergreifend",
+        "blurb": "Dieselbe Mappe auf Handy, Laptop und Firmen-PC.",
+        "features": [
+          "1 GB Kontospeicher",
+          "Überall öffnen und autospeichern",
+          "Lokale Bibliothek bleibt gratis"
+        ],
+        "cta": "1 GB wählen",
+        "href": "/pricing"
+      },
+      {
+        "id": "gb10",
+        "featured": true,
+        "ribbon": "Beliebt",
+        "eyebrow": "Cloud · geräteübergreifend",
+        "title": "10 GB",
+        "price": "$10",
+        "unit": "/ Jahr",
+        "value": "Empfohlen · bestes Preis-Leistungs-Verhältnis",
+        "blurb": "10× der Raum von 1 GB, nur doppelt so teuer.",
+        "features": [
+          "10 GB Kontospeicher",
+          "Alltagsbibliothek über Geräte",
+          "Jederzeit über Stripe kündigen"
+        ],
+        "cta": "10 GB wählen",
+        "href": "/pricing"
+      }
+    ]
   }
 }

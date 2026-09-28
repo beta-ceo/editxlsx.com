@@ -16,7 +16,7 @@
       "label": "向き"
     },
     {
-      "href": "/pricing",
+      "href": "#pricing",
       "label": "料金"
     },
     {
@@ -212,7 +212,7 @@
         "title": "リソース",
         "links": [
           {
-            "href": "/pricing",
+            "href": "#pricing",
             "label": "料金"
           },
           {
@@ -306,5 +306,64 @@
   "ecosystem": {
     "name": "ran ecosystem",
     "url": "https://ran.chaxus.com"
+  },
+  "pricing": {
+    "eyebrow": "料金",
+    "h2": "ファイルを持ち歩くときだけクラウド。",
+    "p": "この端末はずっと無料。アカウント保存だけ年額課金。",
+    "plans": [
+      {
+        "id": "local",
+        "featured": false,
+        "eyebrow": "常に含まれる",
+        "title": "この端末",
+        "price": "$0",
+        "unit": "/ ずっと",
+        "value": "込み · アカウント不要",
+        "blurb": "このブラウザで編集して保存。",
+        "features": [
+          "ローカルで開いて編集・保存",
+          "キャッシュ後はオフライン可",
+          "アカウントも年額も不要"
+        ],
+        "cta": "ワークスペースを開く",
+        "href": "/workspace"
+      },
+      {
+        "id": "gb1",
+        "featured": false,
+        "eyebrow": "クラウド · 端末間",
+        "title": "1 GB",
+        "price": "$5",
+        "unit": "/ 年",
+        "value": "入門 · 軽い端末間",
+        "blurb": "同じブックをスマホ・ノート・会社 PC で。",
+        "features": [
+          "1 GB アカウント保存",
+          "どこでも開いて自動保存",
+          "ローカルライブラリは無料のまま"
+        ],
+        "cta": "1 GB を始める",
+        "href": "/pricing"
+      },
+      {
+        "id": "gb10",
+        "featured": true,
+        "ribbon": "人気",
+        "eyebrow": "クラウド · 端末間",
+        "title": "10 GB",
+        "price": "$10",
+        "unit": "/ 年",
+        "value": "おすすめ · おトク",
+        "blurb": "1 GB の 10 倍の容量、価格は 2 倍だけ。",
+        "features": [
+          "10 GB アカウント保存",
+          "日常の端末間ライブラリ",
+          "Stripe でいつでも解約"
+        ],
+        "cta": "10 GB を始める",
+        "href": "/pricing"
+      }
+    ]
   }
 }
